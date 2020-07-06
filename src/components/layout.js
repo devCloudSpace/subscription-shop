@@ -2,10 +2,10 @@ import React from 'react'
 
 import { Header } from './header'
 
-export const Layout = ({ children }) => {
+export const Layout = ({ children, noHeader, isFullWidth }) => {
    return (
       <>
-         <Header />
+         {!noHeader && <Header />}
          {children}
       </>
    )
