@@ -10,10 +10,12 @@
    "dependencies": {
       "@emotion/core": "^10.0.28",
       "@emotion/styled": "^10.0.27",
+      "@react-keycloak/web": "^2.1.1",
       "gatsby": "^2.23.1",
       "gatsby-plugin-emotion": "^4.3.3",
       "gatsby-plugin-postcss": "^2.3.3",
       "gatsby-plugin-react-helmet": "^3.3.3",
+      "keycloak-js": "^10.0.2",
       "postcss-import": "^12.0.1",
       "prop-types": "^15.7.2",
       "react": "^16.13.1",
