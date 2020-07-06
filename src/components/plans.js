@@ -1,4 +1,5 @@
 import React from 'react'
+import { navigate } from '@reach/router'
 import tw, { styled, css } from 'twin.macro'
 import { useSubscription } from '@apollo/react-hooks'
 
@@ -48,6 +49,7 @@ const Plan = ({ plan }) => {
       if (typeof window !== 'undefined') {
          window.localStorage.setItem('plan', defaultItemCount.id)
       }
+      navigate('/get-started/register')
    }
 
    if (!defaultItemCount || !defaultServing) return <div>Loading...</div>

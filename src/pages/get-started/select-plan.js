@@ -1,17 +1,12 @@
 import React from 'react'
 import tw, { styled } from 'twin.macro'
 
-import { SEO, Layout, Plans } from '../../../components'
+import { SEO, Layout, Plans, StepsNavbar } from '../../components'
 
 export default () => (
    <Layout noHeader>
-      <SEO title="Home" />
-      <Navbar>
-         <li>Step 1</li>
-         <li>Step 2</li>
-         <li>Step 3</li>
-         <li>Step 4</li>
-      </Navbar>
+      <SEO title="Plans" />
+      <StepsNavbar />
       <Main>
          <Header>
             <h1 css={tw`text-4xl text-gray-700`}>Plans</h1>
@@ -20,11 +15,6 @@ export default () => (
       </Main>
    </Layout>
 )
-
-const Navbar = styled.ul`
-   height: 64px;
-   ${tw`flex border-b`}
-`
 
 const Main = styled.main`
    overflow-y: auto;
