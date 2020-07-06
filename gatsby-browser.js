@@ -1,5 +1,6 @@
 import React from 'react'
 import Keycloak from 'keycloak-js'
+import fetch from 'isomorphic-fetch'
 import { KeycloakProvider } from '@react-keycloak/web'
 
 // Apollo Client Imports
@@ -65,6 +66,7 @@ const link = split(
 
 const client = new ApolloClient({
    link,
+   fetch,
    cache: new InMemoryCache(),
 })
 

@@ -25,6 +25,7 @@
       "gatsby-plugin-react-helmet": "^3.3.3",
       "graphql": "^15.3.0",
       "graphql-tag": "^2.10.3",
+      "isomorphic-fetch": "^2.2.1",
       "keycloak-js": "^10.0.2",
       "postcss-import": "^12.0.1",
       "prop-types": "^15.7.2",
