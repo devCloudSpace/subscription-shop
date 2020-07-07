@@ -1,13 +1,33 @@
 import React from 'react'
+import PropTypes from 'prop-types'
+import Keycloak from 'keycloak-js'
+import { KeycloakProvider } from '@react-keycloak/web'
 
 import './src/styles/globals.css'
 
-import { ApolloProvider, AuthProvider } from './src/lib'
+import { ApolloProvider } from './src/lib'
+
+const keycloak = new Keycloak({
+   realm: process.env.GATSBY_KEYCLOAK_REALM,
+   url: process.env.GATSBY_KEYCLOAK_URL,
+   clientId: process.env.GATSBY_CLIENTID,
+})
 
 export const wrapRootElement = ({ element }) => {
    return (
-      <ApolloProvider>
-         <AuthProvider>{element}</AuthProvider>
-      </ApolloProvider>
+      <KeycloakProvider
+         keycloak={keycloak}
+         initConfig={{
+            onLoad: 'check-sso',
+            promiseType: 'native',
+         }}
+         LoadingComponent={<div>Loading...</div>}
+      >
+         <ApolloProvider>{element}</ApolloProvider>
+      </KeycloakProvider>
    )
+}
+
+wrapRootElement.propTypes = {
+   element: PropTypes.node,
 }

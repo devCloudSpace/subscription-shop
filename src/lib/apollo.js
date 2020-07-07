@@ -20,33 +20,37 @@ const authLink = setContext((_, { headers }) => {
    }
 })
 
-const wsLink = new WebSocketLink({
-   uri: process.env.GATSBY_DATA_HUB_WSS,
-   options: {
-      reconnect: true,
-      connectionParams: {
-         headers: {
-            'x-hasura-admin-secret': `${process.env.GATSBY_ADMIN_SECRET}`,
-         },
-      },
-   },
-})
+const wsLink = process.browser
+   ? new WebSocketLink({
+        uri: process.env.GATSBY_DATA_HUB_WSS,
+        options: {
+           reconnect: true,
+           connectionParams: {
+              headers: {
+                 'x-hasura-admin-secret': `${process.env.GATSBY_ADMIN_SECRET}`,
+              },
+           },
+        },
+     })
+   : null
 
 const httpLink = new HttpLink({
    uri: process.env.GATSBY_DATA_HUB_HTTPS,
 })
 
-const link = split(
-   ({ query }) => {
-      const definition = getMainDefinition(query)
-      return (
-         definition.kind === 'OperationDefinition' &&
-         definition.operation === 'subscription'
-      )
-   },
-   wsLink,
-   authLink.concat(httpLink)
-)
+const link = process.browser
+   ? split(
+        ({ query }) => {
+           const definition = getMainDefinition(query)
+           return (
+              definition.kind === 'OperationDefinition' &&
+              definition.operation === 'subscription'
+           )
+        },
+        wsLink,
+        authLink.concat(httpLink)
+     )
+   : httpLink
 
 const client = new ApolloClient({
    link,
