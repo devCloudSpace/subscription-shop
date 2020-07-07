@@ -1,14 +1,14 @@
 import React from 'react'
-import { navigate } from '@reach/router'
 import tw, { styled } from 'twin.macro'
-import { useKeycloak } from '@react-keycloak/web'
+import { navigate } from '@reach/router'
 import { useLazyQuery, useMutation } from '@apollo/react-hooks'
 
+import { useAuth } from '../../lib'
 import { SEO, Layout, StepsNavbar } from '../../components'
 import { CUSTOMERS, UPDATE_CUSTOMER, CREATE_CUSTOMER } from '../../graphql'
 
 export default () => {
-   const [keycloak, initialized] = useKeycloak()
+   const { user, keycloak, isAuthenticated } = useAuth()
    const [create] = useMutation(CREATE_CUSTOMER)
    const [update] = useMutation(UPDATE_CUSTOMER)
 
@@ -31,10 +31,10 @@ export default () => {
             create({
                variables: {
                   object: {
+                     email: user.email,
                      isSubscriber: true,
+                     keycloakId: user.sub,
                      source: 'subscription',
-                     email: keycloak.userInfo.email,
-                     keycloakId: keycloak.userInfo.sub,
                      clientId: process.env.GATSBY_CLIENTID,
                   },
                },
@@ -45,19 +45,20 @@ export default () => {
    })
 
    React.useEffect(() => {
-      if (initialized && keycloak.authenticated) {
+      if (isAuthenticated) {
          if (window.location !== window.parent.location) {
             window.parent.location.reload()
          }
-         if ('tokenParsed' in keycloak) {
+         if ('sub' in user) {
+            console.log(user)
             customers({
                variables: {
-                  where: { keycloakId: { _eq: keycloak.tokenParsed.sub } },
+                  where: { keycloakId: { _eq: user.sub } },
                },
             })
          }
       }
-   }, [keycloak.authenticated, initialized, customers])
+   }, [isAuthenticated, customers])
 
    return (
       <Layout noHeader>
