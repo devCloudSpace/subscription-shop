@@ -1,14 +1,15 @@
 import React from 'react'
 import tw, { styled } from 'twin.macro'
 import { navigate } from '@reach/router'
+import { useKeycloak } from '@react-keycloak/web'
 import { useLazyQuery, useMutation } from '@apollo/react-hooks'
 
-import { useAuth } from '../../lib'
 import { SEO, Layout, StepsNavbar } from '../../components'
 import { CUSTOMERS, UPDATE_CUSTOMER, CREATE_CUSTOMER } from '../../graphql'
 
 export default () => {
-   const { user, keycloak, isAuthenticated } = useAuth()
+   const [keycloak] = useKeycloak()
+
    const [create] = useMutation(CREATE_CUSTOMER)
    const [update] = useMutation(UPDATE_CUSTOMER)
 
@@ -31,11 +32,11 @@ export default () => {
             create({
                variables: {
                   object: {
-                     email: user.email,
                      isSubscriber: true,
-                     keycloakId: user.sub,
                      source: 'subscription',
+                     email: keycloak?.tokenParsed?.email,
                      clientId: process.env.GATSBY_CLIENTID,
+                     keycloakId: keycloak?.tokenParsed?.sub,
                   },
                },
             })
@@ -45,32 +46,30 @@ export default () => {
    })
 
    React.useEffect(() => {
-      if (isAuthenticated) {
-         if (window.location !== window.parent.location) {
-            window.parent.location.reload()
-         }
-         if ('sub' in user) {
-            console.log(user)
+      if (keycloak?.authenticated) {
+         if ('tokenParsed' in keycloak) {
             customers({
                variables: {
-                  where: { keycloakId: { _eq: user.sub } },
+                  where: { keycloakId: { _eq: keycloak?.tokenParsed?.sub } },
                },
             })
          }
       }
-   }, [isAuthenticated, customers])
+   }, [keycloak, customers])
 
    return (
       <Layout noHeader>
          <SEO title="Register" />
          <StepsNavbar />
          <Main>
-            <iframe
-               frameBorder="0"
-               title="Register"
-               css={tw`w-full h-full`}
-               src={keycloak.createRegisterUrl()}
-            ></iframe>
+            {!keycloak?.authenticated && (
+               <iframe
+                  frameBorder="0"
+                  title="Register"
+                  css={tw`w-full h-full`}
+                  src={keycloak?.createRegisterUrl()}
+               ></iframe>
+            )}
          </Main>
       </Layout>
    )
