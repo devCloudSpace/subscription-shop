@@ -4,6 +4,7 @@ import tw, { styled, css } from 'twin.macro'
 import { useSubscription } from '@apollo/react-hooks'
 
 import { PLANS } from '../graphql'
+import { isClient } from '../utils'
 
 export const Plans = () => {
    const { loading, error, data: { plans = [] } = {} } = useSubscription(PLANS)
@@ -46,7 +47,7 @@ const Plan = ({ plan }) => {
    }
 
    const selectPlan = () => {
-      if (typeof window !== 'undefined') {
+      if (isClient) {
          window.localStorage.setItem('plan', defaultItemCount.id)
       }
       navigate('/get-started/register')

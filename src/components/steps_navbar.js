@@ -2,6 +2,8 @@ import React from 'react'
 import tw, { styled } from 'twin.macro'
 import { useKeycloak } from '@react-keycloak/web'
 
+import { isClient } from '../utils'
+
 export const StepsNavbar = () => {
    const [keycloak] = useKeycloak()
    return (
@@ -13,8 +15,7 @@ export const StepsNavbar = () => {
          <button
             onClick={() =>
                keycloak?.logout({
-                  redirectUri:
-                     window !== undefined ? window.location.origin : '',
+                  redirectUri: isClient ? window.location.origin : '',
                })
             }
          >
