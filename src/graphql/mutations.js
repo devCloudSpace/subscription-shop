@@ -22,3 +22,26 @@ export const CREATE_CUSTOMER = gql`
       }
    }
 `
+
+export const UPDATE_CUSTOMERS = gql`
+   mutation updateCustomers(
+      $_set: crm_customer_set_input!
+      $where: crm_customer_bool_exp!
+   ) {
+      updateCustomers(where: $where, _set: $_set) {
+         returning {
+            id
+         }
+      }
+   }
+`
+
+export const CREATE_CUSTOMER_ADDRESS = gql`
+   mutation createCustomerAddress(
+      $object: platform_customerAddress_insert_input!
+   ) {
+      createCustomerAddress: platform_createCustomerAddress(object: $object) {
+         id
+      }
+   }
+`
