@@ -1,6 +1,6 @@
 import tw from 'twin.macro'
 import React from 'react'
-import { SEO } from '../components'
+import { SEO, Layout } from '../components'
 
 const Wrapper = tw.div`
   flex items-center justify-center flex-col h-screen
@@ -15,10 +15,11 @@ const Text = tw.p`
 `
 
 export default () => (
-   <Wrapper>
+   <Layout>
       <SEO title="Page Not Found" />
-
-      <Heading>Oops!</Heading>
-      <Text>We can't find the page that you are looking for..</Text>
-   </Wrapper>
+      <Wrapper>
+         <Heading>Oops!</Heading>
+         <Text>We can't find the page that you are looking for..</Text>
+      </Wrapper>
+   </Layout>
 )
