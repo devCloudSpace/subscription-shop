@@ -5,11 +5,12 @@ import { useSubscription } from '@apollo/react-hooks'
 
 import { PLANS } from '../graphql'
 import { isClient } from '../utils'
+import { Loader } from './loader'
 
 export const Plans = () => {
    const { loading, error, data: { plans = [] } = {} } = useSubscription(PLANS)
 
-   if (loading) return <div>Loading...</div>
+   if (loading) return <Loader inline />
    if (error) return <div>{error.message}</div>
    return (
       <List>
@@ -53,7 +54,7 @@ const Plan = ({ plan }) => {
       navigate('/get-started/register')
    }
 
-   if (!defaultItemCount || !defaultServing) return <div>Loading...</div>
+   if (!defaultItemCount || !defaultServing) return <Loader />
    return (
       <div css={tw`border rounded-lg p-8`}>
          <h2 css={tw`mb-5 text-2xl font-bold text-green-700`}>{plan.title}</h2>

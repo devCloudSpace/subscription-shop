@@ -1,12 +1,12 @@
 import React from 'react'
+import { useLocation } from '@reach/router'
 import tw, { styled, css } from 'twin.macro'
 import { useKeycloak } from '@react-keycloak/web'
-import { navigate, useLocation } from '@reach/router'
 
 import { isClient } from '../utils'
 
 export const StepsNavbar = () => {
-   const [keycloak] = useKeycloak()
+   const [keycloak, initialized] = useKeycloak()
    const location = useLocation()
    const [currentStep] = React.useState(() => {
       if (location.pathname.includes('/get-started/select-plan')) return 0
@@ -29,21 +29,25 @@ export const StepsNavbar = () => {
                <Step>Checkout</Step>
             </Steps>
          </Progress>
-         {keycloak.authenticated ? (
-            <button
-               css={tw`bg-red-600 text-white rounded px-2 py-1`}
-               onClick={() =>
-                  keycloak?.logout({
-                     redirectUri: isClient ? window.location.origin : '',
-                  })
-               }
-            >
-               Logout
-            </button>
-         ) : (
-            <button css={tw`bg-blue-600 text-white rounded px-2 py-1`}>
-               Log In
-            </button>
+         {initialized && (
+            <>
+               {keycloak.authenticated ? (
+                  <button
+                     css={tw`bg-red-600 text-white rounded px-2 py-1`}
+                     onClick={() =>
+                        keycloak.logout({
+                           redirectUri: isClient ? window.location.origin : '',
+                        })
+                     }
+                  >
+                     Logout
+                  </button>
+               ) : (
+                  <button css={tw`bg-blue-600 text-white rounded px-2 py-1`}>
+                     Log In
+                  </button>
+               )}
+            </>
          )}
       </Navbar>
    )

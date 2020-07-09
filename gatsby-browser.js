@@ -6,6 +6,7 @@ import { KeycloakProvider } from '@react-keycloak/web'
 import './src/styles/globals.css'
 
 import { ApolloProvider } from './src/lib'
+import { Loader } from './src/components'
 
 const keycloak = new Keycloak({
    realm: process.env.GATSBY_KEYCLOAK_REALM,
@@ -21,7 +22,7 @@ export const wrapRootElement = ({ element }) => {
             onLoad: 'check-sso',
             promiseType: 'native',
          }}
-         LoadingComponent={<div>Loading...</div>}
+         LoadingComponent={<Loader />}
       >
          <ApolloProvider>{element}</ApolloProvider>
       </KeycloakProvider>

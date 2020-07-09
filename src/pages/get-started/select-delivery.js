@@ -27,6 +27,7 @@ import {
    Button,
    Tunnel,
    Spacer,
+   Loader,
    StepsNavbar,
 } from '../../components'
 
@@ -112,7 +113,7 @@ const SelectDeliveryDay = ({ setDay }) => {
       return (
          <div>
             <h2 css={tw`mb-3 text-gray-600 text-xl`}>Select Delivery Day</h2>
-            Loading...
+            <Loader inline />
          </div>
       )
    return (
@@ -183,7 +184,7 @@ const SelectAddresses = ({ setAddress, addressError, setAddressError }) => {
       return (
          <div>
             <h2 css={tw`mt-6 mb-3 text-gray-600 text-xl`}>Select Address</h2>
-            Loading...
+            <Loader inline />
          </div>
       )
    return (
