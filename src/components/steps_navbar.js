@@ -16,12 +16,6 @@ export const StepsNavbar = () => {
       if (location.pathname.includes('/get-started/checkout')) return 100
    })
 
-   React.useEffect(() => {
-      if (!keycloak?.tokenParsed?.sub) {
-         navigate('/get-started/select-plan')
-      }
-   }, [keycloak])
-
    return (
       <Navbar>
          <section>Logo</section>
@@ -35,16 +29,22 @@ export const StepsNavbar = () => {
                <Step>Checkout</Step>
             </Steps>
          </Progress>
-         <button
-            css={tw`bg-red-600 text-white rounded px-2 py-1`}
-            onClick={() =>
-               keycloak?.logout({
-                  redirectUri: isClient ? window.location.origin : '',
-               })
-            }
-         >
-            Logout
-         </button>
+         {keycloak.authenticated ? (
+            <button
+               css={tw`bg-red-600 text-white rounded px-2 py-1`}
+               onClick={() =>
+                  keycloak?.logout({
+                     redirectUri: isClient ? window.location.origin : '',
+                  })
+               }
+            >
+               Logout
+            </button>
+         ) : (
+            <button css={tw`bg-blue-600 text-white rounded px-2 py-1`}>
+               Log In
+            </button>
+         )}
       </Navbar>
    )
 }
