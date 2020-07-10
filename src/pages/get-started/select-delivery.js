@@ -39,6 +39,7 @@ const SelectDelivery = () => {
    const [updateCustomers] = useMutation(UPDATE_CUSTOMERS, {
       onCompleted: () => {
          navigate('/get-started/select-menu')
+         isClient && window.localStorage.removeItem('plan')
       },
    })
 

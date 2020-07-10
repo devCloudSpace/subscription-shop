@@ -191,3 +191,51 @@ export const CUSTOMER_DETAILS = gql`
       }
    }
 `
+
+export const CUSTOMER_OCCURENCES = gql`
+   query customer($keycloakId: String!, $id: Int!) {
+      customer(id: $id, keycloakId: $keycloakId) {
+         subscription {
+            occurences: subscriptionOccurences {
+               id
+               isValid
+               isVisible
+               fulfillmentDate
+               cutoffTimeStamp
+            }
+         }
+      }
+   }
+`
+
+export const OCCURENCE_PRODUCTS_BY_CATEGORIES = gql`
+   query categories($occurenceId: Int_comparison_exp!) {
+      categories: productCategories {
+         name
+         productsAggregate: subscriptionOccurenceProducts_aggregate(
+            where: {
+               subscriptionOccurenceId: $occurenceId
+               isVisible: { _eq: true }
+               isAvailable: { _eq: true }
+            }
+         ) {
+            aggregate {
+               count
+            }
+            nodes {
+               addonLabel
+               addonPrice
+               product: simpleRecipeProduct {
+                  id
+                  name
+                  recipe: simpleRecipe {
+                     id
+                     name
+                     image
+                  }
+               }
+            }
+         }
+      }
+   }
+`
