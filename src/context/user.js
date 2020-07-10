@@ -9,24 +9,24 @@ const UserContext = React.createContext()
 
 export const UserProvider = ({ children }) => {
    const [keycloak] = useKeycloak()
-   const [user, setUser] = React.useState(null)
+   const [user, setUser] = React.useState({})
    const { loading: crmLoading } = useQuery(CRM_CUSTOMER_DETAILS, {
       variables: {
-         keycloakId: keycloak.tokenParsed.sub,
+         keycloakId: keycloak?.tokenParsed?.sub,
       },
       onCompleted: ({ customers = [] }) => {
          if (customers.length === 1) {
             setUser({
                ...user,
                ...customers[0],
-               keycloakId: keycloak.tokenParsed.sub,
+               keycloakId: keycloak?.tokenParsed?.sub,
             })
          }
       },
    })
    const { loading: platformLoading } = useQuery(CUSTOMER_DETAILS, {
       variables: {
-         keycloakId: keycloak.tokenParsed.sub,
+         keycloakId: keycloak?.tokenParsed?.sub,
       },
       onCompleted: ({ platform_customer: customer = {} }) => {
          setUser({

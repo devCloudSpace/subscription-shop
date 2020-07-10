@@ -1,4 +1,5 @@
 import React from 'react'
+import tw from 'twin.macro'
 import PropTypes from 'prop-types'
 import Keycloak from 'keycloak-js'
 import { KeycloakProvider } from '@react-keycloak/web'
@@ -7,7 +8,6 @@ import './src/styles/globals.css'
 
 import { ApolloProvider } from './src/lib'
 import { Loader } from './src/components'
-import { UserProvider } from './src/context'
 
 const keycloak = new Keycloak({
    realm: process.env.GATSBY_KEYCLOAK_REALM,
@@ -26,7 +26,7 @@ export const wrapRootElement = ({ element }) => {
          LoadingComponent={<Loader />}
       >
          <ApolloProvider>
-            <UserProvider>{element}</UserProvider>
+            <div css={tw`overflow-hidden`}>{element}</div>
          </ApolloProvider>
       </KeycloakProvider>
    )

@@ -2,6 +2,7 @@ import React from 'react'
 import { useKeycloak } from '@react-keycloak/web'
 
 import { Header } from './header'
+import { UserProvider } from '../context'
 
 export const Layout = ({ children, noHeader }) => {
    const [keycloak] = useKeycloak()
@@ -15,9 +16,9 @@ export const Layout = ({ children, noHeader }) => {
    }, [keycloak])
 
    return (
-      <>
+      <UserProvider>
          {!noHeader && <Header />}
          {children}
-      </>
+      </UserProvider>
    )
 }
