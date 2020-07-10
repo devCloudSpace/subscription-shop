@@ -119,3 +119,75 @@ export const PLANS = gql`
       }
    }
 `
+
+export const CRM_CUSTOMER_DETAILS = gql`
+   query customers($keycloakId: String!) {
+      customers(where: { keycloakId: { _eq: $keycloakId } }) {
+         id
+         isSubscriber
+         subscriptionId
+      }
+   }
+`
+export const CUSTOMER_DETAILS = gql`
+   query platform_customer($keycloakId: String!) {
+      platform_customer(keycloakId: $keycloakId) {
+         email
+         firstName
+         lastName
+         keycloakId
+         phoneNumber
+         stripeCustomerId
+         defaultPaymentMethodId
+         defaultCustomerAddressId
+         defaultCustomerAddress {
+            id
+            lat
+            lng
+            line1
+            line2
+            city
+            state
+            country
+            zipcode
+            label
+            notes
+         }
+         customerAddresses {
+            id
+            lat
+            lng
+            line1
+            line2
+            city
+            state
+            country
+            zipcode
+            label
+            notes
+         }
+         defaultStripePaymentMethod {
+            brand
+            last4
+            country
+            expMonth
+            expYear
+            funding
+            keycloakId
+            cardHolderName
+            stripePaymentMethodId
+         }
+         stripePaymentMethods {
+            brand
+            last4
+            country
+            expMonth
+            expYear
+            funding
+            keycloakId
+            cardHolderName
+            stripePaymentMethodId
+         }
+      }
+   }
+`

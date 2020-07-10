@@ -7,6 +7,7 @@ import './src/styles/globals.css'
 
 import { ApolloProvider } from './src/lib'
 import { Loader } from './src/components'
+import { UserProvider } from './src/context'
 
 const keycloak = new Keycloak({
    realm: process.env.GATSBY_KEYCLOAK_REALM,
@@ -24,7 +25,9 @@ export const wrapRootElement = ({ element }) => {
          }}
          LoadingComponent={<Loader />}
       >
-         <ApolloProvider>{element}</ApolloProvider>
+         <ApolloProvider>
+            <UserProvider>{element}</UserProvider>
+         </ApolloProvider>
       </KeycloakProvider>
    )
 }
