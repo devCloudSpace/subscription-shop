@@ -57,7 +57,9 @@ const Plan = ({ plan }) => {
    if (!defaultItemCount || !defaultServing) return <Loader />
    return (
       <div css={tw`border rounded-lg p-8`}>
-         <h2 css={tw`mb-5 text-2xl font-bold text-green-700`}>{plan.title}</h2>
+         <h2 css={tw`mb-5 text-2xl font-medium tracking-wide text-green-700`}>
+            {plan.title}
+         </h2>
          <section css={tw`flex items-center justify-between`}>
             <span
                css={tw`uppercase tracking-wider text-gray-600 text-sm font-medium`}
