@@ -1,6 +1,6 @@
 import React from 'react'
 import moment from 'moment'
-import tw, { styled, css } from 'twin.macro'
+import tw, { styled } from 'twin.macro'
 import { useQuery, useSubscription } from '@apollo/react-hooks'
 
 import { useUser } from '../../context'
@@ -21,7 +21,9 @@ const SelectMenu = () => {
          <Main>
             <WeekPicker week={week} setWeek={setWeek} />
             <Header>
-               <h1 css={tw`text-4xl text-gray-700`}>Explore our Menus</h1>
+               <h1 css={tw`text-2xl md:text-4xl text-gray-700`}>
+                  Explore our Menus
+               </h1>
             </Header>
             <Menu id={week.id} />
          </Main>
@@ -69,7 +71,9 @@ const WeekPicker = ({ week, setWeek }) => {
          <SliderButton onClick={() => previous()}>
             <ArrowLeftIcon css={tw`stroke-current text-green-800`} />
          </SliderButton>
-         <h2 css={tw`flex items-center justify-center text-xl text-indigo-800`}>
+         <h2
+            css={tw`flex items-center justify-center text-base text-center md:text-xl text-indigo-800`}
+         >
             Showing menu of:&nbsp;
             {formatDate(
                moment(week.fulfillmentDate)
@@ -163,8 +167,11 @@ const Occurence = styled.div`
    display: grid;
    margin: auto;
    max-width: 980px;
-   width: calc(100vw - 40px);
+   width: 100%;
    grid-template-columns: 64px 1fr 64px;
+   @media (max-width: 567px) {
+      grid-template-columns: 48px 1fr 48px;
+   }
 `
 
 const SliderButton = styled.button`
@@ -178,6 +185,10 @@ const SliderButton = styled.button`
       border border-green-800 
       flex items-center justify-center 
    `}
+   @media (max-width: 567px) {
+      width: 32px;
+      height: 32px;
+   }
 `
 
 const CategoryListing = styled.main`
@@ -187,7 +198,7 @@ const CategoryListing = styled.main`
 `
 
 const Products = styled.ul`
-   ${tw`grid grid-cols-3 gap-3`}
+   ${tw`grid sm:grid-cols-1 md:grid-cols-3 gap-3`}
 `
 
 const Product = styled.li`
