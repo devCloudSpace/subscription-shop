@@ -74,6 +74,12 @@ const Content = styled.div(
       float: right;
       ${widthSelector(size)};
       ${tw`bg-white h-full`}
+      @media (max-width: 980px) {
+         ${tw`w-9/12`}
+      }
+      @media (max-width: 767px) {
+         ${tw`w-screen`}
+      }
    `
 )
 
