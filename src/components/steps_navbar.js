@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'gatsby'
 import { useLocation } from '@reach/router'
 import tw, { styled, css } from 'twin.macro'
 import { useKeycloak } from '@react-keycloak/web'
@@ -18,7 +19,7 @@ export const StepsNavbar = () => {
 
    return (
       <Navbar>
-         <section>Logo</section>
+         <Brand to="/">Subscription Shop</Brand>
          <Progress>
             <ProgressBar current={currentStep} />
             <Steps>
@@ -30,7 +31,7 @@ export const StepsNavbar = () => {
             </Steps>
          </Progress>
          {initialized && (
-            <>
+            <section tw="px-4 ml-auto">
                {keycloak.authenticated ? (
                   <button
                      css={tw`bg-red-600 text-white rounded px-2 py-1`}
@@ -47,7 +48,7 @@ export const StepsNavbar = () => {
                      Log In
                   </button>
                )}
-            </>
+            </section>
          )}
       </Navbar>
    )
@@ -55,26 +56,38 @@ export const StepsNavbar = () => {
 
 const Navbar = styled.div`
    height: 64px;
-   ${tw`px-8 flex justify-around items-center border-b`}
+   display: grid;
+   grid-template-columns: auto 1fr auto;
+   ${tw`items-center border-b`}
+   @media (max-width: 767px) {
+      display: flex;
+   }
+`
+
+const Brand = styled(Link)`
+   ${tw`w-auto h-full px-6 flex items-center border-r`}
 `
 
 const Progress = styled.section`
-   ${tw`flex flex-col justify-center`}
+   min-width: 640px;
+   ${tw`flex flex-col m-auto justify-center`}
+   @media (max-width: 767px) {
+      display: none;
+   }
 `
 
 const Steps = styled.ul`
-   ${tw`grid grid-cols-5`}
+   ${tw`w-full grid grid-cols-5`}
 `
 
 const Step = styled.li`
-   width: 160px;
    ${tw`text-sm text-center text-gray-600`}
 `
 
 const ProgressBar = styled.span(
    ({ current }) => css`
       margin: 8px auto;
-      width: calc(100% - 160px);
+      width: calc(100% - 128px);
       ${tw`bg-gray-200 h-2 rounded relative`}
       :before {
          top: 0;
