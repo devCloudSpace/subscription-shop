@@ -123,7 +123,7 @@ const SelectDeliveryDay = ({ setDay }) => {
          <DeliveryDays
             onChange={e => setDay(Number(e.target.getAttribute('data-id')))}
          >
-            {itemCount.days.length > 0 ? (
+            {itemCount?.days?.length > 0 ? (
                itemCount.days.map((day, index) => (
                   <DeliveryDay key={day.id}>
                      <span>
