@@ -1,4 +1,5 @@
 module.exports = {
+   pathPrefix: `/subscription`,
    siteMetadata: {
       title: `Subsription Shop`,
       description: `A subscription based shop for restaurants`,
