@@ -30,6 +30,7 @@ import {
    Loader,
    StepsNavbar,
 } from '../../components'
+import { CloseIcon } from '../../assets/icons'
 
 const SelectDelivery = () => {
    const [keycloak] = useKeycloak()
@@ -318,7 +319,7 @@ const AddressTunnel = ({ isOpen, toggleTunnel }) => {
       <Tunnel isOpen={isOpen} toggleTunnel={toggleTunnel} size="sm">
          <Tunnel.Header title="Add Address">
             <Button size="sm" onClick={() => toggleTunnel(false)}>
-               Close Tunnel
+               <CloseIcon size={20} tw="stroke-current" />
             </Button>
          </Tunnel.Header>
          <Tunnel.Body>

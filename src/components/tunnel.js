@@ -51,7 +51,7 @@ export const Tunnel = ({ isOpen, toggleTunnel, size, children }) => {
 const Header = ({ title, children }) => {
    return (
       <TunnelHeader>
-         <h1 css={tw`text-xl text-gray-700`}>{title}</h1>
+         <h1 css={tw`truncate text-base md:text-xl text-gray-700`}>{title}</h1>
          {children}
       </TunnelHeader>
    )
@@ -76,7 +76,7 @@ const Content = styled.div(
       ${widthSelector(size)};
       ${tw`bg-white h-full`}
       @media (max-width: 980px) {
-         ${tw`w-9/12`}
+         ${size !== 'full' && tw`w-9/12`}
       }
       @media (max-width: 767px) {
          ${tw`w-screen`}
@@ -107,5 +107,5 @@ const TunnelHeader = styled.header`
 const TunnelBody = styled.main`
    padding: 16px;
    overflow-y: auto;
-   height: calc(100vh - 64px);
+   height: calc(100vh - 128px);
 `

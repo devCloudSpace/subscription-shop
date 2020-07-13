@@ -10,7 +10,7 @@ import {
    CUSTOMER_OCCURENCES,
    OCCURENCE_PRODUCTS_BY_CATEGORIES,
 } from '../../graphql'
-import { ArrowLeftIcon, ArrowRightIcon } from '../../assets/icons'
+import { ArrowLeftIcon, ArrowRightIcon, CloseIcon } from '../../assets/icons'
 import {
    SEO,
    Layout,
@@ -239,7 +239,7 @@ const RecipeTunnel = () => {
       >
          <Tunnel.Header title={recipe?.name}>
             <Button size="sm" onClick={toggleTunnel}>
-               Close Tunnel
+               <CloseIcon size={20} tw="stroke-current" />
             </Button>
          </Tunnel.Header>
          <Tunnel.Body>
