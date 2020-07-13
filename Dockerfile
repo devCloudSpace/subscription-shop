@@ -23,7 +23,7 @@ ENV GATSBY_DATA_HUB_HTTPS $GATSBY_DATA_HUB_HTTPS
 RUN yarn build
 
 FROM nginx:1.15.2-alpine
-COPY --from=build /usr/src/app/build /usr/share/nginx/html
+COPY --from=build /usr/src/app/public /usr/share/nginx/html
 RUN rm /etc/nginx/conf.d/default.conf
 COPY nginx.conf /etc/nginx/conf.d
 
