@@ -126,6 +126,15 @@ export const CRM_CUSTOMER_DETAILS = gql`
          id
          isSubscriber
          subscriptionId
+         subscription {
+            recipes: subscriptionItemCount {
+               count
+               servingId: subscriptionServingId
+               serving: subscriptionServing {
+                  size: servingSize
+               }
+            }
+         }
       }
    }
 `
@@ -232,6 +241,36 @@ export const OCCURENCE_PRODUCTS_BY_CATEGORIES = gql`
                      id
                      name
                      image
+                  }
+               }
+            }
+         }
+      }
+   }
+`
+
+export const RECIPE_DETAILS = gql`
+   query product($id: Int!, $yieldId: Int!) {
+      product: simpleRecipeProduct(id: $id) {
+         id
+         recipe: simpleRecipe {
+            id
+            name
+            author
+            cookingTime
+            cuisine
+            description
+            procedures
+            image
+            assets
+            yields: simpleRecipeYields(where: { id: { _eq: $yieldId } }) {
+               id
+               yield
+               sachets: ingredientSachets {
+                  isVisible
+                  slipName
+                  ingredient: ingredientSachet {
+                     id
                   }
                }
             }

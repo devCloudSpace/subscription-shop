@@ -65,6 +65,7 @@ Tunnel.Header = Header
 Tunnel.Body = Body
 
 const Wrapper = styled.div`
+   margin-top: 64px;
    ${tw`fixed inset-0`}
    background: rgba(0,0,0,0.2);
 `
