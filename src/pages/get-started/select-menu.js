@@ -157,6 +157,18 @@ const Menu = () => {
       }
    )
 
+   const showDetails = id => {
+      dispatch({
+         type: 'TOGGLE_TUNNEL',
+         payload: {
+            tunnel: true,
+            recipe: {
+               id,
+            },
+         },
+      })
+   }
+
    if (loading) return <Loader inline />
    return (
       <CategoryListing>
@@ -182,23 +194,14 @@ const Menu = () => {
                               <span>No Photos</span>
                            )}
                         </div>
-                        <div css={tw`flex items-center`}>
-                           <h4
-                              onClick={() =>
-                                 dispatch({
-                                    type: 'TOGGLE_TUNNEL',
-                                    payload: {
-                                       tunnel: true,
-                                       recipe: {
-                                          id: node.product.id,
-                                       },
-                                    },
-                                 })
-                              }
-                              css={tw`text-gray-700 cursor-pointer select-none`}
+                        <div css={tw`flex items-center justify-between`}>
+                           <h4 tw="text-gray-700">{node.product.name}</h4>
+                           <button
+                              onClick={() => showDetails(node.product.id)}
+                              tw="text-sm uppercase font-medium tracking-wider border border-gray-300 rounded px-1 text-gray-500"
                            >
-                              {node.product.name}
-                           </h4>
+                              View
+                           </button>
                         </div>
                      </Product>
                   ))}
