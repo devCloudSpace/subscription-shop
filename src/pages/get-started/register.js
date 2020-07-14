@@ -1,5 +1,5 @@
 import React from 'react'
-import tw, { styled } from 'twin.macro'
+import { styled } from 'twin.macro'
 import { navigate } from 'gatsby'
 import { useKeycloak } from '@react-keycloak/web'
 import { useLazyQuery, useMutation } from '@apollo/react-hooks'
@@ -61,12 +61,12 @@ export default () => {
       <Layout noHeader>
          <SEO title="Register" />
          <StepsNavbar />
-         <Main>
+         <Main tw="pt-8">
             {!keycloak?.authenticated && (
                <iframe
                   frameBorder="0"
                   title="Register"
-                  css={tw`w-full h-full`}
+                  tw="mx-auto w-full md:w-4/12 h-full"
                   src={keycloak?.createRegisterUrl()}
                ></iframe>
             )}
@@ -74,10 +74,11 @@ export default () => {
       </Layout>
    )
 }
+
 const Main = styled.main`
    margin: auto;
    overflow-y: auto;
-   max-width: 980px;
+   max-width: 1180px;
    width: calc(100vw - 40px);
    height: calc(100vh - 64px);
 `
