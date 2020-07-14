@@ -129,6 +129,7 @@ export const CRM_CUSTOMER_DETAILS = gql`
          subscription {
             recipes: subscriptionItemCount {
                count
+               price
                servingId: subscriptionServingId
                serving: subscriptionServing {
                   size: servingSize
@@ -149,6 +150,11 @@ export const CUSTOMER_DETAILS = gql`
          stripeCustomerId
          defaultPaymentMethodId
          defaultCustomerAddressId
+         defaultSubscriptionAddressId
+         defaultSubscriptionAddress {
+            id
+            zipcode
+         }
          defaultCustomerAddress {
             id
             lat
@@ -232,15 +238,21 @@ export const OCCURENCE_PRODUCTS_BY_CATEGORIES = gql`
                count
             }
             nodes {
+               cartItem
                addonLabel
                addonPrice
-               product: simpleRecipeProduct {
+               isSingleSelect
+               productOption: simpleRecipeProductOption {
                   id
-                  name
-                  recipe: simpleRecipe {
+                  simpleRecipeYieldId
+                  product: simpleRecipeProduct {
                      id
                      name
-                     image
+                     recipe: simpleRecipe {
+                        id
+                        name
+                        image
+                     }
                   }
                }
             }
@@ -275,6 +287,33 @@ export const RECIPE_DETAILS = gql`
                }
             }
          }
+      }
+   }
+`
+
+export const CART_BY_WEEK = gql`
+   query cart($keycloakId: String!, $weekId: Int!) {
+      cart: subscription_subscriptionOccurence_customer_by_pk(
+         keycloakId: $keycloakId
+         subscriptionOccurenceId: $weekId
+      ) {
+         isAuto
+         isSkipped
+         orderCartId
+         orderCart {
+            cartInfo
+         }
+      }
+   }
+`
+
+export const ZIPCODE = gql`
+   query zipcode($subscriptionId: Int!, $zipcode: String!) {
+      zipcode: subscription_subscription_zipcode_by_pk(
+         subscriptionId: $subscriptionId
+         zipcode: $zipcode
+      ) {
+         price: deliveryPrice
       }
    }
 `

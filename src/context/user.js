@@ -40,6 +40,8 @@ export const UserProvider = ({ children }) => {
             address: customer.customerAddresses,
             defaultAddress: customer.defaultCustomerAddress,
             defaultAddressId: customer.defaultCustomerAddressId,
+            defaultSubscriptionAddress: customer.defaultSubscriptionAddress,
+            defaultSubscriptionAddressId: customer.defaultSubscriptionAddressId,
 
             paymentMethods: customer.stripePaymentMethods,
             defaultPaymentMethod: customer.defaultStripePaymentMethod,
