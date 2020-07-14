@@ -1,4 +1,5 @@
 export * from './isClient'
 export * from './useScript'
 export * from './formatDate'
+export * from './getInitials'
 export * from './useOnClickOutisde'
