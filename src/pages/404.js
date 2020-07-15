@@ -1,9 +1,10 @@
-import tw from 'twin.macro'
 import React from 'react'
+import { Link } from 'gatsby'
+import tw, { styled } from 'twin.macro'
 import { SEO, Layout } from '../components'
 
-const Wrapper = tw.div`
-  flex items-center justify-center flex-col h-screen
+const Wrapper = styled.div`
+   ${tw`flex items-center flex-col pt-24`}
 `
 
 const Heading = tw.h1`
@@ -20,6 +21,9 @@ export default () => (
       <Wrapper>
          <Heading>Oops!</Heading>
          <Text>We can't find the page that you are looking for..</Text>
+         <Link to="/" tw="mt-4 text-blue-500 border-b border-blue-500">
+            Go to Home
+         </Link>
       </Wrapper>
    </Layout>
 )
