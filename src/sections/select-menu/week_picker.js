@@ -14,7 +14,7 @@ export const WeekPicker = () => {
    const { user } = useUser()
    const { state, dispatch } = useMenu()
    const [current, setCurrent] = React.useState(0)
-   const [fetchCart] = useLazyQuery(CART_BY_WEEK, {
+   const [fetchCart, { data: { cart } = {} }] = useLazyQuery(CART_BY_WEEK, {
       onCompleted: ({ cart }) => {
          let products = Array.from(
             { length: user.subscription.recipes.count },
@@ -29,8 +29,10 @@ export const WeekPicker = () => {
             return dispatch({
                type: 'PREFILL_CART',
                payload: {
+                  cartExists: true,
                   weekId: state.week.id,
                   isSkipped: cart.isSkipped,
+                  orderCartId: cart.orderCartId,
                   products: cart?.orderCart?.cartInfo?.products || products,
                },
             })
@@ -39,8 +41,10 @@ export const WeekPicker = () => {
          dispatch({
             type: 'PREFILL_CART',
             payload: {
-               weekId: state.week.id,
+               cartExists: false,
                isSkipped: false,
+               orderCartId: null,
+               weekId: state.week.id,
                products: isSelectionEmpty
                   ? products
                   : state.weeks[state.week.id].cart.products,
@@ -48,6 +52,19 @@ export const WeekPicker = () => {
          })
       },
    })
+
+   React.useEffect(() => {
+      if (cart?.orderCartId) {
+         dispatch({
+            type: 'SET_ORDER_CART_ID',
+            payload: {
+               weekId: state.week.id,
+               orderCartId: cart.orderCartId,
+            },
+         })
+      }
+   }, [cart])
+
    const { loading } = useQuery(CUSTOMER_OCCURENCES, {
       variables: {
          id: user.id,

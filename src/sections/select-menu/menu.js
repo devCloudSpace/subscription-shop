@@ -1,6 +1,6 @@
 import React from 'react'
 import tw, { styled } from 'twin.macro'
-import { useSubscription } from '@apollo/react-hooks'
+import { useQuery } from '@apollo/react-hooks'
 
 import { useMenu } from './state'
 import { Loader } from '../../components'
@@ -8,7 +8,7 @@ import { OCCURENCE_PRODUCTS_BY_CATEGORIES } from '../../graphql'
 
 export const Menu = () => {
    const { state, dispatch } = useMenu()
-   const { loading, data: { categories = [] } = {} } = useSubscription(
+   const { loading, data: { categories = [] } = {} } = useQuery(
       OCCURENCE_PRODUCTS_BY_CATEGORIES,
       {
          variables: {

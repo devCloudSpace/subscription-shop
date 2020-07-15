@@ -93,6 +93,8 @@ const reducers = (state, { type, payload }) => {
          weeks[payload.weekId] = {
             ...weeks[payload.weekId],
             isSkipped: payload.isSkipped,
+            cartExists: payload.cartExists,
+            orderCartId: payload.orderCartId,
             cart: {
                ...state.weeks[payload.weekId].cart,
                products: payload.products,
@@ -110,6 +112,17 @@ const reducers = (state, { type, payload }) => {
             isSkipped: payload.checked,
          }
 
+         return {
+            ...state,
+            weeks,
+         }
+      }
+      case 'SET_ORDER_CART_ID': {
+         const weeks = state.weeks
+         weeks[payload.weekId] = {
+            ...weeks[payload.weekId],
+            orderCartId: payload.orderCartId,
+         }
          return {
             ...state,
             weeks,

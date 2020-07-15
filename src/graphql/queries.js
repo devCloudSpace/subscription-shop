@@ -153,7 +153,16 @@ export const CUSTOMER_DETAILS = gql`
          defaultSubscriptionAddressId
          defaultSubscriptionAddress {
             id
+            lat
+            lng
+            line1
+            line2
+            city
+            state
+            country
             zipcode
+            label
+            notes
          }
          defaultCustomerAddress {
             id

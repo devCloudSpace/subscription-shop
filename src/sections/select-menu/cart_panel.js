@@ -1,15 +1,28 @@
 import React from 'react'
-import { useQuery } from '@apollo/react-hooks'
 import tw, { styled, css } from 'twin.macro'
+import { useQuery, useMutation } from '@apollo/react-hooks'
 
 import { useMenu } from './state'
 import { useUser } from '../../context'
-import { ZIPCODE } from '../../graphql'
 import { CloseIcon } from '../../assets/icons'
+import {
+   ZIPCODE,
+   CREATE_CART,
+   UPSERT_OCCURENCE_CUSTOMER_CART_SKIP,
+} from '../../graphql'
 
 export const CartPanel = () => {
-   const { state, dispatch } = useMenu()
    const { user } = useUser()
+   const { state, dispatch } = useMenu()
+   const [upsertCart] = useMutation(CREATE_CART, {
+      refetchQueries: () => ['cart'],
+   })
+   const [updateCartSkipStatus] = useMutation(
+      UPSERT_OCCURENCE_CUSTOMER_CART_SKIP,
+      {
+         refetchQueries: ['cart'],
+      }
+   )
    const { data: { zipcode = {} } = {} } = useQuery(ZIPCODE, {
       variables: {
          subscriptionId: user?.subscriptionId,
@@ -17,8 +30,56 @@ export const CartPanel = () => {
       },
    })
 
-   const skipWeek = () => {
-      dispatch({ type: 'SKIP_WEEK', payload: { weekId: state.week.id } })
+   const submitSelection = () => {
+      upsertCart({
+         variables: {
+            object: {
+               status: 'PENDING',
+               customerId: user.id,
+               paymentStatus: 'PENDING',
+               cartInfo: {
+                  total: weekTotal,
+                  products: week.cart.products,
+               },
+               cartSource: 'subscription',
+               customerKeycloakId: user.keycloakId,
+               subscriptionOccurenceId: state.week.id,
+               address: user.defaultSubscriptionAddress,
+               ...(week.orderCartId && { id: week.orderCartId }),
+               subscriptionOccurenceCustomers: {
+                  data: [
+                     {
+                        isSkipped: week.isSkipped,
+                        keycloakId: user.keycloakId,
+                        subscriptionOccurenceId: state.week.id,
+                     },
+                  ],
+                  on_conflict: {
+                     constraint: 'subscriptionOccurence_customer_pkey',
+                     update_columns: ['isSkipped', 'orderCartId'],
+                  },
+               },
+            },
+            on_conflict: {
+               constraint: 'orderCart_pkey',
+               update_columns: ['cartInfo'],
+            },
+         },
+      })
+   }
+
+   const skipWeek = e => {
+      dispatch({
+         type: 'SKIP_WEEK',
+         payload: { weekId: state.week.id, checked: e.target.checked },
+      })
+      updateCartSkipStatus({
+         variables: {
+            isSkipped: e.target.checked,
+            keycloakId: user.keycloakId,
+            subscriptionOccurenceId: state.week.id,
+         },
+      })
    }
 
    const isCartValid = () => {
@@ -37,6 +98,7 @@ export const CartPanel = () => {
       user.subscription.recipes.price +
       week?.cart.products.reduce((a, b) => b.addonPrice || 0 + a, 0) +
       zipcode.price
+
    return (
       <section>
          <header tw="my-3 pb-1 border-b flex items-center justify-between">
@@ -57,8 +119,8 @@ export const CartPanel = () => {
                   name="skip"
                   type="checkbox"
                   className="toggle"
+                  onChange={skipWeek}
                   checked={week?.isSkipped}
-                  onChange={e => skipWeek()}
                   tw="cursor-pointer appearance-none"
                />
             </SkipWeek>
@@ -98,7 +160,9 @@ export const CartPanel = () => {
                </tr>
             </tbody>
          </table>
-         <SaveButton disabled={isCartValid()}>Save Selection</SaveButton>
+         <SaveButton disabled={isCartValid()} onClick={submitSelection}>
+            Save Selection
+         </SaveButton>
       </section>
    )
 }
