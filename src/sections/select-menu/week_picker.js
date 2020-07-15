@@ -17,12 +17,15 @@ export const WeekPicker = () => {
    const [fetchCart] = useLazyQuery(CART_BY_WEEK, {
       onCompleted: ({ cart }) => {
          let products = Array.from(
-            {
-               length: user.subscription.recipes.count,
-            },
+            { length: user.subscription.recipes.count },
             () => ({})
          )
-         if (cart) {
+
+         const isSelectionEmpty = state.weeks[
+            state.week.id
+         ].cart.products.every(node => Object.keys(node).length === 0)
+
+         if (cart && isSelectionEmpty) {
             return dispatch({
                type: 'PREFILL_CART',
                payload: {
@@ -33,12 +36,16 @@ export const WeekPicker = () => {
             })
          }
 
-         if (state?.weeks[state.week.id]?.cart.products.length === 0) {
-            dispatch({
-               type: 'PREFILL_CART',
-               payload: { weekId: state.week.id, isSkipped: false, products },
-            })
-         }
+         dispatch({
+            type: 'PREFILL_CART',
+            payload: {
+               weekId: state.week.id,
+               isSkipped: false,
+               products: isSelectionEmpty
+                  ? products
+                  : state.weeks[state.week.id].cart.products,
+            },
+         })
       },
    })
    const { loading } = useQuery(CUSTOMER_OCCURENCES, {

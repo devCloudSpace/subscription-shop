@@ -55,7 +55,11 @@ const reducers = (state, { type, payload }) => {
 
          weeks[payload.weekId] = {
             ...weeks[payload.weekId],
-            products,
+            isSkipped: false,
+            cart: {
+               ...weeks[payload.weekId].cart,
+               products,
+            },
          }
 
          return {
@@ -73,7 +77,10 @@ const reducers = (state, { type, payload }) => {
 
          weeks[payload.weekId] = {
             ...weeks[payload.weekId],
-            products,
+            cart: {
+               ...weeks[payload.weekId].cart,
+               products,
+            },
          }
 
          return {
@@ -100,7 +107,7 @@ const reducers = (state, { type, payload }) => {
          const weeks = state.weeks
          weeks[payload.weekId] = {
             ...weeks[payload.weekId],
-            isSkipped: !weeks[payload.weekId].isSkipped,
+            isSkipped: payload.checked,
          }
 
          return {
