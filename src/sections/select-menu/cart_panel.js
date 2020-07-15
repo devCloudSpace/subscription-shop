@@ -8,7 +8,7 @@ import { ZIPCODE } from '../../graphql'
 import { CloseIcon } from '../../assets/icons'
 
 export const CartPanel = () => {
-   const { state } = useMenu()
+   const { state, dispatch } = useMenu()
    const { user } = useUser()
    const { data: { zipcode = {} } = {} } = useQuery(ZIPCODE, {
       variables: {
@@ -17,18 +17,52 @@ export const CartPanel = () => {
       },
    })
 
+   const skipWeek = () => {
+      dispatch({ type: 'SKIP_WEEK', payload: { weekId: state.week.id } })
+   }
+
+   const isCartValid = () => {
+      return (
+         week?.cart.products.filter(node => Object.keys(node).length !== 0)
+            .length !== user.subscription.recipes.count
+      )
+   }
+
    const week = state?.weeks[state.week.id]
+   const addOnTotal = week?.cart.products.reduce(
+      (a, b) => b.addonPrice || 0 + a,
+      0
+   )
+   const weekTotal =
+      user.subscription.recipes.price +
+      week?.cart.products.reduce((a, b) => b.addonPrice || 0 + a, 0) +
+      zipcode.price
    return (
       <section>
-         <h4 tw="text-lg text-gray-700 my-3 pb-1 border-b">
-            Cart{' '}
-            {
-               week?.cart.products.filter(
-                  node => Object.keys(node).length !== 0
-               ).length
-            }
-            /{user.subscription.recipes.count}
-         </h4>
+         <header tw="my-3 pb-1 border-b flex items-center justify-between">
+            <h4 tw="text-lg text-gray-700">
+               Cart{' '}
+               {
+                  week?.cart.products.filter(
+                     node => Object.keys(node).length !== 0
+                  ).length
+               }
+               /{user.subscription.recipes.count}
+            </h4>
+            <SkipWeek>
+               <label htmlFor="skip" tw="mr-2 text-gray-600">
+                  Skip
+               </label>
+               <input
+                  name="skip"
+                  type="checkbox"
+                  className="toggle"
+                  checked={week?.isSkipped}
+                  onChange={e => skipWeek()}
+                  tw="cursor-pointer appearance-none"
+               />
+            </SkipWeek>
+         </header>
          <CartProducts>
             {week?.cart.products.map((product, index) =>
                Object.keys(product).length === 0 ? (
@@ -52,12 +86,7 @@ export const CartPanel = () => {
                </tr>
                <tr tw="bg-gray-100">
                   <td tw="border px-2 py-1">Add on Total</td>
-                  <td tw="text-right border px-2 py-1">
-                     {week?.cart.products.reduce(
-                        (a, b) => b.addonPrice || 0 + a,
-                        0
-                     )}
-                  </td>
+                  <td tw="text-right border px-2 py-1">{addOnTotal}</td>
                </tr>
                <tr>
                   <td tw="border px-2 py-1">Delivery</td>
@@ -65,26 +94,11 @@ export const CartPanel = () => {
                </tr>
                <tr tw="bg-gray-100">
                   <td tw="border px-2 py-1">This weeks total</td>
-                  <td tw="text-right border px-2 py-1">
-                     {user.subscription.recipes.price +
-                        week?.cart.products.reduce(
-                           (a, b) => b.addonPrice || 0 + a,
-                           0
-                        ) +
-                        zipcode.price}
-                  </td>
+                  <td tw="text-right border px-2 py-1">{weekTotal || 0}</td>
                </tr>
             </tbody>
          </table>
-         <SaveButton
-            disabled={
-               week?.cart.products.filter(
-                  node => Object.keys(node).length !== 0
-               ).length !== user.subscription.recipes.count
-            }
-         >
-            Save Selection
-         </SaveButton>
+         <SaveButton disabled={isCartValid()}>Save Selection</SaveButton>
       </section>
    )
 }
@@ -197,5 +211,33 @@ const SaveButton = styled.button(
          bg-green-300
          cursor-not-allowed 
       `}
+   `
+)
+
+const SkipWeek = styled.span(
+   () => css`
+      ${tw`flex items-center`}
+
+      .toggle {
+         height: 18px;
+         transition: all 0.2s ease;
+         ${tw`relative w-8 inline-block rounded-full border border-gray-400`}
+      }
+      .toggle:after {
+         content: '';
+         top: 1px;
+         left: 1px;
+         width: 14px;
+         height: 14px;
+         transition: all 0.2s cubic-bezier(0.5, 0.1, 0.75, 1.35);
+         ${tw`absolute bg-green-500 rounded-full`}
+      }
+      .toggle:checked {
+         ${tw`border-green-500 bg-green-500`}
+      }
+      .toggle:checked:after {
+         transform: translatex(14px);
+         ${tw`bg-white`}
+      }
    `
 )

@@ -85,11 +85,24 @@ const reducers = (state, { type, payload }) => {
          const weeks = state.weeks
          weeks[payload.weekId] = {
             ...weeks[payload.weekId],
+            isSkipped: payload.isSkipped,
             cart: {
                ...state.weeks[payload.weekId].cart,
                products: payload.products,
             },
          }
+         return {
+            ...state,
+            weeks,
+         }
+      }
+      case 'SKIP_WEEK': {
+         const weeks = state.weeks
+         weeks[payload.weekId] = {
+            ...weeks[payload.weekId],
+            isSkipped: !weeks[payload.weekId].isSkipped,
+         }
+
          return {
             ...state,
             weeks,

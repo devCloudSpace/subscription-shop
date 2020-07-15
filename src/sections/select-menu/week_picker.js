@@ -21,6 +21,7 @@ export const WeekPicker = () => {
                type: 'PREFILL_CART',
                payload: {
                   weekId: state.week.id,
+                  isSkipped: cart.isSkipped,
                   products: cart.orderCart.cartInfo.products,
                },
             })
@@ -34,7 +35,7 @@ export const WeekPicker = () => {
          if (state?.weeks[state.week.id]?.cart.products.length === 0) {
             dispatch({
                type: 'PREFILL_CART',
-               payload: { weekId: state.week.id, products },
+               payload: { weekId: state.week.id, isSkipped: false, products },
             })
          }
       },
