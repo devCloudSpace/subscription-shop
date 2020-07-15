@@ -16,22 +16,23 @@ export const WeekPicker = () => {
    const [current, setCurrent] = React.useState(0)
    const [fetchCart] = useLazyQuery(CART_BY_WEEK, {
       onCompleted: ({ cart }) => {
-         if (cart) {
-            dispatch({
-               type: 'PREFILL_CART',
-               payload: {
-                  weekId: state.week.id,
-                  isSkipped: cart.isSkipped,
-                  products: cart.orderCart.cartInfo.products,
-               },
-            })
-         }
          let products = Array.from(
             {
                length: user.subscription.recipes.count,
             },
             () => ({})
          )
+         if (cart) {
+            return dispatch({
+               type: 'PREFILL_CART',
+               payload: {
+                  weekId: state.week.id,
+                  isSkipped: cart.isSkipped,
+                  products: cart?.orderCart?.cartInfo?.products || products,
+               },
+            })
+         }
+
          if (state?.weeks[state.week.id]?.cart.products.length === 0) {
             dispatch({
                type: 'PREFILL_CART',
