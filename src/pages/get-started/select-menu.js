@@ -1,5 +1,8 @@
 import React from 'react'
+import { navigate } from 'gatsby'
 import tw, { styled } from 'twin.macro'
+import { useKeycloak } from '@react-keycloak/web'
+
 import { SEO, Layout, StepsNavbar } from '../../components'
 import {
    Menu,
@@ -10,6 +13,14 @@ import {
 } from '../../sections/select-menu'
 
 const SelectMenu = () => {
+   const [keycloak] = useKeycloak()
+
+   React.useEffect(() => {
+      if (!keycloak?.tokenParsed?.sub) {
+         navigate('/get-started/select-plan')
+      }
+   }, [keycloak])
+
    return (
       <MenuProvider>
          <Layout noHeader>
