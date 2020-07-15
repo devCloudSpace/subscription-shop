@@ -13,8 +13,8 @@ export const RecipeTunnel = () => {
       RECIPE_DETAILS,
       {
          variables: {
-            id: state?.recipe?.id,
-            yieldId: state?.recipe?.yieldId,
+            id: state.weeks[state.week.id]?.recipe?.id,
+            yieldId: state.weeks[state.week.id]?.recipe?.yieldId,
          },
       }
    )
@@ -25,14 +25,15 @@ export const RecipeTunnel = () => {
          payload: {
             tunnel: false,
             recipe: {},
+            weekId: state.week.id,
          },
       })
    }
    return (
       <Tunnel
          size="full"
-         isOpen={state.isTunnelOpen}
          toggleTunnel={toggleTunnel}
+         isOpen={state?.weeks[state.week.id]?.isTunnelOpen}
       >
          <Tunnel.Header title={recipe?.name}>
             <Button size="sm" onClick={toggleTunnel}>

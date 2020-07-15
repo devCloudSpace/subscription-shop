@@ -5,66 +5,96 @@ export const MenuContext = React.createContext()
 const initialState = {
    week: {},
    occurences: [],
-   recipe: {},
-   isTunnelOpen: false,
-   cart: {
-      total: 0,
-      products: [],
-   },
+   weeks: {},
 }
 
 const reducers = (state, { type, payload }) => {
    switch (type) {
-      case 'SET_WEEK':
+      case 'SET_WEEK': {
+         const weeks = state.weeks
+         if (!weeks.hasOwnProperty(payload.id)) {
+            weeks[payload.id] = {
+               recipe: {},
+               isTunnelOpen: false,
+               cart: {
+                  total: 0,
+                  products: [],
+               },
+            }
+         }
          return {
             ...state,
+            weeks,
             week: payload,
          }
+      }
       case 'SET_OCCURENCES':
          return {
             ...state,
             occurences: payload,
          }
-      case 'TOGGLE_TUNNEL':
-         return {
-            ...state,
+      case 'TOGGLE_TUNNEL': {
+         const weeks = state.weeks
+         weeks[payload.weekId] = {
+            ...weeks[payload.weekId],
             recipe: payload.recipe,
             isTunnelOpen: payload.tunnel,
          }
+         return {
+            ...state,
+            weeks,
+         }
+      }
       case 'SELECT_RECIPE': {
-         const products = state.cart.products
+         const weeks = state.weeks
+         const products = weeks[payload.weekId].cart.products
          const index = products.findIndex(
             node => Object.keys(node).length === 0
          )
-         products[index] = payload
+         products[index] = payload.cart
+
+         weeks[payload.weekId] = {
+            ...weeks[payload.weekId],
+            products,
+         }
+
          return {
             ...state,
-            cart: {
-               ...state.cart,
-               products,
-            },
+            weeks,
          }
       }
       case 'REMOVE_RECIPE': {
-         const products = state.cart.products
-         const index = products.findIndex(node => node?.option?.id === payload)
+         const weeks = state.weeks
+         const products = weeks[payload.weekId].cart.products
+         const index = products.findIndex(
+            node => node?.option?.id === payload.productId
+         )
          products[index] = {}
+
+         weeks[payload.weekId] = {
+            ...weeks[payload.weekId],
+            products,
+         }
+
          return {
             ...state,
-            cart: {
-               ...state.cart,
-               products,
-            },
+            weeks,
          }
       }
-      case 'PREFILL_CART':
-         return {
-            ...state,
+      case 'PREFILL_CART': {
+         const weeks = state.weeks
+         weeks[payload.weekId] = {
+            ...weeks[payload.weekId],
             cart: {
-               ...state.cart,
-               products: payload,
+               ...state.weeks[payload.weekId].cart,
+               products: payload.products,
             },
          }
+         return {
+            ...state,
+            weeks,
+         }
+      }
       default:
          return 'No such type!'
    }

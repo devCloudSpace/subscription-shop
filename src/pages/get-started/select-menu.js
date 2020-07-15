@@ -26,18 +26,20 @@ const SelectMenu = () => {
          <Layout noHeader>
             <SEO title="Select Menu" />
             <StepsNavbar />
-            <main>
-               <WeekPicker />
-               <Header>
-                  <h1 css={tw`text-2xl md:text-4xl text-gray-700`}>
-                     Explore our Menus
-                  </h1>
-               </Header>
-            </main>
-            <Content>
-               <Menu />
-               <CartPanel />
-            </Content>
+            <MenuContainer>
+               <div>
+                  <WeekPicker />
+                  <Header>
+                     <h1 css={tw`text-2xl md:text-4xl text-gray-700`}>
+                        Explore our Menus
+                     </h1>
+                  </Header>
+               </div>
+               <Content>
+                  <Menu />
+                  <CartPanel />
+               </Content>
+            </MenuContainer>
             <RecipeTunnel />
          </Layout>
       </MenuProvider>
@@ -45,6 +47,11 @@ const SelectMenu = () => {
 }
 
 export default SelectMenu
+
+const MenuContainer = styled.main`
+   overflow-y: auto;
+   height: calc(100vh - 64px);
+`
 
 const Header = styled.header`
    height: 320px;

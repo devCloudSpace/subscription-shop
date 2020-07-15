@@ -17,19 +17,20 @@ export const CartPanel = () => {
       },
    })
 
+   const week = state?.weeks[state.week.id]
    return (
       <section>
          <h4 tw="text-lg text-gray-700 my-3 pb-1 border-b">
             Cart{' '}
             {
-               state.cart.products.filter(
+               week?.cart.products.filter(
                   node => Object.keys(node).length !== 0
                ).length
             }
             /{user.subscription.recipes.count}
          </h4>
          <CartProducts>
-            {state.cart.products.map((product, index) =>
+            {week?.cart.products.map((product, index) =>
                Object.keys(product).length === 0 ? (
                   <SkeletonCartProduct key={index} />
                ) : (
@@ -52,7 +53,7 @@ export const CartPanel = () => {
                <tr tw="bg-gray-100">
                   <td tw="border px-2 py-1">Add on Total</td>
                   <td tw="text-right border px-2 py-1">
-                     {state.cart.products.reduce(
+                     {week?.cart.products.reduce(
                         (a, b) => b.addonPrice || 0 + a,
                         0
                      )}
@@ -66,7 +67,7 @@ export const CartPanel = () => {
                   <td tw="border px-2 py-1">This weeks total</td>
                   <td tw="text-right border px-2 py-1">
                      {user.subscription.recipes.price +
-                        state.cart.products.reduce(
+                        week?.cart.products.reduce(
                            (a, b) => b.addonPrice || 0 + a,
                            0
                         ) +
@@ -77,7 +78,7 @@ export const CartPanel = () => {
          </table>
          <SaveButton
             disabled={
-               state.cart.products.filter(
+               week?.cart.products.filter(
                   node => Object.keys(node).length !== 0
                ).length !== user.subscription.recipes.count
             }
@@ -101,9 +102,12 @@ const SkeletonCartProduct = () => {
 }
 
 const CartProduct = ({ product }) => {
-   const { dispatch } = useMenu()
+   const { state, dispatch } = useMenu()
    const removeRecipe = id => {
-      dispatch({ type: 'REMOVE_RECIPE', payload: id })
+      dispatch({
+         type: 'REMOVE_RECIPE',
+         payload: { weekId: state.week.id, productId: id },
+      })
    }
    return (
       <CartProductContainer>

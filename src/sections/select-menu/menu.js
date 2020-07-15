@@ -28,6 +28,7 @@ export const Menu = () => {
                id,
                yieldId,
             },
+            weekId: state.week.id,
          },
       })
    }
@@ -35,13 +36,14 @@ export const Menu = () => {
    const selectRecipe = (cart, addonPrice) => {
       dispatch({
          type: 'SELECT_RECIPE',
-         payload: { ...cart, addonPrice },
+         payload: { weekId: state.week.id, cart: { ...cart, addonPrice } },
       })
    }
 
    const isAdded = id => {
-      return state.cart.products.findIndex(node => node?.option?.id === id) ===
-         -1
+      return state?.weeks[state.week.id]?.cart.products.findIndex(
+         node => node?.option?.id === id
+      ) === -1
          ? false
          : true
    }

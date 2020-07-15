@@ -19,16 +19,24 @@ export const WeekPicker = () => {
          if (cart) {
             dispatch({
                type: 'PREFILL_CART',
-               payload: cart.orderCart.cartInfo.products,
+               payload: {
+                  weekId: state.week.id,
+                  products: cart.orderCart.cartInfo.products,
+               },
             })
          }
-         let payload = Array.from(
+         let products = Array.from(
             {
                length: user.subscription.recipes.count,
             },
             () => ({})
          )
-         dispatch({ type: 'PREFILL_CART', payload })
+         if (state?.weeks[state.week.id]?.cart.products.length === 0) {
+            dispatch({
+               type: 'PREFILL_CART',
+               payload: { weekId: state.week.id, products },
+            })
+         }
       },
    })
    const { loading } = useQuery(CUSTOMER_OCCURENCES, {
@@ -59,12 +67,24 @@ export const WeekPicker = () => {
          (current + 1 + state.occurences.length) % state.occurences.length
       setCurrent(nextOne)
       dispatch({ type: 'SET_WEEK', payload: state.occurences[nextOne] })
+      fetchCart({
+         variables: {
+            keycloakId: user.keycloakId,
+            weekId: state.occurences[nextOne].id,
+         },
+      })
    }
    const previous = () => {
       const previousOne =
          (current - 1 + state.occurences.length) % state.occurences.length
       setCurrent(previousOne)
       dispatch({ type: 'SET_WEEK', payload: state.occurences[previousOne] })
+      fetchCart({
+         variables: {
+            keycloakId: user.keycloakId,
+            weekId: state.occurences[previousOne].id,
+         },
+      })
    }
 
    if (loading) return <Loader inline />
