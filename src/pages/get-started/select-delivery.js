@@ -18,6 +18,7 @@ import {
    ITEM_COUNT,
    UPDATE_CUSTOMERS,
    CREATE_CUSTOMER_ADDRESS,
+   UPDATE_DAILYKEY_CUSTOMER,
    PLANS_AVAILABILITY_BY_ZIPCODE,
 } from '../../graphql'
 import {
@@ -37,8 +38,17 @@ const SelectDelivery = () => {
    const [addressError, setAddressError] = React.useState('')
    const [selectedDay, setSelectedDay] = React.useState(null)
    const [selectedAddress, setSelectedAddress] = React.useState(null)
+   const [updateDailykeyCustomer] = useMutation(UPDATE_DAILYKEY_CUSTOMER)
    const [updateCustomers] = useMutation(UPDATE_CUSTOMERS, {
       onCompleted: () => {
+         updateDailykeyCustomer({
+            variables: {
+               keycloakId: keycloak?.tokenParsed?.sub,
+               _set: {
+                  defaultSubscriptionAddressId: selectedAddress,
+               },
+            },
+         })
          navigate('/get-started/select-menu')
          isClient && window.localStorage.removeItem('plan')
       },

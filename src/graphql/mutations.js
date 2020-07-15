@@ -36,6 +36,20 @@ export const UPDATE_CUSTOMERS = gql`
    }
 `
 
+export const UPDATE_DAILYKEY_CUSTOMER = gql`
+   mutation updateCustomers(
+      $keycloakId: String!
+      $_set: platform_customer_set_input!
+   ) {
+      platform_updateCustomer(
+         pk_columns: { keycloakId: $keycloakId }
+         _set: $_set
+      ) {
+         keycloakId
+      }
+   }
+`
+
 export const CREATE_CUSTOMER_ADDRESS = gql`
    mutation createCustomerAddress(
       $object: platform_customerAddress_insert_input!

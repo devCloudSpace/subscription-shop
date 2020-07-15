@@ -121,7 +121,7 @@ export const PLANS = gql`
 `
 
 export const CRM_CUSTOMER_DETAILS = gql`
-   query customers($keycloakId: String!) {
+   subscription customers($keycloakId: String!) {
       customers(where: { keycloakId: { _eq: $keycloakId } }) {
          id
          isSubscriber

@@ -85,7 +85,7 @@ export const CartPanel = () => {
    const isCartValid = () => {
       return (
          week?.cart.products.filter(node => Object.keys(node).length !== 0)
-            .length !== user.subscription.recipes.count
+            .length !== user?.subscription?.recipes?.count
       )
    }
 
@@ -95,7 +95,7 @@ export const CartPanel = () => {
       0
    )
    const weekTotal =
-      user.subscription.recipes.price +
+      user?.subscription?.recipes?.price +
       week?.cart.products.reduce((a, b) => b.addonPrice || 0 + a, 0) +
       zipcode.price
 
@@ -109,7 +109,7 @@ export const CartPanel = () => {
                      node => Object.keys(node).length !== 0
                   ).length
                }
-               /{user.subscription.recipes.count}
+               /{user?.subscription?.recipes?.count}
             </h4>
             <SkipWeek>
                <label htmlFor="skip" tw="mr-2 text-gray-600">
@@ -143,7 +143,7 @@ export const CartPanel = () => {
                <tr>
                   <td tw="border px-2 py-1">Base Price</td>
                   <td tw="text-right border px-2 py-1">
-                     {user.subscription.recipes.price}
+                     {user?.subscription?.recipes?.price}
                   </td>
                </tr>
                <tr tw="bg-gray-100">
