@@ -1,5 +1,5 @@
 import React from 'react'
-import { useQuery } from '@apollo/react-hooks'
+import { useSubscription, useQuery } from '@apollo/react-hooks'
 import { useKeycloak } from '@react-keycloak/web'
 
 import { CUSTOMER_DETAILS, CRM_CUSTOMER_DETAILS } from '../graphql/queries'
@@ -10,18 +10,12 @@ const UserContext = React.createContext()
 export const UserProvider = ({ children }) => {
    const [keycloak] = useKeycloak()
    const [user, setUser] = React.useState({})
-   const { loading: crmLoading } = useQuery(CRM_CUSTOMER_DETAILS, {
+   const {
+      loading: crmLoading,
+      data: { customers = [] } = {},
+   } = useSubscription(CRM_CUSTOMER_DETAILS, {
       variables: {
          keycloakId: keycloak?.tokenParsed?.sub,
-      },
-      onCompleted: ({ customers = [] }) => {
-         if (customers.length === 1) {
-            setUser({
-               ...user,
-               ...customers[0],
-               keycloakId: keycloak?.tokenParsed?.sub,
-            })
-         }
       },
    })
    const { loading: platformLoading } = useQuery(CUSTOMER_DETAILS, {
@@ -49,6 +43,16 @@ export const UserProvider = ({ children }) => {
          })
       },
    })
+
+   React.useEffect(() => {
+      if (customers.length === 1) {
+         setUser({
+            ...user,
+            ...customers[0],
+            keycloakId: keycloak?.tokenParsed?.sub,
+         })
+      }
+   }, [customers])
 
    if (crmLoading || platformLoading) return <Loader />
    return (
