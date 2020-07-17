@@ -39,7 +39,7 @@ const MenuContent = () => {
    const { state } = useMenu()
    return (
       <>
-         <MenuContainer>
+         <main>
             <div>
                <WeekPicker />
                <Header>
@@ -52,18 +52,13 @@ const MenuContent = () => {
                <Menu />
                <CartPanel />
             </Content>
-         </MenuContainer>
+         </main>
          {state?.week?.id && state?.weeks[state?.week?.id].isTunnelOpen && (
             <RecipeTunnel />
          )}
       </>
    )
 }
-
-const MenuContainer = styled.main`
-   overflow-y: auto;
-   height: calc(100vh - 64px);
-`
 
 const Header = styled.header`
    height: 320px;

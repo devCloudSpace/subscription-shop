@@ -1,10 +1,11 @@
 import React from 'react'
-import tw, { styled } from 'twin.macro'
+import tw, { styled, css } from 'twin.macro'
 import { useQuery } from '@apollo/react-hooks'
 import { useToasts } from 'react-toast-notifications'
 
 import { useMenu } from './state'
 import { Loader } from '../../components'
+import { CheckIcon } from '../../assets/icons'
 import { OCCURENCE_PRODUCTS_BY_CATEGORIES } from '../../graphql'
 
 export const Menu = () => {
@@ -41,6 +42,14 @@ export const Menu = () => {
    }
 
    const selectRecipe = (cart, addonPrice) => {
+      const isFull = state.weeks[state.week.id].cart.products.every(
+         node => Object.keys(node).length !== 0
+      )
+      if (isFull) {
+         return addToast("Your're cart is already full!", {
+            appearance: 'warning',
+         })
+      }
       dispatch({
          type: 'SELECT_RECIPE',
          payload: { weekId: state.week.id, cart: { ...cart, addonPrice } },
@@ -91,27 +100,40 @@ export const Menu = () => {
                               <span>No Photos</span>
                            )}
                         </div>
+                        {node.addonLabel && (
+                           <Label>
+                              {node.addonLabel} {node.addonPrice}
+                           </Label>
+                        )}
                         <div css={tw`flex items-center justify-between`}>
-                           <span
-                              tabIndex="0"
-                              role="button"
-                              tw="text-gray-700"
-                              onKeyPress={e =>
-                                 e.charCode === 13 &&
-                                 showDetails(
-                                    node.productOption.product.id,
-                                    node.productOption.simpleRecipeYieldId
-                                 )
-                              }
-                              onClick={() =>
-                                 showDetails(
-                                    node.productOption.product.id,
-                                    node.productOption.simpleRecipeYieldId
-                                 )
-                              }
-                           >
-                              {node.productOption.product.name}
-                           </span>
+                           <section tw="flex items-center">
+                              <Check
+                                 size={16}
+                                 className={`${
+                                    isAdded(node.productOption.id) && 'active'
+                                 }`}
+                              />
+                              <span
+                                 tabIndex="0"
+                                 role="button"
+                                 tw="text-gray-700"
+                                 onKeyPress={e =>
+                                    e.charCode === 13 &&
+                                    showDetails(
+                                       node.productOption.product.id,
+                                       node.productOption.simpleRecipeYieldId
+                                    )
+                                 }
+                                 onClick={() =>
+                                    showDetails(
+                                       node.productOption.product.id,
+                                       node.productOption.simpleRecipeYieldId
+                                    )
+                                 }
+                              >
+                                 {node.productOption.product.name}
+                              </span>
+                           </section>
                            {!isAdded(node.productOption.id) && (
                               <button
                                  onClick={() =>
@@ -138,8 +160,28 @@ const Products = styled.ul`
 `
 
 const Product = styled.li`
-   ${tw`border flex flex-col bg-white p-2 rounded overflow-hidden`}
+   ${tw`relative border flex flex-col bg-white p-2 rounded overflow-hidden`}
    &.active {
       ${tw`border border-2 border-red-400`}
    }
+`
+
+const Check = styled(CheckIcon)(
+   () => css`
+      ${tw`mr-2 stroke-current text-gray-300`}
+      &.active {
+         ${tw`text-green-700`}
+      }
+   `
+)
+
+const Label = styled.span`
+   top: 16px;
+   ${tw`
+      px-2
+      absolute 
+      rounded-r
+      bg-green-500 
+      text-sm uppercase font-medium tracking-wider text-white 
+   `}
 `
