@@ -4,13 +4,13 @@ import { useLocation } from '@reach/router'
 import { useLazyQuery } from '@apollo/react-hooks'
 import { useToasts } from 'react-toast-notifications'
 
+import { isClient } from '../../utils'
 import { RECIPE_DETAILS } from '../../graphql'
 import { Loader, Layout, SEO } from '../../components'
 
 const Recipe = () => {
    const location = useLocation()
    const { addToast } = useToasts()
-   const [source, setSource] = React.useState('')
    const [recipe, setRecipe] = React.useState(null)
 
    const [getRecipe, { loading }] = useLazyQuery(RECIPE_DETAILS, {
@@ -28,7 +28,6 @@ const Recipe = () => {
       let params = new URL(location.href).searchParams
       let recipeId = Number(params.get('id'))
       let yieldId = Number(params.get('serving'))
-      setSource(params.get('source'))
       getRecipe({
          variables: {
             id: recipeId,
@@ -99,7 +98,7 @@ const Recipe = () => {
                         </span>
                         {procedure.steps.map(step =>
                            step.isVisible ? (
-                              <li key={step.title} tw="h-auto mb-4 ml-8 mt-2">
+                              <li key={step.title} tw="h-auto mb-4 ml-4 mt-2">
                                  {step.title && (
                                     <span tw="text-gray-800">{step.title}</span>
                                  )}
@@ -129,6 +128,9 @@ const Recipe = () => {
                ))}
             </ul>
          </RecipeContainer>
+         <Button onClick={() => isClient && window.history.go(-1)}>
+            Go back to menu
+         </Button>
       </Layout>
    )
 }
@@ -160,4 +162,10 @@ const StepImage = styled.div`
          height: 160px;
       }
    }
+`
+
+const Button = styled.button`
+   left: 50%;
+   bottom: 16px;
+   ${tw`fixed bg-green-600 rounded text-white px-4 h-10 hover:bg-green-700`}
 `

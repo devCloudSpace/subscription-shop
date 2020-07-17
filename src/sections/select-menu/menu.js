@@ -102,7 +102,7 @@ export const Menu = () => {
                               />
                               <Link
                                  tw="text-gray-700"
-                                 to={`/recipes?id=${node.productOption.product.id}&serving=${node.productOption.simpleRecipeYieldId}&source=get-started`}
+                                 to={`/recipes?id=${node.productOption.product.id}&serving=${node.productOption.simpleRecipeYieldId}`}
                               >
                                  {node.productOption.product.name}
                               </Link>
