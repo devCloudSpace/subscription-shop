@@ -33,7 +33,7 @@ export const wrapRootElement = ({ element }) => {
             <ToastProvider
                autoDismiss
                placement="bottom-center"
-               autoDismissTimeout={2000}
+               autoDismissTimeout={3000}
             >
                <div css={tw`overflow-hidden`}>{element}</div>
             </ToastProvider>

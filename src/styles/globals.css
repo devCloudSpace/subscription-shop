@@ -13,3 +13,12 @@ h2,
 h3 {
    font-family: 'DM Serif Display', serif;
 }
+
+.react-toast-notifications__container {
+   -ms-overflow-style: none;
+   scrollbar-width: none;
+}
+
+.react-toast-notifications__container::-webkit-scrollbar {
+   display: none;
+}
