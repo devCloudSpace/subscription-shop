@@ -1,4 +1,5 @@
 import React from 'react'
+import moment from 'moment'
 import tw, { styled, css } from 'twin.macro'
 import { useToasts } from 'react-toast-notifications'
 import { useQuery, useMutation } from '@apollo/react-hooks'
@@ -11,6 +12,7 @@ import {
    CREATE_CART,
    UPSERT_OCCURENCE_CUSTOMER_CART_SKIP,
 } from '../../graphql'
+import { formatDate } from '../../utils'
 
 export const CartPanel = () => {
    const { user } = useUser()
@@ -54,12 +56,14 @@ export const CartPanel = () => {
          zipcode: user?.defaultSubscriptionAddress?.zipcode,
       },
    })
-
    const submitSelection = () => {
+      const evalTime = (time, hour) =>
+         moment(time).hour(hour).minute(0).second(0).toISOString()
       upsertCart({
          variables: {
             object: {
                status: 'PENDING',
+               amount: weekTotal,
                customerId: user.id,
                paymentStatus: 'PENDING',
                cartInfo: {
@@ -69,8 +73,18 @@ export const CartPanel = () => {
                cartSource: 'subscription',
                customerKeycloakId: user.keycloakId,
                subscriptionOccurenceId: state.week.id,
+               stripeCustomerId: user.stripeCustomerId,
                address: user.defaultSubscriptionAddress,
                ...(week.orderCartId && { id: week.orderCartId }),
+
+               fulfillmentInfo: {
+                  type: 'PREORDER_DELIVERY',
+                  slot: {
+                     from: evalTime(state.week.fulfillmentDate, 8),
+                     to: evalTime(state.week.fulfillmentDate, 20),
+                  },
+               },
+
                subscriptionOccurenceCustomers: {
                   data: [
                      {
@@ -87,7 +101,12 @@ export const CartPanel = () => {
             },
             on_conflict: {
                constraint: 'orderCart_pkey',
-               update_columns: ['cartInfo'],
+               update_columns: [
+                  'amount',
+                  'address',
+                  'cartInfo',
+                  'fulfillmentInfo',
+               ],
             },
          },
       })
