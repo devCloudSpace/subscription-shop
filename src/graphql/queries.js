@@ -257,6 +257,7 @@ export const OCCURENCE_PRODUCTS_BY_CATEGORIES = gql`
                   product: simpleRecipeProduct {
                      id
                      name
+                     assets
                      recipe: simpleRecipe {
                         id
                         name

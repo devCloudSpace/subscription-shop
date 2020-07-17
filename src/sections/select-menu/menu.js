@@ -77,11 +77,14 @@ export const Menu = () => {
                         <div
                            css={tw`flex items-center justify-center h-48 bg-gray-200 mb-2 rounded overflow-hidden`}
                         >
-                           {node.productOption.product.recipe.image ? (
+                           {node.productOption.product.assets?.images.length >
+                           0 ? (
                               <img
                                  alt={node.productOption.product.recipe.name}
                                  title={node.productOption.product.recipe.name}
-                                 src={node.productOption.product.recipe.image}
+                                 src={
+                                    node.productOption.product.assets.images[0]
+                                 }
                                  css={tw`h-full w-full object-cover select-none`}
                               />
                            ) : (
