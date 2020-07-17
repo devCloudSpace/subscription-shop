@@ -12,7 +12,6 @@ import {
    CREATE_CART,
    UPSERT_OCCURENCE_CUSTOMER_CART_SKIP,
 } from '../../graphql'
-import { formatDate } from '../../utils'
 
 export const CartPanel = () => {
    const { user } = useUser()

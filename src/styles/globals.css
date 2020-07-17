@@ -8,6 +8,10 @@ body {
    font-family: 'Inter', sans-serif;
 }
 
+body {
+   padding-top: 64px;
+}
+
 h1,
 h2,
 h3 {

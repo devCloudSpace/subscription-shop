@@ -27,19 +27,6 @@ const SelectMenu = () => {
          <Layout noHeader>
             <SEO title="Select Menu" />
             <StepsNavbar />
-            <MenuContent />
-         </Layout>
-      </MenuProvider>
-   )
-}
-
-export default SelectMenu
-
-const MenuContent = () => {
-   const { state } = useMenu()
-   return (
-      <>
-         <main>
             <div>
                <WeekPicker />
                <Header>
@@ -52,13 +39,12 @@ const MenuContent = () => {
                <Menu />
                <CartPanel />
             </Content>
-         </main>
-         {state?.week?.id && state?.weeks[state?.week?.id].isTunnelOpen && (
-            <RecipeTunnel />
-         )}
-      </>
+         </Layout>
+      </MenuProvider>
    )
 }
+
+export default SelectMenu
 
 const Header = styled.header`
    height: 320px;
@@ -68,4 +54,7 @@ const Header = styled.header`
 const Content = styled.section`
    ${tw`px-4 grid gap-8`}
    grid-template-columns: 1fr 400px;
+   @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+   }
 `

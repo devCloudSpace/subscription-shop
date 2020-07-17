@@ -14,8 +14,6 @@ const reducers = (state, { type, payload }) => {
          const weeks = state.weeks
          if (!weeks.hasOwnProperty(payload.id)) {
             weeks[payload.id] = {
-               recipe: {},
-               isTunnelOpen: false,
                cart: {
                   total: 0,
                   products: [],
@@ -33,18 +31,6 @@ const reducers = (state, { type, payload }) => {
             ...state,
             occurences: payload,
          }
-      case 'TOGGLE_TUNNEL': {
-         const weeks = state.weeks
-         weeks[payload.weekId] = {
-            ...weeks[payload.weekId],
-            recipe: payload.recipe,
-            isTunnelOpen: payload.tunnel,
-         }
-         return {
-            ...state,
-            weeks,
-         }
-      }
       case 'SELECT_RECIPE': {
          const weeks = state.weeks
          const products = weeks[payload.weekId].cart.products

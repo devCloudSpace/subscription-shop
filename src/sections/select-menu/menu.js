@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'gatsby'
 import tw, { styled, css } from 'twin.macro'
 import { useQuery } from '@apollo/react-hooks'
 import { useToasts } from 'react-toast-notifications'
@@ -26,20 +27,6 @@ export const Menu = () => {
          },
       }
    )
-
-   const showDetails = (id, yieldId) => {
-      dispatch({
-         type: 'TOGGLE_TUNNEL',
-         payload: {
-            tunnel: true,
-            recipe: {
-               id,
-               yieldId,
-            },
-            weekId: state.week.id,
-         },
-      })
-   }
 
    const selectRecipe = (cart, addonPrice) => {
       const isFull = state.weeks[state.week.id].cart.products.every(
@@ -113,26 +100,12 @@ export const Menu = () => {
                                     isAdded(node.productOption.id) && 'active'
                                  }`}
                               />
-                              <span
-                                 tabIndex="0"
-                                 role="button"
+                              <Link
                                  tw="text-gray-700"
-                                 onKeyPress={e =>
-                                    e.charCode === 13 &&
-                                    showDetails(
-                                       node.productOption.product.id,
-                                       node.productOption.simpleRecipeYieldId
-                                    )
-                                 }
-                                 onClick={() =>
-                                    showDetails(
-                                       node.productOption.product.id,
-                                       node.productOption.simpleRecipeYieldId
-                                    )
-                                 }
+                                 to={`/recipes?id=${node.productOption.product.id}&serving=${node.productOption.simpleRecipeYieldId}&source=get-started`}
                               >
                                  {node.productOption.product.name}
-                              </span>
+                              </Link>
                            </section>
                            {!isAdded(node.productOption.id) && (
                               <button
