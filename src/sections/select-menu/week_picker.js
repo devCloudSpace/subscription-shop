@@ -1,5 +1,6 @@
 import React from 'react'
 import moment from 'moment'
+import { navigate } from 'gatsby'
 import tw, { styled } from 'twin.macro'
 import { useQuery, useLazyQuery } from '@apollo/react-hooks'
 
@@ -70,21 +71,23 @@ export const WeekPicker = () => {
          id: user.id,
          keycloakId: user.keycloakId,
       },
-      onCompleted: ({
-         customer: { subscription: { occurences = [] } = {} } = {},
-      }) => {
-         const filtered = occurences.filter(
-            occurence => occurence.isValid && occurence.isVisible
-         )
-         setCurrent(0)
-         dispatch({ type: 'SET_OCCURENCES', payload: filtered })
-         dispatch({ type: 'SET_WEEK', payload: filtered[0] })
-         fetchCart({
-            variables: {
-               keycloakId: user.keycloakId,
-               weekId: filtered[0].id,
-            },
-         })
+      onCompleted: ({ customer: { subscription } = {} }) => {
+         if (subscription?.occurences) {
+            const filtered = subscription.occurences.filter(
+               occurence => occurence.isValid && occurence.isVisible
+            )
+            setCurrent(0)
+            dispatch({ type: 'SET_OCCURENCES', payload: filtered })
+            dispatch({ type: 'SET_WEEK', payload: filtered[0] })
+            fetchCart({
+               variables: {
+                  keycloakId: user.keycloakId,
+                  weekId: filtered[0].id,
+               },
+            })
+         } else {
+            navigate('/get-started/select-delivery')
+         }
       },
    })
 
