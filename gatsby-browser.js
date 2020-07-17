@@ -3,6 +3,7 @@ import tw from 'twin.macro'
 import PropTypes from 'prop-types'
 import Keycloak from 'keycloak-js'
 import { KeycloakProvider } from '@react-keycloak/web'
+import { ToastProvider } from 'react-toast-notifications'
 
 import './src/styles/globals.css'
 
@@ -29,7 +30,13 @@ export const wrapRootElement = ({ element }) => {
          LoadingComponent={<Loader />}
       >
          <ApolloProvider>
-            <div css={tw`overflow-hidden`}>{element}</div>
+            <ToastProvider
+               autoDismiss
+               placement="bottom-center"
+               autoDismissTimeout={2000}
+            >
+               <div css={tw`overflow-hidden`}>{element}</div>
+            </ToastProvider>
          </ApolloProvider>
       </KeycloakProvider>
    )

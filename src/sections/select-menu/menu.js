@@ -1,12 +1,14 @@
 import React from 'react'
 import tw, { styled } from 'twin.macro'
 import { useQuery } from '@apollo/react-hooks'
+import { useToasts } from 'react-toast-notifications'
 
 import { useMenu } from './state'
 import { Loader } from '../../components'
 import { OCCURENCE_PRODUCTS_BY_CATEGORIES } from '../../graphql'
 
 export const Menu = () => {
+   const { addToast } = useToasts()
    const { state, dispatch } = useMenu()
    const { loading, data: { categories = [] } = {} } = useQuery(
       OCCURENCE_PRODUCTS_BY_CATEGORIES,
@@ -15,6 +17,11 @@ export const Menu = () => {
             occurenceId: {
                _eq: state?.week?.id,
             },
+         },
+         onError: error => {
+            addToast(error.message, {
+               appearance: 'error',
+            })
          },
       }
    )
@@ -37,6 +44,9 @@ export const Menu = () => {
       dispatch({
          type: 'SELECT_RECIPE',
          payload: { weekId: state.week.id, cart: { ...cart, addonPrice } },
+      })
+      addToast(`You've selected the recipe ${cart.name}.`, {
+         appearance: 'info',
       })
    }
 

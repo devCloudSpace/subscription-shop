@@ -3,6 +3,7 @@ import { rrulestr } from 'rrule'
 import { navigate } from 'gatsby'
 import tw, { styled } from 'twin.macro'
 import { useKeycloak } from '@react-keycloak/web'
+import { useToasts } from 'react-toast-notifications'
 import GooglePlacesAutocomplete from 'react-google-places-autocomplete'
 
 import {
@@ -35,12 +36,16 @@ import { CloseIcon } from '../../assets/icons'
 
 const SelectDelivery = () => {
    const [keycloak] = useKeycloak()
+   const { addToast } = useToasts()
    const [addressError, setAddressError] = React.useState('')
    const [selectedDay, setSelectedDay] = React.useState(null)
    const [selectedAddress, setSelectedAddress] = React.useState(null)
-   const [updateDailykeyCustomer] = useMutation(UPDATE_DAILYKEY_CUSTOMER)
+   const [updateDailykeyCustomer] = useMutation(UPDATE_DAILYKEY_CUSTOMER, {})
    const [updateCustomers] = useMutation(UPDATE_CUSTOMERS, {
       onCompleted: () => {
+         addToast('Successfully saved delivery preferences.', {
+            appearance: 'success',
+         })
          updateDailykeyCustomer({
             variables: {
                keycloakId: keycloak?.tokenParsed?.sub,
@@ -51,6 +56,11 @@ const SelectDelivery = () => {
          })
          navigate('/get-started/select-menu')
          isClient && window.localStorage.removeItem('plan')
+      },
+      onError: error => {
+         addToast(error.message, {
+            appearance: 'error',
+         })
       },
    })
 
@@ -112,11 +122,17 @@ const SelectDelivery = () => {
 export default SelectDelivery
 
 const SelectDeliveryDay = ({ setDay }) => {
+   const { addToast } = useToasts()
    const { loading, data: { itemCount = {} } = {} } = useSubscription(
       ITEM_COUNT,
       {
          variables: {
             id: isClient && window.localStorage.getItem('plan'),
+         },
+         onError: error => {
+            addToast(error.message, {
+               appearance: 'error',
+            })
          },
       }
    )
@@ -163,6 +179,7 @@ const SelectDeliveryDay = ({ setDay }) => {
 }
 
 const SelectAddresses = ({ setAddress, addressError, setAddressError }) => {
+   const { addToast } = useToasts()
    const [keycloak] = useKeycloak()
    const [isOpen, toggleTunnel] = React.useState(false)
 
@@ -175,6 +192,11 @@ const SelectAddresses = ({ setAddress, addressError, setAddressError }) => {
          }
          return setAddressError('')
       },
+      onError: error => {
+         addToast(error.message, {
+            appearance: 'error',
+         })
+      },
    })
    const { loading, data: { addresses = [] } = {} } = useQuery(ADDRESSES, {
       variables: {
@@ -183,6 +205,11 @@ const SelectAddresses = ({ setAddress, addressError, setAddressError }) => {
                _eq: keycloak?.tokenParsed?.sub,
             },
          },
+      },
+      onError: error => {
+         addToast(error.message, {
+            appearance: 'error',
+         })
       },
    })
 
@@ -260,6 +287,7 @@ const SelectAddresses = ({ setAddress, addressError, setAddressError }) => {
 
 const AddressTunnel = ({ isOpen, toggleTunnel }) => {
    const [keycloak] = useKeycloak()
+   const { addToast } = useToasts()
    const [formStatus, setFormStatus] = React.useState('PENDING')
    const [address, setAddress] = React.useState(null)
    const [createAddress] = useMutation(CREATE_CUSTOMER_ADDRESS, {
@@ -267,6 +295,14 @@ const AddressTunnel = ({ isOpen, toggleTunnel }) => {
       onCompleted: () => {
          toggleTunnel(false)
          setFormStatus('SAVED')
+         addToast('Address has been saved.', {
+            appearance: 'success',
+         })
+      },
+      onError: error => {
+         addToast(error.message, {
+            appearance: 'error',
+         })
       },
    })
    const [loaded, error] = useScript(

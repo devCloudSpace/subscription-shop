@@ -1,9 +1,9 @@
 import React from 'react'
-import { useSubscription, useQuery } from '@apollo/react-hooks'
 import { useKeycloak } from '@react-keycloak/web'
+import { useSubscription, useQuery } from '@apollo/react-hooks'
 
-import { CUSTOMER_DETAILS, CRM_CUSTOMER_DETAILS } from '../graphql/queries'
 import { Loader } from '../components'
+import { CUSTOMER_DETAILS, CRM_CUSTOMER_DETAILS } from '../graphql'
 
 const UserContext = React.createContext()
 

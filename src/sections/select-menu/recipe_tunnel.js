@@ -1,6 +1,7 @@
 import React from 'react'
 import tw, { styled } from 'twin.macro'
 import { useQuery } from '@apollo/react-hooks'
+import { useToasts } from 'react-toast-notifications'
 
 import { useMenu } from './state'
 import { RECIPE_DETAILS } from '../../graphql'
@@ -8,6 +9,7 @@ import { CloseIcon } from '../../assets/icons'
 import { Tunnel, Button, Loader } from '../../components'
 
 export const RecipeTunnel = () => {
+   const { addToast } = useToasts()
    const { state, dispatch } = useMenu()
    const { loading, data: { product: { recipe = {} } = {} } = {} } = useQuery(
       RECIPE_DETAILS,
@@ -15,6 +17,11 @@ export const RecipeTunnel = () => {
          variables: {
             id: state.weeks[state.week.id]?.recipe?.id,
             yieldId: state.weeks[state.week.id]?.recipe?.yieldId,
+         },
+         onError: error => {
+            addToast(error.message, {
+               appearance: 'error',
+            })
          },
       }
    )

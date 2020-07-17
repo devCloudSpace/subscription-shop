@@ -1,5 +1,6 @@
 import React from 'react'
 import tw, { styled, css } from 'twin.macro'
+import { useToasts } from 'react-toast-notifications'
 import { useQuery, useMutation } from '@apollo/react-hooks'
 
 import { useMenu } from './state'
@@ -13,14 +14,38 @@ import {
 
 export const CartPanel = () => {
    const { user } = useUser()
+   const { addToast } = useToasts()
    const { state, dispatch } = useMenu()
    const [upsertCart] = useMutation(CREATE_CART, {
       refetchQueries: () => ['cart'],
+      onCompleted: () => {
+         addToast('Selected menu has been saved.', {
+            appearance: 'success',
+         })
+      },
+      onError: error => {
+         addToast(error.message, {
+            appearance: 'error',
+         })
+      },
    })
    const [updateCartSkipStatus] = useMutation(
       UPSERT_OCCURENCE_CUSTOMER_CART_SKIP,
       {
          refetchQueries: ['cart'],
+         onCompleted: () => {
+            if (week.isSkipped) {
+               return addToast('Skipped this week', { appearance: 'warning' })
+            }
+            addToast('This week is now available for menu selection', {
+               appearance: 'success',
+            })
+         },
+         onError: error => {
+            addToast(error.message, {
+               appearance: 'error',
+            })
+         },
       }
    )
    const { data: { zipcode = {} } = {} } = useQuery(ZIPCODE, {
@@ -180,11 +205,15 @@ const SkeletonCartProduct = () => {
 }
 
 const CartProduct = ({ product }) => {
+   const { addToast } = useToasts()
    const { state, dispatch } = useMenu()
    const removeRecipe = id => {
       dispatch({
          type: 'REMOVE_RECIPE',
          payload: { weekId: state.week.id, productId: id },
+      })
+      addToast(`You've removed the recipe ${product.name}.`, {
+         appearance: 'warning',
       })
    }
    return (

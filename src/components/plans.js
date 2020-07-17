@@ -1,6 +1,7 @@
 import React from 'react'
 import { navigate } from 'gatsby'
 import tw, { styled, css } from 'twin.macro'
+import { useToasts } from 'react-toast-notifications'
 import { useSubscription } from '@apollo/react-hooks'
 
 import { PLANS } from '../graphql'
@@ -8,7 +9,17 @@ import { isClient } from '../utils'
 import { Loader } from './loader'
 
 export const Plans = () => {
-   const { loading, error, data: { plans = [] } = {} } = useSubscription(PLANS)
+   const { addToast } = useToasts()
+   const { loading, error, data: { plans = [] } = {} } = useSubscription(
+      PLANS,
+      {
+         onError: error => {
+            addToast(error.message, {
+               appearance: 'error',
+            })
+         },
+      }
+   )
 
    if (loading) return <Loader inline />
    if (error) return <div>{error.message}</div>
@@ -24,6 +35,7 @@ export const Plans = () => {
 }
 
 const Plan = ({ plan }) => {
+   const { addToast } = useToasts()
    const [defaultItemCount, setDefaultItemCount] = React.useState(null)
    const [defaultServing, setDefaultServing] = React.useState(null)
 
@@ -51,6 +63,9 @@ const Plan = ({ plan }) => {
       if (isClient) {
          window.localStorage.setItem('plan', defaultItemCount.id)
       }
+      addToast('Successfully selected a plan.', {
+         appearance: 'success',
+      })
       navigate('/get-started/register')
    }
 

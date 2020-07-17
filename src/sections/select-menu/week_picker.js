@@ -2,6 +2,7 @@ import React from 'react'
 import moment from 'moment'
 import { navigate } from 'gatsby'
 import tw, { styled } from 'twin.macro'
+import { useToasts } from 'react-toast-notifications'
 import { useQuery, useLazyQuery } from '@apollo/react-hooks'
 
 import { useMenu } from './state'
@@ -13,6 +14,7 @@ import { CART_BY_WEEK, CUSTOMER_OCCURENCES } from '../../graphql'
 
 export const WeekPicker = () => {
    const { user } = useUser()
+   const { addToast } = useToasts()
    const { state, dispatch } = useMenu()
    const [current, setCurrent] = React.useState(0)
    const [fetchCart, { data: { cart } = {} }] = useLazyQuery(CART_BY_WEEK, {
@@ -52,6 +54,11 @@ export const WeekPicker = () => {
             },
          })
       },
+      onError: error => {
+         addToast(error.message, {
+            appearance: 'error',
+         })
+      },
    })
 
    React.useEffect(() => {
@@ -89,6 +96,11 @@ export const WeekPicker = () => {
             navigate('/get-started/select-delivery')
          }
       },
+      onError: error => {
+         addToast(error.message, {
+            appearance: 'error',
+         })
+      },
    })
 
    const next = () => {
@@ -102,6 +114,9 @@ export const WeekPicker = () => {
             weekId: state.occurences[nextOne].id,
          },
       })
+      addToast("Showing next week's menu.", {
+         appearance: 'info',
+      })
    }
    const previous = () => {
       const previousOne =
@@ -113,6 +128,9 @@ export const WeekPicker = () => {
             keycloakId: user.keycloakId,
             weekId: state.occurences[previousOne].id,
          },
+      })
+      addToast("Showing previous week's menu.", {
+         appearance: 'info',
       })
    }
 
