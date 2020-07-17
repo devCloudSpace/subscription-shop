@@ -79,7 +79,7 @@ export const WeekPicker = () => {
          keycloakId: user.keycloakId,
       },
       onCompleted: ({ customer: { subscription } = {} }) => {
-         if (subscription?.occurences) {
+         if (subscription?.occurences.length > 0) {
             const filtered = subscription.occurences.filter(
                occurence => occurence.isValid && occurence.isVisible
             )
