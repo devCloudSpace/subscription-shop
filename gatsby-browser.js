@@ -20,8 +20,11 @@ export const wrapRootElement = ({ element }) => {
       <KeycloakProvider
          keycloak={keycloak}
          initConfig={{
+            flow: 'implicit',
             onLoad: 'check-sso',
-            promiseType: 'native',
+            silentCheckSsoRedirectUri: `${window.location.origin}${
+               process.env.NODE_ENV === 'production' ? '/subscription' : ''
+            }/silent-check-sso.xhtml`,
          }}
          LoadingComponent={<Loader />}
       >

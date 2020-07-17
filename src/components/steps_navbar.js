@@ -37,7 +37,13 @@ export const StepsNavbar = () => {
                      css={tw`bg-red-600 text-white rounded px-2 py-1`}
                      onClick={() =>
                         keycloak.logout({
-                           redirectUri: isClient ? window.location.origin : '',
+                           redirectUri: isClient
+                              ? `${window.location.origin}${
+                                   process.env.NODE_ENV === 'production'
+                                      ? '/subscription'
+                                      : ''
+                                }`
+                              : '',
                         })
                      }
                   >

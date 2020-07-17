@@ -4,6 +4,7 @@ import { navigate } from 'gatsby'
 import { useKeycloak } from '@react-keycloak/web'
 import { useLazyQuery, useMutation } from '@apollo/react-hooks'
 
+import { isClient } from '../../utils'
 import { SEO, Layout, StepsNavbar } from '../../components'
 import { CUSTOMERS, UPDATE_CUSTOMER, CREATE_CUSTOMER } from '../../graphql'
 
@@ -55,6 +56,23 @@ export default () => {
             })
          }
       }
+      if (isClient) {
+         let eventMethod = window.addEventListener
+            ? 'addEventListener'
+            : 'attachEvent'
+         let eventer = window[eventMethod]
+         let messageEvent =
+            eventMethod === 'attachEvent' ? 'onmessage' : 'message'
+
+         eventer(messageEvent, e => {
+            if (e.origin !== window.origin) return
+            try {
+               if (JSON.parse(e.data).success) {
+                  window.location.reload()
+               }
+            } catch (error) {}
+         })
+      }
    }, [keycloak, customers])
 
    return (
@@ -67,7 +85,15 @@ export default () => {
                   frameBorder="0"
                   title="Register"
                   tw="mx-auto w-full md:w-4/12 h-full"
-                  src={keycloak?.createRegisterUrl()}
+                  src={keycloak?.createRegisterUrl({
+                     redirectUri: isClient
+                        ? `${window.location.origin}${
+                             process.env.NODE_ENV === 'production'
+                                ? '/subscription'
+                                : ''
+                          }/login-success.xhtml`
+                        : '',
+                  })}
                ></iframe>
             )}
          </Main>
