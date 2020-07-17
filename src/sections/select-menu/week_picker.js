@@ -71,7 +71,7 @@ export const WeekPicker = () => {
             },
          })
       }
-   }, [cart])
+   }, [cart, state.week, dispatch])
 
    const { loading } = useQuery(CUSTOMER_OCCURENCES, {
       variables: {

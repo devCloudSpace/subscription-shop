@@ -46,13 +46,13 @@ export const UserProvider = ({ children }) => {
 
    React.useEffect(() => {
       if (customers.length === 1) {
-         setUser({
+         setUser(user => ({
             ...user,
             ...customers[0],
             keycloakId: keycloak?.tokenParsed?.sub,
-         })
+         }))
       }
-   }, [customers])
+   }, [customers, keycloak])
 
    if (crmLoading || platformLoading) return <Loader />
    return (
