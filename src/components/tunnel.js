@@ -66,7 +66,7 @@ Tunnel.Body = Body
 
 const Wrapper = styled.div`
    margin-top: 64px;
-   ${tw`fixed inset-0`}
+   ${tw`w-full fixed inset-0`}
    background: rgba(0,0,0,0.2);
 `
 
@@ -101,7 +101,7 @@ const widthSelector = size => {
 
 const TunnelHeader = styled.header`
    height: 64px;
-   ${tw`px-4 border-b flex items-center justify-between`}
+   ${tw`pl-8 pr-4 border-b flex items-center justify-between`}
 `
 
 const TunnelBody = styled.main`

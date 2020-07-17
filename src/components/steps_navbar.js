@@ -63,8 +63,9 @@ export const StepsNavbar = () => {
 const Navbar = styled.div`
    height: 64px;
    display: grid;
+   z-index: 1000;
    grid-template-columns: auto 1fr auto;
-   ${tw`items-center border-b`}
+   ${tw`bg-white top-0 fixed w-full items-center border-b`}
    @media (max-width: 767px) {
       display: flex;
    }

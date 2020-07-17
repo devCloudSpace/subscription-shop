@@ -83,18 +83,18 @@ export const RecipeTunnel = () => {
                   <h2 tw="pb-2 mt-4 border-b border-gray-300 text-gray-500 mb-3 text-lg font-medium">
                      Cooking Process
                   </h2>
-                  <ol tw="list-decimal ml-4">
+                  <ul>
                      {recipe.procedures.map(procedure => (
                         <li tw="h-auto mb-4" key={procedure.name}>
                            <ol tw="list-decimal">
-                              <span tw="text-lg font-normal text-gray-700">
+                              <span tw="text-lg font-medium text-gray-700">
                                  {procedure.title}
                               </span>
                               {procedure.steps.map(step =>
                                  step.isVisible ? (
                                     <li
                                        key={step.title}
-                                       tw="h-auto mb-4 ml-4 mt-2"
+                                       tw="h-auto mb-4 ml-8 mt-2"
                                     >
                                        {step.title && (
                                           <span tw="text-gray-800">
@@ -132,7 +132,7 @@ export const RecipeTunnel = () => {
                            </ol>
                         </li>
                      ))}
-                  </ol>
+                  </ul>
                </RecipeContainer>
             )}
          </Tunnel.Body>
@@ -143,11 +143,15 @@ export const RecipeTunnel = () => {
 const RecipeContainer = styled.div`
    margin: auto;
    max-width: 640px;
+   padding: 0 8px 0 16px;
    width: calc(100vw - 40px);
 `
 
 const RecipeImage = styled.div`
    height: 320px;
+   @media (max-width: 567px) {
+      height: 240px;
+   }
 `
 
 const StepImage = styled.div`
@@ -157,5 +161,8 @@ const StepImage = styled.div`
       width: 100%;
       height: 220px;
       ${tw`object-cover rounded`}
+      @media (max-width: 567px) {
+         height: 160px;
+      }
    }
 `

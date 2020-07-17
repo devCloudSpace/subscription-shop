@@ -54,7 +54,8 @@ export const Header = () => {
 
 const Wrapper = styled.header`
    height: 64px;
-   ${tw`border-b flex items-center`}
+   z-index: 1000;
+   ${tw`w-full top-0 bg-white fixed border-b flex items-center`}
 `
 
 const Brand = styled(Link)`
