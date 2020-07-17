@@ -21,7 +21,6 @@ export const wrapRootElement = ({ element }) => {
       <KeycloakProvider
          keycloak={keycloak}
          initConfig={{
-            flow: 'implicit',
             onLoad: 'check-sso',
             silentCheckSsoRedirectUri: `${window.location.origin}${
                process.env.NODE_ENV === 'production' ? '/subscription' : ''
