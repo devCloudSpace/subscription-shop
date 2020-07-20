@@ -82,6 +82,21 @@ export const UPSERT_OCCURENCE_CUSTOMER_CART_SKIP = gql`
    }
 `
 
+export const INSERT_SUBSCRIPTION_OCCURENCE_CUSTOMERS = gql`
+   mutation insertSubscriptionOccurenctCustomers(
+      $objects: [subscription_subscriptionOccurence_customer_insert_input!]!
+   ) {
+      insertSubscriptionOccurenctCustomers: insert_subscription_subscriptionOccurence_customer(
+         objects: $objects
+      ) {
+         returning {
+            keycloakId
+            subscriptionOccurenceId
+         }
+      }
+   }
+`
+
 export const CREATE_CART = gql`
    mutation createCart(
       $object: crm_orderCart_insert_input!
@@ -102,12 +117,10 @@ export const CREATE_STRIPE_PAYMENT_METHOD = gql`
    }
 `
 
-export const UPDATE_CARTS = gql`
-   mutation updateCarts($_in: [Int!]!, $_set: crm_orderCart_set_input!) {
-      updateCarts: updateCart(where: { id: { _in: $_in } }, _set: $_set) {
-         returning {
-            id
-         }
+export const UPDATE_CART = gql`
+   mutation updateCart($id: Int!, $_set: crm_orderCart_set_input!) {
+      updateCart: updateCartByPK(pk_columns: { id: $id }, _set: $_set) {
+         id
       }
    }
 `

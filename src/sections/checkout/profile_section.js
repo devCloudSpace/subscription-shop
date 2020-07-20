@@ -43,8 +43,8 @@ export const ProfileSection = () => {
    }
    return (
       <>
-         <header tw="mt-5 mb-3 flex items-center justify-between">
-            <h2 tw="text-gray-600 text-xl">Profile Details</h2>
+         <header tw="my-3 pb-1 border-b flex items-center justify-between">
+            <h4 tw="text-lg text-gray-700">Profile Details</h4>
          </header>
          <form onSubmit={handleProfileSubmit}>
             <section tw="flex flex-col md:flex-row items-center">

@@ -1,6 +1,6 @@
 import React from 'react'
 import { navigate } from 'gatsby'
-import tw, { styled } from 'twin.macro'
+import tw, { styled, css } from 'twin.macro'
 import { useKeycloak } from '@react-keycloak/web'
 import { useMutation, useQuery } from '@apollo/react-hooks'
 
@@ -12,7 +12,8 @@ import {
    PaymentSection,
 } from '../../sections/checkout'
 import { useUser } from '../../context'
-import { UPDATE_CARTS, CARTS_BY_USER } from '../../graphql'
+import { UPDATE_CART, CART } from '../../graphql'
+import { isClient, formatDate } from '../../utils'
 import { useToasts } from 'react-toast-notifications'
 
 const Checkout = () => {
@@ -29,16 +30,16 @@ const Checkout = () => {
          <SEO title="Checkout" />
          <StepsNavbar />
          <PaymentProvider>
-            <PaymentContent />
+            <PaymentContent isCheckout />
          </PaymentProvider>
       </Layout>
    )
 }
 
-const PaymentContent = () => {
+const PaymentContent = ({ isCheckout }) => {
    const { user } = useUser()
    const { addToast } = useToasts()
-   const [updateCarts] = useMutation(UPDATE_CARTS, {
+   const [updateCart] = useMutation(UPDATE_CART, {
       onCompleted: () => {
          addToast('Saved you preferences.', {
             appearance: 'success',
@@ -52,17 +53,16 @@ const PaymentContent = () => {
       },
    })
    const [paymentMethodId, setPaymentMethodId] = React.useState('')
-   const { data: { carts = [] } = {} } = useQuery(CARTS_BY_USER, {
+   const { data: { cart = {} } = {} } = useQuery(CART, {
       variables: {
-         keycloakId: user.keycloakId,
+         id: isClient && window.localStorage.getItem('cartId'),
       },
    })
 
    const handleSubmit = () => {
-      const cartIds = carts.map(cart => cart.id)
-      updateCarts({
+      updateCart({
          variables: {
-            _in: cartIds,
+            id: cart.id,
             _set: {
                customerInfo: {
                   customerEmail: user.email,
@@ -71,32 +71,128 @@ const PaymentContent = () => {
                   customerFirstName: user.firstName,
                },
                paymentMethodId,
+               ...(isCheckout && { status: 'PROCESS' }),
             },
          },
       })
    }
    return (
       <Main>
-         <header tw="flex items-center justify-between border-b">
-            <h1 tw="pt-3 mb-3 text-green-600 text-3xl">Checkout</h1>
-            <Button onClick={handleSubmit}>Save</Button>
-         </header>
-         <ProfileSection />
-         <PaymentSection setPaymentMethodId={setPaymentMethodId} />
+         <section>
+            <ProfileSection />
+            <PaymentSection setPaymentMethodId={setPaymentMethodId} />
+         </section>
+         {cart?.cartInfo && (
+            <section>
+               <header tw="my-3 pb-1 border-b flex items-center justify-between">
+                  <h4 tw="text-lg text-gray-700">
+                     Order Summary ({cart.cartInfo.products.length})
+                  </h4>
+               </header>
+               <CartProducts>
+                  {cart.cartInfo.products.map(product => (
+                     <CartProduct
+                        product={product}
+                        key={`product-${product.cartItemId}`}
+                     />
+                  ))}
+               </CartProducts>
+               {
+                  <Button
+                     onClick={handleSubmit}
+                     disabled={!Boolean(paymentMethodId)}
+                  >
+                     Confirm & Pay {cart.amount}
+                  </Button>
+               }
+               <section tw="my-4 text-gray-700">
+                  * Your box will be delivered on{' '}
+                  <span>
+                     {formatDate(cart.fulfillmentInfo.slot.from, {
+                        month: 'short',
+                        day: 'numeric',
+                     })}
+                     &nbsp;between{' '}
+                     {formatDate(cart.fulfillmentInfo.slot.from, {
+                        minute: 'numeric',
+                        hour: 'numeric',
+                     })}
+                     &nbsp;-&nbsp;
+                     {formatDate(cart.fulfillmentInfo.slot.to, {
+                        minute: 'numeric',
+                        hour: 'numeric',
+                     })}
+                  </span>{' '}
+                  at{' '}
+                  <span>
+                     {cart.address?.line1},&nbsp;
+                     {cart.address?.line2 && `, ${cart.address?.line2}`}
+                     {cart.address?.city}, {cart.address?.state},&nbsp;
+                     {cart.address?.zipcode}
+                  </span>
+               </section>
+            </section>
+         )}
       </Main>
    )
 }
 
 export default Checkout
 
-const Main = styled.main`
-   margin: auto;
-   max-width: 980px;
-   margin-bottom: 24px;
-   width: calc(100vw - 40px);
-   min-height: calc(100vh - 160px);
+const CartProduct = ({ product }) => {
+   return (
+      <CartProductContainer>
+         <aside tw="flex-shrink-0 relative">
+            {product.image ? (
+               <img
+                  src={product.image}
+                  alt={product.name}
+                  title={product.name}
+                  tw="object-cover rounded w-full h-full"
+               />
+            ) : (
+               <span tw="text-teal-500" title={product.name}>
+                  N/A
+               </span>
+            )}
+         </aside>
+         <main tw="h-16 pl-3">
+            <p tw="truncate text-gray-800" title={product.name}>
+               {product.name}
+            </p>
+         </main>
+      </CartProductContainer>
+   )
+}
+
+const CartProducts = styled.ul`
+   ${tw`space-y-2 mb-3`}
+   overflow-y: auto;
+   max-height: 257px;
 `
 
-const Button = styled.button`
-   ${tw`rounded px-3 h-8 bg-transparent hover:bg-green-600 text-green-600 border border-green-600 hover:text-white`}
+const CartProductContainer = styled.li`
+   ${tw`h-20 bg-white border flex items-center px-2 rounded`}
+   aside {
+      ${tw`w-24 h-16 bg-green-300 rounded flex items-center justify-center`}
+   }
 `
+
+const Main = styled.main`
+   margin: auto;
+   margin-bottom: 24px;
+   width: calc(100vw - 48px);
+   min-height: calc(100vh - 160px);
+   ${tw`grid gap-8`}
+   grid-template-columns: 1fr 400px;
+   @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+   }
+`
+
+const Button = styled.button(
+   ({ disabled }) => css`
+      ${tw`w-full h-10 rounded px-3 text-white bg-green-600 hover:bg-green-700`}
+      ${disabled && tw`cursor-not-allowed bg-green-300 hover:bg-green-300`}
+   `
+)

@@ -23,7 +23,6 @@ export const DeliverySection = () => {
          },
       }
    )
-   console.log(itemCount)
 
    React.useEffect(() => {
       if (Object.keys(state.address.selected).length > 0) {

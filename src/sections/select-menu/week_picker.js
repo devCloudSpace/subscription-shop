@@ -1,7 +1,7 @@
 import React from 'react'
 import moment from 'moment'
 import { navigate } from 'gatsby'
-import tw, { styled } from 'twin.macro'
+import tw, { styled, css } from 'twin.macro'
 import { useToasts } from 'react-toast-notifications'
 import { useQuery, useLazyQuery } from '@apollo/react-hooks'
 
@@ -12,7 +12,7 @@ import { formatDate } from '../../utils'
 import { ArrowLeftIcon, ArrowRightIcon } from '../../assets/icons'
 import { CART_BY_WEEK, CUSTOMER_OCCURENCES } from '../../graphql'
 
-export const WeekPicker = () => {
+export const WeekPicker = ({ isFixed, selectedDate }) => {
    const { user } = useUser()
    const { addToast } = useToasts()
    const { state, dispatch } = useMenu()
@@ -77,6 +77,11 @@ export const WeekPicker = () => {
       variables: {
          id: user.id,
          keycloakId: user.keycloakId,
+         where: {
+            fulfillmentDate: {
+               _eq: selectedDate.fulfillmentDate,
+            },
+         },
       },
       onCompleted: ({ customer: { subscription } = {} }) => {
          if (subscription?.occurences.length > 0) {
@@ -136,10 +141,12 @@ export const WeekPicker = () => {
 
    if (loading) return <Loader inline />
    return (
-      <Occurence>
-         <SliderButton onClick={() => previous()}>
-            <ArrowLeftIcon css={tw`stroke-current text-green-800`} />
-         </SliderButton>
+      <Occurence isFixed={isFixed}>
+         {!isFixed && (
+            <SliderButton onClick={() => previous()}>
+               <ArrowLeftIcon css={tw`stroke-current text-green-800`} />
+            </SliderButton>
+         )}
          <span
             css={tw`flex items-center justify-center text-base text-center md:text-lg text-indigo-800`}
          >
@@ -161,24 +168,28 @@ export const WeekPicker = () => {
                year: 'numeric',
             })}
          </span>
-         <SliderButton onClick={() => next()}>
-            <ArrowRightIcon css={tw`stroke-current text-green-800`} />
-         </SliderButton>
+         {!isFixed && (
+            <SliderButton onClick={() => next()}>
+               <ArrowRightIcon css={tw`stroke-current text-green-800`} />
+            </SliderButton>
+         )}
       </Occurence>
    )
 }
 
-const Occurence = styled.div`
-   height: 64px;
-   display: grid;
-   margin: auto;
-   max-width: 980px;
-   width: 100%;
-   grid-template-columns: 64px 1fr 64px;
-   @media (max-width: 567px) {
-      grid-template-columns: 48px 1fr 48px;
-   }
-`
+const Occurence = styled.div(
+   ({ isFixed }) => css`
+      height: 64px;
+      display: grid;
+      margin: auto;
+      max-width: 980px;
+      width: 100%;
+      grid-template-columns: ${isFixed ? '1fr' : '64px 1fr 64px'};
+      @media (max-width: 567px) {
+         grid-template-columns: ${isFixed ? '1fr' : '48px 1fr 48px'};
+      }
+   `
+)
 
 const SliderButton = styled.button`
    width: 48px;

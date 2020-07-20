@@ -32,8 +32,8 @@ export const PaymentSection = ({ setPaymentMethodId }) => {
    if (loading) return <Loader inline />
    return (
       <>
-         <header tw="mt-8 mb-3 flex items-center justify-between">
-            <h2 tw="text-gray-600 text-xl">Select Payment Method</h2>
+         <header tw="my-3 pb-1 border-b flex items-center justify-between">
+            <h4 tw="text-lg text-gray-700">Select Payment Method</h4>
             {paymentMethods.length > 0 && (
                <OutlineButton onClick={() => toggleTunnel(true)}>
                   Add Card

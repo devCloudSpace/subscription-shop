@@ -1,10 +1,12 @@
 import React from 'react'
 import moment from 'moment'
+import { navigate } from 'gatsby'
 import tw, { styled, css } from 'twin.macro'
 import { useToasts } from 'react-toast-notifications'
 import { useQuery, useMutation } from '@apollo/react-hooks'
 
 import { useMenu } from './state'
+import { isClient } from '../../utils'
 import { useUser } from '../../context'
 import { CloseIcon } from '../../assets/icons'
 import {
@@ -13,16 +15,18 @@ import {
    UPSERT_OCCURENCE_CUSTOMER_CART_SKIP,
 } from '../../graphql'
 
-export const CartPanel = () => {
+export const CartPanel = ({ noSkip, isCheckout }) => {
    const { user } = useUser()
    const { addToast } = useToasts()
    const { state, dispatch } = useMenu()
    const [upsertCart] = useMutation(CREATE_CART, {
       refetchQueries: () => ['cart'],
-      onCompleted: () => {
+      onCompleted: ({ createCart }) => {
+         isClient && window.localStorage.setItem('cartId', createCart.id)
          addToast('Selected menu has been saved.', {
             appearance: 'success',
          })
+         navigate('/get-started/checkout')
       },
       onError: error => {
          addToast(error.message, {
@@ -154,19 +158,21 @@ export const CartPanel = () => {
                }
                /{user?.subscription?.recipes?.count}
             </h4>
-            <SkipWeek>
-               <label htmlFor="skip" tw="mr-2 text-gray-600">
-                  Skip
-               </label>
-               <input
-                  name="skip"
-                  type="checkbox"
-                  className="toggle"
-                  onChange={skipWeek}
-                  checked={week?.isSkipped}
-                  tw="cursor-pointer appearance-none"
-               />
-            </SkipWeek>
+            {!noSkip && (
+               <SkipWeek>
+                  <label htmlFor="skip" tw="mr-2 text-gray-600">
+                     Skip
+                  </label>
+                  <input
+                     name="skip"
+                     type="checkbox"
+                     className="toggle"
+                     onChange={skipWeek}
+                     checked={week?.isSkipped}
+                     tw="cursor-pointer appearance-none"
+                  />
+               </SkipWeek>
+            )}
          </header>
          <CartProducts>
             {week?.cart.products.map((product, index) =>
@@ -204,11 +210,8 @@ export const CartPanel = () => {
             </tbody>
          </table>
          <SaveButton disabled={isCartValid()} onClick={submitSelection}>
-            Save Selection
+            {isCheckout ? 'Save and Proceed to Checkout' : 'Save Selection'}
          </SaveButton>
-         <button tw="mt-2 h-10 w-full rounded text-white text-center bg-orange-500">
-            Proceed to checkout
-         </button>
       </section>
    )
 }
