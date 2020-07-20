@@ -43,7 +43,6 @@ const DeliveryContent = () => {
    const { user } = useUser()
    const { state } = useDelivery()
    const { addToast } = useToasts()
-   const [selectedDay, setSelectedDay] = React.useState(null)
    const [updateDailykeyCustomer] = useMutation(UPDATE_DAILYKEY_CUSTOMER, {})
    const [updateCustomers] = useMutation(UPDATE_CUSTOMERS, {
       onCompleted: () => {
@@ -76,7 +75,7 @@ const DeliveryContent = () => {
                },
             },
             _set: {
-               subscriptionId: selectedDay,
+               subscriptionId: state.delivery.selected.id,
                subscriptionAddressId: state.address.selected.id,
             },
          },
@@ -96,7 +95,7 @@ const DeliveryContent = () => {
             {isValid() && <Button onClick={() => nextStep()}>Next</Button>}
          </header>
          <AddressSection />
-         <DeliverySection setDay={setSelectedDay} />
+         <DeliverySection />
       </Main>
    )
 }

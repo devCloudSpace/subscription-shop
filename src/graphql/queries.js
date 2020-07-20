@@ -1,10 +1,19 @@
 import gql from 'graphql-tag'
 
 export const ITEM_COUNT = gql`
-   subscription itemCount($id: Int!) {
+   query itemCount($id: Int!, $zipcode: String) {
       itemCount: subscription_subscriptionItemCount_by_pk(id: $id) {
          id
-         days: subscriptions {
+         valid: subscriptions(
+            where: { availableZipcodes: { zipcode: { _eq: $zipcode } } }
+         ) {
+            id
+            rrule
+            leadTime
+         }
+         invalid: subscriptions(
+            where: { availableZipcodes: { zipcode: { _neq: $zipcode } } }
+         ) {
             id
             rrule
             leadTime
