@@ -8,15 +8,21 @@ export default () => {
    return (
       <Layout>
          <SEO title="Home" />
-         <Header>
-            <div>
-               <Tagline>Your next great meal is at your fingertips.</Tagline>
-               <CTA to="/get-started/select-plan">Get Started</CTA>
-            </div>
-         </Header>
+         <Main>
+            <Header>
+               <div>
+                  <Tagline>Your next great meal is at your fingertips.</Tagline>
+                  <CTA to="/get-started/select-plan">Get Started</CTA>
+               </div>
+            </Header>
+         </Main>
       </Layout>
    )
 }
+
+const Main = styled.main`
+   min-height: calc(100vh - 128px);
+`
 
 const Tagline = styled.h1`
    width: 100%;
