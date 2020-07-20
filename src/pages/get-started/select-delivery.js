@@ -98,22 +98,18 @@ const SelectDelivery = () => {
          <SEO title="Delivery" />
          <StepsNavbar />
          <Main>
-            <div>
-               <header css={tw`flex items-center justify-between border-b`}>
-                  <h1 css={tw`pt-3 pb-2 mb-3 text-green-600 text-3xl`}>
-                     Delivery
-                  </h1>
-                  {isValid() && (
-                     <Button onClick={() => nextStep()}>Next</Button>
-                  )}
-               </header>
-               <SelectDeliveryDay setDay={setSelectedDay} />
-               <SelectAddresses
-                  addressError={addressError}
-                  setAddress={setSelectedAddress}
-                  setAddressError={setAddressError}
-               />
-            </div>
+            <header css={tw`flex items-center justify-between border-b`}>
+               <h1 css={tw`pt-3 pb-2 mb-3 text-green-600 text-3xl`}>
+                  Delivery
+               </h1>
+               {isValid() && <Button onClick={() => nextStep()}>Next</Button>}
+            </header>
+            <SelectDeliveryDay setDay={setSelectedDay} />
+            <SelectAddresses
+               addressError={addressError}
+               setAddress={setSelectedAddress}
+               setAddressError={setAddressError}
+            />
          </Main>
       </Layout>
    )
@@ -452,13 +448,10 @@ const AddressTunnel = ({ isOpen, toggleTunnel }) => {
 }
 
 const Main = styled.main`
-   overflow-y: auto;
-   height: calc(100vh - 64px);
-   > div {
-      margin: auto;
-      max-width: 980px;
-      width: calc(100vw - 40px);
-   }
+   margin: auto;
+   max-width: 980px;
+   width: calc(100vw - 40px);
+   min-height: calc(100vh - 128px);
 `
 
 const DeliveryDays = styled.ul`
