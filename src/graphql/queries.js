@@ -1,23 +1,5 @@
 import gql from 'graphql-tag'
 
-export const PLANS_AVAILABILITY_BY_ZIPCODE = gql`
-   query plans($zipcode: String) {
-      plans: subscription_subscriptionTitle(
-         where: {
-            subscriptionServings: {
-               subscriptionItemCounts: {
-                  subscriptions: {
-                     availableZipcodes: { zipcode: { _eq: $zipcode } }
-                  }
-               }
-            }
-         }
-      ) {
-         id
-      }
-   }
-`
-
 export const ITEM_COUNT = gql`
    subscription itemCount($id: Int!) {
       itemCount: subscription_subscriptionItemCount_by_pk(id: $id) {

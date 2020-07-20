@@ -206,6 +206,9 @@ export const CartPanel = () => {
          <SaveButton disabled={isCartValid()} onClick={submitSelection}>
             Save Selection
          </SaveButton>
+         <button tw="mt-2 h-10 w-full rounded text-white text-center bg-orange-500">
+            Proceed to checkout
+         </button>
       </section>
    )
 }
