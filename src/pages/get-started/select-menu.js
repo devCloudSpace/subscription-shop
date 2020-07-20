@@ -6,11 +6,9 @@ import { useKeycloak } from '@react-keycloak/web'
 import { SEO, Layout, StepsNavbar } from '../../components'
 import {
    Menu,
-   useMenu,
    CartPanel,
    WeekPicker,
    MenuProvider,
-   RecipeTunnel,
 } from '../../sections/select-menu'
 
 const SelectMenu = () => {

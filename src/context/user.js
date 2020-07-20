@@ -18,29 +18,12 @@ export const UserProvider = ({ children }) => {
          keycloakId: keycloak?.tokenParsed?.sub,
       },
    })
-   const { loading: platformLoading } = useQuery(CUSTOMER_DETAILS, {
+   const {
+      loading: platformLoading,
+      data: { platform_customer: customer = {} } = {},
+   } = useQuery(CUSTOMER_DETAILS, {
       variables: {
          keycloakId: keycloak?.tokenParsed?.sub,
-      },
-      onCompleted: ({ platform_customer: customer = {} }) => {
-         setUser({
-            ...user,
-            email: customer.email,
-            firstName: customer.firstName,
-            lastName: customer.lastName,
-            phoneNumber: customer.phoneNumber,
-            stripeCustomerId: customer.stripeCustomerId,
-
-            address: customer.customerAddresses,
-            defaultAddress: customer.defaultCustomerAddress,
-            defaultAddressId: customer.defaultCustomerAddressId,
-            defaultSubscriptionAddress: customer.defaultSubscriptionAddress,
-            defaultSubscriptionAddressId: customer.defaultSubscriptionAddressId,
-
-            paymentMethods: customer.stripePaymentMethods,
-            defaultPaymentMethod: customer.defaultStripePaymentMethod,
-            defaultPaymentMethodId: customer.defaultPaymentMethodId,
-         })
       },
    })
 
@@ -53,6 +36,29 @@ export const UserProvider = ({ children }) => {
          }))
       }
    }, [customers, keycloak])
+
+   React.useEffect(() => {
+      if (customer) {
+         setUser(user => ({
+            ...user,
+            email: customer.email,
+            firstName: customer.firstName,
+            lastName: customer.lastName,
+            phoneNumber: customer.phoneNumber,
+            stripeCustomerId: customer.stripeCustomerId,
+
+            address: customer.customerAddresses,
+            defaultSubscriptionAddress: customer.defaultSubscriptionAddress,
+            defaultSubscriptionAddressId: customer.defaultSubscriptionAddressId,
+
+            paymentMethods: customer.stripePaymentMethods,
+            defaultSubscriptionPaymentMethod:
+               customer.defaultSubscriptionPaymentMethod,
+            defaultSubscriptionPaymentMethodId:
+               customer.defaultSubscriptionPaymentMethodId,
+         }))
+      }
+   }, [customer])
 
    if (crmLoading || platformLoading) return <Loader />
    return (

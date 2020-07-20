@@ -148,23 +148,9 @@ export const CUSTOMER_DETAILS = gql`
          keycloakId
          phoneNumber
          stripeCustomerId
-         defaultPaymentMethodId
-         defaultCustomerAddressId
          defaultSubscriptionAddressId
+         defaultSubscriptionPaymentMethodId
          defaultSubscriptionAddress {
-            id
-            lat
-            lng
-            line1
-            line2
-            city
-            state
-            country
-            zipcode
-            label
-            notes
-         }
-         defaultCustomerAddress {
             id
             lat
             lng
@@ -190,7 +176,7 @@ export const CUSTOMER_DETAILS = gql`
             label
             notes
          }
-         defaultStripePaymentMethod {
+         defaultSubscriptionPaymentMethod {
             brand
             last4
             country
@@ -324,6 +310,31 @@ export const ZIPCODE = gql`
          zipcode: $zipcode
       ) {
          price: deliveryPrice
+      }
+   }
+`
+
+export const PAYMENT_METHODS = gql`
+   query paymentMethods($keycloakId: String!) {
+      paymentMethods: platform_stripePaymentMethods(
+         where: { keycloakId: { _eq: $keycloakId } }
+      ) {
+         last4
+         brand
+         funding
+         expYear
+         country
+         expMonth
+         cardHolderName
+         stripePaymentMethodId
+      }
+   }
+`
+
+export const CARTS_BY_USER = gql`
+   query carts($keycloakId: String!) {
+      carts: cart(where: { customerKeycloakId: { _eq: $keycloakId } }) {
+         id
       }
    }
 `

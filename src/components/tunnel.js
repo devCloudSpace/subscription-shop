@@ -101,7 +101,7 @@ const widthSelector = size => {
 
 const TunnelHeader = styled.header`
    height: 64px;
-   ${tw`pl-8 pr-4 border-b flex items-center justify-between`}
+   ${tw`px-4 border-b flex items-center justify-between`}
 `
 
 const TunnelBody = styled.main`

@@ -34,7 +34,7 @@ const Recipe = () => {
             yieldId,
          },
       })
-   }, [location.search])
+   }, [location.href, getRecipe])
 
    if (loading)
       return (

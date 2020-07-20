@@ -92,3 +92,22 @@ export const CREATE_CART = gql`
       }
    }
 `
+
+export const CREATE_STRIPE_PAYMENT_METHOD = gql`
+   mutation paymentMethod($object: platform_stripePaymentMethod_insert_input!) {
+      paymentMethod: platform_createStripePaymentMethod(object: $object) {
+         keycloakId
+         stripePaymentMethodId
+      }
+   }
+`
+
+export const UPDATE_CARTS = gql`
+   mutation updateCarts($_in: [Int!]!, $_set: crm_orderCart_set_input!) {
+      updateCarts: updateCart(where: { id: { _in: $_in } }, _set: $_set) {
+         returning {
+            id
+         }
+      }
+   }
+`
