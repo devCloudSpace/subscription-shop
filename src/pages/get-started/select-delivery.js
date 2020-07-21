@@ -1,13 +1,13 @@
 import React from 'react'
 import { navigate } from 'gatsby'
-import tw, { styled } from 'twin.macro'
+import tw, { styled, css } from 'twin.macro'
 import { useMutation } from '@apollo/react-hooks'
 import { useKeycloak } from '@react-keycloak/web'
 import { useToasts } from 'react-toast-notifications'
 
 import { isClient } from '../../utils'
 import { useUser } from '../../context'
-import { SEO, Layout, Button, StepsNavbar } from '../../components'
+import { SEO, Layout, StepsNavbar } from '../../components'
 import { UPDATE_CUSTOMERS, UPDATE_DAILYKEY_CUSTOMER } from '../../graphql'
 
 import {
@@ -91,11 +91,14 @@ const DeliveryContent = () => {
    return (
       <Main>
          <header css={tw`flex items-center justify-between border-b`}>
-            <h1 css={tw`pt-3 pb-2 mb-3 text-green-600 text-3xl`}>Delivery</h1>
-            {isValid() && <Button onClick={() => nextStep()}>Next</Button>}
+            <h1 css={tw`pt-3 pb-1 mb-3 text-green-600 text-3xl`}>Delivery</h1>
          </header>
          <AddressSection />
+         <h2 css={tw`my-3 text-gray-600 text-xl`}>Select Delivery Day</h2>
          <DeliverySection />
+         <div tw="mt-4 w-full flex items-center justify-center">
+            {isValid() && <Button onClick={() => nextStep()}>Continue</Button>}
+         </div>
       </Main>
    )
 }
@@ -105,4 +108,8 @@ const Main = styled.main`
    max-width: 980px;
    width: calc(100vw - 40px);
    min-height: calc(100vh - 128px);
+`
+
+const Button = styled.button`
+   ${tw`h-10 rounded px-5 text-white bg-green-600 hover:bg-green-700`}
 `

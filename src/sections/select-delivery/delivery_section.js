@@ -7,9 +7,9 @@ import { useToasts } from 'react-toast-notifications'
 
 import { isClient } from '../../utils'
 import { useDelivery } from './state'
-import { Loader } from '../../components'
 import { ITEM_COUNT } from '../../graphql'
 import { CheckIcon } from '../../assets/icons'
+import { Loader, HelperBar } from '../../components'
 
 export const DeliverySection = () => {
    const { addToast } = useToasts()
@@ -43,37 +43,40 @@ export const DeliverySection = () => {
 
    if (loading)
       return (
-         <div>
-            <h2 css={tw`mb-3 text-gray-600 text-xl`}>Select Delivery Day</h2>
+         <>
             <Loader inline />
-         </div>
+         </>
       )
    if (Object.keys(state.address.selected).length === 0)
       return (
          <>
-            <h2 css={tw`my-3 text-gray-600 text-xl`}>Select Delivery Day</h2>
-            <SelectAddressInfo>
-               <span>Select an address to get started</span>
-            </SelectAddressInfo>
+            <HelperBar type="info">
+               <HelperBar.SubTitle>
+                  Select an address to get started
+               </HelperBar.SubTitle>
+            </HelperBar>
          </>
       )
    return (
       <>
-         <h2 css={tw`my-3 text-gray-600 text-xl`}>Select Delivery Day</h2>
          {itemCount?.valid?.length === 0 && itemCount?.invalid?.length === 0 && (
-            <NoPlans>
-               <span>No days are available for delivery on this address.</span>
-               <button onClick={() => navigate('/get-started/select-plan')}>
+            <HelperBar type="warning">
+               <HelperBar.SubTitle>
+                  No days are available for delivery on this address.
+               </HelperBar.SubTitle>
+               <HelperBar.Button
+                  onClick={() => navigate('/get-started/select-plan')}
+               >
                   Select Plan
-               </button>
-            </NoPlans>
+               </HelperBar.Button>
+            </HelperBar>
          )}
          {itemCount?.valid?.length === 0 && itemCount?.invalid?.length > 0 && (
-            <NoPlans>
-               <span>
+            <HelperBar type="warning">
+               <HelperBar.SubTitle>
                   Following days are not available for delivery on this address.
-               </span>
-            </NoPlans>
+               </HelperBar.SubTitle>
+            </HelperBar>
          )}
          <DeliveryDays
             onChange={e =>
@@ -152,21 +155,5 @@ const DeliveryDay = styled.li`
          height: 100%;
          position: absolute;
       }
-   }
-`
-
-const NoPlans = styled.div`
-   height: 48px;
-   ${tw`w-full flex justify-between items-center px-3 rounded bg-orange-200 text-orange-800 mb-3`}
-   button {
-      ${tw`border border-orange-800 py-1 px-2 rounded text-sm hover:bg-orange-300`}
-   }
-`
-
-const SelectAddressInfo = styled.div`
-   height: 48px;
-   ${tw`w-full flex justify-between items-center px-3 rounded bg-blue-200 text-blue-800 mb-3`}
-   button {
-      ${tw`border border-blue-800 py-1 px-2 rounded text-sm hover:bg-blue-300`}
    }
 `

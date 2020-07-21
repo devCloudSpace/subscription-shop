@@ -81,10 +81,14 @@ const MenuContent = () => {
    if (Object.keys(selected).length === 0)
       return (
          <Main>
-            <header css={tw`flex items-center justify-between border-b`}>
+            <header css={tw`flex flex-col border-b`}>
                <h1 css={tw`pt-3 pb-2 mb-3 text-green-600 text-2xl`}>
-                  Select delivery date
+                  Select first delivery date
                </h1>
+               <span>
+                  These are the available mondays for you, choose a monday for
+                  first delivery.
+               </span>
             </header>
             <DeliveryDates>
                {occurences.map(occurence => (

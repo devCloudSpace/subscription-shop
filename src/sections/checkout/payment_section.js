@@ -4,9 +4,9 @@ import { useQuery } from '@apollo/react-hooks'
 
 import { usePayment } from './state'
 import { useUser } from '../../context'
-import { Loader } from '../../components'
 import { PaymentTunnel } from './payment_tunnel'
 import { PAYMENT_METHODS } from '../../graphql'
+import { Loader, HelperBar } from '../../components'
 
 export const PaymentSection = ({ setPaymentMethodId }) => {
    const { user } = useUser()
@@ -41,12 +41,14 @@ export const PaymentSection = ({ setPaymentMethodId }) => {
             )}
          </header>
          {paymentMethods.length === 0 && (
-            <NoPaymentInfo>
-               <span>Let's start with adding a payment method.</span>
-               <button onClick={() => toggleTunnel(true)}>
+            <HelperBar type="info">
+               <HelperBar.SubTitle>
+                  Let's start with adding a payment method.
+               </HelperBar.SubTitle>
+               <HelperBar.Button onClick={() => toggleTunnel(true)}>
                   Add Payment Method
-               </button>
-            </NoPaymentInfo>
+               </HelperBar.Button>
+            </HelperBar>
          )}
          <PaymentMethods
             onChange={e => setPaymentMethodId(e.target.getAttribute('data-id'))}
@@ -115,12 +117,4 @@ const Button = styled.button(
 
 const OutlineButton = styled(Button)`
    ${tw`bg-transparent hover:bg-green-600 text-green-600 border border-green-600 hover:text-white`}
-`
-
-const NoPaymentInfo = styled.div`
-   height: 48px;
-   ${tw`w-full flex justify-between items-center px-3 rounded bg-indigo-200 text-indigo-800 mb-3`}
-   button {
-      ${tw`border border-indigo-800 py-1 px-2 rounded text-sm hover:bg-indigo-300`}
-   }
 `

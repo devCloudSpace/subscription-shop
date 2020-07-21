@@ -4,13 +4,12 @@ import tw, { styled, css } from 'twin.macro'
 import { useQuery } from '@apollo/react-hooks'
 import { useToasts } from 'react-toast-notifications'
 
-import { Loader, Button } from '../../components'
-import { ADDRESSES } from '../../graphql'
-
 import { useDelivery } from './state'
 import { useUser } from '../../context'
+import { ADDRESSES } from '../../graphql'
 import { CheckIcon } from '../../assets/icons'
 import { AddressTunnel } from './address_tunnel'
+import { Loader, Button, HelperBar } from '../../components'
 
 export const AddressSection = () => {
    const { user } = useUser()
@@ -58,12 +57,14 @@ export const AddressSection = () => {
             )}
          </header>
          {state.address.error && (
-            <AddressError>
-               <span>{state.address.error}</span>
-               <button onClick={() => navigate('/get-started/select-plan')}>
+            <HelperBar type="error">
+               <HelperBar.Subtitle>{state.address.error}</HelperBar.Subtitle>
+               <HelperBar.Buttom
+                  onClick={() => navigate('/get-started/select-plan')}
+               >
                   Change Plan
-               </button>
-            </AddressError>
+               </HelperBar.Buttom>
+            </HelperBar>
          )}
          {addresses.length > 0 ? (
             <AddressList>
@@ -94,10 +95,14 @@ export const AddressSection = () => {
                ))}
             </AddressList>
          ) : (
-            <NoAddressInfo>
-               <span>Let's start with adding an address</span>
-               <button onClick={() => toggleTunnel(true)}>Add Address</button>
-            </NoAddressInfo>
+            <HelperBar type="info">
+               <HelperBar.Subtitle>
+                  Let's start with adding an address
+               </HelperBar.Subtitle>
+               <HelperBar.Button onClick={() => toggleTunnel(true)}>
+                  Add Address
+               </HelperBar.Button>
+            </HelperBar>
          )}
          {state.address.tunnel && <AddressTunnel />}
       </>
@@ -135,19 +140,3 @@ const AddressCardLeft = styled.aside(
       }
    `
 )
-
-const AddressError = styled.div`
-   height: 48px;
-   ${tw`w-full flex justify-between items-center px-3 rounded bg-orange-200 text-orange-800 mb-3`}
-   button {
-      ${tw`border border-orange-800 py-1 px-2 rounded text-sm hover:bg-orange-300`}
-   }
-`
-
-const NoAddressInfo = styled.div`
-   height: 48px;
-   ${tw`w-full flex justify-between items-center px-3 rounded bg-indigo-200 text-indigo-800 mb-3`}
-   button {
-      ${tw`border border-indigo-800 py-1 px-2 rounded text-sm hover:bg-indigo-300`}
-   }
-`
