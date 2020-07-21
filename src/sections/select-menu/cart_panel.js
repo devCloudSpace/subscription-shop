@@ -1,6 +1,7 @@
 import React from 'react'
 import moment from 'moment'
 import { navigate } from 'gatsby'
+import { useLocation } from '@reach/router'
 import tw, { styled, css } from 'twin.macro'
 import { useToasts } from 'react-toast-notifications'
 import { useQuery, useMutation } from '@apollo/react-hooks'
@@ -13,16 +14,34 @@ import {
    ZIPCODE,
    CREATE_CART,
    UPSERT_OCCURENCE_CUSTOMER_CART_SKIP,
+   INSERT_SUBSCRIPTION_OCCURENCE_CUSTOMERS,
 } from '../../graphql'
 
 export const CartPanel = ({ noSkip, isCheckout }) => {
    const { user } = useUser()
+   const location = useLocation()
    const { addToast } = useToasts()
    const { state, dispatch } = useMenu()
+   const [skipCarts] = useMutation(INSERT_SUBSCRIPTION_OCCURENCE_CUSTOMERS)
    const [upsertCart] = useMutation(CREATE_CART, {
       refetchQueries: () => ['cart'],
       onCompleted: ({ createCart }) => {
          isClient && window.localStorage.setItem('cartId', createCart.id)
+
+         const skipList = new URL(location.href).searchParams
+            .get('previous')
+            .split(',')
+         if (skipList && skipList.length > 0) {
+            skipCarts({
+               variables: {
+                  objects: skipList.map(id => ({
+                     isSkipped: true,
+                     keycloakId: user.keycloakId,
+                     subscriptionOccurenceId: id,
+                  })),
+               },
+            })
+         }
          addToast('Selected menu has been saved.', {
             appearance: 'success',
          })

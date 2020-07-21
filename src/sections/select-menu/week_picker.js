@@ -1,6 +1,7 @@
 import React from 'react'
 import moment from 'moment'
 import { navigate } from 'gatsby'
+import { useLocation } from '@reach/router'
 import tw, { styled, css } from 'twin.macro'
 import { useToasts } from 'react-toast-notifications'
 import { useQuery, useLazyQuery } from '@apollo/react-hooks'
@@ -12,8 +13,9 @@ import { formatDate } from '../../utils'
 import { ArrowLeftIcon, ArrowRightIcon } from '../../assets/icons'
 import { CART_BY_WEEK, CUSTOMER_OCCURENCES } from '../../graphql'
 
-export const WeekPicker = ({ isFixed, selectedDate }) => {
+export const WeekPicker = ({ isFixed }) => {
    const { user } = useUser()
+   const location = useLocation()
    const { addToast } = useToasts()
    const { state, dispatch } = useMenu()
    const [current, setCurrent] = React.useState(0)
@@ -79,7 +81,7 @@ export const WeekPicker = ({ isFixed, selectedDate }) => {
          keycloakId: user.keycloakId,
          where: {
             fulfillmentDate: {
-               _eq: selectedDate.fulfillmentDate,
+               _eq: new URL(location.href).searchParams.get('date'),
             },
          },
       },

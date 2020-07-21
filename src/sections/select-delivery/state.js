@@ -9,6 +9,10 @@ const initialState = {
    delivery: {
       selected: {},
    },
+   delivery_date: {
+      selected: {},
+   },
+   skip_list: [],
 }
 
 const reducers = (state, { type, payload }) => {
@@ -43,6 +47,18 @@ const reducers = (state, { type, payload }) => {
             delivery: {
                selected: payload,
             },
+         }
+      case 'SET_DATE':
+         return {
+            ...state,
+            delivery_date: {
+               selected: payload,
+            },
+         }
+      case 'SET_SKIP_LIST':
+         return {
+            ...state,
+            skip_list: payload,
          }
       default:
          return state

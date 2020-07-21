@@ -203,6 +203,20 @@ export const CUSTOMER_OCCURENCES = gql`
    }
 `
 
+export const OCCURENCES_BY_SUBSCRIPTION = gql`
+   query subscription($id: Int!) {
+      subscription: subscription_subscription_by_pk(id: $id) {
+         id
+         occurences: subscriptionOccurences {
+            id
+            isValid
+            isVisible
+            fulfillmentDate
+         }
+      }
+   }
+`
+
 export const OCCURENCE_PRODUCTS_BY_CATEGORIES = gql`
    query categories($occurenceId: Int_comparison_exp!) {
       categories: productCategories {

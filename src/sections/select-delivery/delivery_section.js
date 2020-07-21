@@ -78,11 +78,7 @@ export const DeliverySection = () => {
                </HelperBar.SubTitle>
             </HelperBar>
          )}
-         <DeliveryDays
-            onChange={e =>
-               daySelection(Number(e.target.getAttribute('data-id')))
-            }
-         >
+         <DeliveryDays>
             {itemCount?.valid?.map(day => (
                <DeliveryDay key={day.id} onClick={() => daySelection(day.id)}>
                   <DeliveryDayLeft

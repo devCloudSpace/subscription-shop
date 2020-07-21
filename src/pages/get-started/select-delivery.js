@@ -5,7 +5,6 @@ import { useMutation } from '@apollo/react-hooks'
 import { useKeycloak } from '@react-keycloak/web'
 import { useToasts } from 'react-toast-notifications'
 
-import { isClient } from '../../utils'
 import { useUser } from '../../context'
 import { SEO, Layout, StepsNavbar } from '../../components'
 import { UPDATE_CUSTOMERS, UPDATE_DAILYKEY_CUSTOMER } from '../../graphql'
@@ -15,6 +14,7 @@ import {
    AddressSection,
    DeliverySection,
    DeliveryProvider,
+   DeliveryDateSection,
 } from '../../sections/select-delivery'
 
 const SelectDelivery = () => {
@@ -43,7 +43,7 @@ const DeliveryContent = () => {
    const { user } = useUser()
    const { state } = useDelivery()
    const { addToast } = useToasts()
-   const [updateDailykeyCustomer] = useMutation(UPDATE_DAILYKEY_CUSTOMER, {})
+   const [updateDailykeyCustomer] = useMutation(UPDATE_DAILYKEY_CUSTOMER)
    const [updateCustomers] = useMutation(UPDATE_CUSTOMERS, {
       onCompleted: () => {
          addToast('Successfully saved delivery preferences.', {
@@ -57,8 +57,13 @@ const DeliveryContent = () => {
                },
             },
          })
-         navigate('/get-started/select-menu')
-         isClient && window.localStorage.removeItem('plan')
+         navigate(
+            `/get-started/select-menu?date=${
+               state.delivery_date.selected.fulfillmentDate
+            }${
+               state.skip_list.length > 0 ? `&previous=${state.skip_list}` : ''
+            }`
+         )
       },
       onError: error => {
          addToast(error.message, {
@@ -85,6 +90,7 @@ const DeliveryContent = () => {
    const isValid = () => {
       if (Object.keys(state.delivery.selected).length === 0) return false
       if (Object.keys(state.address.selected).length === 0) return false
+      if (Object.keys(state.delivery_date.selected).length === 0) return false
       if (state.address.error) return false
       return true
    }
@@ -94,10 +100,14 @@ const DeliveryContent = () => {
             <h1 css={tw`pt-3 pb-1 mb-3 text-green-600 text-3xl`}>Delivery</h1>
          </header>
          <AddressSection />
-         <h2 css={tw`my-3 text-gray-600 text-xl`}>Select Delivery Day</h2>
+         <h2 css={tw`my-3 text-gray-600 text-xl`}>Delivery Day</h2>
          <DeliverySection />
+         <h2 css={tw`my-3 text-gray-600 text-xl`}>Delivery Date</h2>
+         <DeliveryDateSection />
          <div tw="mt-4 w-full flex items-center justify-center">
-            {isValid() && <Button onClick={() => nextStep()}>Continue</Button>}
+            <Button onClick={() => nextStep()} disabled={!isValid()}>
+               Continue
+            </Button>
          </div>
       </Main>
    )
@@ -106,10 +116,14 @@ const DeliveryContent = () => {
 const Main = styled.main`
    margin: auto;
    max-width: 980px;
+   padding-bottom: 24px;
    width: calc(100vw - 40px);
    min-height: calc(100vh - 128px);
 `
 
-const Button = styled.button`
-   ${tw`h-10 rounded px-5 text-white bg-green-600 hover:bg-green-700`}
-`
+const Button = styled.button(
+   ({ disabled }) => css`
+      ${tw`h-10 rounded px-8 text-white bg-green-600 hover:bg-green-700`}
+      ${disabled && tw`cursor-not-allowed bg-green-300 hover:bg-green-300`}
+   `
+)

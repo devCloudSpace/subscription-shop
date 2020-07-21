@@ -1,37 +1,13 @@
 import React from 'react'
+import tw from 'twin.macro'
 
-import { Layout, SEO, HelperBar } from '../components'
+import { Layout, SEO } from '../components'
 
 const Menu = () => {
    return (
       <Layout>
          <SEO title="Menu" />
-         <main tw="mx-auto w-8/12">
-            <HelperBar type="info">
-               <HelperBar.Title>Add an address</HelperBar.Title>
-               <HelperBar.SubTitle>
-                  Let's start with adding an address
-               </HelperBar.SubTitle>
-               <HelperBar.Button>Add Address</HelperBar.Button>
-            </HelperBar>
-            <HelperBar type="success">
-               <HelperBar.Title>
-                  Let's start with adding an address
-               </HelperBar.Title>
-               <HelperBar.Button>Add Address</HelperBar.Button>
-            </HelperBar>
-            <HelperBar type="danger">
-               <HelperBar.SubTitle>
-                  Let's start with adding an address
-               </HelperBar.SubTitle>
-            </HelperBar>
-            <HelperBar type="warning">
-               <HelperBar.Title>
-                  Let's start with adding an address
-               </HelperBar.Title>
-               <HelperBar.Button>Add Address</HelperBar.Button>
-            </HelperBar>
-         </main>
+         <h2 css={tw`my-3 text-gray-600 text-xl`}>Menu Page</h2>
       </Layout>
    )
 }
