@@ -1,12 +1,11 @@
 import React from 'react'
 import { navigate } from 'gatsby'
 import tw, { styled } from 'twin.macro'
-import { useKeycloak } from '@react-keycloak/web'
+import { useQuery } from '@apollo/react-hooks'
 import { useToasts } from 'react-toast-notifications'
-import { useQuery, useLazyQuery } from '@apollo/react-hooks'
 
 import { Loader, Button } from '../../components'
-import { PLANS_AVAILABILITY_BY_ZIPCODE, ADDRESSES } from '../../graphql'
+import { ADDRESSES } from '../../graphql'
 
 import { useDelivery } from './state'
 import { useUser } from '../../context'

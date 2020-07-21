@@ -26,7 +26,7 @@ export const PaymentTunnel = () => {
          <Tunnel.Header title="Add Payment Method">
             <button
                onClick={() => toggleTunnel(false)}
-               tw="border w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100"
+               css={tw`border w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100`}
             >
                <CloseIcon size={20} tw="stroke-current text-green-800" />
             </button>

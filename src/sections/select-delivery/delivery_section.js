@@ -33,7 +33,7 @@ export const DeliverySection = () => {
             },
          })
       }
-   }, [state.address.selected])
+   }, [state.address.selected, fetchDays])
 
    const daySelection = id => {
       const day = itemCount.valid.find(day => day.id === id)
