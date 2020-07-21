@@ -3,7 +3,7 @@ import tw, { styled } from 'twin.macro'
 
 import { SEO, Layout, Plans, StepsNavbar } from '../../components'
 
-export default () => (
+const SelectPlan = () => (
    <Layout noHeader>
       <SEO title="Plans" />
       <StepsNavbar />
@@ -15,6 +15,8 @@ export default () => (
       </main>
    </Layout>
 )
+
+export default SelectPlan
 
 const Header = styled.header`
    height: 360px;

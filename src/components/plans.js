@@ -1,6 +1,6 @@
 import React from 'react'
 import { navigate } from 'gatsby'
-import tw, { styled, css } from 'twin.macro'
+import tw, { styled } from 'twin.macro'
 import { useToasts } from 'react-toast-notifications'
 import { useSubscription } from '@apollo/react-hooks'
 
@@ -44,20 +44,16 @@ const Plan = ({ plan }) => {
          setDefaultServing(plan.defaultServing)
       }
       setDefaultServing(plan.servings[0])
-
-      if (plan?.defaultServing?.defaultItemCountId) {
-         setDefaultItemCount(plan.defaultServing.defaultItemCount)
-      }
-      setDefaultItemCount(plan.servings[0].itemCounts[0])
    }, [plan])
 
-   const selectDefaultServing = serving => {
-      setDefaultServing(serving)
-      if (serving.defaultItemCountId) {
-         setDefaultItemCount(serving.defaultItemCount)
+   React.useEffect(() => {
+      if (defaultServing) {
+         if (defaultServing.defaultItemCountId) {
+            return setDefaultItemCount(defaultServing.defaultItemCount)
+         }
+         setDefaultItemCount(defaultServing.itemCounts[0])
       }
-      setDefaultItemCount(serving.itemCounts[0])
-   }
+   }, [defaultServing])
 
    const selectPlan = () => {
       if (isClient) {
@@ -69,7 +65,7 @@ const Plan = ({ plan }) => {
       navigate('/get-started/register')
    }
 
-   if (!defaultItemCount || !defaultServing) return <Loader />
+   if (!defaultItemCount || !defaultServing) return <Loader inline />
    return (
       <div css={tw`border rounded-lg p-8`}>
          <h2 css={tw`mb-5 text-2xl font-medium tracking-wide text-green-700`}>
@@ -85,10 +81,12 @@ const Plan = ({ plan }) => {
                {plan.servings.map(serving => (
                   <CountListItem
                      key={serving.id}
-                     isActive={serving.id === defaultServing.id}
-                     onClick={() => selectDefaultServing(serving)}
+                     onClick={() => setDefaultServing(serving)}
+                     className={`${
+                        serving.id === defaultServing.id ? 'active' : ''
+                     }`}
                   >
-                     {serving.servingSize}
+                     {serving.size}
                   </CountListItem>
                ))}
             </CountList>
@@ -103,8 +101,10 @@ const Plan = ({ plan }) => {
                {defaultServing.itemCounts.map(item => (
                   <CountListItem
                      key={item.id}
-                     isActive={item.id === defaultItemCount.id}
                      onClick={() => setDefaultItemCount(item)}
+                     className={`${
+                        item.id === defaultItemCount.id ? 'active' : ''
+                     }`}
                   >
                      {item.count}
                   </CountListItem>
@@ -137,18 +137,18 @@ const CountList = styled.ul`
    `}
 `
 
-const CountListItem = styled.li(
-   ({ isActive }) => css`
-      border-radius: 2px;
-      ${isActive && tw`text-white bg-green-600`}
-      ${tw`
+const CountListItem = styled.li`
+   border-radius: 2px;
+   &.active {
+      ${tw`text-white bg-green-600`}
+   }
+   ${tw`
          h-12 w-12 
          cursor-pointer
          flex items-center justify-center 
          hover:text-white hover:bg-green-600 hover:rounded 
       `}
-   `
-)
+`
 
 const Button = styled.button`
    ${tw`w-full h-12 bg-blue-400 uppercase tracking-wider font-medium text-white rounded-full`}
