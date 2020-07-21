@@ -83,7 +83,7 @@ const DeliveryContent = () => {
    }
 
    const isValid = () => {
-      if (!Object.keys(state.delivery.selected).length === 0) return false
+      if (Object.keys(state.delivery.selected).length === 0) return false
       if (Object.keys(state.address.selected).length === 0) return false
       if (state.address.error) return false
       return true

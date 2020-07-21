@@ -1,7 +1,7 @@
 import React from 'react'
 import { navigate } from 'gatsby'
 import { rrulestr } from 'rrule'
-import tw, { styled } from 'twin.macro'
+import tw, { styled, css } from 'twin.macro'
 import { useLazyQuery } from '@apollo/react-hooks'
 import { useToasts } from 'react-toast-notifications'
 
@@ -9,6 +9,7 @@ import { isClient } from '../../utils'
 import { useDelivery } from './state'
 import { Loader } from '../../components'
 import { ITEM_COUNT } from '../../graphql'
+import { CheckIcon } from '../../assets/icons'
 
 export const DeliverySection = () => {
    const { addToast } = useToasts()
@@ -79,46 +80,35 @@ export const DeliverySection = () => {
                daySelection(Number(e.target.getAttribute('data-id')))
             }
          >
-            {itemCount?.valid?.map((day, index) => (
-               <DeliveryDay key={day.id}>
-                  <span>
-                     <input
-                        type="radio"
-                        data-id={day.id}
-                        name="delivery-day"
-                        id={`day-${index + 1}`}
-                        css={tw`w-full h-full cursor-pointer`}
-                     />
-                  </span>
-                  <label
-                     htmlFor={`day-${index + 1}`}
-                     css={tw`w-full cursor-pointer`}
+            {itemCount?.valid?.map(day => (
+               <DeliveryDay key={day.id} onClick={() => daySelection(day.id)}>
+                  <DeliveryDayLeft
+                     className={`${
+                        day.id === state.delivery.selected?.id && 'active'
+                     }`}
                   >
+                     <CheckIcon size={20} tw="stroke-current text-gray-400" />
+                  </DeliveryDayLeft>
+                  <label css={tw`w-full cursor-pointer`}>
                      {rrulestr(day.rrule).toText()}
                   </label>
                </DeliveryDay>
             ))}
-            {itemCount?.invalid?.map((day, index) => (
+            {itemCount?.invalid?.map(day => (
                <DeliveryDay
                   key={day.id}
                   className="invalid"
                   title="Not available on this address"
+                  onClick={() => daySelection(day.id)}
                >
-                  <span>
-                     <input
-                        type="radio"
-                        data-id={day.id}
-                        name="delivery-day"
-                        id={`day-${index + 1}`}
-                        css={tw`w-full h-full cursor-pointer`}
-                     />
-                  </span>
-                  <label
-                     htmlFor={`day-${index + 1}`}
-                     css={tw`w-full cursor-pointer`}
+                  <DeliveryDayLeft
+                     className={`${
+                        day.id === state.delivery.selected?.id && 'active'
+                     }`}
                   >
-                     {rrulestr(day.rrule).toText()}
-                  </label>
+                     <CheckIcon size={20} tw="stroke-current text-gray-400" />
+                  </DeliveryDayLeft>
+                  <label css={tw`w-full`}>{rrulestr(day.rrule).toText()}</label>
                </DeliveryDay>
             ))}
          </DeliveryDays>
@@ -135,14 +125,22 @@ const DeliveryDays = styled.ul`
    `}
 `
 
-const DeliveryDay = styled.li`
-   height: 48px;
-   ${tw`flex items-center border capitalize text-gray-700`}
-   span {
+const DeliveryDayLeft = styled.aside(
+   () => css`
       width: 48px;
       height: 48px;
       ${tw`border-r border-gray-300 h-full mr-2 flex flex-shrink-0 items-center justify-center bg-gray-200`}
-   }
+      &.active {
+         svg {
+            ${tw`text-green-700`}
+         }
+      }
+   `
+)
+
+const DeliveryDay = styled.li`
+   height: 48px;
+   ${tw`cursor-pointer flex items-center border capitalize text-gray-700`}
    &.invalid {
       opacity: 0.6;
       position: relative;

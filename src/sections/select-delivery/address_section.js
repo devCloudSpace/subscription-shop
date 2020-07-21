@@ -1,6 +1,6 @@
 import React from 'react'
 import { navigate } from 'gatsby'
-import tw, { styled } from 'twin.macro'
+import tw, { styled, css } from 'twin.macro'
 import { useQuery } from '@apollo/react-hooks'
 import { useToasts } from 'react-toast-notifications'
 
@@ -9,6 +9,7 @@ import { ADDRESSES } from '../../graphql'
 
 import { useDelivery } from './state'
 import { useUser } from '../../context'
+import { CheckIcon } from '../../assets/icons'
 import { AddressTunnel } from './address_tunnel'
 
 export const AddressSection = () => {
@@ -65,23 +66,23 @@ export const AddressSection = () => {
             </AddressError>
          )}
          {addresses.length > 0 ? (
-            <AddressList
-               onChange={e =>
-                  addressSelection(e.target.getAttribute('data-id'))
-               }
-            >
+            <AddressList>
                {addresses.map(address => (
-                  <AddressCard key={address.id}>
-                     <aside htmlFor="address">
-                        <input
-                           type="radio"
-                           name="address"
-                           data-id={address.id}
-                           css={tw`w-full cursor-pointer`}
-                           id={`address-${address.id.slice(0, 8)}`}
+                  <AddressCard
+                     key={address.id}
+                     onClick={() => addressSelection(address.id)}
+                  >
+                     <AddressCardLeft
+                        className={`${
+                           address.id === state.address.selected?.id && 'active'
+                        }`}
+                     >
+                        <CheckIcon
+                           size={20}
+                           tw="stroke-current text-gray-400"
                         />
-                     </aside>
-                     <label htmlFor="address">
+                     </AddressCardLeft>
+                     <label>
                         <span>{address.line1}</span>
                         <span>{address.line2}</span>
                         <span>{address.city}</span>
@@ -114,11 +115,7 @@ const AddressList = styled.ul`
 `
 
 const AddressCard = styled.li`
-   ${tw`flex border text-gray-700`}
-   aside {
-      width: 48px;
-      ${tw`border-r border-gray-300 flex justify-center h-full bg-gray-200 border-r`}
-   }
+   ${tw`flex border text-gray-700 cursor-pointer`}
    label {
       ${tw`p-3`}
    }
@@ -126,6 +123,18 @@ const AddressCard = styled.li`
       ${tw`block`}
    }
 `
+
+const AddressCardLeft = styled.aside(
+   () => css`
+      width: 48px;
+      ${tw`border-r border-gray-300 flex items-center justify-center h-full bg-gray-200 border-r`}
+      &.active {
+         svg {
+            ${tw`text-green-700`}
+         }
+      }
+   `
+)
 
 const AddressError = styled.div`
    height: 48px;

@@ -1,8 +1,8 @@
 import React from 'react'
 import { navigate } from 'gatsby'
-import tw, { styled } from 'twin.macro'
-import { useQuery, useMutation } from '@apollo/react-hooks'
+import tw, { styled, css } from 'twin.macro'
 import { useKeycloak } from '@react-keycloak/web'
+import { useQuery, useMutation } from '@apollo/react-hooks'
 
 import { SEO, Layout, StepsNavbar, Loader } from '../../components'
 import {
@@ -17,6 +17,7 @@ import {
    CUSTOMER_OCCURENCES,
    INSERT_SUBSCRIPTION_OCCURENCE_CUSTOMERS,
 } from '../../graphql'
+import { CheckIcon } from '../../assets/icons'
 
 const SelectMenu = () => {
    const [keycloak] = useKeycloak()
@@ -85,26 +86,23 @@ const MenuContent = () => {
                   Select delivery date
                </h1>
             </header>
-            <DeliveryDates
-               onChange={e =>
-                  dateSelection(Number(e.target.getAttribute('data-id')))
-               }
-            >
+            <DeliveryDates>
                {occurences.map(occurence => (
-                  <DeliveryDate key={occurence.id}>
-                     <span>
-                        <input
-                           type="radio"
-                           name="delivery-date"
-                           data-id={occurence.id}
-                           id={`date-${occurence.id}`}
-                           tw="w-full h-full cursor-pointer"
-                        />
-                     </span>
-                     <label
-                        tw="w-full cursor-pointer"
-                        htmlFor={`date-${occurence.id}`}
+                  <DeliveryDate
+                     key={occurence.id}
+                     onClick={() => dateSelection(occurence.id)}
+                  >
+                     <DeliveryDateLeft
+                        className={`${
+                           occurence.id === selected?.id && 'active'
+                        }`}
                      >
+                        <CheckIcon
+                           size={20}
+                           tw="stroke-current text-gray-400"
+                        />
+                     </DeliveryDateLeft>
+                     <label tw="w-full">
                         {formatDate(occurence.fulfillmentDate, {
                            year: 'numeric',
                            month: 'short',
@@ -164,14 +162,22 @@ const DeliveryDates = styled.ul`
    `}
 `
 
-const DeliveryDate = styled.li`
-   height: 48px;
-   ${tw`flex items-center border capitalize text-gray-700`}
-   span {
+const DeliveryDateLeft = styled.aside(
+   () => css`
       width: 48px;
       height: 48px;
       ${tw`border-r border-gray-300 h-full mr-2 flex flex-shrink-0 items-center justify-center bg-gray-200`}
-   }
+      &.active {
+         svg {
+            ${tw`text-green-700`}
+         }
+      }
+   `
+)
+
+const DeliveryDate = styled.li`
+   height: 48px;
+   ${tw`cursor-pointer flex items-center border capitalize text-gray-700`}
    &.invalid {
       opacity: 0.6;
       position: relative;
