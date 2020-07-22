@@ -22,9 +22,7 @@ export const wrapRootElement = ({ element }) => {
          keycloak={keycloak}
          initConfig={{
             onLoad: 'check-sso',
-            silentCheckSsoRedirectUri: `${window.location.origin}${
-               process.env.NODE_ENV === 'production' ? '/subscription' : ''
-            }/silent-check-sso.xhtml`,
+            silentCheckSsoRedirectUri: `${window.location.origin}/silent-check-sso.xhtml`,
          }}
          LoadingComponent={<Loader />}
       >

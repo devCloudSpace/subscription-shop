@@ -27,7 +27,6 @@
       "gatsby-plugin-portal": "^1.0.7",
       "gatsby-plugin-postcss": "^2.3.3",
       "gatsby-plugin-react-helmet": "^3.3.3",
-      "gatsby-plugin-remove-trailing-slashes": "^2.3.11",
       "graphql": "^15.3.0",
       "graphql-tag": "^2.10.3",
       "isomorphic-fetch": "^2.2.1",

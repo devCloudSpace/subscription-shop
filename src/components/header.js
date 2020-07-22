@@ -29,11 +29,7 @@ export const Header = () => {
                         onClick={() =>
                            keycloak.logout({
                               redirectUri: isClient
-                                 ? `${window.location.origin}${
-                                      process.env.NODE_ENV === 'production'
-                                         ? '/subscription'
-                                         : ''
-                                   }`
+                                 ? `${window.location.origin}`
                                  : '',
                            })
                         }
