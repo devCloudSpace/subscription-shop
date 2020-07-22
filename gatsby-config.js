@@ -8,6 +8,7 @@ module.exports = {
       `gatsby-plugin-emotion`,
       `gatsby-plugin-postcss`,
       `gatsby-plugin-react-helmet`,
+      `gatsby-plugin-remove-trailing-slashes`,
       {
          resolve: `gatsby-plugin-portal`,
          options: {
