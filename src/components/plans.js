@@ -111,6 +111,24 @@ const Plan = ({ plan }) => {
                ))}
             </CountList>
          </section>
+         <hr />
+         <div tw="mb-6 flex items-center">
+            <section tw="h-full flex-1">
+               <span tw="text-green-700 font-medium">
+                  {Number.parseFloat(
+                     defaultItemCount.price /
+                        (defaultItemCount.count * defaultServing.size)
+                  ).toFixed(2)}{' '}
+               </span>
+               <span tw="text-gray-600">per serving</span>
+            </section>
+            <section tw="h-full flex-1 flex flex-col text-right border-l py-1">
+               <span tw="text-green-700 text-2xl font-medium">
+                  {defaultItemCount.price}
+               </span>
+               <span tw="text-gray-600">Weekly total</span>
+            </section>
+         </div>
          <Button onClick={() => selectPlan()}>Select</Button>
       </div>
    )
@@ -126,6 +144,9 @@ const List = styled.ul`
    grid-template-columns: 1fr 1fr;
 
    padding: 24px 0;
+   @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+   }
 `
 
 const CountList = styled.ul`

@@ -62,18 +62,12 @@ export const PLANS = gql`
             defaultItemCount: defaultSubscriptionItemCount {
                id
                count
-               subscriptions {
-                  id
-                  rrule
-               }
+               price
             }
             itemCounts: subscriptionItemCounts {
                id
                count
-               subscriptions {
-                  id
-                  rrule
-               }
+               price
             }
          }
          servings: subscriptionServings(order_by: { servingSize: asc }) {
@@ -83,18 +77,14 @@ export const PLANS = gql`
             defaultItemCount: defaultSubscriptionItemCount {
                id
                count
-               subscriptions {
-                  id
-                  rrule
-               }
+               price
             }
-            itemCounts: subscriptionItemCounts(order_by: { count: asc }) {
+            itemCounts: subscriptionItemCounts(
+               order_by: { count: asc, price: asc }
+            ) {
                id
                count
-               subscriptions {
-                  id
-                  rrule
-               }
+               price
             }
          }
       }
