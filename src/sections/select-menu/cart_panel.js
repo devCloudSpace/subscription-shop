@@ -28,13 +28,12 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
       onCompleted: ({ createCart }) => {
          isClient && window.localStorage.setItem('cartId', createCart.id)
 
-         const skipList = new URL(location.href).searchParams
-            .get('previous')
-            .split(',')
-         if (skipList && skipList.length > 0) {
+         const skipList = new URL(location.href).searchParams.get('previous')
+
+         if (skipList && skipList.split(',').length > 0) {
             skipCarts({
                variables: {
-                  objects: skipList.map(id => ({
+                  objects: skipList.split(',').map(id => ({
                      isSkipped: true,
                      keycloakId: user.keycloakId,
                      subscriptionOccurenceId: id,
