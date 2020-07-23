@@ -5,13 +5,15 @@ import tw, { styled, css } from 'twin.macro'
 import { useLazyQuery } from '@apollo/react-hooks'
 import { useToasts } from 'react-toast-notifications'
 
-import { isClient } from '../../utils'
 import { useDelivery } from './state'
+import { isClient } from '../../utils'
+import { useUser } from '../../context'
 import { ITEM_COUNT } from '../../graphql'
 import { CheckIcon } from '../../assets/icons'
 import { Loader, HelperBar } from '../../components'
 
 export const DeliverySection = () => {
+   const { user } = useUser()
    const { addToast } = useToasts()
    const { state, dispatch } = useDelivery()
    const [fetchDays, { loading, data: { itemCount = {} } = {} }] = useLazyQuery(
@@ -24,6 +26,17 @@ export const DeliverySection = () => {
          },
       }
    )
+
+   React.useEffect(() => {
+      if (user.subscriptionId) {
+         dispatch({
+            type: 'SET_DAY',
+            payload: {
+               id: user.subscriptionId,
+            },
+         })
+      }
+   }, [user.subscriptionId, dispatch])
 
    React.useEffect(() => {
       if (Object.keys(state.address.selected).length > 0) {
@@ -83,7 +96,10 @@ export const DeliverySection = () => {
                <DeliveryDay key={day.id} onClick={() => daySelection(day.id)}>
                   <DeliveryDayLeft
                      className={`${
-                        day.id === state.delivery.selected?.id && 'active'
+                        [
+                           user.subscriptionId,
+                           state.delivery.selected?.id,
+                        ].includes(day.id) && 'active'
                      }`}
                   >
                      <CheckIcon size={20} tw="stroke-current text-gray-400" />

@@ -4,6 +4,9 @@ const initialState = {
    tunnel: {
       isVisible: false,
    },
+   payment: {
+      selected: {},
+   },
 }
 
 const reducers = (state, { type, payload }) => {
@@ -12,6 +15,11 @@ const reducers = (state, { type, payload }) => {
          return {
             ...state,
             tunnel: payload,
+         }
+      case 'SET_PAYMENT_METHOD':
+         return {
+            ...state,
+            payment: payload,
          }
       default:
          return state

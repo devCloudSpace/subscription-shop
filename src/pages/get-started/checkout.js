@@ -7,6 +7,7 @@ import { useMutation, useQuery } from '@apollo/react-hooks'
 import { SEO, Layout, StepsNavbar } from '../../components'
 
 import {
+   usePayment,
    ProfileSection,
    PaymentProvider,
    PaymentSection,
@@ -38,6 +39,7 @@ const Checkout = () => {
 
 const PaymentContent = ({ isCheckout }) => {
    const { user } = useUser()
+   const { state } = usePayment()
    const { addToast } = useToasts()
    const [updateCart] = useMutation(UPDATE_CART, {
       onCompleted: () => {
@@ -52,7 +54,6 @@ const PaymentContent = ({ isCheckout }) => {
          })
       },
    })
-   const [paymentMethodId, setPaymentMethodId] = React.useState('')
    const { data: { cart = {} } = {} } = useQuery(CART, {
       variables: {
          id: isClient && window.localStorage.getItem('cartId'),
@@ -70,7 +71,7 @@ const PaymentContent = ({ isCheckout }) => {
                   customerLastName: user.lastName,
                   customerFirstName: user.firstName,
                },
-               paymentMethodId,
+               paymentMethodId: state.payment.selected.id,
                ...(isCheckout && { status: 'PROCESS' }),
             },
          },
@@ -80,7 +81,7 @@ const PaymentContent = ({ isCheckout }) => {
       <Main>
          <section>
             <ProfileSection />
-            <PaymentSection setPaymentMethodId={setPaymentMethodId} />
+            <PaymentSection />
          </section>
          {cart?.cartInfo && (
             <section>
@@ -100,7 +101,7 @@ const PaymentContent = ({ isCheckout }) => {
                {
                   <Button
                      onClick={handleSubmit}
-                     disabled={!Boolean(paymentMethodId)}
+                     disabled={!Boolean(state.payment.selected.id)}
                   >
                      Confirm & Pay {cart.amount}
                   </Button>

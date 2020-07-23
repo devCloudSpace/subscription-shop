@@ -30,6 +30,19 @@ export const AddressSection = () => {
       },
    })
 
+   React.useEffect(() => {
+      if (user.defaultSubscriptionAddressId) {
+         dispatch({
+            type: 'SET_ADDRESS',
+            payload: user.defaultSubscriptionAddress,
+         })
+      }
+   }, [
+      user.defaultSubscriptionAddressId,
+      user.defaultSubscriptionAddress,
+      dispatch,
+   ])
+
    const addressSelection = id => {
       const address = addresses.find(address => address.id === id)
       dispatch({ type: 'SET_ADDRESS', payload: address })
@@ -75,7 +88,10 @@ export const AddressSection = () => {
                   >
                      <AddressCardLeft
                         className={`${
-                           address.id === state.address.selected?.id && 'active'
+                           [
+                              user.defaultSubscriptionAddressId,
+                              state.address.selected?.id,
+                           ].includes(address.id) && 'active'
                         }`}
                      >
                         <CheckIcon

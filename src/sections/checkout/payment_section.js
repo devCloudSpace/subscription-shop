@@ -4,6 +4,7 @@ import { useQuery } from '@apollo/react-hooks'
 
 import { usePayment } from './state'
 import { useUser } from '../../context'
+import { CheckIcon } from '../../assets/icons'
 import { PaymentTunnel } from './payment_tunnel'
 import { PAYMENT_METHODS } from '../../graphql'
 import { Loader, HelperBar } from '../../components'
@@ -50,20 +51,29 @@ export const PaymentSection = ({ setPaymentMethodId }) => {
                </HelperBar.Button>
             </HelperBar>
          )}
-         <PaymentMethods
-            onChange={e => setPaymentMethodId(e.target.getAttribute('data-id'))}
-         >
-            {paymentMethods.map((method, index) => (
-               <PaymentMethod key={method.stripePaymentMethodId}>
-                  <aside htmlFor="method">
-                     <input
-                        type="radio"
-                        name="method"
-                        id={`method-${index}`}
-                        css={tw`w-full cursor-pointer`}
-                        data-id={method.stripePaymentMethodId}
-                     />
-                  </aside>
+         <PaymentMethods>
+            {paymentMethods.map(method => (
+               <PaymentMethod
+                  key={method.stripePaymentMethodId}
+                  onClick={() =>
+                     dispatch({
+                        type: 'SET_PAYMENT_METHOD',
+                        payload: {
+                           selected: { id: method.stripePaymentMethodId },
+                        },
+                     })
+                  }
+               >
+                  <PaymentMethodLeft
+                     className={`${
+                        [
+                           state.payment.selected?.id,
+                           user.defaultSubscriptionPaymentMethodId,
+                        ].includes(method.stripePaymentMethodId) && 'active'
+                     }`}
+                  >
+                     <CheckIcon size={20} tw="stroke-current text-gray-400" />
+                  </PaymentMethodLeft>
                   <section tw="p-2 w-full">
                      {user.defaultSubscriptionPaymentMethodId ===
                         method.stripePaymentMethodId && (
@@ -108,6 +118,19 @@ const PaymentMethod = styled.li`
       ${tw`border-r border-gray-300 flex justify-center h-full bg-gray-200 border-r`}
    }
 `
+
+const PaymentMethodLeft = styled.aside(
+   () => css`
+      width: 48px;
+      height: 48px;
+      ${tw`border-r border-gray-300 h-full mr-2 flex flex-shrink-0 items-center justify-center bg-gray-200`}
+      &.active {
+         svg {
+            ${tw`text-green-700`}
+         }
+      }
+   `
+)
 
 const Button = styled.button(
    () => css`
