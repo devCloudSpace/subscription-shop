@@ -4,7 +4,7 @@ import tw, { styled } from 'twin.macro'
 import { useToasts } from 'react-toast-notifications'
 
 import { isClient } from '../../utils'
-import { SkeletonPlan } from './skeletons'
+import { Loader } from '../../components'
 
 export const Plan = ({ plan }) => {
    const { addToast } = useToasts()
@@ -37,7 +37,7 @@ export const Plan = ({ plan }) => {
       navigate('/get-started/register')
    }
 
-   if (!defaultItemCount || !defaultServing) return <SkeletonPlan />
+   if (!defaultItemCount || !defaultServing) return <Loader inline />
    return (
       <div css={tw`border rounded-lg p-8`}>
          <h2 css={tw`mb-5 text-2xl font-medium tracking-wide text-green-700`}>

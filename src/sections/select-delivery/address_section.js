@@ -71,7 +71,7 @@ export const AddressSection = () => {
          </header>
          {state.address.error && (
             <HelperBar type="error">
-               <HelperBar.Subtitle>{state.address.error}</HelperBar.Subtitle>
+               <HelperBar.SubTitle>{state.address.error}</HelperBar.SubTitle>
                <HelperBar.Buttom
                   onClick={() => navigate('/get-started/select-plan')}
                >
@@ -109,9 +109,9 @@ export const AddressSection = () => {
             </AddressList>
          ) : (
             <HelperBar type="info">
-               <HelperBar.Subtitle>
+               <HelperBar.SubTitle>
                   Let's start with adding an address
-               </HelperBar.Subtitle>
+               </HelperBar.SubTitle>
                <HelperBar.Button onClick={() => toggleTunnel(true)}>
                   Add Address
                </HelperBar.Button>

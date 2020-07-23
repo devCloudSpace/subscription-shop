@@ -38,7 +38,7 @@ export const UserProvider = ({ children }) => {
    }, [customers, keycloak])
 
    React.useEffect(() => {
-      if (Object.keys(customer).length > 0) {
+      if (customer && Object.keys(customer).length > 0) {
          setUser(user => ({
             ...user,
             email: customer.email,
