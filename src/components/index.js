@@ -1,6 +1,5 @@
 export * from './seo'
 export * from './form'
-export * from './plans'
 export * from './button'
 export * from './layout'
 export * from './tunnel'

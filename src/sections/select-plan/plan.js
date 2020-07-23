@@ -2,39 +2,11 @@ import React from 'react'
 import { navigate } from 'gatsby'
 import tw, { styled } from 'twin.macro'
 import { useToasts } from 'react-toast-notifications'
-import { useSubscription } from '@apollo/react-hooks'
 
-import { PLANS } from '../graphql'
-import { isClient } from '../utils'
-import { Loader } from './loader'
+import { isClient } from '../../utils'
+import { Loader } from '../../components'
 
-export const Plans = () => {
-   const { addToast } = useToasts()
-   const { loading, error, data: { plans = [] } = {} } = useSubscription(
-      PLANS,
-      {
-         onError: error => {
-            addToast(error.message, {
-               appearance: 'error',
-            })
-         },
-      }
-   )
-
-   if (loading) return <Loader inline />
-   if (error) return <div>{error.message}</div>
-   return (
-      <List>
-         {plans.length > 0 ? (
-            plans.map(plan => <Plan key={plan.id} plan={plan} />)
-         ) : (
-            <div>No plans</div>
-         )}
-      </List>
-   )
-}
-
-const Plan = ({ plan }) => {
+export const Plan = ({ plan }) => {
    const { addToast } = useToasts()
    const [defaultItemCount, setDefaultItemCount] = React.useState(null)
    const [defaultServing, setDefaultServing] = React.useState(null)
@@ -133,21 +105,6 @@ const Plan = ({ plan }) => {
       </div>
    )
 }
-
-const List = styled.ul`
-   margin: auto;
-   max-width: 980px;
-   width: calc(100vw - 40px);
-
-   display: grid;
-   grid-gap: 24px;
-   grid-template-columns: 1fr 1fr;
-
-   padding: 24px 0;
-   @media (max-width: 768px) {
-      grid-template-columns: 1fr;
-   }
-`
 
 const CountList = styled.ul`
    border-radius: 4px;

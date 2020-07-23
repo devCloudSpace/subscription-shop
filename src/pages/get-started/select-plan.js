@@ -1,7 +1,8 @@
 import React from 'react'
 import tw, { styled } from 'twin.macro'
 
-import { SEO, Layout, Plans, StepsNavbar } from '../../components'
+import { Plans } from '../../sections/select-plan'
+import { SEO, Layout, StepsNavbar } from '../../components'
 
 const SelectPlan = () => (
    <Layout noHeader>
