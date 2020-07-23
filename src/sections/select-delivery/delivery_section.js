@@ -96,10 +96,7 @@ export const DeliverySection = () => {
                <DeliveryDay key={day.id} onClick={() => daySelection(day.id)}>
                   <DeliveryDayLeft
                      className={`${
-                        [
-                           user.subscriptionId,
-                           state.delivery.selected?.id,
-                        ].includes(day.id) && 'active'
+                        state.delivery.selected?.id === day.id && 'active'
                      }`}
                   >
                      <CheckIcon size={20} tw="stroke-current text-gray-400" />

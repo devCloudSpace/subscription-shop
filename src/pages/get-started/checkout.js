@@ -98,14 +98,17 @@ const PaymentContent = ({ isCheckout }) => {
                      />
                   ))}
                </CartProducts>
-               {
-                  <Button
-                     onClick={handleSubmit}
-                     disabled={!Boolean(state.payment.selected.id)}
-                  >
-                     Confirm & Pay {cart.amount}
-                  </Button>
-               }
+               <Button
+                  onClick={handleSubmit}
+                  disabled={
+                     !Boolean(
+                        state.payment.selected.id ||
+                           user.defaultSubscriptionPaymentMethodId
+                     )
+                  }
+               >
+                  Confirm & Pay {cart.amount}
+               </Button>
                <section tw="my-4 text-gray-700">
                   * Your box will be delivered on{' '}
                   <span>

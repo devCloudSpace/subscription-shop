@@ -5,7 +5,7 @@ import { useQuery } from '@apollo/react-hooks'
 import { useToasts } from 'react-toast-notifications'
 
 import { useMenu } from './state'
-import { Loader } from '../../components'
+import { SkeletonProduct } from './skeletons'
 import { CheckIcon } from '../../assets/icons'
 import { OCCURENCE_PRODUCTS_BY_CATEGORIES } from '../../graphql'
 
@@ -54,7 +54,7 @@ export const Menu = () => {
          : true
    }
 
-   if (loading) return <Loader inline />
+   if (loading) return <SkeletonProduct />
    return (
       <main>
          {categories.map(category => (

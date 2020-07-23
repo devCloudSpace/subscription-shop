@@ -5,7 +5,7 @@ import { useSubscription } from '@apollo/react-hooks'
 
 import { Plan } from './plan'
 import { PLANS } from '../../graphql'
-import { Loader } from '../../components'
+import { SkeletonPlan } from './skeletons'
 
 export const Plans = () => {
    const { addToast } = useToasts()
@@ -20,7 +20,13 @@ export const Plans = () => {
       }
    )
 
-   if (loading) return <Loader inline />
+   if (loading)
+      return (
+         <List>
+            <SkeletonPlan />
+            <SkeletonPlan />
+         </List>
+      )
    if (error) return <div>{error.message}</div>
    return (
       <List>

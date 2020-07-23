@@ -16,6 +16,7 @@ import {
    UPSERT_OCCURENCE_CUSTOMER_CART_SKIP,
    INSERT_SUBSCRIPTION_OCCURENCE_CUSTOMERS,
 } from '../../graphql'
+import { SkeletonCart } from './skeletons'
 
 export const CartPanel = ({ noSkip, isCheckout }) => {
    const { user } = useUser()

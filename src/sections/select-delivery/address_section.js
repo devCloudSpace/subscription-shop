@@ -88,10 +88,7 @@ export const AddressSection = () => {
                   >
                      <AddressCardLeft
                         className={`${
-                           [
-                              user.defaultSubscriptionAddressId,
-                              state.address.selected?.id,
-                           ].includes(address.id) && 'active'
+                           state.address.selected?.id === address.id && 'active'
                         }`}
                      >
                         <CheckIcon
