@@ -81,6 +81,7 @@ const reducers = (state, { type, payload }) => {
             isSkipped: payload.isSkipped,
             cartExists: payload.cartExists,
             orderCartId: payload.orderCartId,
+            orderCartStatus: payload.orderCartStatus,
             cart: {
                ...state.weeks[payload.weekId].cart,
                products: payload.products,

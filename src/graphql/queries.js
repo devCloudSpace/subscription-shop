@@ -286,6 +286,7 @@ export const CART_BY_WEEK = gql`
          isSkipped
          orderCartId
          orderCart {
+            status
             cartInfo
          }
       }

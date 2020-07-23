@@ -176,21 +176,23 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
                }
                /{user?.subscription?.recipes?.count}
             </h4>
-            {!noSkip && (
-               <SkipWeek>
-                  <label htmlFor="skip" tw="mr-2 text-gray-600">
-                     Skip
-                  </label>
-                  <input
-                     name="skip"
-                     type="checkbox"
-                     className="toggle"
-                     onChange={skipWeek}
-                     checked={week?.isSkipped}
-                     tw="cursor-pointer appearance-none"
-                  />
-               </SkipWeek>
-            )}
+            {week?.orderCartStatus !== 'ORDER_PLACED' &&
+               state?.week?.isValid &&
+               !noSkip && (
+                  <SkipWeek>
+                     <label htmlFor="skip" tw="mr-2 text-gray-600">
+                        Skip
+                     </label>
+                     <input
+                        name="skip"
+                        type="checkbox"
+                        className="toggle"
+                        onChange={skipWeek}
+                        checked={week?.isSkipped}
+                        tw="cursor-pointer appearance-none"
+                     />
+                  </SkipWeek>
+               )}
          </header>
          <CartProducts>
             {week?.cart.products.map((product, index) =>
@@ -227,7 +229,14 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
                </tr>
             </tbody>
          </table>
-         <SaveButton disabled={isCartValid()} onClick={submitSelection}>
+         <SaveButton
+            disabled={
+               week?.orderCartStatus === 'ORDER_PLACED' ||
+               !state?.week?.isValid ||
+               isCartValid()
+            }
+            onClick={submitSelection}
+         >
             {isCheckout ? 'Save and Proceed to Checkout' : 'Save Selection'}
          </SaveButton>
       </section>
@@ -273,11 +282,13 @@ const CartProduct = ({ product }) => {
                   N/A
                </span>
             )}
-            <span className="remove_product">
-               <button onClick={() => removeRecipe(product.option.id)}>
-                  <CloseIcon size={16} tw="stroke-current text-green-400" />
-               </button>
-            </span>
+            {state?.week?.isValid && (
+               <span className="remove_product">
+                  <button onClick={() => removeRecipe(product.option.id)}>
+                     <CloseIcon size={16} tw="stroke-current text-green-400" />
+                  </button>
+               </span>
+            )}
          </aside>
          <main tw="h-16 pl-3">
             <p tw="truncate text-gray-800" title={product.name}>

@@ -107,16 +107,20 @@ export const Menu = () => {
                                  {node.productOption.product.name}
                               </Link>
                            </section>
-                           {!isAdded(node.productOption.id) && (
-                              <button
-                                 onClick={() =>
-                                    selectRecipe(node.cartItem, node.addonPrice)
-                                 }
-                                 tw="text-sm uppercase font-medium tracking-wider border border-gray-300 rounded px-1 text-gray-500"
-                              >
-                                 Add
-                              </button>
-                           )}
+                           {state?.week?.isValid &&
+                              !isAdded(node.productOption.id) && (
+                                 <button
+                                    onClick={() =>
+                                       selectRecipe(
+                                          node.cartItem,
+                                          node.addonPrice
+                                       )
+                                    }
+                                    tw="text-sm uppercase font-medium tracking-wider border border-gray-300 rounded px-1 text-gray-500"
+                                 >
+                                    Add
+                                 </button>
+                              )}
                         </div>
                      </Product>
                   ))}

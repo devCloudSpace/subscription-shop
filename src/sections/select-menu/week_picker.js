@@ -38,21 +38,22 @@ export const WeekPicker = ({ isFixed }) => {
                   weekId: state.week.id,
                   isSkipped: cart.isSkipped,
                   orderCartId: cart.orderCartId,
+                  orderCartStatus: cart.orderCart.status,
                   products: cart?.orderCart?.cartInfo?.products || products,
                },
             })
          }
 
+         const week = state?.weeks[state?.week?.id]
          dispatch({
             type: 'PREFILL_CART',
             payload: {
-               cartExists: false,
-               isSkipped: false,
-               orderCartId: null,
                weekId: state.week.id,
-               products: isSelectionEmpty
-                  ? products
-                  : state.weeks[state.week.id].cart.products,
+               cartExists: week.cartExists || false,
+               isSkipped: week.isSkipped || false,
+               orderCartId: week.orderCartStatus || null,
+               orderCartStatus: week.orderCartStatus || undefined,
+               products: isSelectionEmpty ? products : week.cart.products,
             },
          })
       },
@@ -87,20 +88,32 @@ export const WeekPicker = ({ isFixed }) => {
       },
       onCompleted: ({ customer: { subscription } = {} }) => {
          if (subscription?.occurences.length > 0) {
-            const filtered = subscription.occurences.filter(
-               occurence => occurence.isValid && occurence.isVisible
+            const visibleOccurences = subscription.occurences.filter(
+               occurence => occurence.isVisible
             )
-            setCurrent(0)
-            dispatch({ type: 'SET_OCCURENCES', payload: filtered })
-            dispatch({ type: 'SET_WEEK', payload: filtered[0] })
-            fetchCart({
-               variables: {
-                  keycloakId: user.keycloakId,
-                  weekId: filtered[0].id,
-               },
-            })
-         } else {
+            if (state.occurences.length === 0) {
+               const validWeekIndex = visibleOccurences.findIndex(
+                  node => node.isValid
+               )
+               setCurrent(validWeekIndex)
+               dispatch({ type: 'SET_OCCURENCES', payload: visibleOccurences })
+               dispatch({
+                  type: 'SET_WEEK',
+                  payload: visibleOccurences[validWeekIndex],
+               })
+               fetchCart({
+                  variables: {
+                     keycloakId: user.keycloakId,
+                     weekId: visibleOccurences[validWeekIndex].id,
+                  },
+               })
+            }
+         } else if (isFixed) {
             navigate('/get-started/select-delivery')
+         } else {
+            addToast('No weeks are available for menu selection.', {
+               appearance: 'error',
+            })
          }
       },
       onError: error => {
