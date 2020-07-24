@@ -38,7 +38,7 @@ export const WeekPicker = ({ isFixed }) => {
                   weekId: state.week.id,
                   isSkipped: cart.isSkipped,
                   orderCartId: cart.orderCartId,
-                  orderCartStatus: cart.orderCart.status,
+                  orderCartStatus: cart?.orderCart?.status,
                   products: cart?.orderCart?.cartInfo?.products || products,
                },
             })
