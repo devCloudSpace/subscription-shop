@@ -63,9 +63,9 @@ export const Menu = () => {
                   {category.name} ({category.productsAggregate.aggregate.count})
                </h4>
                <Products>
-                  {category.productsAggregate.nodes.map(node => (
+                  {category.productsAggregate.nodes.map((node, index) => (
                      <Product
-                        key={node.productOption.id}
+                        key={`${index}-${node.productOption.id}`}
                         className={`${
                            isAdded(node.productOption.id) && 'active'
                         }`}

@@ -11,25 +11,33 @@ import { CUSTOMERS, UPDATE_CUSTOMER, CREATE_CUSTOMER } from '../../graphql'
 export default () => {
    const [keycloak] = useKeycloak()
 
-   const [create] = useMutation(CREATE_CUSTOMER)
-   const [update] = useMutation(UPDATE_CUSTOMER)
+   const [create] = useMutation(CREATE_CUSTOMER, {
+      onCompleted: () => {
+         navigate('/get-started/select-delivery')
+      },
+   })
+   const [update] = useMutation(UPDATE_CUSTOMER, {
+      onCompleted: () => {
+         navigate('/get-started/select-delivery')
+      },
+   })
 
    const [customers] = useLazyQuery(CUSTOMERS, {
       onCompleted: ({ customers }) => {
          if (customers.length > 0) {
             const [customer] = customers
-            update({
-               variables: {
-                  id: customer.id,
-                  keycloakId: customer.keycloakId,
-                  _set: { isSubscriber: true },
-               },
-            })
             if (customer.subscriptionId) {
-               navigate('/')
+               navigate('/menu')
+            } else {
+               update({
+                  variables: {
+                     id: customer.id,
+                     keycloakId: customer.keycloakId,
+                     _set: { isSubscriber: true },
+                  },
+               })
             }
-         }
-         if (customers.length === 0) {
+         } else if (customers.length === 0) {
             create({
                variables: {
                   object: {
@@ -42,7 +50,6 @@ export default () => {
                },
             })
          }
-         navigate('/get-started/select-delivery')
       },
    })
 
