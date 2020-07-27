@@ -3,12 +3,12 @@ import { Link } from 'gatsby'
 import tw, { styled } from 'twin.macro'
 import { useKeycloak } from '@react-keycloak/web'
 
-import { isClient, getInitials } from '../utils'
 import { useUser } from '../context'
+import { isClient, getInitials } from '../utils'
 
 export const Header = () => {
-   const [keycloak, initialized] = useKeycloak()
    const { user } = useUser()
+   const [keycloak, initialized] = useKeycloak()
    return (
       <Wrapper>
          <Brand to="/">Subscription Shop</Brand>
@@ -38,9 +38,12 @@ export const Header = () => {
                      </button>
                   </>
                ) : (
-                  <button css={tw`bg-blue-600 text-white rounded px-2 py-1`}>
+                  <Link
+                     to="/login"
+                     css={tw`bg-blue-600 text-white rounded px-2 py-1`}
+                  >
                      Log In
-                  </button>
+                  </Link>
                )}
             </section>
          )}
