@@ -156,12 +156,12 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
 
    const week = state?.weeks[state.week.id]
    const addOnTotal = week?.cart.products.reduce(
-      (a, b) => b.addonPrice || 0 + a,
+      (a, b) => a + b.addonPrice || 0,
       0
    )
    const weekTotal =
       user?.subscription?.recipes?.price +
-      week?.cart.products.reduce((a, b) => b.addonPrice || 0 + a, 0) +
+      week?.cart.products.reduce((a, b) => a + b.addonPrice || 0, 0) +
       zipcode.price
 
    return (
