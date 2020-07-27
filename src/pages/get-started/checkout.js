@@ -13,9 +13,9 @@ import {
    PaymentSection,
 } from '../../sections/checkout'
 import { useUser } from '../../context'
-import { UPDATE_CART, CART } from '../../graphql'
 import { isClient, formatDate } from '../../utils'
 import { useToasts } from 'react-toast-notifications'
+import { UPDATE_CART, CART, UPDATE_DAILYKEY_CUSTOMER } from '../../graphql'
 
 const Checkout = () => {
    const [keycloak] = useKeycloak()
@@ -54,6 +54,30 @@ const PaymentContent = ({ isCheckout }) => {
          })
       },
    })
+   const [updateCustomer] = useMutation(UPDATE_DAILYKEY_CUSTOMER, {
+      refetchQueries: ['platform_customer'],
+      onCompleted: () => {
+         updateCart({
+            variables: {
+               id: cart.id,
+               _set: {
+                  customerInfo: {
+                     customerEmail: user.email,
+                     customerPhone: user.phoneNumber,
+                     customerLastName: user.lastName,
+                     customerFirstName: user.firstName,
+                  },
+                  paymentMethodId: state.payment.selected.id,
+                  ...(isCheckout && { status: 'PROCESS' }),
+               },
+            },
+         })
+      },
+      onError: error => {
+         addToast(error.message, { appearance: 'success' })
+      },
+   })
+
    const { data: { cart = {} } = {} } = useQuery(CART, {
       variables: {
          id: isClient && window.localStorage.getItem('cartId'),
@@ -61,22 +85,25 @@ const PaymentContent = ({ isCheckout }) => {
    })
 
    const handleSubmit = () => {
-      updateCart({
+      updateCustomer({
          variables: {
-            id: cart.id,
+            keycloakId: user.keycloakId,
             _set: {
-               customerInfo: {
-                  customerEmail: user.email,
-                  customerPhone: user.phoneNumber,
-                  customerLastName: user.lastName,
-                  customerFirstName: user.firstName,
-               },
-               paymentMethodId: state.payment.selected.id,
-               ...(isCheckout && { status: 'PROCESS' }),
+               ...state.profile,
             },
          },
       })
    }
+
+   const isValid = () => {
+      return (
+         state.profile.firstName &&
+         state.profile.lastName &&
+         state.profile.phoneNumber &&
+         state.payment.selected?.id
+      )
+   }
+
    return (
       <Main>
          <section>
@@ -98,15 +125,7 @@ const PaymentContent = ({ isCheckout }) => {
                      />
                   ))}
                </CartProducts>
-               <Button
-                  onClick={handleSubmit}
-                  disabled={
-                     !Boolean(
-                        state.payment.selected.id ||
-                           user.defaultSubscriptionPaymentMethodId
-                     )
-                  }
-               >
+               <Button onClick={handleSubmit} disabled={!Boolean(isValid())}>
                   Confirm & Pay {cart.amount}
                </Button>
                <section tw="my-4 text-gray-700">

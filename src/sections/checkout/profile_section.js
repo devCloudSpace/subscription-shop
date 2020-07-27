@@ -1,43 +1,34 @@
 import React from 'react'
 import tw, { styled, css } from 'twin.macro'
-import { useMutation } from '@apollo/react-hooks'
 import { useToasts } from 'react-toast-notifications'
 
+import { usePayment } from './state'
 import { Form } from '../../components'
 import { useUser } from '../../context'
-import { UPDATE_DAILYKEY_CUSTOMER } from '../../graphql'
 
 export const ProfileSection = () => {
    const { user } = useUser()
    const { addToast } = useToasts()
-   const [updateCustomer] = useMutation(UPDATE_DAILYKEY_CUSTOMER, {
-      refetchQueries: ['platform_customer'],
-      onCompleted: () => {
-         addToast('Saved profile changes.', { appearance: 'success' })
-      },
-      onError: error => {
-         addToast(error.message, { appearance: 'success' })
-      },
-   })
+   const { state, dispatch } = usePayment()
 
-   const handleProfileSubmit = e => {
-      e.preventDefault()
-      const raw = new FormData(e.target)
-      const parsed = Object.fromEntries(raw)
+   React.useEffect(() => {
+      dispatch({
+         type: 'SET_PROFILE',
+         payload: {
+            lastName: user.lastName,
+            firstName: user.firstName,
+            phoneNumber: user.phoneNumber,
+         },
+      })
+   }, [user])
 
-      const phoneRegex = new RegExp(
-         /^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}$/
-      )
-      if (!phoneRegex.test(parsed.phoneNumber)) {
-         return addToast('Invalid phone number', { appearance: 'error' })
-      }
+   const handleChange = e => {
+      const { name, value } = e.target
 
-      updateCustomer({
-         variables: {
-            keycloakId: user.keycloakId,
-            _set: {
-               ...parsed,
-            },
+      dispatch({
+         type: 'SET_PROFILE',
+         payload: {
+            [name]: value,
          },
       })
    }
@@ -46,7 +37,7 @@ export const ProfileSection = () => {
          <header tw="my-3 pb-1 border-b flex items-center justify-between">
             <h4 tw="text-lg text-gray-700">Profile Details</h4>
          </header>
-         <form onSubmit={handleProfileSubmit}>
+         <main>
             <section tw="flex flex-col md:flex-row items-center">
                <Form.Field tw="w-full md:w-5/12 md:mr-4">
                   <Form.Label>First Name*</Form.Label>
@@ -54,7 +45,8 @@ export const ProfileSection = () => {
                      required
                      type="text"
                      name="firstName"
-                     defaultValue={user.firstName || ''}
+                     onChange={e => handleChange(e)}
+                     value={state.profile.firstName}
                      placeholder="Enter your first name"
                   />
                </Form.Field>
@@ -64,7 +56,8 @@ export const ProfileSection = () => {
                      required
                      type="text"
                      name="lastName"
-                     defaultValue={user.lastName || ''}
+                     onChange={e => handleChange(e)}
+                     value={state.profile.lastName}
                      placeholder="Enter your last name"
                   />
                </Form.Field>
@@ -75,12 +68,12 @@ export const ProfileSection = () => {
                   required
                   type="text"
                   name="phoneNumber"
-                  defaultValue={user.phoneNumber || ''}
+                  onChange={e => handleChange(e)}
+                  value={state.profile.phoneNumber}
                   placeholder="Enter your phone no. eg. 987 987 9876"
                />
             </Form.Field>
-            <Button>Save Profile</Button>
-         </form>
+         </main>
       </>
    )
 }

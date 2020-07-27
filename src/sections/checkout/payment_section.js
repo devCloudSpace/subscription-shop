@@ -9,7 +9,7 @@ import { PaymentTunnel } from './payment_tunnel'
 import { PAYMENT_METHODS } from '../../graphql'
 import { Loader, HelperBar } from '../../components'
 
-export const PaymentSection = ({ setPaymentMethodId }) => {
+export const PaymentSection = () => {
    const { user } = useUser()
    const { state, dispatch } = usePayment()
    const { loading, data: { paymentMethods = [] } = {} } = useQuery(
@@ -20,6 +20,17 @@ export const PaymentSection = ({ setPaymentMethodId }) => {
          },
       }
    )
+
+   React.useEffect(() => {
+      if (user.defaultSubscriptionPaymentMethodId) {
+         dispatch({
+            type: 'SET_PAYMENT_METHOD',
+            payload: {
+               selected: { id: user.defaultSubscriptionPaymentMethodId },
+            },
+         })
+      }
+   }, [user])
 
    const toggleTunnel = value => {
       dispatch({
@@ -66,10 +77,8 @@ export const PaymentSection = ({ setPaymentMethodId }) => {
                >
                   <PaymentMethodLeft
                      className={`${
-                        [
-                           state.payment.selected?.id,
-                           user.defaultSubscriptionPaymentMethodId,
-                        ].includes(method.stripePaymentMethodId) && 'active'
+                        state.payment.selected?.id ===
+                           method.stripePaymentMethodId && 'active'
                      }`}
                   >
                      <CheckIcon size={20} tw="stroke-current text-gray-400" />

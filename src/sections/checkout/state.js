@@ -4,6 +4,11 @@ const initialState = {
    tunnel: {
       isVisible: false,
    },
+   profile: {
+      firstName: '',
+      lastName: '',
+      phoneNumber: '',
+   },
    payment: {
       selected: {},
    },
@@ -21,6 +26,8 @@ const reducers = (state, { type, payload }) => {
             ...state,
             payment: payload,
          }
+      case 'SET_PROFILE':
+         return { ...state, profile: { ...state.profile, ...payload } }
       default:
          return state
    }
