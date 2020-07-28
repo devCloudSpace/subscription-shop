@@ -43,45 +43,65 @@ export const Plan = ({ plan }) => {
          <h2 css={tw`mb-5 text-2xl font-medium tracking-wide text-green-700`}>
             {plan.title}
          </h2>
-         <section css={tw`flex items-center justify-between`}>
-            <span
-               css={tw`uppercase tracking-wider text-gray-600 text-sm font-medium`}
-            >
-               Servings
-            </span>
-            <CountList>
-               {plan.servings.map(serving => (
-                  <CountListItem
-                     key={serving.id}
-                     onClick={() => setDefaultServing(serving)}
-                     className={`${
-                        serving.id === defaultServing.id ? 'active' : ''
-                     }`}
+         <section css={tw`h-12 mb-4 flex items-center justify-between`}>
+            {plan.servings.length === 1 ? (
+               <span
+                  css={tw`uppercase tracking-wider text-gray-600 text-sm font-medium`}
+               >
+                  {plan.servings[0].size} Servings
+               </span>
+            ) : (
+               <>
+                  <span
+                     css={tw`uppercase tracking-wider text-gray-600 text-sm font-medium`}
                   >
-                     {serving.size}
-                  </CountListItem>
-               ))}
-            </CountList>
+                     Servings
+                  </span>
+                  <CountList>
+                     {plan.servings.map(serving => (
+                        <CountListItem
+                           key={serving.id}
+                           onClick={() => setDefaultServing(serving)}
+                           className={`${
+                              serving.id === defaultServing.id ? 'active' : ''
+                           }`}
+                        >
+                           {serving.size}
+                        </CountListItem>
+                     ))}
+                  </CountList>
+               </>
+            )}
          </section>
-         <section css={tw`mb-4 flex items-center justify-between mt-3`}>
-            <span
-               css={tw`uppercase tracking-wider text-gray-600 text-sm font-medium`}
-            >
-               Recipes per week
-            </span>
-            <CountList>
-               {defaultServing.itemCounts.map(item => (
-                  <CountListItem
-                     key={item.id}
-                     onClick={() => setDefaultItemCount(item)}
-                     className={`${
-                        item.id === defaultItemCount.id ? 'active' : ''
-                     }`}
+         <section css={tw`h-12 mb-4 flex items-center justify-between mt-3`}>
+            {defaultServing.itemCounts.length === 1 ? (
+               <span
+                  css={tw`uppercase tracking-wider text-gray-600 text-sm font-medium`}
+               >
+                  {defaultServing.itemCounts[0].count} Recipes per week
+               </span>
+            ) : (
+               <>
+                  <span
+                     css={tw`uppercase tracking-wider text-gray-600 text-sm font-medium`}
                   >
-                     {item.count}
-                  </CountListItem>
-               ))}
-            </CountList>
+                     Recipes per week
+                  </span>
+                  <CountList>
+                     {defaultServing.itemCounts.map(item => (
+                        <CountListItem
+                           key={item.id}
+                           onClick={() => setDefaultItemCount(item)}
+                           className={`${
+                              item.id === defaultItemCount.id ? 'active' : ''
+                           }`}
+                        >
+                           {item.count}
+                        </CountListItem>
+                     ))}
+                  </CountList>
+               </>
+            )}
          </section>
          <hr />
          <div tw="mb-6 flex items-center">
@@ -92,7 +112,7 @@ export const Plan = ({ plan }) => {
                         (defaultItemCount.count * defaultServing.size)
                   ).toFixed(2)}{' '}
                </span>
-               <span tw="text-gray-600">per serving</span>
+               <span tw="text-gray-600">/ serving</span>
             </section>
             <section tw="h-full flex-1 flex flex-col text-right border-l py-1">
                <span tw="text-green-700 text-2xl font-medium">
