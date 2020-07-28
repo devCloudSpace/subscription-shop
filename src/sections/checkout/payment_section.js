@@ -30,7 +30,7 @@ export const PaymentSection = () => {
             },
          })
       }
-   }, [user])
+   }, [user, dispatch])
 
    const toggleTunnel = value => {
       dispatch({

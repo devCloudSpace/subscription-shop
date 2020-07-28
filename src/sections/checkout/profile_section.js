@@ -1,6 +1,4 @@
 import React from 'react'
-import tw, { styled, css } from 'twin.macro'
-import { useToasts } from 'react-toast-notifications'
 
 import { usePayment } from './state'
 import { Form } from '../../components'
@@ -8,7 +6,6 @@ import { useUser } from '../../context'
 
 export const ProfileSection = () => {
    const { user } = useUser()
-   const { addToast } = useToasts()
    const { state, dispatch } = usePayment()
 
    React.useEffect(() => {
@@ -20,7 +17,7 @@ export const ProfileSection = () => {
             phoneNumber: user.phoneNumber,
          },
       })
-   }, [user])
+   }, [user, dispatch])
 
    const handleChange = e => {
       const { name, value } = e.target
@@ -77,9 +74,3 @@ export const ProfileSection = () => {
       </>
    )
 }
-
-const Button = styled.button(
-   () => css`
-      ${tw`bg-green-600 rounded text-white px-4 h-10 hover:bg-green-700`}
-   `
-)
