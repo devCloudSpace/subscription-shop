@@ -74,7 +74,7 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
    const { data: { zipcode = {} } = {} } = useQuery(ZIPCODE, {
       variables: {
          subscriptionId: user?.subscriptionId,
-         zipcode: user?.defaultSubscriptionAddress?.zipcode,
+         zipcode: user?.defaultAddress?.zipcode,
       },
    })
    const submitSelection = () => {
@@ -92,10 +92,10 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
                   products: week.cart.products,
                },
                cartSource: 'subscription',
+               address: user.defaultAddress,
                customerKeycloakId: user.keycloakId,
                subscriptionOccurenceId: state.week.id,
-               stripeCustomerId: user.stripeCustomerId,
-               address: user.defaultSubscriptionAddress,
+               stripeCustomerId: user?.platform_customer?.stripeCustomerId,
                ...(week.orderCartId && { id: week.orderCartId }),
 
                fulfillmentInfo: {

@@ -1,5 +1,5 @@
 import React from 'react'
-import tw, { css } from 'twin.macro'
+import tw from 'twin.macro'
 
 import { usePayment } from './state'
 import { Form } from '../../components'
@@ -13,9 +13,9 @@ export const ProfileSection = () => {
       dispatch({
          type: 'SET_PROFILE',
          payload: {
-            lastName: user.lastName,
-            firstName: user.firstName,
-            phoneNumber: user.phoneNumber,
+            lastName: user?.platform_customer?.lastName,
+            firstName: user?.platform_customer?.firstName,
+            phoneNumber: user?.platform_customer?.phoneNumber,
          },
       })
    }, [user, dispatch])

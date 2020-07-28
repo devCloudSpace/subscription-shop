@@ -13,10 +13,7 @@ import {
 import { usePayment } from './state'
 import { useUser } from '../../context'
 import { Loader } from '../../components'
-import {
-   UPDATE_DAILYKEY_CUSTOMER,
-   CREATE_STRIPE_PAYMENT_METHOD,
-} from '../../graphql'
+import { UPDATE_CUSTOMER, CREATE_STRIPE_PAYMENT_METHOD } from '../../graphql'
 
 const stripePromise = loadStripe(process.env.GATSBY_STRIPE_KEY)
 
@@ -24,7 +21,7 @@ export const PaymentForm = () => {
    const { user } = useUser()
    const { dispatch } = usePayment()
    const [intent, setIntent] = React.useState(null)
-   const [updateCustomer] = useMutation(UPDATE_DAILYKEY_CUSTOMER, {
+   const [updateCustomer] = useMutation(UPDATE_CUSTOMER, {
       refetchQueries: ['paymentMethods', 'platform_customer'],
    })
    const [createPaymentMethod] = useMutation(CREATE_STRIPE_PAYMENT_METHOD, {
@@ -34,7 +31,9 @@ export const PaymentForm = () => {
    React.useEffect(() => {
       if (user.stripeCustomerId) {
          ;(async () => {
-            const intent = await createSetupIntent(user.stripeCustomerId)
+            const intent = await createSetupIntent(
+               user?.platform_customer?.stripeCustomerId
+            )
             setIntent(intent)
          })()
       }
@@ -63,12 +62,12 @@ export const PaymentForm = () => {
                      },
                   },
                })
-               if (!user.defaultSubscriptionPaymentMethodId) {
+               if (!user.subscriptionPaymentMethodId) {
                   await updateCustomer({
                      variables: {
                         keycloakId: user.keycloakId,
                         _set: {
-                           defaultSubscriptionPaymentMethodId: data.id,
+                           subscriptionPaymentMethodId: data.id,
                         },
                      },
                   })

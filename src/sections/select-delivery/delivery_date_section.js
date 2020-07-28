@@ -43,12 +43,12 @@ export const DeliveryDateSection = () => {
       }
    }, [state.delivery.selected, fetchOccurences])
 
-   const occurenceSelection = id => {
-      const dateIndex = occurences.findIndex(occurence => occurence.id === id)
+   const occurenceSelection = occurence => {
+      const dateIndex = occurences.findIndex(node => node.id === occurence.id)
       const skipList = occurences
          .slice(0, dateIndex)
          .map(occurence => occurence.id)
-      dispatch({ type: 'SET_DATE', payload: occurences[dateIndex] })
+      dispatch({ type: 'SET_DATE', payload: occurence })
       dispatch({ type: 'SET_SKIP_LIST', payload: skipList })
    }
 
@@ -83,7 +83,7 @@ export const DeliveryDateSection = () => {
             {occurences.map(occurence => (
                <DeliveryDate
                   key={occurence.id}
-                  onClick={() => occurenceSelection(occurence.id)}
+                  onClick={() => occurenceSelection(occurence)}
                >
                   <DeliveryDateLeft
                      className={`${
