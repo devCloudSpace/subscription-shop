@@ -15,6 +15,11 @@ module.exports = {
             id: 'portal',
          },
       },
-      `gatsby-plugin-asset-path`,
+      {
+         resolve: `gatsby-plugin-asset-path`,
+         options: {
+            fileTypes: ['js', 'map', 'css', 'xhtml'],
+         },
+      },
    ],
 }
