@@ -5,9 +5,9 @@ import { useMutation } from '@apollo/react-hooks'
 import { useKeycloak } from '@react-keycloak/web'
 import { useToasts } from 'react-toast-notifications'
 
-import { useUser } from '../../context'
-import { SEO, Layout, StepsNavbar } from '../../components'
-import { UPDATE_CUSTOMERS, UPDATE_DAILYKEY_CUSTOMER } from '../../graphql'
+import { useUser } from '../../../context'
+import { SEO, Layout, StepsNavbar } from '../../../components'
+import { UPDATE_CUSTOMERS, UPDATE_DAILYKEY_CUSTOMER } from '../../../graphql'
 
 import {
    useDelivery,
@@ -15,14 +15,14 @@ import {
    DeliverySection,
    DeliveryProvider,
    DeliveryDateSection,
-} from '../../sections/select-delivery'
+} from '../../../sections/select-delivery'
 
 const SelectDelivery = () => {
    const [keycloak] = useKeycloak()
 
    React.useEffect(() => {
       if (!keycloak?.tokenParsed?.sub) {
-         navigate('/get-started/select-plan')
+         navigate('/subscription/get-started/select-plan')
       }
    }, [keycloak])
 
@@ -58,7 +58,7 @@ const DeliveryContent = () => {
             },
          })
          navigate(
-            `/get-started/select-menu?date=${
+            `/subscription/get-started/select-menu?date=${
                state.delivery_date.selected.fulfillmentDate
             }${
                state.skip_list.length > 0 ? `&previous=${state.skip_list}` : ''

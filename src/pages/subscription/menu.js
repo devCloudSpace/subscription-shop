@@ -3,21 +3,21 @@ import { navigate } from 'gatsby'
 import tw, { styled } from 'twin.macro'
 import { useKeycloak } from '@react-keycloak/web'
 
-import { SEO, Layout, HelperBar } from '../components'
+import { SEO, Layout, HelperBar } from '../../components'
 import {
    Menu,
    CartPanel,
    WeekPicker,
    MenuProvider,
-} from '../sections/select-menu'
-import { useUser } from '../context'
+} from '../../sections/select-menu'
+import { useUser } from '../../context'
 
 const MenuPage = () => {
    const [keycloak] = useKeycloak()
 
    React.useEffect(() => {
       if (!keycloak?.tokenParsed?.sub) {
-         navigate('/get-started/select-plan')
+         navigate('/subscription/get-started/select-plan')
       }
    }, [keycloak])
 
@@ -49,7 +49,9 @@ const MenuContent = () => {
                            Let's start with setting up a plan for you.
                         </HelperBar.SubTitle>
                         <HelperBar.Button
-                           onClick={() => navigate('/get-started/select-plan')}
+                           onClick={() =>
+                              navigate('/subscription/get-started/select-plan')
+                           }
                         >
                            Select Plan
                         </HelperBar.Button>

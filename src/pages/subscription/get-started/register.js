@@ -4,21 +4,21 @@ import { navigate } from 'gatsby'
 import { useKeycloak } from '@react-keycloak/web'
 import { useLazyQuery, useMutation } from '@apollo/react-hooks'
 
-import { isClient } from '../../utils'
-import { SEO, Layout, StepsNavbar } from '../../components'
-import { CUSTOMERS, UPDATE_CUSTOMER, CREATE_CUSTOMER } from '../../graphql'
+import { isClient } from '../../../utils'
+import { SEO, Layout, StepsNavbar } from '../../../components'
+import { CUSTOMERS, UPDATE_CUSTOMER, CREATE_CUSTOMER } from '../../../graphql'
 
 export default () => {
    const [keycloak] = useKeycloak()
 
    const [create] = useMutation(CREATE_CUSTOMER, {
       onCompleted: () => {
-         navigate('/get-started/select-delivery')
+         navigate('/subscription/get-started/select-delivery')
       },
    })
    const [update] = useMutation(UPDATE_CUSTOMER, {
       onCompleted: () => {
-         navigate('/get-started/select-delivery')
+         navigate('/subscription/get-started/select-delivery')
       },
    })
 
@@ -27,7 +27,7 @@ export default () => {
          if (customers.length > 0) {
             const [customer] = customers
             if (customer.subscriptionId) {
-               navigate('/menu')
+               navigate('/subscription/menu')
             } else {
                update({
                   variables: {
@@ -94,7 +94,7 @@ export default () => {
                   tw="mx-auto w-full md:w-4/12 h-full"
                   src={keycloak?.createRegisterUrl({
                      redirectUri: isClient
-                        ? `${window.location.origin}/login-success.xhtml`
+                        ? `${window.location.origin}/subscription/login-success.xhtml`
                         : '',
                   })}
                ></iframe>

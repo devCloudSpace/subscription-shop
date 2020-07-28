@@ -2,7 +2,7 @@ import React from 'react'
 import { Link } from 'gatsby'
 import tw, { styled } from 'twin.macro'
 
-import { SEO, Layout } from '../components'
+import { SEO, Layout } from '../../components'
 
 export default () => {
    return (
@@ -12,7 +12,9 @@ export default () => {
             <Header>
                <div>
                   <Tagline>Your next great meal is at your fingertips.</Tagline>
-                  <CTA to="/get-started/select-plan">Get Started</CTA>
+                  <CTA to="/subscription/get-started/select-plan">
+                     Get Started
+                  </CTA>
                </div>
             </Header>
          </Main>

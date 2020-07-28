@@ -78,7 +78,9 @@ export const DeliverySection = () => {
                   No days are available for delivery on this address.
                </HelperBar.SubTitle>
                <HelperBar.Button
-                  onClick={() => navigate('/get-started/select-plan')}
+                  onClick={() =>
+                     navigate('/subscription/get-started/select-plan')
+                  }
                >
                   Select Plan
                </HelperBar.Button>

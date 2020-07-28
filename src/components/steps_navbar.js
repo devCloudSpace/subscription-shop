@@ -19,7 +19,7 @@ export const StepsNavbar = () => {
 
    return (
       <Navbar>
-         <Brand to="/">Subscription Shop</Brand>
+         <Brand to="/subscription">Subscription Shop</Brand>
          <Progress>
             <ProgressBar current={currentStep} />
             <Steps>
@@ -38,7 +38,7 @@ export const StepsNavbar = () => {
                      onClick={() =>
                         keycloak.logout({
                            redirectUri: isClient
-                              ? `${window.location.origin}`
+                              ? `${window.location.origin}/subscription`
                               : '',
                         })
                      }

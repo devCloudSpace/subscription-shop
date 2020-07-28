@@ -3,20 +3,20 @@ import { navigate } from 'gatsby'
 import tw, { styled } from 'twin.macro'
 import { useKeycloak } from '@react-keycloak/web'
 
-import { SEO, Layout, StepsNavbar } from '../../components'
+import { SEO, Layout, StepsNavbar } from '../../../components'
 import {
    Menu,
    CartPanel,
    WeekPicker,
    MenuProvider,
-} from '../../sections/select-menu'
+} from '../../../sections/select-menu'
 
 const SelectMenu = () => {
    const [keycloak] = useKeycloak()
 
    React.useEffect(() => {
       if (!keycloak?.tokenParsed?.sub) {
-         navigate('/get-started/select-plan')
+         navigate('/subscription/get-started/select-plan')
       }
    }, [keycloak])
 

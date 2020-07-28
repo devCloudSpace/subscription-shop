@@ -1,4 +1,5 @@
 import React from 'react'
+import tw, { css } from 'twin.macro'
 
 import { usePayment } from './state'
 import { Form } from '../../components'
@@ -32,7 +33,7 @@ export const ProfileSection = () => {
    return (
       <>
          <header tw="my-3 pb-1 border-b flex items-center justify-between">
-            <h4 tw="text-lg text-gray-700">Profile Details</h4>
+            <h4 css={tw`text-lg text-gray-700`}>Profile Details</h4>
          </header>
          <main>
             <section tw="flex flex-col md:flex-row items-center">
