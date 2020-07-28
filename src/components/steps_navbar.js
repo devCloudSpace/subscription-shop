@@ -19,7 +19,7 @@ export const StepsNavbar = () => {
 
    return (
       <Navbar>
-         <Brand to="/">Subscription Shop</Brand>
+         <Brand to="/subscription">Subscription Shop</Brand>
          <Progress>
             <ProgressBar current={currentStep} />
             <Steps>
