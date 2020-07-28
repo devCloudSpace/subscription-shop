@@ -29,7 +29,7 @@ export const Header = () => {
                         onClick={() =>
                            keycloak.logout({
                               redirectUri: isClient
-                                 ? `${window.location.origin}`
+                                 ? `${window.location.origin}/subscription`
                                  : '',
                            })
                         }
@@ -39,7 +39,7 @@ export const Header = () => {
                   </>
                ) : (
                   <Link
-                     to="/login"
+                     to="/subscription/login"
                      css={tw`bg-blue-600 text-white rounded px-2 py-1`}
                   >
                      Log In

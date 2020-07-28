@@ -2,27 +2,27 @@ import React from 'react'
 import { navigate } from 'gatsby'
 import tw, { styled, css } from 'twin.macro'
 import { useKeycloak } from '@react-keycloak/web'
+import { useToasts } from 'react-toast-notifications'
 import { useMutation, useQuery } from '@apollo/react-hooks'
 
-import { SEO, Layout, StepsNavbar } from '../../components'
+import { SEO, Layout, StepsNavbar } from '../../../components'
 
 import {
    usePayment,
    ProfileSection,
    PaymentProvider,
    PaymentSection,
-} from '../../sections/checkout'
-import { useUser } from '../../context'
-import { isClient, formatDate } from '../../utils'
-import { useToasts } from 'react-toast-notifications'
-import { UPDATE_CART, CART, UPDATE_DAILYKEY_CUSTOMER } from '../../graphql'
+} from '../../../sections/checkout'
+import { useUser } from '../../../context'
+import { isClient, formatDate } from '../../../utils'
+import { UPDATE_CART, CART, UPDATE_DAILYKEY_CUSTOMER } from '../../../graphql'
 
 const Checkout = () => {
    const [keycloak] = useKeycloak()
 
    React.useEffect(() => {
       if (!keycloak?.tokenParsed?.sub) {
-         navigate('/get-started/select-plan')
+         navigate('/subscription/get-started/select-plan')
       }
    }, [keycloak])
 
@@ -46,7 +46,7 @@ const PaymentContent = ({ isCheckout }) => {
          addToast('Saved you preferences.', {
             appearance: 'success',
          })
-         navigate('/menu')
+         navigate('/subscription/menu')
       },
       onError: error => {
          addToast(error.message, {

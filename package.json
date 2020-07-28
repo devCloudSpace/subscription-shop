@@ -3,9 +3,9 @@
    "description": "A subscription based shop for restaurants.",
    "version": "0.1.0",
    "scripts": {
-      "build": "gatsby build --prefix-paths",
+      "build": "gatsby build",
       "develop": "gatsby develop",
-      "serve": "gatsby serve --prefix-paths"
+      "serve": "gatsby serve"
    },
    "dependencies": {
       "@apollo/react-hooks": "^3.1.5",

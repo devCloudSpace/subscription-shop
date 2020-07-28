@@ -38,7 +38,7 @@ export const StepsNavbar = () => {
                      onClick={() =>
                         keycloak.logout({
                            redirectUri: isClient
-                              ? `${window.location.origin}`
+                              ? `${window.location.origin}/subscription`
                               : '',
                         })
                      }

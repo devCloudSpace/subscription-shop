@@ -1,8 +1,8 @@
 import React from 'react'
 import { styled } from 'twin.macro'
 
-import { SEO, Layout, ProfileSidebar, Form } from '../../components'
-import { useUser } from '../../context'
+import { SEO, Layout, ProfileSidebar, Form } from '../../../components'
+import { useUser } from '../../../context'
 
 const Profile = () => {
    return (

@@ -109,7 +109,7 @@ export const WeekPicker = ({ isFixed }) => {
                })
             }
          } else if (isFixed) {
-            navigate('/get-started/select-delivery')
+            navigate('/subscription/get-started/select-delivery')
          } else {
             addToast('No weeks are available for menu selection.', {
                appearance: 'error',

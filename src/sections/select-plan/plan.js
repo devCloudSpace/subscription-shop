@@ -34,7 +34,7 @@ export const Plan = ({ plan }) => {
       addToast('Successfully selected a plan.', {
          appearance: 'success',
       })
-      navigate('/get-started/register')
+      navigate('/subscription/get-started/register')
    }
 
    if (!defaultItemCount || !defaultServing) return <Loader inline />

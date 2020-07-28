@@ -44,7 +44,7 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
          addToast('Selected menu has been saved.', {
             appearance: 'success',
          })
-         isCheckout && navigate('/get-started/checkout')
+         isCheckout && navigate('/subscription/get-started/checkout')
       },
       onError: error => {
          addToast(error.message, {
