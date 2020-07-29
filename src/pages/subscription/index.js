@@ -3,6 +3,7 @@ import { Link } from 'gatsby'
 import tw, { styled } from 'twin.macro'
 
 import { SEO, Layout } from '../../components'
+import { InfoBlock } from '../../sections/InfoBlock'
 
 export default () => {
    return (
@@ -17,6 +18,28 @@ export default () => {
                   </CTA>
                </div>
             </Header>
+            <InfoBlock
+               heading="How it Works"
+               subHeading="No commitment. Skipping or canceling meals is easy."
+            >
+               <InfoBlock.Item
+                  heading="You Choose"
+                  subHeading="Select from 20 exciting, easy to cook recipes"
+                  icon="https://dailykit-assets.s3.us-east-2.amazonaws.com/subs-icons/choose.png"
+               />
+               <InfoBlock.Item
+                  heading="We Deliver"
+                  subHeading=" We bring you the freshest, highest quality ingredients straight
+            to your door"
+                  icon="https://dailykit-assets.s3.us-east-2.amazonaws.com/subs-icons/deliver.png"
+               />
+               <InfoBlock.Item
+                  heading="You Cook"
+                  subHeading="Tasty, inspiring meals you're proud to share with the people you
+            love"
+                  icon="https://dailykit-assets.s3.us-east-2.amazonaws.com/subs-icons/cook.png"
+               />
+            </InfoBlock>
          </Main>
       </Layout>
    )
@@ -42,7 +65,7 @@ const Header = styled.header`
    ${tw`relative bg-gray-200 overflow-hidden flex flex-col justify-center`}
    div {
       margin: auto;
-      max-width: 1180px;
+      max-width: 980px;
       width: calc(100vw - 40px);
    }
    :after {
