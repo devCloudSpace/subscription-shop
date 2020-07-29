@@ -77,7 +77,7 @@ const Header = styled.header`
    background-size: cover;
    background-position: bottom;
    background-repeat: no-repeat;
-   background-image: url('/public/banner.png');
+   background-image: url('https://dailykit-assets.s3.us-east-2.amazonaws.com/subs-icons/banner.png');
    ${tw`relative bg-gray-200 overflow-hidden flex flex-col justify-center`}
    div {
       margin: auto;
