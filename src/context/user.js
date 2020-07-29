@@ -20,7 +20,7 @@ export const UserProvider = ({ children }) => {
    )
 
    React.useEffect(() => {
-      if ('id' in customer) {
+      if (customer?.id) {
          const data = {}
          if (customer.subscriptionAddressId) {
             const address = customer?.platform_customer?.addresses.find(
