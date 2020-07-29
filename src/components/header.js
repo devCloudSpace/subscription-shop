@@ -16,12 +16,14 @@ export const Header = () => {
             <section tw="px-4 ml-auto">
                {keycloak.authenticated ? (
                   <>
-                     {user.firstName && (
+                     {user?.platform_customer?.firstName && (
                         <Link
                            to="/subscription/account/profile"
                            tw="mr-3 inline-flex items-center justify-center rounded-full h-10 w-10 bg-gray-200"
                         >
-                           {getInitials(`${user.firstName} ${user.lastName}`)}
+                           {getInitials(
+                              `${user.platform_customer.firstName} ${user.platform_customer.lastName}`
+                           )}
                         </Link>
                      )}
                      <button

@@ -78,7 +78,6 @@ export const WeekPicker = ({ isFixed }) => {
 
    const { loading } = useQuery(CUSTOMER_OCCURENCES, {
       variables: {
-         id: user.id,
          keycloakId: user.keycloakId,
          where: {
             fulfillmentDate: {

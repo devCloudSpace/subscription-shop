@@ -25,7 +25,9 @@ const ProfileForm = () => {
       <section tw="p-6 w-full md:w-5/12">
          <Form.Field tw="mr-3">
             <Form.Label>Email</Form.Label>
-            <Form.DisabledText>{user.email}</Form.DisabledText>
+            <Form.DisabledText>
+               {user?.platform_customer?.email}
+            </Form.DisabledText>
          </Form.Field>
          <div tw="flex">
             <Form.Field tw="mr-3">
@@ -33,8 +35,8 @@ const ProfileForm = () => {
                <Form.Text
                   type="text"
                   name="firstName"
-                  defaultValue={user.firstName}
                   placeholder="Enter your first name"
+                  defaultValue={user?.platform_customer?.firstName}
                />
             </Form.Field>
             <Form.Field>
@@ -42,8 +44,8 @@ const ProfileForm = () => {
                <Form.Text
                   type="text"
                   name="lastName"
-                  defaultValue={user.lastName}
                   placeholder="Enter your last name"
+                  defaultValue={user?.platform_customer?.lastName}
                />
             </Form.Field>
          </div>

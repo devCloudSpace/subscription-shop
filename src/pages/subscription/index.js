@@ -2,7 +2,9 @@ import React from 'react'
 import { Link } from 'gatsby'
 import tw, { styled } from 'twin.macro'
 
+import { Faq } from '../../sections/Faq'
 import { SEO, Layout } from '../../components'
+import { InfoBlock } from '../../sections/InfoBlock'
 
 export default () => {
    return (
@@ -17,6 +19,43 @@ export default () => {
                   </CTA>
                </div>
             </Header>
+            <InfoBlock
+               heading="How it Works"
+               subHeading="No commitment. Skipping or canceling meals is easy."
+            >
+               <InfoBlock.Item
+                  heading="You Choose"
+                  subHeading="Select from 20 exciting, easy to cook recipes"
+                  icon="https://dailykit-assets.s3.us-east-2.amazonaws.com/subs-icons/choose.png"
+               />
+               <InfoBlock.Item
+                  heading="We Deliver"
+                  subHeading=" We bring you the freshest, highest quality ingredients straight
+            to your door"
+                  icon="https://dailykit-assets.s3.us-east-2.amazonaws.com/subs-icons/deliver.png"
+               />
+               <InfoBlock.Item
+                  heading="You Cook"
+                  subHeading="Tasty, inspiring meals you're proud to share with the people you
+            love"
+                  icon="https://dailykit-assets.s3.us-east-2.amazonaws.com/subs-icons/cook.png"
+               />
+            </InfoBlock>
+            <Faq heading="Frequently Asked Questions" tw="mt-16">
+               <Faq.Item
+                  question="Can I choose any recipe, or only specific ones?"
+                  answer="You can choose any recipe you want within the box you've selected.
+                  With any plan, you can select any recipe available each week."
+               />
+               <Faq.Item
+                  question="Do I always need to choose my recipes?"
+                  answer="It’s always best to choose the recipes you like. We do know however that life gets busy. If you don't get around to choosing your recipes on a future order, we'll use your preferred way of cooking as a guide so you always receive recipes that you like"
+               />
+               <Faq.Item
+                  question="What if I need to skip a week?"
+                  answer="No problem. Just visit the Choose Recipes page in your menu and skip any week you want."
+               />
+            </Faq>
          </Main>
       </Layout>
    )
@@ -38,11 +77,11 @@ const Header = styled.header`
    background-size: cover;
    background-position: bottom;
    background-repeat: no-repeat;
-   background-image: url('/public/banner.png');
+   background-image: url('https://dailykit-assets.s3.us-east-2.amazonaws.com/subs-icons/banner.png');
    ${tw`relative bg-gray-200 overflow-hidden flex flex-col justify-center`}
    div {
       margin: auto;
-      max-width: 1180px;
+      max-width: 980px;
       width: calc(100vw - 40px);
    }
    :after {

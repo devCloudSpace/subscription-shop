@@ -49,8 +49,7 @@ export const DeliverySection = () => {
       }
    }, [state.address.selected, fetchDays])
 
-   const daySelection = id => {
-      const day = itemCount.valid.find(day => day.id === id)
+   const daySelection = day => {
       dispatch({ type: 'SET_DAY', payload: day })
    }
 
@@ -95,7 +94,7 @@ export const DeliverySection = () => {
          )}
          <DeliveryDays>
             {itemCount?.valid?.map(day => (
-               <DeliveryDay key={day.id} onClick={() => daySelection(day.id)}>
+               <DeliveryDay key={day.id} onClick={() => daySelection(day)}>
                   <DeliveryDayLeft
                      className={`${
                         state.delivery.selected?.id === day.id && 'active'
@@ -112,8 +111,8 @@ export const DeliverySection = () => {
                <DeliveryDay
                   key={day.id}
                   className="invalid"
+                  onClick={() => daySelection(day)}
                   title="Not available on this address"
-                  onClick={() => daySelection(day.id)}
                >
                   <DeliveryDayLeft
                      className={`${

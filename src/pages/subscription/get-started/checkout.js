@@ -62,10 +62,10 @@ const PaymentContent = ({ isCheckout }) => {
                id: cart.id,
                _set: {
                   customerInfo: {
-                     customerEmail: user.email,
-                     customerPhone: user.phoneNumber,
-                     customerLastName: user.lastName,
-                     customerFirstName: user.firstName,
+                     customerEmail: user?.platform_customer?.email,
+                     customerPhone: user?.platform_customer?.phoneNumber,
+                     customerLastName: user?.platform_customer?.lastName,
+                     customerFirstName: user?.platform_customer?.firstName,
                   },
                   paymentMethodId: state.payment.selected.id,
                   ...(isCheckout && { status: 'PROCESS' }),

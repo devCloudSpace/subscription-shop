@@ -1,32 +1,22 @@
 import React from 'react'
 import tw, { styled, css } from 'twin.macro'
-import { useQuery } from '@apollo/react-hooks'
 
 import { usePayment } from './state'
 import { useUser } from '../../context'
 import { CheckIcon } from '../../assets/icons'
 import { PaymentTunnel } from './payment_tunnel'
-import { PAYMENT_METHODS } from '../../graphql'
-import { Loader, HelperBar } from '../../components'
+import { HelperBar } from '../../components'
 
 export const PaymentSection = () => {
    const { user } = useUser()
    const { state, dispatch } = usePayment()
-   const { loading, data: { paymentMethods = [] } = {} } = useQuery(
-      PAYMENT_METHODS,
-      {
-         variables: {
-            keycloakId: user.keycloakId,
-         },
-      }
-   )
 
    React.useEffect(() => {
-      if (user.defaultSubscriptionPaymentMethodId) {
+      if (user.subscriptionPaymentMethodId) {
          dispatch({
             type: 'SET_PAYMENT_METHOD',
             payload: {
-               selected: { id: user.defaultSubscriptionPaymentMethodId },
+               selected: { id: user.subscriptionPaymentMethodId },
             },
          })
       }
@@ -41,18 +31,17 @@ export const PaymentSection = () => {
       })
    }
 
-   if (loading) return <Loader inline />
    return (
       <>
          <header tw="my-3 pb-1 border-b flex items-center justify-between">
             <h4 tw="text-lg text-gray-700">Select Payment Method</h4>
-            {paymentMethods.length > 0 && (
+            {user?.platfrom_customer?.paymentMethods.length > 0 && (
                <OutlineButton onClick={() => toggleTunnel(true)}>
                   Add Card
                </OutlineButton>
             )}
          </header>
-         {paymentMethods.length === 0 && (
+         {user?.platfrom_customer?.paymentMethods.length === 0 && (
             <HelperBar type="info">
                <HelperBar.SubTitle>
                   Let's start with adding a payment method.
@@ -63,7 +52,7 @@ export const PaymentSection = () => {
             </HelperBar>
          )}
          <PaymentMethods>
-            {paymentMethods.map(method => (
+            {user?.platfrom_customer?.paymentMethods.map(method => (
                <PaymentMethod
                   key={method.stripePaymentMethodId}
                   onClick={() =>
@@ -84,7 +73,7 @@ export const PaymentSection = () => {
                      <CheckIcon size={20} tw="stroke-current text-gray-400" />
                   </PaymentMethodLeft>
                   <section tw="p-2 w-full">
-                     {user.defaultSubscriptionPaymentMethodId ===
+                     {user.subscriptionPaymentMethodId ===
                         method.stripePaymentMethodId && (
                         <span tw="rounded border bg-teal-200 border-teal-300 px-2 text-teal-700">
                            Default

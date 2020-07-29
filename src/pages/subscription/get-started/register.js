@@ -31,7 +31,6 @@ export default () => {
             } else {
                update({
                   variables: {
-                     id: customer.id,
                      keycloakId: customer.keycloakId,
                      _set: { isSubscriber: true },
                   },

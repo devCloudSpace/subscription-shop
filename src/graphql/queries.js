@@ -22,23 +22,6 @@ export const ITEM_COUNT = gql`
    }
 `
 
-export const ADDRESSES = gql`
-   query addresses($where: platform_customerAddress_bool_exp!) {
-      addresses: platform_customerAddresses(where: $where) {
-         id
-         lat
-         lng
-         line1
-         line2
-         notes
-         state
-         label
-         country
-         zipcode
-      }
-   }
-`
-
 export const CUSTOMERS = gql`
    query customers($where: crm_customer_bool_exp) {
       customers(where: $where) {
@@ -91,12 +74,15 @@ export const PLANS = gql`
    }
 `
 
-export const CRM_CUSTOMER_DETAILS = gql`
-   subscription customers($keycloakId: String!) {
-      customers(where: { keycloakId: { _eq: $keycloakId } }) {
+export const CUSTOMER_DETAILS = gql`
+   query customer($keycloakId: String!) {
+      customer(keycloakId: $keycloakId) {
          id
+         keycloakId
          isSubscriber
          subscriptionId
+         subscriptionAddressId
+         subscriptionPaymentMethodId
          subscription {
             recipes: subscriptionItemCount {
                count
@@ -107,67 +93,37 @@ export const CRM_CUSTOMER_DETAILS = gql`
                }
             }
          }
-      }
-   }
-`
-export const CUSTOMER_DETAILS = gql`
-   query platform_customer($keycloakId: String!) {
-      platform_customer(keycloakId: $keycloakId) {
-         email
-         firstName
-         lastName
-         keycloakId
-         phoneNumber
-         stripeCustomerId
-         defaultSubscriptionAddressId
-         defaultSubscriptionPaymentMethodId
-         defaultSubscriptionAddress {
-            id
-            lat
-            lng
-            line1
-            line2
-            city
-            state
-            country
-            zipcode
-            label
-            notes
-         }
-         customerAddresses {
-            id
-            lat
-            lng
-            line1
-            line2
-            city
-            state
-            country
-            zipcode
-            label
-            notes
-         }
-         defaultSubscriptionPaymentMethod {
-            brand
-            last4
-            country
-            expMonth
-            expYear
-            funding
+         platform_customer {
+            email
+            firstName
+            lastName
             keycloakId
-            cardHolderName
-            stripePaymentMethodId
-         }
-         stripePaymentMethods {
-            brand
-            last4
-            country
-            expMonth
-            expYear
-            funding
-            keycloakId
-            cardHolderName
-            stripePaymentMethodId
+            phoneNumber
+            stripeCustomerId
+            addresses: customerAddresses {
+               id
+               lat
+               lng
+               line1
+               line2
+               city
+               state
+               country
+               zipcode
+               label
+               notes
+            }
+            paymentMethods: stripePaymentMethods {
+               brand
+               last4
+               country
+               expMonth
+               expYear
+               funding
+               keycloakId
+               cardHolderName
+               stripePaymentMethodId
+            }
          }
       }
    }
@@ -176,11 +132,12 @@ export const CUSTOMER_DETAILS = gql`
 export const CUSTOMER_OCCURENCES = gql`
    query customer(
       $keycloakId: String!
-      $id: Int!
       $where: subscription_subscriptionOccurence_bool_exp! = {}
    ) {
-      customer(id: $id, keycloakId: $keycloakId) {
+      customer(keycloakId: $keycloakId) {
+         id
          subscription {
+            id
             occurences: subscriptionOccurences(where: $where) {
                id
                isValid
@@ -300,23 +257,6 @@ export const ZIPCODE = gql`
          zipcode: $zipcode
       ) {
          price: deliveryPrice
-      }
-   }
-`
-
-export const PAYMENT_METHODS = gql`
-   query paymentMethods($keycloakId: String!) {
-      paymentMethods: platform_stripePaymentMethods(
-         where: { keycloakId: { _eq: $keycloakId } }
-      ) {
-         last4
-         brand
-         funding
-         expYear
-         country
-         expMonth
-         cardHolderName
-         stripePaymentMethodId
       }
    }
 `

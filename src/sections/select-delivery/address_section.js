@@ -1,50 +1,27 @@
 import React from 'react'
 import { navigate } from 'gatsby'
 import tw, { styled, css } from 'twin.macro'
-import { useQuery } from '@apollo/react-hooks'
-import { useToasts } from 'react-toast-notifications'
 
 import { useDelivery } from './state'
 import { useUser } from '../../context'
-import { ADDRESSES } from '../../graphql'
 import { CheckIcon } from '../../assets/icons'
 import { AddressTunnel } from './address_tunnel'
-import { Loader, Button, HelperBar } from '../../components'
+import { Button, HelperBar } from '../../components'
 
 export const AddressSection = () => {
    const { user } = useUser()
-   const { addToast } = useToasts()
    const { state, dispatch } = useDelivery()
-   const { loading, data: { addresses = [] } = {} } = useQuery(ADDRESSES, {
-      variables: {
-         where: {
-            keycloakId: {
-               _eq: user.keycloakId,
-            },
-         },
-      },
-      onError: error => {
-         addToast(error.message, {
-            appearance: 'error',
-         })
-      },
-   })
 
    React.useEffect(() => {
-      if (user.defaultSubscriptionAddressId) {
+      if (user.subscriptionAddressId) {
          dispatch({
             type: 'SET_ADDRESS',
-            payload: user.defaultSubscriptionAddress,
+            payload: user?.defaultAddress,
          })
       }
-   }, [
-      user.defaultSubscriptionAddressId,
-      user.defaultSubscriptionAddress,
-      dispatch,
-   ])
+   }, [dispatch, user])
 
-   const addressSelection = id => {
-      const address = addresses.find(address => address.id === id)
+   const addressSelection = address => {
       dispatch({ type: 'SET_ADDRESS', payload: address })
    }
 
@@ -52,18 +29,11 @@ export const AddressSection = () => {
       dispatch({ type: 'TOGGLE_TUNNEL', payload: value })
    }
 
-   if (loading)
-      return (
-         <div>
-            <h2 css={tw`mt-6 mb-3 text-gray-600 text-xl`}>Select Address</h2>
-            <Loader inline />
-         </div>
-      )
    return (
       <>
          <header css={tw`mt-6 mb-3 flex items-center justify-between`}>
             <h2 css={tw`text-gray-600 text-xl`}>Select Address</h2>
-            {addresses.length > 0 && (
+            {user?.platform_customer?.addresses.length > 0 && (
                <Button size="sm" onClick={() => toggleTunnel(true)}>
                   Add Address
                </Button>
@@ -81,12 +51,12 @@ export const AddressSection = () => {
                </HelperBar.Buttom>
             </HelperBar>
          )}
-         {addresses.length > 0 ? (
+         {user?.platform_customer?.addresses.length > 0 ? (
             <AddressList>
-               {addresses.map(address => (
+               {user?.platform_customer?.addresses.map(address => (
                   <AddressCard
                      key={address.id}
-                     onClick={() => addressSelection(address.id)}
+                     onClick={() => addressSelection(address)}
                   >
                      <AddressCardLeft
                         className={`${

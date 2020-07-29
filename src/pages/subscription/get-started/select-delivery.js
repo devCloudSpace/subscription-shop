@@ -6,8 +6,8 @@ import { useKeycloak } from '@react-keycloak/web'
 import { useToasts } from 'react-toast-notifications'
 
 import { useUser } from '../../../context'
+import { UPDATE_CUSTOMER } from '../../../graphql'
 import { SEO, Layout, StepsNavbar } from '../../../components'
-import { UPDATE_CUSTOMERS, UPDATE_DAILYKEY_CUSTOMER } from '../../../graphql'
 
 import {
    useDelivery,
@@ -43,19 +43,10 @@ const DeliveryContent = () => {
    const { user } = useUser()
    const { state } = useDelivery()
    const { addToast } = useToasts()
-   const [updateDailykeyCustomer] = useMutation(UPDATE_DAILYKEY_CUSTOMER)
-   const [updateCustomers] = useMutation(UPDATE_CUSTOMERS, {
+   const [updateCustomer] = useMutation(UPDATE_CUSTOMER, {
       onCompleted: () => {
          addToast('Successfully saved delivery preferences.', {
             appearance: 'success',
-         })
-         updateDailykeyCustomer({
-            variables: {
-               keycloakId: user.keycloakId,
-               _set: {
-                  defaultSubscriptionAddressId: state.address.selected.id,
-               },
-            },
          })
          navigate(
             `/subscription/get-started/select-menu?date=${
@@ -72,13 +63,9 @@ const DeliveryContent = () => {
       },
    })
    const nextStep = () => {
-      updateCustomers({
+      updateCustomer({
          variables: {
-            where: {
-               keycloakId: {
-                  _eq: user.keycloakId,
-               },
-            },
+            keycloakId: user.keycloakId,
             _set: {
                subscriptionId: state.delivery.selected.id,
                subscriptionAddressId: state.address.selected.id,
