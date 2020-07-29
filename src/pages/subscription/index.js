@@ -2,6 +2,7 @@ import React from 'react'
 import { Link } from 'gatsby'
 import tw, { styled } from 'twin.macro'
 
+import { Faq } from '../../sections/Faq'
 import { SEO, Layout } from '../../components'
 import { InfoBlock } from '../../sections/InfoBlock'
 
@@ -40,6 +41,21 @@ export default () => {
                   icon="https://dailykit-assets.s3.us-east-2.amazonaws.com/subs-icons/cook.png"
                />
             </InfoBlock>
+            <Faq heading="Frequently Asked Questions" tw="mt-16">
+               <Faq.Item
+                  question="Can I choose any recipe, or only specific ones?"
+                  answer="You can choose any recipe you want within the box you've selected.
+                  With any plan, you can select any recipe available each week."
+               />
+               <Faq.Item
+                  question="Do I always need to choose my recipes?"
+                  answer="It’s always best to choose the recipes you like. We do know however that life gets busy. If you don't get around to choosing your recipes on a future order, we'll use your preferred way of cooking as a guide so you always receive recipes that you like"
+               />
+               <Faq.Item
+                  question="What if I need to skip a week?"
+                  answer="No problem. Just visit the Choose Recipes page in your menu and skip any week you want."
+               />
+            </Faq>
          </Main>
       </Layout>
    )
