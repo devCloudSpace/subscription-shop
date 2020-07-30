@@ -132,7 +132,7 @@ export const CUSTOMER_DETAILS = gql`
 export const CUSTOMER_OCCURENCES = gql`
    query customer(
       $keycloakId: String!
-      $where: subscription_subscriptionOccurence_bool_exp! = {}
+      $where: subscription_subscriptionOccurence_bool_exp!
    ) {
       customer(keycloakId: $keycloakId) {
          id

@@ -3,12 +3,13 @@ import { navigate } from 'gatsby'
 import tw, { styled } from 'twin.macro'
 import { useKeycloak } from '@react-keycloak/web'
 
-import { SEO, Layout, StepsNavbar } from '../../../components'
+import { SEO, Layout, StepsNavbar, HelperBar } from '../../../components'
 import {
    Menu,
    CartPanel,
    WeekPicker,
    MenuProvider,
+   useMenu,
 } from '../../../sections/select-menu'
 
 const SelectMenu = () => {
@@ -34,10 +35,7 @@ const SelectMenu = () => {
                      </h1>
                   </Header>
                </div>
-               <Content>
-                  <Menu />
-                  <CartPanel noSkip isCheckout />
-               </Content>
+               <MenuContent />
             </Main>
          </Layout>
       </MenuProvider>
@@ -46,10 +44,30 @@ const SelectMenu = () => {
 
 export default SelectMenu
 
+const MenuContent = () => {
+   const { state } = useMenu()
+
+   if (!state?.week?.id)
+      return (
+         <section tw="p-3">
+            <HelperBar type="info">
+               <HelperBar.SubTitle>
+                  No menu available for this week!
+               </HelperBar.SubTitle>
+            </HelperBar>
+         </section>
+      )
+   return (
+      <Content>
+         <Menu />
+         <CartPanel noSkip isCheckout />
+      </Content>
+   )
+}
+
 const Main = styled.main`
    margin: auto;
    padding-bottom: 24px;
-   width: calc(100vw - 40px);
    min-height: calc(100vh - 128px);
 `
 
