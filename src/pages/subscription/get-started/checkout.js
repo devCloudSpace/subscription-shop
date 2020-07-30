@@ -15,7 +15,12 @@ import {
 } from '../../../sections/checkout'
 import { useUser } from '../../../context'
 import { isClient, formatDate } from '../../../utils'
-import { UPDATE_CART, CART, UPDATE_DAILYKEY_CUSTOMER } from '../../../graphql'
+import {
+   UPDATE_CART,
+   CART,
+   UPDATE_DAILYKEY_CUSTOMER,
+   UPDATE_CUSTOMER,
+} from '../../../graphql'
 
 const Checkout = () => {
    const [keycloak] = useKeycloak()
@@ -41,7 +46,7 @@ const PaymentContent = ({ isCheckout }) => {
    const { user } = useUser()
    const { state } = usePayment()
    const { addToast } = useToasts()
-   const [updateCart] = useMutation(UPDATE_CART, {
+   const [updateCustomer] = useMutation(UPDATE_CUSTOMER, {
       onCompleted: () => {
          addToast('Saved you preferences.', {
             appearance: 'success',
@@ -54,7 +59,26 @@ const PaymentContent = ({ isCheckout }) => {
          })
       },
    })
-   const [updateCustomer] = useMutation(UPDATE_DAILYKEY_CUSTOMER, {
+
+   const [updateCart] = useMutation(UPDATE_CART, {
+      onCompleted: () => {
+         updateCustomer({
+            variables: {
+               keycloakId: user.keycloakId,
+               _set: {
+                  isSubscriber: true,
+               },
+            },
+         })
+      },
+      onError: error => {
+         addToast(error.message, {
+            appearance: 'danger',
+         })
+      },
+   })
+
+   const [updatePlatformCustomer] = useMutation(UPDATE_DAILYKEY_CUSTOMER, {
       refetchQueries: ['customer'],
       onCompleted: () => {
          updateCart({
@@ -85,7 +109,7 @@ const PaymentContent = ({ isCheckout }) => {
    })
 
    const handleSubmit = () => {
-      updateCustomer({
+      updatePlatformCustomer({
          variables: {
             keycloakId: user.keycloakId,
             _set: {

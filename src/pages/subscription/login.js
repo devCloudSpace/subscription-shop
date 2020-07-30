@@ -6,7 +6,7 @@ import { useLazyQuery, useMutation } from '@apollo/react-hooks'
 
 import { isClient } from '../../utils'
 import { Layout, SEO } from '../../components'
-import { CUSTOMERS, CREATE_CUSTOMER, UPDATE_CUSTOMER } from '../../graphql'
+import { CUSTOMERS, CREATE_CUSTOMER } from '../../graphql'
 
 const Login = () => {
    const [keycloak] = useKeycloak()
@@ -16,31 +16,20 @@ const Login = () => {
          navigate('/subscription/get-started/select-plan')
       },
    })
-   const [update] = useMutation(UPDATE_CUSTOMER, {
-      onCompleted: () => {
-         navigate('/subscription/get-started/select-plan')
-      },
-   })
 
    const [customers] = useLazyQuery(CUSTOMERS, {
       onCompleted: ({ customers }) => {
          if (customers.length > 0) {
             const [customer] = customers
-            if (customer.subscriptionId) {
+            if (customer.isSubscriber) {
                navigate('/subscription/menu')
             } else {
-               update({
-                  variables: {
-                     keycloakId: customer.keycloakId,
-                     _set: { isSubscriber: true },
-                  },
-               })
+               navigate('/subscription/get-started/select-plan')
             }
          } else if (customers.length === 0) {
             create({
                variables: {
                   object: {
-                     isSubscriber: true,
                      source: 'subscription',
                      email: keycloak?.tokenParsed?.email,
                      clientId: process.env.GATSBY_CLIENTID,
