@@ -47,6 +47,7 @@ const PaymentContent = ({ isCheckout }) => {
    const { state } = usePayment()
    const { addToast } = useToasts()
    const [updateCustomer] = useMutation(UPDATE_CUSTOMER, {
+      refetchQueries: ['customer'],
       onCompleted: () => {
          addToast('Saved you preferences.', {
             appearance: 'success',

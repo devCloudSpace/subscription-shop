@@ -12,6 +12,7 @@ export default () => {
    const [keycloak] = useKeycloak()
 
    const [create] = useMutation(CREATE_CUSTOMER, {
+      refetchQueries: ['customer'],
       onCompleted: () => {
          navigate('/subscription/get-started/select-delivery')
       },

@@ -15,6 +15,7 @@ const Login = () => {
       onCompleted: () => {
          navigate('/subscription/get-started/select-plan')
       },
+      refetchQueries: ['customer'],
    })
 
    const [customers] = useLazyQuery(CUSTOMERS, {

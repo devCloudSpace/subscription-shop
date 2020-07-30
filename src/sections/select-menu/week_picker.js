@@ -2,20 +2,22 @@ import React from 'react'
 import moment from 'moment'
 import { useLocation } from '@reach/router'
 import tw, { styled, css } from 'twin.macro'
+import { useKeycloak } from '@react-keycloak/web'
 import { useToasts } from 'react-toast-notifications'
 import { useQuery, useLazyQuery } from '@apollo/react-hooks'
 
 import { useMenu } from './state'
 import { useUser } from '../../context'
 import { Loader } from '../../components'
-import { formatDate } from '../../utils'
+import { formatDate, isClient } from '../../utils'
 import { ArrowLeftIcon, ArrowRightIcon } from '../../assets/icons'
-import { CART_BY_WEEK, CUSTOMER_OCCURENCES } from '../../graphql'
+import { CART_BY_WEEK, OCCURENCES_BY_SUBSCRIPTION } from '../../graphql'
 
 export const WeekPicker = ({ isFixed }) => {
    const { user } = useUser()
    const location = useLocation()
    const { addToast } = useToasts()
+   const [keycloak] = useKeycloak()
    const { state, dispatch } = useMenu()
    const [current, setCurrent] = React.useState(0)
    const [fetchCart, { data: { cart } = {} }] = useLazyQuery(CART_BY_WEEK, {
@@ -75,17 +77,17 @@ export const WeekPicker = ({ isFixed }) => {
       }
    }, [cart, state.week, dispatch])
 
-   const { loading } = useQuery(CUSTOMER_OCCURENCES, {
+   const { loading } = useQuery(OCCURENCES_BY_SUBSCRIPTION, {
       variables: {
-         keycloakId: user.keycloakId,
+         id: user.subscriptionId,
          where: {
             fulfillmentDate: {
                _eq: new URL(location.href).searchParams.get('date'),
             },
          },
       },
-      onCompleted: ({ customer: { subscription } = {} }) => {
-         if (subscription?.occurences.length > 0) {
+      onCompleted: ({ subscription = {} } = {}) => {
+         if (subscription?.occurences?.length > 0) {
             const visibleOccurences = subscription.occurences.filter(
                occurence => occurence.isVisible
             )
@@ -101,7 +103,7 @@ export const WeekPicker = ({ isFixed }) => {
                })
                fetchCart({
                   variables: {
-                     keycloakId: user.keycloakId,
+                     keycloakId: keycloak?.tokenParsed?.sub,
                      weekId: visibleOccurences[validWeekIndex].id,
                   },
                })
@@ -126,7 +128,7 @@ export const WeekPicker = ({ isFixed }) => {
       dispatch({ type: 'SET_WEEK', payload: state.occurences[nextOne] })
       fetchCart({
          variables: {
-            keycloakId: user.keycloakId,
+            keycloakId: keycloak?.tokenParsed?.sub,
             weekId: state.occurences[nextOne].id,
          },
       })
@@ -141,7 +143,7 @@ export const WeekPicker = ({ isFixed }) => {
       dispatch({ type: 'SET_WEEK', payload: state.occurences[previousOne] })
       fetchCart({
          variables: {
-            keycloakId: user.keycloakId,
+            keycloakId: keycloak?.tokenParsed?.sub,
             weekId: state.occurences[previousOne].id,
          },
       })

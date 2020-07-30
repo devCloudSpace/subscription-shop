@@ -5,7 +5,7 @@ import { useMutation } from '@apollo/react-hooks'
 import { useKeycloak } from '@react-keycloak/web'
 import { useToasts } from 'react-toast-notifications'
 
-import { useUser } from '../../../context'
+import { isClient } from '../../../utils'
 import { UPDATE_CUSTOMER } from '../../../graphql'
 import { SEO, Layout, StepsNavbar } from '../../../components'
 
@@ -40,10 +40,11 @@ const SelectDelivery = () => {
 export default SelectDelivery
 
 const DeliveryContent = () => {
-   const { user } = useUser()
+   const [keycloak] = useKeycloak()
    const { state } = useDelivery()
    const { addToast } = useToasts()
    const [updateCustomer] = useMutation(UPDATE_CUSTOMER, {
+      refetchQueries: ['customer'],
       onCompleted: () => {
          addToast('Successfully saved delivery preferences.', {
             appearance: 'success',
@@ -65,7 +66,7 @@ const DeliveryContent = () => {
    const nextStep = () => {
       updateCustomer({
          variables: {
-            keycloakId: user.keycloakId,
+            keycloakId: keycloak?.tokenParsed?.sub,
             _set: {
                subscriptionId: state.delivery.selected.id,
                subscriptionAddressId: state.address.selected.id,
