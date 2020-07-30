@@ -107,7 +107,10 @@ export const Menu = () => {
                                  {node.productOption.product.name}
                               </Link>
                            </section>
-                           {state?.week?.isValid &&
+                           {['PROCESS', undefined].includes(
+                              state?.weeks[state?.week?.id]?.orderCartStatus
+                           ) &&
+                              state?.week?.isValid &&
                               !isAdded(node.productOption.id) && (
                                  <button
                                     onClick={() =>

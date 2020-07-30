@@ -1,6 +1,5 @@
 import React from 'react'
 import moment from 'moment'
-import { navigate } from 'gatsby'
 import { useLocation } from '@reach/router'
 import tw, { styled, css } from 'twin.macro'
 import { useToasts } from 'react-toast-notifications'
