@@ -17,27 +17,15 @@ import { UPDATE_CUSTOMER, CREATE_STRIPE_PAYMENT_METHOD } from '../../graphql'
 
 const stripePromise = loadStripe(process.env.GATSBY_STRIPE_KEY)
 
-export const PaymentForm = () => {
+export const PaymentForm = ({ intent }) => {
    const { user } = useUser()
    const { dispatch } = usePayment()
-   const [intent, setIntent] = React.useState(null)
    const [updateCustomer] = useMutation(UPDATE_CUSTOMER, {
       refetchQueries: ['customer'],
    })
    const [createPaymentMethod] = useMutation(CREATE_STRIPE_PAYMENT_METHOD, {
       refetchQueries: ['customer'],
    })
-
-   React.useEffect(() => {
-      if (user.stripeCustomerId) {
-         ;(async () => {
-            const intent = await createSetupIntent(
-               user?.platform_customer?.stripeCustomerId
-            )
-            setIntent(intent)
-         })()
-      }
-   }, [user])
 
    const handleResult = async ({ setupIntent }) => {
       try {
@@ -191,20 +179,6 @@ const CardSection = () => {
          {error && <span tw="block mt-1 text-red-400">{error}</span>}
       </CardSectionWrapper>
    )
-}
-
-const createSetupIntent = async customer => {
-   try {
-      const {
-         data,
-      } = await axios.post(
-         `${process.env.GATSBY_DAILYKEY_URL}/api/setup-intent`,
-         { customer, confirm: true }
-      )
-      return data.data
-   } catch (error) {
-      return error
-   }
 }
 
 const CardSectionWrapper = styled.div`

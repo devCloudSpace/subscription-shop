@@ -1,13 +1,17 @@
 import React from 'react'
+import axios from 'axios'
 import tw from 'twin.macro'
 
 import { usePayment } from './state'
+import { useUser } from '../../context'
 import { Tunnel } from '../../components'
 import { PaymentForm } from './payment_form'
 import { CloseIcon } from '../../assets/icons'
 
 export const PaymentTunnel = () => {
+   const { user } = useUser()
    const { state, dispatch } = usePayment()
+   const [intent, setIntent] = React.useState(null)
 
    const toggleTunnel = (value = false) => {
       dispatch({
@@ -17,6 +21,18 @@ export const PaymentTunnel = () => {
          },
       })
    }
+
+   React.useEffect(() => {
+      if (user?.platform_customer?.stripeCustomerId) {
+         ;(async () => {
+            const intent = await createSetupIntent(
+               user?.platform_customer?.stripeCustomerId
+            )
+            setIntent(intent)
+         })()
+      }
+   }, [user])
+
    return (
       <Tunnel
          size="sm"
@@ -32,8 +48,22 @@ export const PaymentTunnel = () => {
             </button>
          </Tunnel.Header>
          <Tunnel.Body>
-            <PaymentForm />
+            <PaymentForm intent={intent} />
          </Tunnel.Body>
       </Tunnel>
    )
+}
+
+const createSetupIntent = async customer => {
+   try {
+      const {
+         data,
+      } = await axios.post(
+         `${process.env.GATSBY_DAILYKEY_URL}/api/setup-intent`,
+         { customer, confirm: true }
+      )
+      return data.data
+   } catch (error) {
+      return error
+   }
 }
