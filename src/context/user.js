@@ -34,6 +34,8 @@ export const UserProvider = ({ children }) => {
          }
          setUser({ ...customer, ...data })
          setStatus('PROFILE_SUCCESS')
+      } else {
+         setStatus('NOT_LOGGED_IN')
       }
    }, [customer])
 
