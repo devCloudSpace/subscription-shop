@@ -18,7 +18,7 @@ export const AddressTunnel = () => {
    const [formStatus, setFormStatus] = React.useState('PENDING')
    const [address, setAddress] = React.useState(null)
    const [createAddress] = useMutation(CREATE_CUSTOMER_ADDRESS, {
-      refetchQueries: ['addresses'],
+      refetchQueries: ['customer'],
       onCompleted: () => {
          toggleTunnel(false)
          setFormStatus('SAVED')

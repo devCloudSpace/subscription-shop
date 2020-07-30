@@ -55,7 +55,7 @@ const PaymentContent = ({ isCheckout }) => {
       },
    })
    const [updateCustomer] = useMutation(UPDATE_DAILYKEY_CUSTOMER, {
-      refetchQueries: ['platform_customer'],
+      refetchQueries: ['customer'],
       onCompleted: () => {
          updateCart({
             variables: {

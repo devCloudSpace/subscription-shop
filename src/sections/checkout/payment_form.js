@@ -22,10 +22,10 @@ export const PaymentForm = () => {
    const { dispatch } = usePayment()
    const [intent, setIntent] = React.useState(null)
    const [updateCustomer] = useMutation(UPDATE_CUSTOMER, {
-      refetchQueries: ['paymentMethods', 'platform_customer'],
+      refetchQueries: ['customer'],
    })
    const [createPaymentMethod] = useMutation(CREATE_STRIPE_PAYMENT_METHOD, {
-      refetchQueries: ['paymentMethods', 'platform_customer'],
+      refetchQueries: ['customer'],
    })
 
    React.useEffect(() => {
