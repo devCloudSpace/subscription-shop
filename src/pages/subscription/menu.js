@@ -3,7 +3,7 @@ import { navigate } from 'gatsby'
 import tw, { styled } from 'twin.macro'
 import { useKeycloak } from '@react-keycloak/web'
 
-import { SEO, Layout, HelperBar } from '../../components'
+import { SEO, Layout, HelperBar, Loader } from '../../components'
 import {
    Menu,
    CartPanel,
@@ -36,45 +36,46 @@ export default MenuPage
 const MenuContent = () => {
    const { user } = useUser()
 
-   if (!user.subscriptionId)
+   if (Object.keys(user).length === 0)
       return (
-         <MenuProvider>
-            <Layout>
-               <SEO title="Select Menu" />
-               <Main>
-                  <div tw="py-3 mx-auto container">
-                     <HelperBar type="info">
-                        <HelperBar.Title>No plans selected?</HelperBar.Title>
-                        <HelperBar.SubTitle>
-                           Let's start with setting up a plan for you.
-                        </HelperBar.SubTitle>
-                        <HelperBar.Button
-                           onClick={() =>
-                              navigate('/subscription/get-started/select-plan')
-                           }
-                        >
-                           Select Plan
-                        </HelperBar.Button>
-                     </HelperBar>
-                  </div>
-               </Main>
-            </Layout>
-         </MenuProvider>
+         <Main>
+            <Loader inline />
+         </Main>
+      )
+   if (user.isSubscriber)
+      return (
+         <Main>
+            <div>
+               <WeekPicker />
+               <Header>
+                  <h1 css={tw`text-2xl md:text-4xl text-gray-700`}>
+                     Explore our Menus
+                  </h1>
+               </Header>
+            </div>
+            <Content>
+               <Menu />
+               <CartPanel />
+            </Content>
+         </Main>
       )
    return (
       <Main>
-         <div>
-            <WeekPicker />
-            <Header>
-               <h1 css={tw`text-2xl md:text-4xl text-gray-700`}>
-                  Explore our Menus
-               </h1>
-            </Header>
+         <div tw="py-3 mx-auto container">
+            <HelperBar type="info">
+               <HelperBar.Title>No plans selected?</HelperBar.Title>
+               <HelperBar.SubTitle>
+                  Let's start with setting up a plan for you.
+               </HelperBar.SubTitle>
+               <HelperBar.Button
+                  onClick={() =>
+                     navigate('/subscription/get-started/select-plan')
+                  }
+               >
+                  Select Plan
+               </HelperBar.Button>
+            </HelperBar>
          </div>
-         <Content>
-            <Menu />
-            <CartPanel />
-         </Content>
       </Main>
    )
 }
