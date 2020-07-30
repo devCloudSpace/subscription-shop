@@ -10,14 +10,12 @@ const UserContext = React.createContext()
 export const UserProvider = ({ children }) => {
    const [keycloak] = useKeycloak()
    const [user, setUser] = React.useState({})
-   const { loading, data: { customer = {} } = {} } = useQuery(
-      CUSTOMER_DETAILS,
-      {
-         variables: {
-            keycloakId: keycloak?.tokenParsed?.sub,
-         },
-      }
-   )
+   const [status, setStatus] = React.useState('PROFILE_LOADING')
+   const { data: { customer = {} } = {} } = useQuery(CUSTOMER_DETAILS, {
+      variables: {
+         keycloakId: keycloak?.tokenParsed?.sub,
+      },
+   })
 
    React.useEffect(() => {
       if (customer?.id) {
@@ -35,10 +33,11 @@ export const UserProvider = ({ children }) => {
             data.defaultPaymentMethod = paymentMethod
          }
          setUser({ ...customer, ...data })
+         setStatus('PROFILE_SUCCESS')
       }
    }, [customer])
 
-   if (loading) return <Loader />
+   if (status === 'PROFILE_LOADING') return <Loader />
    return (
       <UserContext.Provider value={{ user }}>{children}</UserContext.Provider>
    )
