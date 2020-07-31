@@ -254,3 +254,16 @@ export const CART = gql`
       }
    }
 `
+
+export const CART_STATUS = gql`
+   subscription cart($id: Int!) {
+      cart: cartByPK(id: $id) {
+         status
+         orderId
+         cartInfo
+         address
+         paymentStatus
+         fulfillmentInfo
+      }
+   }
+`

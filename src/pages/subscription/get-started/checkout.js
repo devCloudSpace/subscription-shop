@@ -52,7 +52,7 @@ const PaymentContent = ({ isCheckout }) => {
          addToast('Saved you preferences.', {
             appearance: 'success',
          })
-         navigate('/subscription/menu')
+         navigate(`/subscription/get-started/placing-order`)
       },
       onError: error => {
          addToast(error.message, {

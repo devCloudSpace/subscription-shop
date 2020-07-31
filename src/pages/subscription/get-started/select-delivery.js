@@ -89,7 +89,9 @@ const DeliveryContent = () => {
          <AddressSection />
          <h2 css={tw`my-3 text-gray-600 text-xl`}>Delivery Day</h2>
          <DeliverySection />
-         <h2 css={tw`my-3 text-gray-600 text-xl`}>Delivery Date</h2>
+         <h2 css={tw`my-3 text-gray-600 text-xl`}>
+            Select your first delivery date
+         </h2>
          <DeliveryDateSection />
          <div tw="mt-4 w-full flex items-center justify-center">
             <Button onClick={() => nextStep()} disabled={!isValid()}>

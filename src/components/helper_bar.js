@@ -13,12 +13,13 @@ const Button = styled.button(
    `
 )
 
-const Title = styled.h4(
-   () => css`
-      ${tw`text-lg`}
-   `
-)
-const SubTitle = tw.h5``
+const Title = styled.h4`
+   ${tw`text-center text-lg`}
+`
+
+const SubTitle = styled.h5`
+   ${tw`text-center`}
+`
 
 HelperBar.Button = Button
 HelperBar.Title = Title
