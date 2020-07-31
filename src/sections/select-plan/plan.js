@@ -55,7 +55,7 @@ export const Plan = ({ plan }) => {
                   <span
                      css={tw`uppercase tracking-wider text-gray-600 text-sm font-medium`}
                   >
-                     Servings
+                     No. of people
                   </span>
                   <CountList>
                      {plan.servings.map(serving => (
@@ -114,7 +114,9 @@ export const Plan = ({ plan }) => {
                      ).toFixed(2)
                   )}{' '}
                </span>
-               <span tw="text-gray-600">/ serving</span>
+               <span tw="text-gray-600">
+                  / person x {defaultServing.size * defaultItemCount.count}
+               </span>
             </section>
             <section tw="h-full flex-1 flex flex-col text-right border-l py-1">
                <span tw="text-green-700 text-2xl font-medium">
