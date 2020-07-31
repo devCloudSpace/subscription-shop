@@ -15,6 +15,12 @@ const PlacingOrder = () => {
       },
    })
 
+   React.useEffect(() => {
+      if (!cart) {
+         navigate('/subscription/menu')
+      }
+   }, [cart])
+
    return (
       <Layout>
          <SEO title="Placing Order" />
@@ -24,104 +30,120 @@ const PlacingOrder = () => {
                   <Loader inline />
                ) : (
                   <Content>
-                     {cart?.cartInfo && (
-                        <section>
-                           <header tw="my-3 pb-1 border-b flex items-center justify-between">
-                              <h4 tw="text-lg text-gray-700">
-                                 Order Summary ({cart.cartInfo.products.length})
-                              </h4>
-                           </header>
-                           <CartProducts>
-                              {cart.cartInfo.products.map(product => (
-                                 <CartProduct
-                                    product={product}
-                                    key={`product-${product.cartItemId}`}
-                                 />
-                              ))}
-                           </CartProducts>
-                           <section tw="my-4 text-gray-700">
-                              * Your box will be delivered on{' '}
-                              <span>
-                                 {formatDate(cart.fulfillmentInfo.slot.from, {
-                                    month: 'short',
-                                    day: 'numeric',
-                                 })}
-                                 &nbsp;between{' '}
-                                 {formatDate(cart.fulfillmentInfo.slot.from, {
-                                    minute: 'numeric',
-                                    hour: 'numeric',
-                                 })}
-                                 &nbsp;-&nbsp;
-                                 {formatDate(cart.fulfillmentInfo.slot.to, {
-                                    minute: 'numeric',
-                                    hour: 'numeric',
-                                 })}
-                              </span>{' '}
-                              at{' '}
-                              <span>
-                                 {cart.address?.line1},&nbsp;
-                                 {cart.address?.line2 &&
-                                    `, ${cart.address?.line2}`}
-                                 {cart.address?.city}, {cart.address?.state}
-                                 ,&nbsp;
-                                 {cart.address?.zipcode}
-                              </span>
+                     {cart && (
+                        <>
+                           <section>
+                              <header tw="my-3 pb-1 border-b flex items-center justify-between">
+                                 <h4 tw="text-lg text-gray-700">
+                                    Order Summary (
+                                    {cart.cartInfo.products.length})
+                                 </h4>
+                              </header>
+                              <CartProducts>
+                                 {cart.cartInfo.products.map(product => (
+                                    <CartProduct
+                                       product={product}
+                                       key={`product-${product.cartItemId}`}
+                                    />
+                                 ))}
+                              </CartProducts>
+                              <section tw="my-4 text-gray-700">
+                                 * Your box will be delivered on{' '}
+                                 <span>
+                                    {formatDate(
+                                       cart.fulfillmentInfo.slot.from,
+                                       {
+                                          month: 'short',
+                                          day: 'numeric',
+                                       }
+                                    )}
+                                    &nbsp;between{' '}
+                                    {formatDate(
+                                       cart.fulfillmentInfo.slot.from,
+                                       {
+                                          minute: 'numeric',
+                                          hour: 'numeric',
+                                       }
+                                    )}
+                                    &nbsp;-&nbsp;
+                                    {formatDate(cart.fulfillmentInfo.slot.to, {
+                                       minute: 'numeric',
+                                       hour: 'numeric',
+                                    })}
+                                 </span>{' '}
+                                 at{' '}
+                                 <span>
+                                    {cart.address?.line1},&nbsp;
+                                    {cart.address?.line2 &&
+                                       `, ${cart.address?.line2}`}
+                                    {cart.address?.city}, {cart.address?.state}
+                                    ,&nbsp;
+                                    {cart.address?.zipcode}
+                                 </span>
+                              </section>
                            </section>
-                        </section>
-                     )}
-                     <Steps>
-                        <Step
-                           className={`${
-                              cart.status !== 'PENDING' ? 'active' : ''
-                           }`}
-                        >
-                           <span tw="border rounded-full mb-3 shadow-md">
-                              <CartIllo />
-                           </span>
-                           Saving Cart
-                           {cart.status === 'PENDING' && <Pulse />}
-                        </Step>
-                        <Step
-                           className={`${
-                              cart.paymentStatus === 'SUCCEEDED' ? 'active' : ''
-                           }`}
-                        >
-                           <span tw="border rounded-full mb-3 shadow-md">
-                              <PaymentIllo />
-                           </span>
-                           Processing Payment
-                           {cart.paymentStatus !== 'SUCCEEDED' && <Pulse />}
-                        </Step>
-                        <Step
-                           className={`${
-                              cart.status === 'ORDER_PLACED' && cart.orderId
-                                 ? 'active'
-                                 : 'null'
-                           }`}
-                        >
-                           <span tw="border rounded-full mb-3 shadow-md">
-                              <PlacedOrderIllo />
-                           </span>
-                           Order Placed
-                           {cart.status !== 'ORDER_PLACED' ||
-                              (!Boolean(cart.orderId) && <Pulse />)}
-                        </Step>
-                     </Steps>
-                     {cart.status === 'ORDER_PLACED' && cart.orderId && (
-                        <HelperBar type="success" tw="mt-3">
-                           <HelperBar.Title>
-                              🎉Congratulations!{' '}
-                           </HelperBar.Title>
-                           <HelperBar.SubTitle>
-                              Your order has been placed. Continue selecting
-                              menu for others weeks.
-                           </HelperBar.SubTitle>
-                           <HelperBar.Button
-                              onClick={() => navigate('/subscription/menu')}
-                           >
-                              Browse Menu
-                           </HelperBar.Button>
-                        </HelperBar>
+                           <Steps>
+                              <Step
+                                 className={`${
+                                    cart.status !== 'PENDING' ? 'active' : ''
+                                 }`}
+                              >
+                                 <span tw="border rounded-full mb-3 shadow-md">
+                                    <CartIllo />
+                                 </span>
+                                 Saving Cart
+                                 {cart.status === 'PENDING' && <Pulse />}
+                              </Step>
+                              <Step
+                                 className={`${
+                                    cart.paymentStatus === 'SUCCEEDED'
+                                       ? 'active'
+                                       : ''
+                                 }`}
+                              >
+                                 <span tw="border rounded-full mb-3 shadow-md">
+                                    <PaymentIllo />
+                                 </span>
+                                 Processing Payment
+                                 {cart.paymentStatus !== 'SUCCEEDED' && (
+                                    <Pulse />
+                                 )}
+                              </Step>
+                              <Step
+                                 className={`${
+                                    cart.status === 'ORDER_PLACED' &&
+                                    cart.orderId
+                                       ? 'active'
+                                       : 'null'
+                                 }`}
+                              >
+                                 <span tw="border rounded-full mb-3 shadow-md">
+                                    <PlacedOrderIllo />
+                                 </span>
+                                 Order Placed
+                                 {cart.status !== 'ORDER_PLACED' ||
+                                    (!Boolean(cart.orderId) && <Pulse />)}
+                              </Step>
+                           </Steps>
+                           {cart.status === 'ORDER_PLACED' && cart.orderId && (
+                              <HelperBar type="success" tw="mt-3">
+                                 <HelperBar.Title>
+                                    🎉Congratulations!{' '}
+                                 </HelperBar.Title>
+                                 <HelperBar.SubTitle>
+                                    Your order has been placed. Continue
+                                    selecting menu for others weeks.
+                                 </HelperBar.SubTitle>
+                                 <HelperBar.Button
+                                    onClick={() =>
+                                       navigate('/subscription/menu')
+                                    }
+                                 >
+                                    Browse Menu
+                                 </HelperBar.Button>
+                              </HelperBar>
+                           )}
+                        </>
                      )}
                   </Content>
                )}

@@ -3,8 +3,8 @@ import { navigate } from 'gatsby'
 import tw, { styled } from 'twin.macro'
 import { useToasts } from 'react-toast-notifications'
 
-import { isClient } from '../../utils'
 import { Loader } from '../../components'
+import { isClient, formatCurrency } from '../../utils'
 
 export const Plan = ({ plan }) => {
    const { addToast } = useToasts()
@@ -107,16 +107,18 @@ export const Plan = ({ plan }) => {
          <div tw="mb-6 flex items-center">
             <section tw="h-full flex-1">
                <span tw="text-green-700 font-medium">
-                  {Number.parseFloat(
-                     defaultItemCount.price /
-                        (defaultItemCount.count * defaultServing.size)
-                  ).toFixed(2)}{' '}
+                  {formatCurrency(
+                     Number.parseFloat(
+                        defaultItemCount.price /
+                           (defaultItemCount.count * defaultServing.size)
+                     ).toFixed(2)
+                  )}{' '}
                </span>
                <span tw="text-gray-600">/ serving</span>
             </section>
             <section tw="h-full flex-1 flex flex-col text-right border-l py-1">
                <span tw="text-green-700 text-2xl font-medium">
-                  {defaultItemCount.price}
+                  {formatCurrency(defaultItemCount.price)}
                </span>
                <span tw="text-gray-600">Weekly total</span>
             </section>

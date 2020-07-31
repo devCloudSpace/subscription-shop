@@ -7,10 +7,10 @@ import { useToasts } from 'react-toast-notifications'
 import { useQuery, useMutation } from '@apollo/react-hooks'
 
 import { useMenu } from './state'
-import { isClient } from '../../utils'
 import { useUser } from '../../context'
 import { HelperBar } from '../../components'
 import { CloseIcon } from '../../assets/icons'
+import { isClient, formatCurrency } from '../../utils'
 import {
    ZIPCODE,
    CREATE_CART,
@@ -156,14 +156,11 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
    }
 
    const week = state?.weeks[state.week.id]
-   const addOnTotal = week?.cart.products.reduce(
-      (a, b) => a + b.addonPrice || 0,
-      0
-   )
+   const addOnTotal = week?.cart?.products
+      .filter(node => Object.keys(node).length > 0)
+      .reduce((a, b) => a + b.addonPrice || 0, 0)
    const weekTotal =
-      user?.subscription?.recipes?.price +
-      week?.cart.products.reduce((a, b) => a + b.addonPrice || 0, 0) +
-      zipcode.price
+      user?.subscription?.recipes?.price + addOnTotal + zipcode.price
 
    return (
       <section>
@@ -213,20 +210,26 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
                <tr>
                   <td tw="border px-2 py-1">Base Price</td>
                   <td tw="text-right border px-2 py-1">
-                     {user?.subscription?.recipes?.price}
+                     {formatCurrency(user?.subscription?.recipes?.price)}
                   </td>
                </tr>
                <tr tw="bg-gray-100">
                   <td tw="border px-2 py-1">Add on Total</td>
-                  <td tw="text-right border px-2 py-1">{addOnTotal}</td>
+                  <td tw="text-right border px-2 py-1">
+                     {formatCurrency(addOnTotal)}
+                  </td>
                </tr>
                <tr>
                   <td tw="border px-2 py-1">Delivery</td>
-                  <td tw="text-right border px-2 py-1">{zipcode.price}</td>
+                  <td tw="text-right border px-2 py-1">
+                     {formatCurrency(zipcode.price)}
+                  </td>
                </tr>
                <tr tw="bg-gray-100">
                   <td tw="border px-2 py-1">This weeks total</td>
-                  <td tw="text-right border px-2 py-1">{weekTotal || 0}</td>
+                  <td tw="text-right border px-2 py-1">
+                     {formatCurrency(weekTotal) || 0}
+                  </td>
                </tr>
             </tbody>
          </table>
