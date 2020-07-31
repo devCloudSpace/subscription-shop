@@ -9,6 +9,7 @@ import { useQuery, useMutation } from '@apollo/react-hooks'
 import { useMenu } from './state'
 import { isClient } from '../../utils'
 import { useUser } from '../../context'
+import { HelperBar } from '../../components'
 import { CloseIcon } from '../../assets/icons'
 import {
    ZIPCODE,
@@ -229,16 +230,20 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
                </tr>
             </tbody>
          </table>
-         <SaveButton
-            disabled={
-               ['ORDER_PLACED', 'PROCESS'].includes(week?.orderCartStatus) ||
-               !state?.week?.isValid ||
-               isCartValid()
-            }
-            onClick={submitSelection}
-         >
-            {isCheckout ? 'Save and Proceed to Checkout' : 'Save Selection'}
-         </SaveButton>
+         {['ORDER_PLACED', 'PROCESS'].includes(week?.orderCartStatus) ? (
+            <HelperBar type="success">
+               <HelperBar.SubTitle>
+                  Your order has been placed for this week.
+               </HelperBar.SubTitle>
+            </HelperBar>
+         ) : (
+            <SaveButton
+               disabled={!state?.week?.isValid || isCartValid()}
+               onClick={submitSelection}
+            >
+               {isCheckout ? 'Save and Proceed to Checkout' : 'Save Selection'}
+            </SaveButton>
+         )}
       </section>
    )
 }
