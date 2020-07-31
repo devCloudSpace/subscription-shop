@@ -5,7 +5,6 @@ import { useMutation } from '@apollo/react-hooks'
 import { useKeycloak } from '@react-keycloak/web'
 import { useToasts } from 'react-toast-notifications'
 
-import { useUser } from '../../../context'
 import { UPDATE_CUSTOMER } from '../../../graphql'
 import { SEO, Layout, StepsNavbar } from '../../../components'
 
@@ -40,10 +39,11 @@ const SelectDelivery = () => {
 export default SelectDelivery
 
 const DeliveryContent = () => {
-   const { user } = useUser()
+   const [keycloak] = useKeycloak()
    const { state } = useDelivery()
    const { addToast } = useToasts()
    const [updateCustomer] = useMutation(UPDATE_CUSTOMER, {
+      refetchQueries: ['customer'],
       onCompleted: () => {
          addToast('Successfully saved delivery preferences.', {
             appearance: 'success',
@@ -65,7 +65,7 @@ const DeliveryContent = () => {
    const nextStep = () => {
       updateCustomer({
          variables: {
-            keycloakId: user.keycloakId,
+            keycloakId: keycloak?.tokenParsed?.sub,
             _set: {
                subscriptionId: state.delivery.selected.id,
                subscriptionAddressId: state.address.selected.id,
@@ -89,7 +89,9 @@ const DeliveryContent = () => {
          <AddressSection />
          <h2 css={tw`my-3 text-gray-600 text-xl`}>Delivery Day</h2>
          <DeliverySection />
-         <h2 css={tw`my-3 text-gray-600 text-xl`}>Delivery Date</h2>
+         <h2 css={tw`my-3 text-gray-600 text-xl`}>
+            Select your first delivery date
+         </h2>
          <DeliveryDateSection />
          <div tw="mt-4 w-full flex items-center justify-center">
             <Button onClick={() => nextStep()} disabled={!isValid()}>

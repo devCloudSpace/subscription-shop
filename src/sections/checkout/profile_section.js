@@ -10,14 +10,16 @@ export const ProfileSection = () => {
    const { state, dispatch } = usePayment()
 
    React.useEffect(() => {
+      const { lastName, firstName, phoneNumber } = state.profile
       dispatch({
          type: 'SET_PROFILE',
          payload: {
-            lastName: user?.platform_customer?.lastName,
-            firstName: user?.platform_customer?.firstName,
-            phoneNumber: user?.platform_customer?.phoneNumber,
+            lastName: lastName || user?.platform_customer?.lastName,
+            firstName: firstName || user?.platform_customer?.firstName,
+            phoneNumber: phoneNumber || user?.platform_customer?.phoneNumber,
          },
       })
+      // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [user, dispatch])
 
    const handleChange = e => {

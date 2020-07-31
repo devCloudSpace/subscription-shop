@@ -46,9 +46,7 @@ export const StepsNavbar = () => {
                      Logout
                   </button>
                ) : (
-                  <button css={tw`bg-blue-600 text-white rounded px-2 py-1`}>
-                     Log In
-                  </button>
+                  <span />
                )}
             </section>
          )}

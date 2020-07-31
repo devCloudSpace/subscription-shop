@@ -9,6 +9,7 @@ import { useQuery, useMutation } from '@apollo/react-hooks'
 import { useMenu } from './state'
 import { isClient } from '../../utils'
 import { useUser } from '../../context'
+import { HelperBar } from '../../components'
 import { CloseIcon } from '../../assets/icons'
 import {
    ZIPCODE,
@@ -176,7 +177,7 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
                }
                /{user?.subscription?.recipes?.count}
             </h4>
-            {week?.orderCartStatus !== 'ORDER_PLACED' &&
+            {['PENDING', undefined].includes(week?.orderCartStatus) &&
                state?.week?.isValid &&
                !noSkip && (
                   <SkipWeek>
@@ -229,16 +230,20 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
                </tr>
             </tbody>
          </table>
-         <SaveButton
-            disabled={
-               week?.orderCartStatus === 'ORDER_PLACED' ||
-               !state?.week?.isValid ||
-               isCartValid()
-            }
-            onClick={submitSelection}
-         >
-            {isCheckout ? 'Save and Proceed to Checkout' : 'Save Selection'}
-         </SaveButton>
+         {['ORDER_PLACED', 'PROCESS'].includes(week?.orderCartStatus) ? (
+            <HelperBar type="success">
+               <HelperBar.SubTitle>
+                  Your order has been placed for this week.
+               </HelperBar.SubTitle>
+            </HelperBar>
+         ) : (
+            <SaveButton
+               disabled={!state?.week?.isValid || isCartValid()}
+               onClick={submitSelection}
+            >
+               {isCheckout ? 'Save and Proceed to Checkout' : 'Save Selection'}
+            </SaveButton>
+         )}
       </section>
    )
 }
@@ -282,13 +287,19 @@ const CartProduct = ({ product }) => {
                   N/A
                </span>
             )}
-            {state?.week?.isValid && (
-               <span className="remove_product">
-                  <button onClick={() => removeRecipe(product.option.id)}>
-                     <CloseIcon size={16} tw="stroke-current text-green-400" />
-                  </button>
-               </span>
-            )}
+            {!['ORDER_PLACED', 'PROCESS'].includes(
+               state?.weeks[state?.week?.id]?.orderCartStatus
+            ) &&
+               state?.week?.isValid && (
+                  <span className="remove_product">
+                     <button onClick={() => removeRecipe(product.option.id)}>
+                        <CloseIcon
+                           size={16}
+                           tw="stroke-current text-green-400"
+                        />
+                     </button>
+                  </span>
+               )}
          </aside>
          <main tw="h-16 pl-3">
             <p tw="truncate text-gray-800" title={product.name}>

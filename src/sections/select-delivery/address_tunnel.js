@@ -1,24 +1,24 @@
 import React from 'react'
 import tw, { styled } from 'twin.macro'
+import { useKeycloak } from '@react-keycloak/web'
 import { useMutation } from '@apollo/react-hooks'
 import { useToasts } from 'react-toast-notifications'
 import GooglePlacesAutocomplete from 'react-google-places-autocomplete'
 
 import { useDelivery } from './state'
-import { useUser } from '../../context'
 import { CloseIcon } from '../../assets/icons'
 import { useScript, isClient } from '../../utils'
 import { CREATE_CUSTOMER_ADDRESS } from '../../graphql'
 import { Tunnel, Button, Form, Spacer } from '../../components'
 
 export const AddressTunnel = () => {
-   const { user } = useUser()
+   const [keycloak] = useKeycloak()
    const { addToast } = useToasts()
    const { state, dispatch } = useDelivery()
    const [formStatus, setFormStatus] = React.useState('PENDING')
    const [address, setAddress] = React.useState(null)
    const [createAddress] = useMutation(CREATE_CUSTOMER_ADDRESS, {
-      refetchQueries: ['addresses'],
+      refetchQueries: () => ['customer'],
       onCompleted: () => {
          toggleTunnel(false)
          setFormStatus('SAVED')
@@ -83,7 +83,7 @@ export const AddressTunnel = () => {
       setFormStatus('SAVING')
       createAddress({
          variables: {
-            object: { ...address, keycloakId: user.keycloakId },
+            object: { ...address, keycloakId: keycloak?.tokenParsed?.sub },
          },
       })
    }

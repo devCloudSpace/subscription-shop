@@ -35,13 +35,13 @@ export const PaymentSection = () => {
       <>
          <header tw="my-3 pb-1 border-b flex items-center justify-between">
             <h4 tw="text-lg text-gray-700">Select Payment Method</h4>
-            {user?.platfrom_customer?.paymentMethods.length > 0 && (
+            {user?.platform_customer?.paymentMethods.length > 0 && (
                <OutlineButton onClick={() => toggleTunnel(true)}>
                   Add Card
                </OutlineButton>
             )}
          </header>
-         {user?.platfrom_customer?.paymentMethods.length === 0 && (
+         {user?.platform_customer?.paymentMethods.length === 0 && (
             <HelperBar type="info">
                <HelperBar.SubTitle>
                   Let's start with adding a payment method.
@@ -52,7 +52,7 @@ export const PaymentSection = () => {
             </HelperBar>
          )}
          <PaymentMethods>
-            {user?.platfrom_customer?.paymentMethods.map(method => (
+            {user?.platform_customer?.paymentMethods.map(method => (
                <PaymentMethod
                   key={method.stripePaymentMethodId}
                   onClick={() =>

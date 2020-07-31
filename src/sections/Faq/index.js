@@ -34,7 +34,10 @@ const Item = ({ icon, question, answer }) => {
          )}
          {question && (
             <div
+               role="button"
+               tabIndex="0"
                onClick={() => toggleIsOpen(!isOpen)}
+               onKeyPress={e => e.charCode === 32 && toggleIsOpen(!isOpen)}
                tw="bg-gray-100 pr-2 flex justify-between items-center cursor-pointer"
             >
                <h4 tw="text-lg p-3 text-green-700">{question}</h4>

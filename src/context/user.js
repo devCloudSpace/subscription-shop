@@ -13,6 +13,7 @@ export const UserProvider = ({ children }) => {
    const { loading, data: { customer = {} } = {} } = useQuery(
       CUSTOMER_DETAILS,
       {
+         fetchPolicy: 'network-only',
          variables: {
             keycloakId: keycloak?.tokenParsed?.sub,
          },
@@ -20,21 +21,22 @@ export const UserProvider = ({ children }) => {
    )
 
    React.useEffect(() => {
-      if ('id' in customer) {
-         const data = {}
+      if (customer?.id) {
+         const sub = {}
+         console.log(customer)
          if (customer.subscriptionAddressId) {
             const address = customer?.platform_customer?.addresses.find(
                address => address.id === customer.subscriptionAddressId
             )
-            data.defaultAddress = address
+            sub.defaultAddress = address
          }
          if (customer.subscriptionPaymentMethodId) {
             const paymentMethod = customer?.platform_customer?.paymentMethods.find(
                method => method.id === customer.subscriptionPaymentMethodId
             )
-            data.defaultPaymentMethod = paymentMethod
+            sub.defaultPaymentMethod = paymentMethod
          }
-         setUser({ ...customer, ...data })
+         setUser({ ...customer, ...sub })
       }
    }, [customer])
 

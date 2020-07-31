@@ -129,32 +129,14 @@ export const CUSTOMER_DETAILS = gql`
    }
 `
 
-export const CUSTOMER_OCCURENCES = gql`
-   query customer(
-      $keycloakId: String!
-      $where: subscription_subscriptionOccurence_bool_exp! = {}
-   ) {
-      customer(keycloakId: $keycloakId) {
-         id
-         subscription {
-            id
-            occurences: subscriptionOccurences(where: $where) {
-               id
-               isValid
-               isVisible
-               fulfillmentDate
-               cutoffTimeStamp
-            }
-         }
-      }
-   }
-`
-
 export const OCCURENCES_BY_SUBSCRIPTION = gql`
-   query subscription($id: Int!) {
+   query subscription(
+      $id: Int!
+      $where: subscription_subscriptionOccurence_bool_exp
+   ) {
       subscription: subscription_subscription_by_pk(id: $id) {
          id
-         occurences: subscriptionOccurences {
+         occurences: subscriptionOccurences(where: $where) {
             id
             isValid
             isVisible
@@ -268,6 +250,19 @@ export const CART = gql`
          amount
          address
          cartInfo
+         fulfillmentInfo
+      }
+   }
+`
+
+export const CART_STATUS = gql`
+   subscription cart($id: Int!) {
+      cart: cartByPK(id: $id) {
+         status
+         orderId
+         cartInfo
+         address
+         paymentStatus
          fulfillmentInfo
       }
    }
