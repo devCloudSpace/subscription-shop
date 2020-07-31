@@ -12,6 +12,11 @@ export const Header = () => {
    return (
       <Wrapper>
          <Brand to="/subscription">Subscription Shop</Brand>
+         <ul tw="px-4">
+            <li tw="text-gray-600">
+               <Link to="/subscription/get-started/select-plan">Our Plans</Link>
+            </li>
+         </ul>
          {initialized && (
             <section tw="px-4 ml-auto">
                {keycloak.authenticated ? (
