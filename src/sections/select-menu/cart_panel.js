@@ -176,7 +176,7 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
                }
                /{user?.subscription?.recipes?.count}
             </h4>
-            {['PROCESS', undefined].includes(week?.orderCartStatus) &&
+            {['PENDING', undefined].includes(week?.orderCartStatus) &&
                state?.week?.isValid &&
                !noSkip && (
                   <SkipWeek>

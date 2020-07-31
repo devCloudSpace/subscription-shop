@@ -107,7 +107,7 @@ export const Menu = () => {
                                  {node.productOption.product.name}
                               </Link>
                            </section>
-                           {['PROCESS', undefined].includes(
+                           {['PENDING', undefined].includes(
                               state?.weeks[state?.week?.id]?.orderCartStatus
                            ) &&
                               state?.week?.isValid &&
