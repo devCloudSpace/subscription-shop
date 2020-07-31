@@ -6,7 +6,6 @@ import { useToasts } from 'react-toast-notifications'
 import GooglePlacesAutocomplete from 'react-google-places-autocomplete'
 
 import { useDelivery } from './state'
-import { useUser } from '../../context'
 import { CloseIcon } from '../../assets/icons'
 import { useScript, isClient } from '../../utils'
 import { CREATE_CUSTOMER_ADDRESS } from '../../graphql'

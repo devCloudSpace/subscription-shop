@@ -9,7 +9,7 @@ import { useQuery, useLazyQuery } from '@apollo/react-hooks'
 import { useMenu } from './state'
 import { useUser } from '../../context'
 import { Loader } from '../../components'
-import { formatDate, isClient } from '../../utils'
+import { formatDate } from '../../utils'
 import { ArrowLeftIcon, ArrowRightIcon } from '../../assets/icons'
 import { CART_BY_WEEK, OCCURENCES_BY_SUBSCRIPTION } from '../../graphql'
 

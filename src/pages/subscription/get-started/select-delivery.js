@@ -5,7 +5,6 @@ import { useMutation } from '@apollo/react-hooks'
 import { useKeycloak } from '@react-keycloak/web'
 import { useToasts } from 'react-toast-notifications'
 
-import { isClient } from '../../../utils'
 import { UPDATE_CUSTOMER } from '../../../graphql'
 import { SEO, Layout, StepsNavbar } from '../../../components'
 
