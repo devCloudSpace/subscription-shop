@@ -12,11 +12,21 @@ export const Header = () => {
    return (
       <Wrapper>
          <Brand to="/subscription">Subscription Shop</Brand>
-         <ul tw="px-4">
-            <li tw="text-gray-600">
-               <Link to="/subscription/get-started/select-plan">Our Plans</Link>
-            </li>
-         </ul>
+         <section tw="flex items-center justify-between">
+            <ul />
+            <ul tw="px-4 flex space-x-4">
+               {keycloak.authenticated && (
+                  <li tw="text-gray-800">
+                     <Link to="/subscription/menu">Select Menu</Link>
+                  </li>
+               )}
+               <li tw="text-gray-800">
+                  <Link to="/subscription/get-started/select-plan">
+                     Our Plans
+                  </Link>
+               </li>
+            </ul>
+         </section>
          {initialized && (
             <section tw="px-4 ml-auto">
                {keycloak.authenticated ? (
@@ -61,7 +71,8 @@ export const Header = () => {
 const Wrapper = styled.header`
    height: 64px;
    z-index: 1000;
-   ${tw`w-full top-0 bg-white fixed border-b flex items-center`}
+   grid-template-columns: auto 1fr auto;
+   ${tw`w-full grid top-0 bg-white fixed border-b items-center`}
 `
 
 const Brand = styled(Link)`
