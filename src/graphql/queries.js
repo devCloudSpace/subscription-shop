@@ -314,3 +314,17 @@ export const ORDER = gql`
       }
    }
 `
+
+export const ZIPCODE_AVAILABILITY = gql`
+   query subscription_zipcode(
+      $subscriptionId: Int_comparison_exp!
+      $zipcode: String_comparison_exp!
+   ) {
+      subscription_zipcode: subscription_subscription_zipcode(
+         where: { subscriptionId: $subscriptionId, zipcode: $zipcode }
+      ) {
+         zipcode
+         subscriptionId
+      }
+   }
+`
