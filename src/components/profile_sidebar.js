@@ -7,6 +7,7 @@ export const ProfileSidebar = () => {
       { title: 'Profile', href: '/subscription/account/profile/' },
       { title: 'Order History', href: '/subscription/account/orders/' },
       { title: 'Manage Addresses', href: '/subscription/account/addresses/' },
+      { title: 'Manage Cards', href: '/subscription/account/cards/' },
    ])
 
    return (
