@@ -1,4 +1,5 @@
 import React from 'react'
+import { navigate } from 'gatsby'
 import tw, { styled, css } from 'twin.macro'
 import { useKeycloak } from '@react-keycloak/web'
 import { useSubscription } from '@apollo/react-hooks'
@@ -9,6 +10,14 @@ import { formatDate, formatCurrency } from '../../../utils'
 import { SEO, Layout, HelperBar, ProfileSidebar } from '../../../components'
 
 const Orders = () => {
+   const [keycloak] = useKeycloak()
+
+   React.useEffect(() => {
+      if (!keycloak?.tokenParsed?.sub) {
+         navigate('/subscription')
+      }
+   }, [keycloak])
+
    return (
       <Layout>
          <SEO title="Order History" />

@@ -272,7 +272,7 @@ export const ORDER_HISTORY = gql`
    subscription orders($keycloakId: String_comparison_exp!) {
       orders: subscription_subscriptionOccurence_customer_aggregate(
          where: { keycloakId: $keycloakId }
-         order_by: { subscriptionOccurence: { fulfillmentDate: asc } }
+         order_by: { subscriptionOccurence: { fulfillmentDate: desc } }
       ) {
          aggregate {
             count
