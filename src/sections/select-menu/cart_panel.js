@@ -92,6 +92,9 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
                   total: weekTotal,
                   products: week.cart.products,
                },
+               ...(user?.subscriptionPaymentMethodId && {
+                  paymentMethodId: user?.subscriptionPaymentMethodId,
+               }),
                cartSource: 'subscription',
                address: user.defaultAddress,
                customerKeycloakId: user.keycloakId,
