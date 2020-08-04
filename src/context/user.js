@@ -23,7 +23,6 @@ export const UserProvider = ({ children }) => {
    React.useEffect(() => {
       if (customer?.id) {
          const sub = {}
-         console.log(customer)
          if (customer.subscriptionAddressId) {
             const address = customer?.platform_customer?.addresses.find(
                address => address.id === customer.subscriptionAddressId

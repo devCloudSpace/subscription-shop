@@ -267,3 +267,50 @@ export const CART_STATUS = gql`
       }
    }
 `
+
+export const ORDER_HISTORY = gql`
+   subscription orders($keycloakId: String_comparison_exp!) {
+      orders: subscription_subscriptionOccurence_customer_aggregate(
+         where: { keycloakId: $keycloakId }
+         order_by: { subscriptionOccurence: { fulfillmentDate: asc } }
+      ) {
+         aggregate {
+            count
+         }
+         nodes {
+            occurrenceId: subscriptionOccurenceId
+            occurrence: subscriptionOccurence {
+               date: fulfillmentDate
+            }
+         }
+      }
+   }
+`
+
+export const ORDER = gql`
+   subscription order($keycloakId: String!, $subscriptionOccurenceId: Int!) {
+      order: subscription_subscriptionOccurence_customer_by_pk(
+         keycloakId: $keycloakId
+         subscriptionOccurenceId: $subscriptionOccurenceId
+      ) {
+         isSkipped
+         occurrence: subscriptionOccurence {
+            subscription {
+               item: subscriptionItemCount {
+                  price
+               }
+            }
+         }
+         cart: orderCart {
+            amount
+            address
+            cartInfo
+            deliveryPrice
+            paymentMethodId
+            order {
+               status: orderStatus
+            }
+         }
+      }
+   }
+`

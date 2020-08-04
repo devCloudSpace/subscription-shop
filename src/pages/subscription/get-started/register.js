@@ -83,7 +83,7 @@ export default () => {
                   tw="mx-auto w-full md:w-4/12 h-full"
                   src={keycloak?.createRegisterUrl({
                      redirectUri: isClient
-                        ? `${window.location.origin}/subscription/login-success.xhtml`
+                        ? `${window.location.origin}/login-success.xhtml`
                         : '',
                   })}
                ></iframe>

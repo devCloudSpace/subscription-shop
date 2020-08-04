@@ -33,7 +33,7 @@ export const Header = () => {
                   <>
                      {user?.platform_customer?.firstName && (
                         <Link
-                           to="/subscription/account/profile"
+                           to="/subscription/account/profile/"
                            tw="mr-3 inline-flex items-center justify-center rounded-full h-10 w-10 bg-gray-200"
                         >
                            {getInitials(

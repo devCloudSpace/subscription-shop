@@ -5,6 +5,7 @@ import tw, { styled } from 'twin.macro'
 export const ProfileSidebar = () => {
    const [menu] = React.useState([
       { title: 'Profile', href: '/subscription/account/profile/' },
+      { title: 'Order History', href: '/subscription/account/orders/' },
    ])
 
    return (
@@ -13,7 +14,7 @@ export const ProfileSidebar = () => {
             {menu.map(node => (
                <MenuLink
                   to={node.href}
-                  key="node.href"
+                  key={node.href}
                   activeClassName="active"
                >
                   {node.title}
