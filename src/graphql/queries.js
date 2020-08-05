@@ -147,14 +147,20 @@ export const OCCURENCES_BY_SUBSCRIPTION = gql`
 `
 
 export const OCCURENCE_PRODUCTS_BY_CATEGORIES = gql`
-   query categories($occurenceId: Int_comparison_exp!) {
+   query categories(
+      $occurenceId: Int_comparison_exp
+      $subscriptionId: Int_comparison_exp
+   ) {
       categories: productCategories {
          name
          productsAggregate: subscriptionOccurenceProducts_aggregate(
             where: {
-               subscriptionOccurenceId: $occurenceId
                isVisible: { _eq: true }
                isAvailable: { _eq: true }
+               _or: {
+                  subscriptionId: $subscriptionId
+                  subscriptionOccurenceId: $occurenceId
+               }
             }
          ) {
             aggregate {
