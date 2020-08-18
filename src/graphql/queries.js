@@ -351,3 +351,14 @@ export const CONVENTIONS = gql`
       }
    }
 `
+
+export const STEPS_LABELS = gql`
+   subscription steps($identifier: String_comparison_exp!) {
+      steps: subscription_subscriptionStoreSetting(
+         where: { identifier: $identifier }
+      ) {
+         id
+         value
+      }
+   }
+`

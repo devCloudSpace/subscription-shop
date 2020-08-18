@@ -3,12 +3,24 @@ import { Link } from 'gatsby'
 import { useLocation } from '@reach/router'
 import tw, { styled, css } from 'twin.macro'
 import { useKeycloak } from '@react-keycloak/web'
+import { useSubscription } from '@apollo/react-hooks'
 
+import { Loader } from './loader'
 import { isClient } from '../utils'
+import { STEPS_LABELS } from '../graphql/queries'
 
 export const StepsNavbar = () => {
    const [keycloak, initialized] = useKeycloak()
+   const { loading, data: { steps = [] } = {} } = useSubscription(
+      STEPS_LABELS,
+      {
+         variables: {
+            identifier: { _eq: 'steps-labels' },
+         },
+      }
+   )
    const location = useLocation()
+   console.log('StepsNavbar -> steps', steps)
    const [currentStep] = React.useState(() => {
       if (location.pathname.includes('/get-started/select-plan')) return 0
       if (location.pathname.includes('/get-started/register')) return 25
@@ -20,16 +32,20 @@ export const StepsNavbar = () => {
    return (
       <Navbar>
          <Brand to="/subscription">Subscription Shop</Brand>
-         <Progress>
-            <ProgressBar current={currentStep} />
-            <Steps>
-               <Step>Select Plan</Step>
-               <Step>Register</Step>
-               <Step>Select Delivery</Step>
-               <Step>Select Menu</Step>
-               <Step>Checkout</Step>
-            </Steps>
-         </Progress>
+         {loading ? (
+            <Loader inline />
+         ) : (
+            <Progress>
+               <ProgressBar current={currentStep} />
+               <Steps>
+                  <Step>Select Plan</Step>
+                  <Step>{steps[0].value.register}</Step>
+                  <Step>{steps[0].value.selectDelivery}</Step>
+                  <Step>{steps[0].value.selectMenu}</Step>
+                  <Step>{steps[0].value.checkout}</Step>
+               </Steps>
+            </Progress>
+         )}
          {initialized && (
             <section tw="px-4 ml-auto">
                {keycloak.authenticated ? (
@@ -70,7 +86,7 @@ const Brand = styled(Link)`
 `
 
 const Progress = styled.section`
-   min-width: 640px;
+   min-width: 720px;
    ${tw`flex flex-col m-auto justify-center`}
    @media (max-width: 767px) {
       display: none;
