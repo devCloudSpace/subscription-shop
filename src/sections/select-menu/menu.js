@@ -5,11 +5,14 @@ import { useQuery } from '@apollo/react-hooks'
 import { useToasts } from 'react-toast-notifications'
 
 import { useMenu } from './state'
+import { useUser } from '../../context'
 import { SkeletonProduct } from './skeletons'
 import { CheckIcon } from '../../assets/icons'
 import { OCCURENCE_PRODUCTS_BY_CATEGORIES } from '../../graphql'
+import { HelperBar } from '../../components'
 
 export const Menu = () => {
+   const { user } = useUser()
    const { addToast } = useToasts()
    const { state, dispatch } = useMenu()
    const { loading, data: { categories = [] } = {} } = useQuery(
@@ -18,6 +21,9 @@ export const Menu = () => {
          variables: {
             occurenceId: {
                _eq: state?.week?.id,
+            },
+            subscriptionId: {
+               _eq: user?.subscriptionId,
             },
          },
          onError: error => {
@@ -28,7 +34,7 @@ export const Menu = () => {
       }
    )
 
-   const selectRecipe = (cart, addonPrice) => {
+   const selectRecipe = (id, cart, addonPrice) => {
       const isFull = state.weeks[state.week.id].cart.products.every(
          node => Object.keys(node).length !== 0
       )
@@ -39,7 +45,7 @@ export const Menu = () => {
       }
       dispatch({
          type: 'SELECT_RECIPE',
-         payload: { weekId: state.week.id, cart: { ...cart, addonPrice } },
+         payload: { weekId: state.week.id, cart: { ...cart, addonPrice, id } },
       })
       addToast(`You've selected the recipe ${cart.name}.`, {
          appearance: 'info',
@@ -48,13 +54,23 @@ export const Menu = () => {
 
    const isAdded = id => {
       return state?.weeks[state.week.id]?.cart.products.findIndex(
-         node => node?.option?.id === id
+         node => node?.id === id
       ) === -1
          ? false
          : true
    }
 
    if (loading) return <SkeletonProduct />
+   if (categories.length === 0)
+      return (
+         <main tw="pt-4">
+            <HelperBar>
+               <HelperBar.SubTitle>
+                  No products available yet!
+               </HelperBar.SubTitle>
+            </HelperBar>
+         </main>
+      )
    return (
       <main>
          {categories.map(category => (
@@ -66,9 +82,7 @@ export const Menu = () => {
                   {category.productsAggregate.nodes.map((node, index) => (
                      <Product
                         key={`${index}-${node.productOption.id}`}
-                        className={`${
-                           isAdded(node.productOption.id) && 'active'
-                        }`}
+                        className={`${isAdded(node.id) && 'active'}`}
                      >
                         <div
                            css={tw`flex items-center justify-center h-48 bg-gray-200 mb-2 rounded overflow-hidden`}
@@ -96,9 +110,7 @@ export const Menu = () => {
                            <section tw="flex items-center">
                               <Check
                                  size={16}
-                                 className={`${
-                                    isAdded(node.productOption.id) && 'active'
-                                 }`}
+                                 className={`${isAdded(node.id) && 'active'}`}
                               />
                               <Link
                                  tw="text-gray-700"
@@ -111,10 +123,11 @@ export const Menu = () => {
                               state?.weeks[state?.week?.id]?.orderCartStatus
                            ) &&
                               state?.week?.isValid &&
-                              !isAdded(node.productOption.id) && (
+                              !isAdded(node.id) && (
                                  <button
                                     onClick={() =>
                                        selectRecipe(
+                                          node.id,
                                           node.cartItem,
                                           node.addonPrice
                                        )

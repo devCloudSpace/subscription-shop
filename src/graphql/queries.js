@@ -154,25 +154,27 @@ export const OCCURENCES_BY_SUBSCRIPTION = gql`
 
 export const OCCURENCE_PRODUCTS_BY_CATEGORIES = gql`
    query categories(
-      $occurenceId: Int_comparison_exp
       $subscriptionId: Int_comparison_exp
+      $occurenceId: Int_comparison_exp
    ) {
       categories: productCategories {
          name
          productsAggregate: subscriptionOccurenceProducts_aggregate(
             where: {
-               isVisible: { _eq: true }
+               _or: [
+                  { subscriptionId: $subscriptionId }
+                  { subscriptionOccurenceId: $occurenceId }
+               ]
                isAvailable: { _eq: true }
-               _or: {
-                  subscriptionId: $subscriptionId
-                  subscriptionOccurenceId: $occurenceId
-               }
+               isVisible: { _eq: true }
             }
+            distinct_on: simpleRecipeProductOptionId
          ) {
             aggregate {
                count
             }
             nodes {
+               id
                cartItem
                addonLabel
                addonPrice

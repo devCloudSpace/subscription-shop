@@ -303,7 +303,7 @@ const CartProduct = ({ product }) => {
             ) &&
                state?.week?.isValid && (
                   <span className="remove_product">
-                     <button onClick={() => removeRecipe(product.option.id)}>
+                     <button onClick={() => removeRecipe(product.id)}>
                         <CloseIcon
                            size={16}
                            tw="stroke-current text-green-400"

@@ -57,7 +57,7 @@ const reducers = (state, { type, payload }) => {
          const weeks = state.weeks
          const products = weeks[payload.weekId].cart.products
          const index = products.findIndex(
-            node => node?.option?.id === payload.productId
+            node => node?.id === payload.productId
          )
          products[index] = {}
 
