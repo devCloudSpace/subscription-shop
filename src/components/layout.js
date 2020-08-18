@@ -1,12 +1,62 @@
 import React from 'react'
 import { Link } from 'gatsby'
 import tw, { styled } from 'twin.macro'
+import { useSubscription } from '@apollo/react-hooks'
 
 import { Header } from './header'
+import { Loader } from './loader'
+import { CONFIG } from '../graphql'
 import { MailIcon, PhoneIcon } from '../assets/icons'
 import { UserProvider, ConfigProvider } from '../context'
 
 export const Layout = ({ children, noHeader }) => {
+   const [address, setAddress] = React.useState('')
+   const [contact, setContact] = React.useState({})
+   const { loading: addressLoading } = useSubscription(CONFIG, {
+      variables: {
+         identifier: { _eq: 'Location' },
+      },
+      onSubscriptionData: ({
+         subscriptionData: {
+            data: { subscription_subscriptionStoreSetting: location = [] } = {},
+         } = {},
+      }) => {
+         let address = ''
+         if (location[0].value.line1) {
+            address += location[0].value.line1 + ', '
+         }
+         if (location[0].value.line2) {
+            address += location[0].value.line2 + ', '
+         }
+         if (location[0].value.city) {
+            address += location[0].value.city + ', '
+         }
+         if (location[0].value.state) {
+            address += location[0].value.state + ', '
+         }
+         if (location[0].value.country) {
+            address += location[0].value.country + ', '
+         }
+         if (location[0].value.zipcode) {
+            address += location[0].value.zipcode + ', '
+         }
+         setAddress(address)
+      },
+   })
+   const { loading: contactLoading } = useSubscription(CONFIG, {
+      variables: {
+         identifier: { _eq: 'Contact' },
+      },
+      onSubscriptionData: ({
+         subscriptionData: {
+            data: { subscription_subscriptionStoreSetting: contact = [] } = {},
+         } = {},
+      }) => {
+         setContact(contact[0].value)
+      },
+   })
+
+   if (addressLoading || contactLoading) return <Loader inline />
    return (
       <UserProvider>
          <ConfigProvider>
@@ -16,19 +66,16 @@ export const Layout = ({ children, noHeader }) => {
                <div>
                   <section>
                      <h2 tw="text-3xl">Subscription Shop</h2>
-                     <p tw="mt-2">
-                        1700 East Willow Street, Signal Hill, California, United
-                        States, 90755
-                     </p>
+                     <p tw="mt-2">{address}</p>
                      <span tw="mt-4 flex items-center">
                         <MailIcon size={18} tw="stroke-current mr-2" />
-                        <a href="mailto:example@example.com" tw="underline">
-                           me@example.com
+                        <a href={`mailto:${contact.email}`} tw="underline">
+                           {contact?.email}
                         </a>
                      </span>
                      <span tw="mt-4 flex items-center">
-                        <PhoneIcon size={18} tw="stroke-current mr-2" />+ 002-
-                        01008431112
+                        <PhoneIcon size={18} tw="stroke-current mr-2" />
+                        {contact?.phoneNo}
                      </span>
                   </section>
                   <section>

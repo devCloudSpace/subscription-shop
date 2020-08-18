@@ -3,8 +3,8 @@ import { Link } from 'gatsby'
 import tw, { styled } from 'twin.macro'
 
 import { Faq } from '../../sections/Faq'
-import { SEO, Layout } from '../../components'
 import { InfoBlock } from '../../sections/InfoBlock'
+import { SEO, Layout } from '../../components'
 
 export default () => {
    return (

@@ -362,3 +362,16 @@ export const STEPS_LABELS = gql`
       }
    }
 `
+
+export const CONFIG = gql`
+   subscription subscription_subscriptionStoreSetting(
+      $identifier: String_comparison_exp!
+   ) {
+      subscription_subscriptionStoreSetting(
+         where: { identifier: $identifier }
+      ) {
+         id
+         value
+      }
+   }
+`
