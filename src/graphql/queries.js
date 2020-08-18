@@ -35,7 +35,9 @@ export const CUSTOMERS = gql`
 
 export const PLANS = gql`
    subscription plans {
-      plans: subscription_subscriptionTitle {
+      plans: subscription_subscriptionTitle(
+         where: { isActive: { _eq: true } }
+      ) {
          id
          title
          defaultServingId: defaultSubscriptionServingId
@@ -53,7 +55,10 @@ export const PLANS = gql`
                price
             }
          }
-         servings: subscriptionServings(order_by: { servingSize: asc }) {
+         servings: subscriptionServings(
+            order_by: { servingSize: asc }
+            where: { isActive: { _eq: true } }
+         ) {
             id
             size: servingSize
             defaultItemCountId: defaultSubscriptionItemCountId
@@ -64,6 +69,7 @@ export const PLANS = gql`
             }
             itemCounts: subscriptionItemCounts(
                order_by: { count: asc, price: asc }
+               where: { isActive: { _eq: true } }
             ) {
                id
                count

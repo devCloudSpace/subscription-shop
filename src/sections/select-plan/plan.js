@@ -37,7 +37,11 @@ export const Plan = ({ plan }) => {
       navigate('/subscription/get-started/register')
    }
 
-   if (!defaultItemCount || !defaultServing) return <Loader inline />
+   if (
+      plan.servings.length === 0 ||
+      plan.servings.every(serving => serving.itemCounts.length === 0)
+   )
+      return null
    return (
       <div css={tw`border rounded-lg p-8`}>
          <h2 css={tw`mb-5 text-2xl font-medium tracking-wide text-green-700`}>
@@ -48,7 +52,8 @@ export const Plan = ({ plan }) => {
                <span
                   css={tw`uppercase tracking-wider text-gray-600 text-sm font-medium`}
                >
-                  {plan.servings[0].size} Servings
+                  {plan.servings[0].size} Person
+                  {plan.servings[0].size > 1 && 's'}
                </span>
             ) : (
                <>
@@ -58,27 +63,32 @@ export const Plan = ({ plan }) => {
                      No. of people
                   </span>
                   <CountList>
-                     {plan.servings.map(serving => (
-                        <CountListItem
-                           key={serving.id}
-                           onClick={() => setDefaultServing(serving)}
-                           className={`${
-                              serving.id === defaultServing.id ? 'active' : ''
-                           }`}
-                        >
-                           {serving.size}
-                        </CountListItem>
-                     ))}
+                     {plan.servings.map(
+                        serving =>
+                           serving.itemCounts.length > 0 && (
+                              <CountListItem
+                                 key={serving.id}
+                                 onClick={() => setDefaultServing(serving)}
+                                 className={`${
+                                    serving.id === defaultServing?.id
+                                       ? 'active'
+                                       : ''
+                                 }`}
+                              >
+                                 {serving.size}
+                              </CountListItem>
+                           )
+                     )}
                   </CountList>
                </>
             )}
          </section>
          <section css={tw`h-12 mb-4 flex items-center justify-between mt-3`}>
-            {defaultServing.itemCounts.length === 1 ? (
+            {defaultServing?.itemCounts.length === 1 ? (
                <span
                   css={tw`uppercase tracking-wider text-gray-600 text-sm font-medium`}
                >
-                  {defaultServing.itemCounts[0].count} Recipes per week
+                  {defaultServing?.itemCounts[0].count} Recipes per week
                </span>
             ) : (
                <>
@@ -88,12 +98,12 @@ export const Plan = ({ plan }) => {
                      Recipes per week
                   </span>
                   <CountList>
-                     {defaultServing.itemCounts.map(item => (
+                     {defaultServing?.itemCounts.map(item => (
                         <CountListItem
                            key={item.id}
                            onClick={() => setDefaultItemCount(item)}
                            className={`${
-                              item.id === defaultItemCount.id ? 'active' : ''
+                              item.id === defaultItemCount?.id ? 'active' : ''
                            }`}
                         >
                            {item.count}
@@ -109,18 +119,22 @@ export const Plan = ({ plan }) => {
                <span tw="text-green-700 font-medium">
                   {formatCurrency(
                      Number.parseFloat(
-                        defaultItemCount.price /
-                           (defaultItemCount.count * defaultServing.size)
+                        defaultItemCount?.price ||
+                           0 /
+                              (defaultItemCount?.count ||
+                                 1 * defaultServing?.size ||
+                                 1)
                      ).toFixed(2)
                   )}{' '}
                </span>
                <span tw="text-gray-600">
-                  / person x {defaultServing.size * defaultItemCount.count}
+                  / person x{' '}
+                  {defaultServing?.size || 0 * defaultItemCount?.count || 0}
                </span>
             </section>
             <section tw="h-full flex-1 flex flex-col text-right border-l py-1">
                <span tw="text-green-700 text-2xl font-medium">
-                  {formatCurrency(defaultItemCount.price)}
+                  {formatCurrency(defaultItemCount?.price)}
                </span>
                <span tw="text-gray-600">Weekly total</span>
             </section>
