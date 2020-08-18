@@ -3,10 +3,11 @@ import { navigate } from 'gatsby'
 import tw, { styled } from 'twin.macro'
 import { useToasts } from 'react-toast-notifications'
 
-import { Loader } from '../../components'
+import { useConfig } from '../../context'
 import { isClient, formatCurrency } from '../../utils'
 
 export const Plan = ({ plan }) => {
+   const { primary } = useConfig()
    const { addToast } = useToasts()
    const [defaultItemCount, setDefaultItemCount] = React.useState(null)
    const [defaultServing, setDefaultServing] = React.useState(null)
@@ -53,15 +54,17 @@ export const Plan = ({ plan }) => {
                <span
                   css={tw`uppercase tracking-wider text-gray-600 text-sm font-medium`}
                >
-                  {plan.servings[0].size} Person
-                  {plan.servings[0].size > 1 && 's'}
+                  {plan.servings[0].size}{' '}
+                  {plan.servings[0].size > 1
+                     ? primary.yieldLabel.plural
+                     : primary.yieldLabel.singular}
                </span>
             ) : (
                <>
                   <span
                      css={tw`uppercase tracking-wider text-gray-600 text-sm font-medium`}
                   >
-                     No. of people
+                     No. of {primary.yieldLabel.plural}
                   </span>
                   <CountList>
                      {plan.servings.map(
@@ -89,14 +92,18 @@ export const Plan = ({ plan }) => {
                <span
                   css={tw`uppercase tracking-wider text-gray-600 text-sm font-medium`}
                >
-                  {defaultServing?.itemCounts[0].count} Recipes per week
+                  {defaultServing?.itemCounts[0].count}{' '}
+                  {defaultServing?.itemCounts[0].count === 1
+                     ? primary.itemLabel.singular
+                     : primary.itemLabel.plural}{' '}
+                  per week
                </span>
             ) : (
                <>
                   <span
                      css={tw`uppercase tracking-wider text-gray-600 text-sm font-medium`}
                   >
-                     Recipes per week
+                     {primary.itemLabel.plural} per week
                   </span>
                   <CountList>
                      {defaultServing?.itemCounts.map(item => (
@@ -129,7 +136,7 @@ export const Plan = ({ plan }) => {
                   )}{' '}
                </span>
                <span tw="text-gray-600">
-                  / person x{' '}
+                  / {primary.yieldLabel.singular} x{' '}
                   {defaultServing?.size || 0 * defaultItemCount?.count || 0}
                </span>
             </section>

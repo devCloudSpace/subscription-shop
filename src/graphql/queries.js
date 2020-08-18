@@ -340,3 +340,14 @@ export const ZIPCODE_AVAILABILITY = gql`
       }
    }
 `
+
+export const CONVENTIONS = gql`
+   subscription conventions($identifier: String_comparison_exp!) {
+      conventions: subscription_subscriptionStoreSetting(
+         where: { identifier: $identifier }
+      ) {
+         id
+         value
+      }
+   }
+`
