@@ -101,7 +101,12 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
                subscriptionOccurenceId: state.week.id,
                stripeCustomerId: user?.platform_customer?.stripeCustomerId,
                ...(week.orderCartId && { id: week.orderCartId }),
-
+               customerInfo: {
+                  customerEmail: user?.platform_customer?.email || '',
+                  customerPhone: user?.platform_customer?.phoneNumber || '',
+                  customerLastName: user?.platform_customer?.lastName || '',
+                  customerFirstName: user?.platform_customer?.firstName || '',
+               },
                fulfillmentInfo: {
                   type: 'PREORDER_DELIVERY',
                   slot: {
