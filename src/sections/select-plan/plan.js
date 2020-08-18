@@ -48,7 +48,8 @@ export const Plan = ({ plan }) => {
             {plan.title}
          </h2>
          <section css={tw`h-12 mb-4 flex items-center justify-between`}>
-            {plan.servings.length === 1 ? (
+            {plan.servings.length === 1 ||
+            plan.servings.some(serving => serving.itemCounts.length !== 0) ? (
                <span
                   css={tw`uppercase tracking-wider text-gray-600 text-sm font-medium`}
                >
