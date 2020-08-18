@@ -21,6 +21,12 @@ const PlacingOrder = () => {
       }
    }, [cart])
 
+   const gotoMenu = () => {
+      isClient && window.localStorage.removeItem('cartId')
+      isClient && window.localStorage.removeItem('plan')
+      navigate('/subscription/menu')
+   }
+
    return (
       <Layout>
          <SEO title="Placing Order" />
@@ -128,17 +134,16 @@ const PlacingOrder = () => {
                            {cart.status === 'ORDER_PLACED' && cart.orderId && (
                               <HelperBar type="success" tw="mt-3">
                                  <HelperBar.Title>
-                                    🎉Congratulations!{' '}
+                                    <span role="img" aria-label="celebrate">
+                                       🎉
+                                    </span>
+                                    Congratulations!{' '}
                                  </HelperBar.Title>
                                  <HelperBar.SubTitle>
                                     Your order has been placed. Continue
                                     selecting menu for others weeks.
                                  </HelperBar.SubTitle>
-                                 <HelperBar.Button
-                                    onClick={() =>
-                                       navigate('/subscription/menu')
-                                    }
-                                 >
+                                 <HelperBar.Button onClick={() => gotoMenu()}>
                                     Browse Menu
                                  </HelperBar.Button>
                               </HelperBar>

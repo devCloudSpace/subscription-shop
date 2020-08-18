@@ -118,12 +118,12 @@ const Content = () => {
                            Default
                         </span>
                      ) : (
-                        <span
+                        <button
                            tw="mb-2 rounded border border-orange-300 px-2 text-teal-700 cursor-pointer hover:(bg-orange-300 text-orange-900)"
                            onClick={() => makeDefault(address)}
                         >
                            Make Default
-                        </span>
+                        </button>
                      )}
                      <span>{address?.line1}</span>
                      <span>{address?.line2}</span>

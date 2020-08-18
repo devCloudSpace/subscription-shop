@@ -97,12 +97,12 @@ const Content = () => {
                               Default
                            </span>
                         ) : (
-                           <span
+                           <button
                               tw="mb-2 rounded border border-orange-300 px-2 text-teal-700 cursor-pointer hover:(bg-orange-300 text-orange-900)"
                               onClick={() => makeDefault(method)}
                            >
                               Make Default
-                           </span>
+                           </button>
                         )}
                         <div tw="flex items-center justify-between">
                            <span tw="text-xl my-2">
