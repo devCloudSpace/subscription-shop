@@ -5,6 +5,7 @@ import { useToasts } from 'react-toast-notifications'
 
 import { useConfig } from '../../context'
 import { isClient, formatCurrency } from '../../utils'
+import { Loader } from '../../components'
 
 export const Plan = ({ plan }) => {
    const { primary } = useConfig()
@@ -38,19 +39,14 @@ export const Plan = ({ plan }) => {
       navigate('/subscription/get-started/register')
    }
 
-   if (
-      plan.servings.length === 0 ||
-      plan.servings.every(serving => serving.itemCounts.length === 0)
-   )
-      return null
+   if (!defaultServing) return <Loader inline />
    return (
       <div css={tw`border rounded-lg p-8`}>
          <h2 css={tw`mb-5 text-2xl font-medium tracking-wide text-green-700`}>
             {plan.title}
          </h2>
          <section css={tw`h-12 mb-4 flex items-center justify-between`}>
-            {plan.servings.length === 1 ||
-            plan.servings.some(serving => serving.itemCounts.length !== 0) ? (
+            {plan.servings.length === 1 ? (
                <span
                   css={tw`uppercase tracking-wider text-gray-600 text-sm font-medium`}
                >
@@ -67,33 +63,28 @@ export const Plan = ({ plan }) => {
                      No. of {primary.yieldLabel.plural}
                   </span>
                   <CountList>
-                     {plan.servings.map(
-                        serving =>
-                           serving.itemCounts.length > 0 && (
-                              <CountListItem
-                                 key={serving.id}
-                                 onClick={() => setDefaultServing(serving)}
-                                 className={`${
-                                    serving.id === defaultServing?.id
-                                       ? 'active'
-                                       : ''
-                                 }`}
-                              >
-                                 {serving.size}
-                              </CountListItem>
-                           )
-                     )}
+                     {plan.servings.map(serving => (
+                        <CountListItem
+                           key={serving.id}
+                           onClick={() => setDefaultServing(serving)}
+                           className={`${
+                              serving.id === defaultServing?.id ? 'active' : ''
+                           }`}
+                        >
+                           {serving.size}
+                        </CountListItem>
+                     ))}
                   </CountList>
                </>
             )}
          </section>
          <section css={tw`h-12 mb-4 flex items-center justify-between mt-3`}>
-            {defaultServing?.itemCounts.length === 1 ? (
+            {defaultServing.itemCounts.length === 1 ? (
                <span
                   css={tw`uppercase tracking-wider text-gray-600 text-sm font-medium`}
                >
-                  {defaultServing?.itemCounts[0].count}{' '}
-                  {defaultServing?.itemCounts[0].count === 1
+                  {defaultServing.itemCounts[0].count}{' '}
+                  {defaultServing.itemCounts[0].count === 1
                      ? primary.itemLabel.singular
                      : primary.itemLabel.plural}{' '}
                   per week
@@ -130,14 +121,14 @@ export const Plan = ({ plan }) => {
                         defaultItemCount?.price ||
                            0 /
                               (defaultItemCount?.count ||
-                                 1 * defaultServing?.size ||
+                                 1 * defaultServing.size ||
                                  1)
                      ).toFixed(2)
                   )}{' '}
                </span>
                <span tw="text-gray-600">
                   / {primary.yieldLabel.singular} x{' '}
-                  {defaultServing?.size || 0 * defaultItemCount?.count || 0}
+                  {defaultServing.size || 0 * defaultItemCount?.count || 0}
                </span>
             </section>
             <section tw="h-full flex-1 flex flex-col text-right border-l py-1">

@@ -10,16 +10,27 @@ import { HelperBar } from '../../components'
 
 export const Plans = () => {
    const { addToast } = useToasts()
-   const { loading, error, data: { plans = [] } = {} } = useSubscription(
-      PLANS,
-      {
-         onError: error => {
-            addToast(error.message, {
-               appearance: 'error',
-            })
-         },
-      }
-   )
+   const [plans, setPlans] = React.useState([])
+   const { loading, error } = useSubscription(PLANS, {
+      onSubscriptionData: ({ subscriptionData: { data = {} } = {} }) => {
+         const { plans } = data
+         const filtered = plans
+            .filter(plan => plan.servings.length > 0)
+            .map(plan => ({
+               ...plan,
+               servings: plan.servings.filter(
+                  serving => serving.itemCounts.length > 0
+               ),
+            }))
+         console.log('Plans -> filtered', filtered)
+         setPlans(filtered)
+      },
+      onError: error => {
+         addToast(error.message, {
+            appearance: 'error',
+         })
+      },
+   })
 
    if (loading)
       return (
@@ -29,13 +40,7 @@ export const Plans = () => {
          </List>
       )
    if (error) return <div>{error.message}</div>
-   if (
-      plans.length === 0 ||
-      plans.every(plan => plan.servings.length === 0) ||
-      plans.every(plan =>
-         plan.servings.every(serving => serving.itemCounts.length === 0)
-      )
-   )
+   if (plans.length === 0)
       return (
          <Wrapper tw="py-3">
             <HelperBar type="info">
