@@ -41,7 +41,7 @@ export const Plan = ({ plan }) => {
 
    if (!defaultServing) return <Loader inline />
    return (
-      <div css={tw`border rounded-lg p-8`}>
+      <li css={tw`border rounded-lg p-8`}>
          <h2 css={tw`mb-5 text-2xl font-medium tracking-wide text-green-700`}>
             {plan.title}
          </h2>
@@ -139,7 +139,7 @@ export const Plan = ({ plan }) => {
             </section>
          </div>
          <Button onClick={() => selectPlan()}>Select</Button>
-      </div>
+      </li>
    )
 }
 

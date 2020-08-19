@@ -1,5 +1,5 @@
 import React from 'react'
-import { styled } from 'twin.macro'
+import { styled, css } from 'twin.macro'
 import { useToasts } from 'react-toast-notifications'
 import { useSubscription } from '@apollo/react-hooks'
 
@@ -49,7 +49,7 @@ export const Plans = () => {
          </Wrapper>
       )
    return (
-      <List>
+      <List count={plans.length}>
          {plans.map(plan => (
             <Plan key={plan.id} plan={plan} />
          ))}
@@ -63,17 +63,30 @@ const Wrapper = styled.div`
    width: calc(100vw - 40px);
 `
 
-const List = styled.ul`
-   margin: auto;
-   max-width: 980px;
-   width: calc(100vw - 40px);
+const List = styled.ul(
+   ({ count }) => css`
+      margin: auto;
+      max-width: 980px;
+      width: calc(100vw - 40px);
 
-   display: grid;
-   grid-gap: 24px;
-   grid-template-columns: 1fr 1fr;
+      ${count === 1
+         ? css`
+              display: flex;
+              justify-content: center;
+              > li {
+                 width: 100%;
+                 max-width: 490px;
+              }
+           `
+         : css`
+              display: grid;
+              grid-gap: 24px;
+              grid-template-columns: 1fr 1fr;
+           `}
 
-   padding: 24px 0;
-   @media (max-width: 768px) {
-      grid-template-columns: 1fr;
-   }
-`
+      padding: 24px 0;
+      @media (max-width: 768px) {
+         grid-template-columns: 1fr;
+      }
+   `
+)
