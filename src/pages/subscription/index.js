@@ -16,7 +16,7 @@ export default () => {
             <Header>
                <div>
                   <Tagline>Your next great meal is at your fingertips.</Tagline>
-                  {keycloak.authenticated ? (
+                  {keycloak?.authenticated ? (
                      <CTA to="/subscription/menu">Select Menu</CTA>
                   ) : (
                      <CTA to="/subscription/get-started/select-plan">
