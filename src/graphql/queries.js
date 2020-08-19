@@ -430,3 +430,64 @@ export const FAQ = gql`
       }
    }
 `
+
+export const OUR_MENU = {
+   TITLES: gql`
+      query titles {
+         titles: subscription_subscriptionTitle(
+            where: { isActive: { _eq: true } }
+         ) {
+            id
+            title
+         }
+      }
+   `,
+   TITLE: gql`
+      query title($id: Int!) {
+         title: subscription_subscriptionTitle_by_pk(id: $id) {
+            id
+            servings: subscriptionServings(where: { isActive: { _eq: true } }) {
+               id
+               size: servingSize
+            }
+         }
+      }
+   `,
+   SERVING: gql`
+      query serving($id: Int!) {
+         serving: subscription_subscriptionServing_by_pk(id: $id) {
+            id
+            size: servingSize
+            counts: subscriptionItemCounts(where: { isActive: { _eq: true } }) {
+               id
+               count
+            }
+         }
+      }
+   `,
+   ITEM_COUNT: gql`
+      query itemCount($id: Int!) {
+         itemCount: subscription_subscriptionItemCount_by_pk(id: $id) {
+            id
+            count
+            subscriptions {
+               id
+               rrule
+            }
+         }
+      }
+   `,
+   SUBSCRIPTION: gql`
+      query subscription($id: Int!) {
+         subscription: subscription_subscription_by_pk(id: $id) {
+            id
+            occurences: subscriptionOccurences {
+               id
+               isValid
+               isVisible
+               fulfillmentDate
+            }
+         }
+      }
+   `,
+}

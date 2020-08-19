@@ -15,9 +15,13 @@ export const Header = () => {
          <section tw="flex items-center justify-between">
             <ul />
             <ul tw="px-4 flex space-x-4">
-               {keycloak.authenticated && (
+               {keycloak.authenticated ? (
                   <li tw="text-gray-800">
                      <Link to="/subscription/menu">Select Menu</Link>
+                  </li>
+               ) : (
+                  <li tw="text-gray-800">
+                     <Link to="/subscription/our-menu">Our Menu</Link>
                   </li>
                )}
                {!keycloak.authenticated && (
