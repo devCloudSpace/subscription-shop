@@ -377,3 +377,54 @@ export const CONFIG = gql`
       }
    }
 `
+
+export const INFORMATION_GRID = gql`
+   subscription infoGrid(
+      $page: String_comparison_exp!
+      $identifier: String_comparison_exp!
+   ) {
+      infoGrid: subscription_informationGrid(
+         where: {
+            page: $page
+            isVisible: { _eq: true }
+            identifier: $identifier
+         }
+      ) {
+         id
+         heading
+         subHeading
+         identifier
+         blocks: informationBlocks {
+            id
+            title
+            thumbnail
+            description
+         }
+      }
+   }
+`
+
+export const FAQ = gql`
+   subscription faq(
+      $page: String_comparison_exp!
+      $identifier: String_comparison_exp!
+   ) {
+      faq: subscription_faqs(
+         where: {
+            page: $page
+            isVisible: { _eq: true }
+            identifier: $identifier
+         }
+      ) {
+         id
+         heading
+         subHeading
+         identifier
+         blocks: informationBlocks {
+            id
+            title
+            description
+         }
+      }
+   }
+`
