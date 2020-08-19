@@ -20,11 +20,13 @@ export const Header = () => {
                      <Link to="/subscription/menu">Select Menu</Link>
                   </li>
                )}
-               <li tw="text-gray-800">
-                  <Link to="/subscription/get-started/select-plan">
-                     Our Plans
-                  </Link>
-               </li>
+               {!keycloak.authenticated && (
+                  <li tw="text-gray-800">
+                     <Link to="/subscription/get-started/select-plan">
+                        Our Plans
+                     </Link>
+                  </li>
+               )}
             </ul>
          </section>
          {initialized && (

@@ -1,12 +1,14 @@
 import React from 'react'
 import { Link } from 'gatsby'
 import tw, { styled } from 'twin.macro'
+import { useKeycloak } from '@react-keycloak/web'
 
 import { Faq } from '../../sections/Faq'
-import { InfoBlock } from '../../sections/InfoBlock'
 import { SEO, Layout } from '../../components'
+import { InfoBlock } from '../../sections/InfoBlock'
 
 export default () => {
+   const [keycloak] = useKeycloak()
    return (
       <Layout>
          <SEO title="Home" />
@@ -14,9 +16,13 @@ export default () => {
             <Header>
                <div>
                   <Tagline>Your next great meal is at your fingertips.</Tagline>
-                  <CTA to="/subscription/get-started/select-plan">
-                     Get Started
-                  </CTA>
+                  {keycloak.authenticated ? (
+                     <CTA to="/subscription/menu">Select Menu</CTA>
+                  ) : (
+                     <CTA to="/subscription/get-started/select-plan">
+                        Get Started
+                     </CTA>
+                  )}
                </div>
             </Header>
             <InfoBlock
