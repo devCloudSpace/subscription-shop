@@ -16,7 +16,9 @@ export const InfoSection = ({ page, identifier }) => {
    return (
       <InfoBlock
          heading={infoGrid[0].heading}
+         columns={infoGrid[0].columnsCount}
          subHeading={infoGrid[0].subHeading}
+         orientation={infoGrid[0].blockOrientation}
       >
          {infoGrid[0].blocks.map(block => (
             <InfoBlock.Item

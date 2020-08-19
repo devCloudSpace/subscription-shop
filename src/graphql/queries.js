@@ -394,6 +394,8 @@ export const INFORMATION_GRID = gql`
          heading
          subHeading
          identifier
+         columnsCount
+         blockOrientation
          blocks: informationBlocks {
             id
             title

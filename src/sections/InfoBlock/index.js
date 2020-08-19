@@ -1,12 +1,14 @@
 import React from 'react'
-import tw, { styled } from 'twin.macro'
+import tw, { styled, css } from 'twin.macro'
 
-const InfoBlock = ({ heading, subHeading, children }) => {
+const InfoBlock = ({ heading, subHeading, columns, children, orientation }) => {
    return (
       <BlockWrapper>
          {heading && <Heading>{heading}</Heading>}
          {subHeading && <SubHeading>{subHeading}</SubHeading>}
-         <Container>{children}</Container>
+         <Container count={columns} orientation={orientation}>
+            {children}
+         </Container>
       </BlockWrapper>
    )
 }
@@ -20,7 +22,7 @@ const SubHeading = ({ children }) => {
 
 const Item = ({ icon, heading, subHeading }) => {
    return (
-      <li tw="flex flex-col items-center text-center">
+      <li>
          {icon && (
             <img
                src={icon}
@@ -29,8 +31,10 @@ const Item = ({ icon, heading, subHeading }) => {
                tw="w-20 h-20 rounded-full"
             />
          )}
-         {heading && <h3 tw="text-2xl text-green-700 mt-3">{heading}</h3>}
-         {subHeading && <p tw="text-gray-700">{subHeading}</p>}
+         <section>
+            {heading && <h3 tw="text-2xl text-green-700">{heading}</h3>}
+            {subHeading && <p tw="text-gray-700">{subHeading}</p>}
+         </section>
       </li>
    )
 }
@@ -45,7 +49,22 @@ const BlockWrapper = styled.div`
    width: calc(100% - 40px);
 `
 
-const Container = styled.ul`
+const Container = styled.ul(
+   ({ count, orientation }) => css`
    ${tw`grid gap-6`}
-   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+   grid-template-columns: repeat(${count}, 1fr);
+   @media (max-width: 768px) {
+      grid-template-columns: repeat(2, 1fr);
+   }
+   @media (max-width: 567px) {
+      grid-template-columns: 1fr;
+   }
+   li {
+      ${
+         orientation === 'row'
+            ? tw`flex flex-col items-center text-center`
+            : tw`flex items-start space-x-3`
+      }
+   }
 `
+)
