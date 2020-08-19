@@ -4,8 +4,8 @@ import tw, { styled } from 'twin.macro'
 import { useSubscription } from '@apollo/react-hooks'
 
 import { Header } from './header'
-import { Loader } from './loader'
 import { CONFIG } from '../graphql'
+import { PageLoader } from './page_loader'
 import { MailIcon, PhoneIcon } from '../assets/icons'
 import { UserProvider, ConfigProvider } from '../context'
 
@@ -56,7 +56,7 @@ export const Layout = ({ children, noHeader }) => {
       },
    })
 
-   if (addressLoading || contactLoading) return <Loader inline />
+   if (addressLoading || contactLoading) return <PageLoader />
    return (
       <UserProvider>
          <ConfigProvider>
