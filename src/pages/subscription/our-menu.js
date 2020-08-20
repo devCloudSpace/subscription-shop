@@ -8,11 +8,24 @@ import tw, { styled } from 'twin.macro'
 import { useLazyQuery } from '@apollo/react-hooks'
 
 import { formatDate } from '../../utils'
-import { Layout, SEO, Form } from '../../components'
+import { useConfig } from '../../context'
+import { Layout, SEO, Form, HelperBar, Loader } from '../../components'
 import { ArrowLeftIcon, ArrowRightIcon } from '../../assets/icons'
 import { OCCURENCE_PRODUCTS_BY_CATEGORIES, OUR_MENU } from '../../graphql'
 
 const OurMenu = () => {
+   return (
+      <Layout>
+         <SEO title="Our Menu" />
+         <Content />
+      </Layout>
+   )
+}
+
+export default OurMenu
+
+const Content = () => {
+   const { primary } = useConfig()
    const [current, setCurrent] = React.useState(0)
    const [occurences, setOccurences] = React.useState([])
    const [categories, setCategories] = React.useState([])
@@ -80,6 +93,7 @@ const OurMenu = () => {
          if (title?.servings.length > 0) {
             const [serving] = title?.servings
             fetchServing({ variables: { id: serving.id } })
+            setCurrent(0)
          }
       },
    })
@@ -126,18 +140,16 @@ const OurMenu = () => {
          },
       })
    }
-
    return (
-      <Layout>
-         <SEO title="Our Menu" />
-         <Main>
-            <Header>
+      <Main>
+         <Header>
+            <div>
                {!loading && titles.length > 0 && (
                   <SelectSection>
-                     <Form.Label htmlFor="titles">Titles</Form.Label>
+                     <Form.Label htmlFor="plans">Plans</Form.Label>
                      <select
-                        id="titles"
-                        name="titles"
+                        id="plans"
+                        name="plans"
                         value={title.id}
                         onChange={e =>
                            fetchTitle({ variables: { id: e.target.value } })
@@ -155,7 +167,9 @@ const OurMenu = () => {
                {[!loading, !loadingTitle].every(node => node) &&
                   title?.servings?.length > 0 && (
                      <SelectSection>
-                        <Form.Label htmlFor="serving">Servings</Form.Label>
+                        <Form.Label htmlFor="serving">
+                           {primary.yieldLabel.plural}
+                        </Form.Label>
                         <select
                            id="servings"
                            name="servings"
@@ -180,7 +194,9 @@ const OurMenu = () => {
                ) &&
                   serving?.counts?.length > 0 && (
                      <SelectSection>
-                        <Form.Label htmlFor="counts">Item Counts</Form.Label>
+                        <Form.Label htmlFor="counts">
+                           {primary.itemLabel.plural}
+                        </Form.Label>
                         <select
                            id="counts"
                            name="counts"
@@ -208,7 +224,7 @@ const OurMenu = () => {
                   itemCount?.subscriptions?.length > 0 && (
                      <SelectSection>
                         <Form.Label htmlFor="subscriptions">
-                           Subscriptions
+                           Delivery Day
                         </Form.Label>
                         <select
                            id="subscriptions"
@@ -228,40 +244,41 @@ const OurMenu = () => {
                         </select>
                      </SelectSection>
                   )}
-            </Header>
-            {!loadingSubscription && occurences.length > 0 && (
-               <Occurence>
-                  <SliderButton onClick={previous}>
-                     <ArrowLeftIcon tw="stroke-current text-green-800" />
-                  </SliderButton>
-                  <span tw="flex items-center justify-center text-base text-center md:text-lg text-indigo-800">
-                     Showing menu of:&nbsp;
-                     {formatDate(
-                        moment(occurences[current].fulfillmentDate)
-                           .subtract(7, 'days')
-                           .format('YYYY-MM-DD'),
-                        {
-                           month: 'short',
-                           day: 'numeric',
-                           year: 'numeric',
-                        }
-                     )}
-                     &nbsp;-&nbsp;
-                     {formatDate(occurences[current].fulfillmentDate, {
+            </div>
+         </Header>
+         {!loadingSubscription && occurences.length > 0 && (
+            <Occurence>
+               <SliderButton onClick={previous}>
+                  <ArrowLeftIcon tw="stroke-current text-green-800" />
+               </SliderButton>
+               <span tw="flex items-center justify-center text-base text-center md:text-lg text-indigo-800">
+                  Showing menu of:&nbsp;
+                  {formatDate(
+                     moment(occurences[current].fulfillmentDate)
+                        .subtract(7, 'days')
+                        .format('YYYY-MM-DD'),
+                     {
                         month: 'short',
                         day: 'numeric',
                         year: 'numeric',
-                     })}
-                  </span>
+                     }
+                  )}
+                  &nbsp;-&nbsp;
+                  {formatDate(occurences[current].fulfillmentDate, {
+                     month: 'short',
+                     day: 'numeric',
+                     year: 'numeric',
+                  })}
+               </span>
 
-                  <SliderButton onClick={next}>
-                     <ArrowRightIcon tw="stroke-current text-green-800" />
-                  </SliderButton>
-               </Occurence>
-            )}
-            <main tw="px-3">
-               {!loadingProducts &&
-                  categories.length > 0 &&
+               <SliderButton onClick={next}>
+                  <ArrowRightIcon tw="stroke-current text-green-800" />
+               </SliderButton>
+            </Occurence>
+         )}
+         {!loadingProducts ? (
+            <main tw="mt-3">
+               {categories.length > 0 ? (
                   categories.map(category => (
                      <section key={category.name} css={tw`mb-8`}>
                         <h4 css={tw`text-lg text-gray-700 my-3 pb-1 border-b`}>
@@ -316,16 +333,26 @@ const OurMenu = () => {
                            )}
                         </Products>
                      </section>
-                  ))}
+                  ))
+               ) : (
+                  <HelperBar type="info">
+                     <HelperBar.SubTitle>
+                        No products available this week!
+                     </HelperBar.SubTitle>
+                  </HelperBar>
+               )}
             </main>
-         </Main>
-      </Layout>
+         ) : (
+            <Loader inline />
+         )}
+      </Main>
    )
 }
 
-export default OurMenu
-
 const Main = styled.main`
+   max-width: 1180px;
+   margin: 0 auto;
+   width: calc(100% - 40px);
    min-height: calc(100vh - 128px);
 `
 
@@ -334,7 +361,10 @@ const SelectSection = styled.section`
 `
 
 const Header = styled.header`
-   ${tw`flex items-center space-x-3 divide-x border-b py-3`}
+   ${tw`w-full border-b flex justify-center`}
+   div {
+      ${tw`flex items-center space-x-3 divide-x py-3`}
+   }
 `
 
 const Occurence = styled.div`
