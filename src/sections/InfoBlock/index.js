@@ -44,7 +44,8 @@ InfoBlock.Item = Item
 export { InfoBlock }
 
 const BlockWrapper = styled.div`
-   margin: 24px auto;
+   padding: 48px 0;
+   margin: 0 auto;
    max-width: 980px;
    width: calc(100% - 40px);
 `

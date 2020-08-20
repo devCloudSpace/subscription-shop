@@ -1,9 +1,9 @@
 import React from 'react'
+import tw, { styled } from 'twin.macro'
 import { useSubscription } from '@apollo/react-hooks'
 
 import { Faq } from '../Faq'
 import { FAQ } from '../../graphql'
-import { Loader } from '../../components'
 
 export const FaqSection = ({ page, identifier }) => {
    const { loading, data: { faq = [] } = {} } = useSubscription(FAQ, {
@@ -14,9 +14,22 @@ export const FaqSection = ({ page, identifier }) => {
          },
       },
    })
-   if (loading) return <Loader inline />
+   if (loading)
+      return (
+         <Wrapper>
+            <header tw="flex flex-col items-center">
+               <div tw="w-5/12 h-6 bg-gray-100 rounded-full" />
+               <div tw="mt-3 w-8/12 h-5 bg-gray-100 rounded-full" />
+            </header>
+            <ul tw="mt-5 space-y-3">
+               <li tw="h-12 bg-gray-100" />
+               <li tw="h-12 bg-gray-100" />
+               <li tw="h-12 bg-gray-100" />
+            </ul>
+         </Wrapper>
+      )
    return (
-      <Faq heading={faq[0].heading} tw="mt-16">
+      <Faq heading={faq[0].heading}>
          {faq[0].blocks.map(block => (
             <Faq.Item
                key={block.id}
@@ -27,3 +40,10 @@ export const FaqSection = ({ page, identifier }) => {
       </Faq>
    )
 }
+
+const Wrapper = styled.div`
+   margin: 0 auto;
+   max-width: 980px;
+   padding: 48px 0;
+   width: calc(100% - 40px);
+`

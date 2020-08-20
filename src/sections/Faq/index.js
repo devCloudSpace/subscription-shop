@@ -67,7 +67,8 @@ export { Faq }
 
 const BlockWrapper = styled.div`
    max-width: 980px;
-   margin: 24px auto;
+   padding: 48px 0;
+   margin: 0 auto;
    width: calc(100% - 40px);
 `
 
