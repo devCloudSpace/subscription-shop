@@ -1,10 +1,20 @@
 import React from 'react'
+import { navigate } from 'gatsby'
 import { styled } from 'twin.macro'
+import { useKeycloak } from '@react-keycloak/web'
 
-import { SEO, Layout, ProfileSidebar, Form } from '../../../components'
 import { useUser } from '../../../context'
+import { SEO, Layout, ProfileSidebar, Form } from '../../../components'
 
 const Profile = () => {
+   const [keycloak] = useKeycloak()
+
+   React.useEffect(() => {
+      if (!keycloak?.authenticated) {
+         navigate('/subscription')
+      }
+   }, [keycloak])
+
    return (
       <Layout>
          <SEO title="Profile" />

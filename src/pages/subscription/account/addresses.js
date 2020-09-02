@@ -29,7 +29,7 @@ const Addresses = () => {
    const [keycloak] = useKeycloak()
 
    React.useEffect(() => {
-      if (!keycloak?.tokenParsed?.sub) {
+      if (!keycloak?.authenticated) {
          navigate('/subscription')
       }
    }, [keycloak])
