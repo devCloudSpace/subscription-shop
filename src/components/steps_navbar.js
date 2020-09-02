@@ -11,16 +11,30 @@ import { STEPS_LABELS } from '../graphql/queries'
 
 export const StepsNavbar = () => {
    const [keycloak, initialized] = useKeycloak()
-   const { loading, data: { steps = [] } = {} } = useSubscription(
-      STEPS_LABELS,
-      {
-         variables: {
-            identifier: { _eq: 'steps-labels' },
-         },
-      }
-   )
+   const [steps, setSteps] = React.useState({
+      register: 'Register',
+      selectDelivery: 'Select Delivery',
+      selectMenu: 'Select Menu',
+      checkout: 'Checkout',
+   })
+   const { loading } = useSubscription(STEPS_LABELS, {
+      variables: {
+         identifier: { _eq: 'steps-labels' },
+      },
+      onSubscriptionData: ({
+         subscriptionData: { data: { steps = [] } = {} } = {},
+      }) => {
+         if (steps.length > 0) {
+            setSteps({
+               register: steps[0].value.register,
+               selectDelivery: steps[0].value.selectDelivery,
+               selectMenu: steps[0].value.selectMenu,
+               checkout: steps[0].value.checkout,
+            })
+         }
+      },
+   })
    const location = useLocation()
-   console.log('StepsNavbar -> steps', steps)
    const [currentStep] = React.useState(() => {
       if (location.pathname.includes('/get-started/select-plan')) return 0
       if (location.pathname.includes('/get-started/register')) return 25
@@ -39,10 +53,10 @@ export const StepsNavbar = () => {
                <ProgressBar current={currentStep} />
                <Steps>
                   <Step>Select Plan</Step>
-                  <Step>{steps[0].value.register}</Step>
-                  <Step>{steps[0].value.selectDelivery}</Step>
-                  <Step>{steps[0].value.selectMenu}</Step>
-                  <Step>{steps[0].value.checkout}</Step>
+                  <Step>{steps.register}</Step>
+                  <Step>{steps.selectDelivery}</Step>
+                  <Step>{steps.selectMenu}</Step>
+                  <Step>{steps.checkout}</Step>
                </Steps>
             </Progress>
          )}

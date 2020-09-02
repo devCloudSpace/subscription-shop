@@ -1,6 +1,7 @@
 import React from 'react'
 import { Link } from 'gatsby'
 import tw, { styled } from 'twin.macro'
+import { useKeycloak } from '@react-keycloak/web'
 import { useSubscription } from '@apollo/react-hooks'
 
 import { Header } from './header'
@@ -10,6 +11,7 @@ import { MailIcon, PhoneIcon } from '../assets/icons'
 import { UserProvider, ConfigProvider } from '../context'
 
 export const Layout = ({ children, noHeader }) => {
+   const [keycloak] = useKeycloak()
    const [address, setAddress] = React.useState('')
    const [contact, setContact] = React.useState({})
    const { loading: addressLoading } = useSubscription(CONFIG, {
@@ -21,26 +23,29 @@ export const Layout = ({ children, noHeader }) => {
             data: { subscription_subscriptionStoreSetting: location = [] } = {},
          } = {},
       }) => {
-         let address = ''
-         if (location[0].value.line1) {
-            address += location[0].value.line1 + ', '
+         if (location.length > 0) {
+            let address = ''
+            const data = location[0].value
+            if (data.line1) {
+               address += data.line1 + ', '
+            }
+            if (data.line2) {
+               address += data.line2 + ', '
+            }
+            if (data.city) {
+               address += data.city + ', '
+            }
+            if (data.state) {
+               address += data.state + ', '
+            }
+            if (data.country) {
+               address += data.country + ', '
+            }
+            if (data.zipcode) {
+               address += data.zipcode
+            }
+            setAddress(address)
          }
-         if (location[0].value.line2) {
-            address += location[0].value.line2 + ', '
-         }
-         if (location[0].value.city) {
-            address += location[0].value.city + ', '
-         }
-         if (location[0].value.state) {
-            address += location[0].value.state + ', '
-         }
-         if (location[0].value.country) {
-            address += location[0].value.country + ', '
-         }
-         if (location[0].value.zipcode) {
-            address += location[0].value.zipcode + ', '
-         }
-         setAddress(address)
       },
    })
    const { loading: contactLoading } = useSubscription(CONFIG, {
@@ -52,7 +57,9 @@ export const Layout = ({ children, noHeader }) => {
             data: { subscription_subscriptionStoreSetting: contact = [] } = {},
          } = {},
       }) => {
-         setContact(contact[0].value)
+         if (contact.length > 0) {
+            setContact(contact[0].value)
+         }
       },
    })
 
@@ -66,17 +73,24 @@ export const Layout = ({ children, noHeader }) => {
                <div>
                   <section>
                      <h2 tw="text-3xl">Subscription Shop</h2>
-                     <p tw="mt-2">{address}</p>
-                     <span tw="mt-4 flex items-center">
-                        <MailIcon size={18} tw="stroke-current mr-2" />
-                        <a href={`mailto:${contact.email}`} tw="underline">
-                           {contact?.email}
-                        </a>
-                     </span>
-                     <span tw="mt-4 flex items-center">
-                        <PhoneIcon size={18} tw="stroke-current mr-2" />
-                        {contact?.phoneNo}
-                     </span>
+                     {address && <p tw="mt-2">{address}</p>}
+                     {Object.keys(contact).length > 0 && (
+                        <>
+                           <span tw="mt-4 flex items-center">
+                              <MailIcon size={18} tw="stroke-current mr-2" />
+                              <a
+                                 href={`mailto:${contact.email}`}
+                                 tw="underline"
+                              >
+                                 {contact?.email}
+                              </a>
+                           </span>
+                           <span tw="mt-4 flex items-center">
+                              <PhoneIcon size={18} tw="stroke-current mr-2" />
+                              {contact?.phoneNo}
+                           </span>
+                        </>
+                     )}
                   </section>
                   <section>
                      <h4 tw="text-2xl mb-4 mt-2">Navigation</h4>
@@ -84,11 +98,13 @@ export const Layout = ({ children, noHeader }) => {
                         <li tw="mb-3">
                            <Link to="/subscription">Home</Link>
                         </li>
-                        <li tw="mb-3">
-                           <Link to="/subscription/account/profile/">
-                              Profile
-                           </Link>
-                        </li>
+                        {keycloak?.authenticated && (
+                           <li tw="mb-3">
+                              <Link to="/subscription/account/profile/">
+                                 Profile
+                              </Link>
+                           </li>
+                        )}
                         <li tw="mb-3">
                            <Link to="/subscription/menu">Menu</Link>
                         </li>

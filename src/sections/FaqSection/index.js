@@ -17,7 +17,7 @@ export const FaqSection = ({ page, identifier }) => {
    if (loading)
       return (
          <Wrapper>
-            <header tw="flex flex-col items-center">
+            <header css={tw`flex flex-col items-center`}>
                <div tw="w-5/12 h-6 bg-gray-100 rounded-full" />
                <div tw="mt-3 w-8/12 h-5 bg-gray-100 rounded-full" />
             </header>
@@ -28,6 +28,7 @@ export const FaqSection = ({ page, identifier }) => {
             </ul>
          </Wrapper>
       )
+   if (faq.length === 0) return null
    return (
       <Faq heading={faq[0].heading}>
          {faq[0].blocks.map(block => (

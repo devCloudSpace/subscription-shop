@@ -17,7 +17,13 @@ export const ConfigProvider = ({ children }) => {
 
    if (loading) return <PageLoader />
    return (
-      <ConfigContext.Provider value={{ primary: { ...conventions[0].value } }}>
+      <ConfigContext.Provider
+         value={{
+            primary: {
+               ...(conventions.length > 0 && { ...conventions[0].value }),
+            },
+         }}
+      >
          {children}
       </ConfigContext.Provider>
    )

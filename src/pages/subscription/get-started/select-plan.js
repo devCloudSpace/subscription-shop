@@ -10,18 +10,22 @@ const SelectPlan = () => {
       <Layout noHeader>
          <SEO title="Plans" />
          <StepsNavbar />
-         <main>
+         <Main>
             <Header>
                <h1 css={tw`text-4xl text-gray-700`}>Plans</h1>
             </Header>
             <Plans />
             <InfoSection page="select-plan" identifier="bottom-01" />
-         </main>
+         </Main>
       </Layout>
    )
 }
 
 export default SelectPlan
+
+const Main = styled.main`
+   min-height: calc(100vh - 128px);
+`
 
 const Header = styled.header`
    height: 360px;
