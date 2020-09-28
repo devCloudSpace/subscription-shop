@@ -386,7 +386,7 @@ export const INFORMATION_GRID = gql`
       $page: String_comparison_exp!
       $identifier: String_comparison_exp!
    ) {
-      infoGrid: subscription_informationGrid(
+      infoGrid: content_informationGrid(
          where: {
             page: $page
             isVisible: { _eq: true }
@@ -414,7 +414,7 @@ export const FAQ = gql`
       $page: String_comparison_exp!
       $identifier: String_comparison_exp!
    ) {
-      faq: subscription_faqs(
+      faq: content_faqs(
          where: {
             page: $page
             isVisible: { _eq: true }
