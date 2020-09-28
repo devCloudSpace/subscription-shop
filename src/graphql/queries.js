@@ -348,7 +348,7 @@ export const ZIPCODE_AVAILABILITY = gql`
 
 export const CONVENTIONS = gql`
    subscription conventions($identifier: String_comparison_exp!) {
-      conventions: subscription_subscriptionStoreSetting(
+      conventions: brands_subscriptionStoreSetting(
          where: { identifier: $identifier }
       ) {
          id
@@ -359,7 +359,7 @@ export const CONVENTIONS = gql`
 
 export const STEPS_LABELS = gql`
    subscription steps($identifier: String_comparison_exp!) {
-      steps: subscription_subscriptionStoreSetting(
+      steps: brands_subscriptionStoreSetting(
          where: { identifier: $identifier }
       ) {
          id
@@ -369,12 +369,10 @@ export const STEPS_LABELS = gql`
 `
 
 export const CONFIG = gql`
-   subscription subscription_subscriptionStoreSetting(
+   subscription brands_subscriptionStoreSetting(
       $identifier: String_comparison_exp!
    ) {
-      subscription_subscriptionStoreSetting(
-         where: { identifier: $identifier }
-      ) {
+      brands_subscriptionStoreSetting(where: { identifier: $identifier }) {
          id
          value
       }

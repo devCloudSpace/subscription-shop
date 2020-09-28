@@ -20,7 +20,7 @@ export const Layout = ({ children, noHeader }) => {
       },
       onSubscriptionData: ({
          subscriptionData: {
-            data: { subscription_subscriptionStoreSetting: location = [] } = {},
+            data: { brands_subscriptionStoreSetting: location = [] } = {},
          } = {},
       }) => {
          if (location.length > 0) {
@@ -54,7 +54,7 @@ export const Layout = ({ children, noHeader }) => {
       },
       onSubscriptionData: ({
          subscriptionData: {
-            data: { subscription_subscriptionStoreSetting: contact = [] } = {},
+            data: { brands_subscriptionStoreSetting: contact = [] } = {},
          } = {},
       }) => {
          if (contact.length > 0) {
