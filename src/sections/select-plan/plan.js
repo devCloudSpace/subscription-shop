@@ -3,13 +3,13 @@ import { navigate } from 'gatsby'
 import tw, { styled } from 'twin.macro'
 import { useToasts } from 'react-toast-notifications'
 
-import { useConfig } from '../../context'
-import { isClient, formatCurrency } from '../../utils'
+import { useConfig } from '../../lib'
 import { Loader } from '../../components'
+import { isClient, formatCurrency } from '../../utils'
 
 export const Plan = ({ plan }) => {
-   const { primary } = useConfig()
    const { addToast } = useToasts()
+   const { configOf } = useConfig('conventions')
    const [defaultItemCount, setDefaultItemCount] = React.useState(null)
    const [defaultServing, setDefaultServing] = React.useState(null)
 
@@ -39,6 +39,15 @@ export const Plan = ({ plan }) => {
       navigate('/subscription/get-started/register')
    }
 
+   const config = configOf('primary-labels')
+   const yieldLabel = {
+      singular: config?.yieldLabel?.singular || 'serving',
+      plural: config?.yieldLabel?.singular || 'servings',
+   }
+   const itemCountLabel = {
+      singular: config?.itemLabel?.singular || 'recipe',
+      plural: config?.itemLabel?.singular || 'recipes',
+   }
    if (!defaultServing) return <Loader inline />
    return (
       <li css={tw`border rounded-lg p-8`}>
@@ -52,15 +61,15 @@ export const Plan = ({ plan }) => {
                >
                   {plan.servings[0].size}{' '}
                   {plan.servings[0].size > 1
-                     ? primary.yieldLabel.plural
-                     : primary.yieldLabel.singular}
+                     ? yieldLabel.singular
+                     : yieldLabel.plural}
                </span>
             ) : (
                <>
                   <span
                      css={tw`uppercase tracking-wider text-gray-600 text-sm font-medium`}
                   >
-                     No. of {primary.yieldLabel.plural}
+                     No. of {yieldLabel.plural}
                   </span>
                   <CountList>
                      {plan.servings.map(serving => (
@@ -85,8 +94,8 @@ export const Plan = ({ plan }) => {
                >
                   {defaultServing.itemCounts[0].count}{' '}
                   {defaultServing.itemCounts[0].count === 1
-                     ? primary.itemLabel.singular
-                     : primary.itemLabel.plural}{' '}
+                     ? itemCountLabel.singular
+                     : itemCountLabel.plural}{' '}
                   per week
                </span>
             ) : (
@@ -94,7 +103,7 @@ export const Plan = ({ plan }) => {
                   <span
                      css={tw`uppercase tracking-wider text-gray-600 text-sm font-medium`}
                   >
-                     {primary.itemLabel.plural} per week
+                     {itemCountLabel.singular} per week
                   </span>
                   <CountList>
                      {defaultServing?.itemCounts.map(item => (
@@ -127,7 +136,7 @@ export const Plan = ({ plan }) => {
                   )}{' '}
                </span>
                <span tw="text-gray-600">
-                  / {primary.yieldLabel.singular} x{' '}
+                  / {yieldLabel.singular} x{' '}
                   {defaultServing.size || 0 * defaultItemCount?.count || 0}
                </span>
             </section>

@@ -22,7 +22,6 @@ export const Plans = () => {
                   serving => serving.itemCounts.length > 0
                ),
             }))
-         console.log('Plans -> filtered', filtered)
          setPlans(filtered)
       },
       onError: error => {
