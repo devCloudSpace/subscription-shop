@@ -7,8 +7,8 @@ import { rrulestr } from 'rrule'
 import tw, { styled } from 'twin.macro'
 import { useLazyQuery } from '@apollo/react-hooks'
 
+import { useConfig } from '../../lib'
 import { formatDate } from '../../utils'
-import { useConfig } from '../../context'
 import { Layout, SEO, Form, HelperBar, Loader } from '../../components'
 import { ArrowLeftIcon, ArrowRightIcon } from '../../assets/icons'
 import { OCCURENCE_PRODUCTS_BY_CATEGORIES, OUR_MENU } from '../../graphql'
@@ -25,7 +25,7 @@ const OurMenu = () => {
 export default OurMenu
 
 const Content = () => {
-   const { primary } = useConfig()
+   const { configOf } = useConfig('conventions')
    const [current, setCurrent] = React.useState(0)
    const [occurences, setOccurences] = React.useState([])
    const [categories, setCategories] = React.useState([])
@@ -140,6 +140,15 @@ const Content = () => {
          },
       })
    }
+   const config = configOf('primary-labels')
+   const yieldLabel = {
+      singular: config?.yieldLabel?.singular || 'serving',
+      plural: config?.yieldLabel?.singular || 'servings',
+   }
+   const itemCountLabel = {
+      singular: config?.itemLabel?.singular || 'recipe',
+      plural: config?.itemLabel?.singular || 'recipes',
+   }
    return (
       <Main>
          <Header>
@@ -168,7 +177,7 @@ const Content = () => {
                   title?.servings?.length > 0 && (
                      <SelectSection>
                         <Form.Label htmlFor="serving">
-                           {primary.yieldLabel.plural}
+                           {yieldLabel.plural}
                         </Form.Label>
                         <select
                            id="servings"
@@ -195,7 +204,7 @@ const Content = () => {
                   serving?.counts?.length > 0 && (
                      <SelectSection>
                         <Form.Label htmlFor="counts">
-                           {primary.itemLabel.plural}
+                           {itemCountLabel.plural}
                         </Form.Label>
                         <select
                            id="counts"
