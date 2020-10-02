@@ -3,13 +3,13 @@ import { Link } from 'gatsby'
 import { useLocation } from '@reach/router'
 import tw, { styled, css } from 'twin.macro'
 import { useKeycloak } from '@react-keycloak/web'
-import { useSubscription } from '@apollo/react-hooks'
 
+import { useConfig } from '../lib'
 import { Loader } from './loader'
 import { isClient } from '../utils'
-import { STEPS_LABELS } from '../graphql/queries'
 
 export const StepsNavbar = () => {
+   const { hasConfig, configOf } = useConfig()
    const [keycloak, initialized] = useKeycloak()
    const [steps, setSteps] = React.useState({
       register: 'Register',
@@ -17,23 +17,13 @@ export const StepsNavbar = () => {
       selectMenu: 'Select Menu',
       checkout: 'Checkout',
    })
-   const { loading } = useSubscription(STEPS_LABELS, {
-      variables: {
-         identifier: { _eq: 'steps-labels' },
-      },
-      onSubscriptionData: ({
-         subscriptionData: { data: { steps = [] } = {} } = {},
-      }) => {
-         if (steps.length > 0) {
-            setSteps({
-               register: steps[0].value.register,
-               selectDelivery: steps[0].value.selectDelivery,
-               selectMenu: steps[0].value.selectMenu,
-               checkout: steps[0].value.checkout,
-            })
-         }
-      },
-   })
+
+   React.useEffect(() => {
+      if (hasConfig('steps-labels', 'conventions')) {
+         setSteps(configOf('steps-labels', 'conventions'))
+      }
+   }, [hasConfig, configOf, setSteps])
+
    const location = useLocation()
    const [currentStep] = React.useState(() => {
       if (location.pathname.includes('/get-started/select-plan')) return 0
@@ -46,20 +36,16 @@ export const StepsNavbar = () => {
    return (
       <Navbar>
          <Brand to="/subscription">Subscription Shop</Brand>
-         {loading ? (
-            <Loader inline />
-         ) : (
-            <Progress>
-               <ProgressBar current={currentStep} />
-               <Steps>
-                  <Step>Select Plan</Step>
-                  <Step>{steps.register}</Step>
-                  <Step>{steps.selectDelivery}</Step>
-                  <Step>{steps.selectMenu}</Step>
-                  <Step>{steps.checkout}</Step>
-               </Steps>
-            </Progress>
-         )}
+         <Progress>
+            <ProgressBar current={currentStep} />
+            <Steps>
+               <Step>Select Plan</Step>
+               <Step>{steps.register}</Step>
+               <Step>{steps.selectDelivery}</Step>
+               <Step>{steps.selectMenu}</Step>
+               <Step>{steps.checkout}</Step>
+            </Steps>
+         </Progress>
          {initialized && (
             <section tw="px-4 ml-auto">
                {keycloak.authenticated ? (
