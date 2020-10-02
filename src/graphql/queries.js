@@ -34,9 +34,12 @@ export const CUSTOMERS = gql`
 `
 
 export const PLANS = gql`
-   subscription plans {
+   subscription plans($brandId: Int!) {
       plans: subscription_subscriptionTitle(
-         where: { isActive: { _eq: true } }
+         where: {
+            isActive: { _eq: true }
+            brands: { brandId: { _eq: $brandId }, isActive: { _eq: true } }
+         }
       ) {
          id
          title
@@ -401,9 +404,12 @@ export const FAQ = gql`
 
 export const OUR_MENU = {
    TITLES: gql`
-      query titles {
+      query titles($brandId: Int!) {
          titles: subscription_subscriptionTitle(
-            where: { isActive: { _eq: true } }
+            where: {
+               isActive: { _eq: true }
+               brands: { brandId: { _eq: $brandId }, isActive: { _eq: true } }
+            }
          ) {
             id
             title

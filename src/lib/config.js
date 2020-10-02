@@ -99,5 +99,5 @@ export const useConfig = (globalType = '') => {
       [state, globalType]
    )
 
-   return { configOf, hasConfig }
+   return { brand: state.brand, configOf, hasConfig }
 }

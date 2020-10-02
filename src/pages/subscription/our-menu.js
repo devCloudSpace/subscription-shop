@@ -3,13 +3,14 @@
 import React from 'react'
 import moment from 'moment'
 import { Link } from 'gatsby'
+import { isEmpty } from 'lodash'
 import { rrulestr } from 'rrule'
 import tw, { styled } from 'twin.macro'
 import { useLazyQuery } from '@apollo/react-hooks'
 
 import { useConfig } from '../../lib'
 import { formatDate } from '../../utils'
-import { Layout, SEO, Form, HelperBar, Loader } from '../../components'
+import { Layout, SEO, Form, HelperBar, Loader, Spacer } from '../../components'
 import { ArrowLeftIcon, ArrowRightIcon } from '../../assets/icons'
 import { OCCURENCE_PRODUCTS_BY_CATEGORIES, OUR_MENU } from '../../graphql'
 
@@ -25,8 +26,8 @@ const OurMenu = () => {
 export default OurMenu
 
 const Content = () => {
-   const { configOf } = useConfig('conventions')
    const [current, setCurrent] = React.useState(0)
+   const { configOf, brand } = useConfig('conventions')
    const [occurences, setOccurences] = React.useState([])
    const [categories, setCategories] = React.useState([])
 
@@ -101,6 +102,7 @@ const Content = () => {
    const [fetchTitles, { loading, data: { titles = [] } = {} }] = useLazyQuery(
       OUR_MENU.TITLES,
       {
+         variables: { brandId: brand.id },
          onCompleted: ({ titles = [] }) => {
             if (titles.length > 0) {
                const [title] = titles
@@ -149,6 +151,21 @@ const Content = () => {
       singular: config?.itemLabel?.singular || 'recipe',
       plural: config?.itemLabel?.singular || 'recipes',
    }
+   if (loading)
+      return (
+         <Main>
+            <Loader inline />
+         </Main>
+      )
+   if (isEmpty(titles))
+      return (
+         <Main>
+            <Spacer size="sm" />
+            <HelperBar type="info">
+               <HelperBar.SubTitle>No Menu Available!</HelperBar.SubTitle>
+            </HelperBar>
+         </Main>
+      )
    return (
       <Main>
          <Header>
