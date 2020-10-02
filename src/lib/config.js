@@ -53,8 +53,8 @@ export const ConfigProvider = ({ children }) => {
             type: 'SET_SETTINGS',
             payload: groupBy(settings.map(transform), 'type'),
          })
-         setIsLoading(false)
       }
+      setIsLoading(false)
    }, [loading, settings, transform])
 
    if (isLoading) return <PageLoader />
@@ -71,6 +71,7 @@ export const useConfig = (globalType = '') => {
    const hasConfig = React.useCallback(
       (identifier = '', localType = '') => {
          const type = globalType || localType
+         if (isEmpty(state.settings)) return false
          if (identifier && type) {
             const index = state.settings[type].findIndex(
                node => node.identifier === identifier
@@ -87,6 +88,7 @@ export const useConfig = (globalType = '') => {
    const configOf = React.useCallback(
       (identifier = '', localType = '') => {
          const type = globalType || localType
+         if (isEmpty(state.settings)) return {}
          if (identifier && type) {
             return state.settings[type].find(
                node => node.identifier === identifier

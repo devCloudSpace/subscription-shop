@@ -5,7 +5,6 @@ import tw, { styled, css } from 'twin.macro'
 import { useKeycloak } from '@react-keycloak/web'
 
 import { useConfig } from '../lib'
-import { Loader } from './loader'
 import { isClient } from '../utils'
 
 export const StepsNavbar = () => {
