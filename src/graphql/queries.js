@@ -346,39 +346,6 @@ export const ZIPCODE_AVAILABILITY = gql`
    }
 `
 
-export const CONVENTIONS = gql`
-   subscription conventions($identifier: String_comparison_exp!) {
-      conventions: brands_subscriptionStoreSetting(
-         where: { identifier: $identifier }
-      ) {
-         id
-         value
-      }
-   }
-`
-
-export const STEPS_LABELS = gql`
-   subscription steps($identifier: String_comparison_exp!) {
-      steps: brands_subscriptionStoreSetting(
-         where: { identifier: $identifier }
-      ) {
-         id
-         value
-      }
-   }
-`
-
-export const CONFIG = gql`
-   subscription brands_subscriptionStoreSetting(
-      $identifier: String_comparison_exp!
-   ) {
-      brands_subscriptionStoreSetting(where: { identifier: $identifier }) {
-         id
-         value
-      }
-   }
-`
-
 export const INFORMATION_GRID = gql`
    subscription infoGrid(
       $page: String_comparison_exp!
@@ -492,3 +459,19 @@ export const OUR_MENU = {
       }
    `,
 }
+
+export const SETTINGS = gql`
+   subscription settings($domain: String_comparison_exp!) {
+      settings: brands_brand_subscriptionStoreSetting(
+         where: { brand: { domain: $domain } }
+      ) {
+         value
+         brandId
+         meta: subscriptionStoreSetting {
+            id
+            type
+            identifier
+         }
+      }
+   }
+`
