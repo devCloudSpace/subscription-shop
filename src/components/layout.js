@@ -2,117 +2,70 @@ import React from 'react'
 import { Link } from 'gatsby'
 import tw, { styled } from 'twin.macro'
 import { useKeycloak } from '@react-keycloak/web'
-import { useSubscription } from '@apollo/react-hooks'
 
 import { Header } from './header'
-import { CONFIG } from '../graphql'
-import { PageLoader } from './page_loader'
+import { normalizeAddress } from '../utils'
+import { UserProvider } from '../context'
+import { useConfig } from '../lib/config'
 import { MailIcon, PhoneIcon } from '../assets/icons'
-import { UserProvider, ConfigProvider } from '../context'
 
 export const Layout = ({ children, noHeader }) => {
+   const { hasConfig, configOf } = useConfig()
    const [keycloak] = useKeycloak()
-   const [address, setAddress] = React.useState('')
-   const [contact, setContact] = React.useState({})
-   const { loading: addressLoading } = useSubscription(CONFIG, {
-      variables: {
-         identifier: { _eq: 'Location' },
-      },
-      onSubscriptionData: ({
-         subscriptionData: {
-            data: { brands_subscriptionStoreSetting: location = [] } = {},
-         } = {},
-      }) => {
-         if (location.length > 0) {
-            let address = ''
-            const data = location[0].value
-            if (data.line1) {
-               address += data.line1 + ', '
-            }
-            if (data.line2) {
-               address += data.line2 + ', '
-            }
-            if (data.city) {
-               address += data.city + ', '
-            }
-            if (data.state) {
-               address += data.state + ', '
-            }
-            if (data.country) {
-               address += data.country + ', '
-            }
-            if (data.zipcode) {
-               address += data.zipcode
-            }
-            setAddress(address)
-         }
-      },
-   })
-   const { loading: contactLoading } = useSubscription(CONFIG, {
-      variables: {
-         identifier: { _eq: 'Contact' },
-      },
-      onSubscriptionData: ({
-         subscriptionData: {
-            data: { brands_subscriptionStoreSetting: contact = [] } = {},
-         } = {},
-      }) => {
-         if (contact.length > 0) {
-            setContact(contact[0].value)
-         }
-      },
-   })
-
-   if (addressLoading || contactLoading) return <PageLoader />
    return (
       <UserProvider>
-         <ConfigProvider>
-            {!noHeader && <Header />}
-            {children}
-            <Footer tw="bg-green-600 text-white">
-               <div>
-                  <section>
-                     <h2 tw="text-3xl">Subscription Shop</h2>
-                     {address && <p tw="mt-2">{address}</p>}
-                     {Object.keys(contact).length > 0 && (
-                        <>
-                           <span tw="mt-4 flex items-center">
-                              <MailIcon size={18} tw="stroke-current mr-2" />
-                              <a
-                                 href={`mailto:${contact.email}`}
-                                 tw="underline"
-                              >
-                                 {contact?.email}
-                              </a>
-                           </span>
-                           <span tw="mt-4 flex items-center">
-                              <PhoneIcon size={18} tw="stroke-current mr-2" />
-                              {contact?.phoneNo}
-                           </span>
-                        </>
+         {!noHeader && <Header />}
+         {children}
+         <Footer tw="bg-green-600 text-white">
+            <div>
+               <section>
+                  <h2 tw="text-3xl">Subscription Shop</h2>
+                  {hasConfig('Location', 'availability') && (
+                     <p tw="mt-2">
+                        {normalizeAddress(configOf('Location', 'availability'))}
+                     </p>
+                  )}
+
+                  {hasConfig('Contact', 'brand') && (
+                     <>
+                        <span tw="mt-4 flex items-center">
+                           <MailIcon size={18} tw="stroke-current mr-2" />
+                           <a
+                              href={`mailto:${
+                                 configOf('Contact', 'brand')?.email
+                              }`}
+                              tw="underline"
+                           >
+                              {configOf('Contact', 'brand')?.email}
+                           </a>
+                        </span>
+                        <span tw="mt-4 flex items-center">
+                           <PhoneIcon size={18} tw="stroke-current mr-2" />
+                           {configOf('Contact', 'brand')?.phoneNo}
+                        </span>
+                     </>
+                  )}
+               </section>
+               <section>
+                  <h4 tw="text-2xl mb-4 mt-2">Navigation</h4>
+                  <ul>
+                     <li tw="mb-3">
+                        <Link to="/subscription">Home</Link>
+                     </li>
+                     {keycloak?.authenticated && (
+                        <li tw="mb-3">
+                           <Link to="/subscription/account/profile/">
+                              Profile
+                           </Link>
+                        </li>
                      )}
-                  </section>
-                  <section>
-                     <h4 tw="text-2xl mb-4 mt-2">Navigation</h4>
-                     <ul>
-                        <li tw="mb-3">
-                           <Link to="/subscription">Home</Link>
-                        </li>
-                        {keycloak?.authenticated && (
-                           <li tw="mb-3">
-                              <Link to="/subscription/account/profile/">
-                                 Profile
-                              </Link>
-                           </li>
-                        )}
-                        <li tw="mb-3">
-                           <Link to="/subscription/menu">Menu</Link>
-                        </li>
-                     </ul>
-                  </section>
-               </div>
-            </Footer>
-         </ConfigProvider>
+                     <li tw="mb-3">
+                        <Link to="/subscription/menu">Menu</Link>
+                     </li>
+                  </ul>
+               </section>
+            </div>
+         </Footer>
       </UserProvider>
    )
 }
