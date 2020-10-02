@@ -32,7 +32,7 @@ export const ConfigProvider = ({ children }) => {
    const { loading, data: { settings = [] } = {} } = useSubscription(SETTINGS, {
       variables: {
          domain: {
-            _eq: isClient ? 'test15.dailykit.org' : null,
+            _eq: isClient ? window.location.hostname : null,
          },
       },
    })
