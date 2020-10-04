@@ -7,8 +7,8 @@ import { ToastProvider } from 'react-toast-notifications'
 
 import './src/styles/globals.css'
 
-import { ApolloProvider } from './src/lib'
 import { PageLoader } from './src/components'
+import { ApolloProvider, ConfigProvider } from './src/lib'
 
 const keycloak = new Keycloak({
    realm: process.env.GATSBY_KEYCLOAK_REALM,
@@ -27,13 +27,15 @@ export const wrapRootElement = ({ element }) => {
          LoadingComponent={<PageLoader />}
       >
          <ApolloProvider>
-            <ToastProvider
-               autoDismiss
-               placement="top-center"
-               autoDismissTimeout={3000}
-            >
-               <div css={tw`overflow-hidden`}>{element}</div>
-            </ToastProvider>
+            <ConfigProvider>
+               <ToastProvider
+                  autoDismiss
+                  placement="top-center"
+                  autoDismissTimeout={3000}
+               >
+                  <div css={tw`overflow-hidden`}>{element}</div>
+               </ToastProvider>
+            </ConfigProvider>
          </ApolloProvider>
       </KeycloakProvider>
    )

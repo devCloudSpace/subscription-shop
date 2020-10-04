@@ -34,9 +34,12 @@ export const CUSTOMERS = gql`
 `
 
 export const PLANS = gql`
-   subscription plans {
+   subscription plans($brandId: Int!) {
       plans: subscription_subscriptionTitle(
-         where: { isActive: { _eq: true } }
+         where: {
+            isActive: { _eq: true }
+            brands: { brandId: { _eq: $brandId }, isActive: { _eq: true } }
+         }
       ) {
          id
          title
@@ -346,41 +349,6 @@ export const ZIPCODE_AVAILABILITY = gql`
    }
 `
 
-export const CONVENTIONS = gql`
-   subscription conventions($identifier: String_comparison_exp!) {
-      conventions: subscription_subscriptionStoreSetting(
-         where: { identifier: $identifier }
-      ) {
-         id
-         value
-      }
-   }
-`
-
-export const STEPS_LABELS = gql`
-   subscription steps($identifier: String_comparison_exp!) {
-      steps: subscription_subscriptionStoreSetting(
-         where: { identifier: $identifier }
-      ) {
-         id
-         value
-      }
-   }
-`
-
-export const CONFIG = gql`
-   subscription subscription_subscriptionStoreSetting(
-      $identifier: String_comparison_exp!
-   ) {
-      subscription_subscriptionStoreSetting(
-         where: { identifier: $identifier }
-      ) {
-         id
-         value
-      }
-   }
-`
-
 export const INFORMATION_GRID = gql`
    subscription infoGrid(
       $page: String_comparison_exp!
@@ -436,9 +404,12 @@ export const FAQ = gql`
 
 export const OUR_MENU = {
    TITLES: gql`
-      query titles {
+      query titles($brandId: Int!) {
          titles: subscription_subscriptionTitle(
-            where: { isActive: { _eq: true } }
+            where: {
+               isActive: { _eq: true }
+               brands: { brandId: { _eq: $brandId }, isActive: { _eq: true } }
+            }
          ) {
             id
             title
@@ -494,3 +465,19 @@ export const OUR_MENU = {
       }
    `,
 }
+
+export const SETTINGS = gql`
+   subscription settings($domain: String_comparison_exp!) {
+      settings: brands_brand_subscriptionStoreSetting(
+         where: { brand: { domain: $domain } }
+      ) {
+         value
+         brandId
+         meta: subscriptionStoreSetting {
+            id
+            type
+            identifier
+         }
+      }
+   }
+`

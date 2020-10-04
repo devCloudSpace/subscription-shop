@@ -5,13 +5,16 @@ import { useSubscription } from '@apollo/react-hooks'
 
 import { Plan } from './plan'
 import { PLANS } from '../../graphql'
+import { useConfig } from '../../lib'
 import { SkeletonPlan } from './skeletons'
 import { HelperBar } from '../../components'
 
 export const Plans = () => {
+   const { brand } = useConfig()
    const { addToast } = useToasts()
    const [plans, setPlans] = React.useState([])
    const { loading, error } = useSubscription(PLANS, {
+      variables: { brandId: brand.id },
       onSubscriptionData: ({ subscriptionData: { data = {} } = {} }) => {
          const { plans } = data
          const filtered = plans
@@ -22,7 +25,6 @@ export const Plans = () => {
                   serving => serving.itemCounts.length > 0
                ),
             }))
-         console.log('Plans -> filtered', filtered)
          setPlans(filtered)
       },
       onError: error => {

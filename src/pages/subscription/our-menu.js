@@ -3,13 +3,14 @@
 import React from 'react'
 import moment from 'moment'
 import { Link } from 'gatsby'
+import { isEmpty } from 'lodash'
 import { rrulestr } from 'rrule'
 import tw, { styled } from 'twin.macro'
 import { useLazyQuery } from '@apollo/react-hooks'
 
+import { useConfig } from '../../lib'
 import { formatDate } from '../../utils'
-import { useConfig } from '../../context'
-import { Layout, SEO, Form, HelperBar, Loader } from '../../components'
+import { Layout, SEO, Form, HelperBar, Loader, Spacer } from '../../components'
 import { ArrowLeftIcon, ArrowRightIcon } from '../../assets/icons'
 import { OCCURENCE_PRODUCTS_BY_CATEGORIES, OUR_MENU } from '../../graphql'
 
@@ -25,8 +26,8 @@ const OurMenu = () => {
 export default OurMenu
 
 const Content = () => {
-   const { primary } = useConfig()
    const [current, setCurrent] = React.useState(0)
+   const { configOf, brand } = useConfig('conventions')
    const [occurences, setOccurences] = React.useState([])
    const [categories, setCategories] = React.useState([])
 
@@ -101,6 +102,7 @@ const Content = () => {
    const [fetchTitles, { loading, data: { titles = [] } = {} }] = useLazyQuery(
       OUR_MENU.TITLES,
       {
+         variables: { brandId: brand.id },
          onCompleted: ({ titles = [] }) => {
             if (titles.length > 0) {
                const [title] = titles
@@ -140,6 +142,30 @@ const Content = () => {
          },
       })
    }
+   const config = configOf('primary-labels')
+   const yieldLabel = {
+      singular: config?.yieldLabel?.singular || 'serving',
+      plural: config?.yieldLabel?.singular || 'servings',
+   }
+   const itemCountLabel = {
+      singular: config?.itemLabel?.singular || 'recipe',
+      plural: config?.itemLabel?.singular || 'recipes',
+   }
+   if (loading)
+      return (
+         <Main>
+            <Loader inline />
+         </Main>
+      )
+   if (isEmpty(titles))
+      return (
+         <Main>
+            <Spacer size="sm" />
+            <HelperBar type="info">
+               <HelperBar.SubTitle>No Menu Available!</HelperBar.SubTitle>
+            </HelperBar>
+         </Main>
+      )
    return (
       <Main>
          <Header>
@@ -168,7 +194,7 @@ const Content = () => {
                   title?.servings?.length > 0 && (
                      <SelectSection>
                         <Form.Label htmlFor="serving">
-                           {primary.yieldLabel.plural}
+                           {yieldLabel.plural}
                         </Form.Label>
                         <select
                            id="servings"
@@ -195,7 +221,7 @@ const Content = () => {
                   serving?.counts?.length > 0 && (
                      <SelectSection>
                         <Form.Label htmlFor="counts">
-                           {primary.itemLabel.plural}
+                           {itemCountLabel.plural}
                         </Form.Label>
                         <select
                            id="counts"
