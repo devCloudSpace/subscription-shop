@@ -5,16 +5,18 @@ import { useQuery } from '@apollo/react-hooks'
 import { useToasts } from 'react-toast-notifications'
 
 import { useMenu } from './state'
+import { useConfig } from '../../lib'
 import { useUser } from '../../context'
+import { HelperBar } from '../../components'
 import { SkeletonProduct } from './skeletons'
 import { CheckIcon } from '../../assets/icons'
 import { OCCURENCE_PRODUCTS_BY_CATEGORIES } from '../../graphql'
-import { HelperBar } from '../../components'
 
 export const Menu = () => {
    const { user } = useUser()
    const { addToast } = useToasts()
    const { state, dispatch } = useMenu()
+   const { configOf } = useConfig()
    const { loading, data: { categories = [] } = {} } = useQuery(
       OCCURENCE_PRODUCTS_BY_CATEGORIES,
       {
@@ -59,6 +61,7 @@ export const Menu = () => {
          ? false
          : true
    }
+   const hasColor = configOf('theme-color', 'Visual')
 
    if (loading) return <SkeletonProduct />
    if (categories.length === 0)
@@ -81,6 +84,7 @@ export const Menu = () => {
                <Products>
                   {category.productsAggregate.nodes.map((node, index) => (
                      <Product
+                        hasColor={hasColor}
                         key={`${index}-${node.productOption.id}`}
                         className={`${isAdded(node.id) && 'active'}`}
                      >
@@ -152,12 +156,15 @@ const Products = styled.ul`
    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
 `
 
-const Product = styled.li`
-   ${tw`relative border flex flex-col bg-white p-2 rounded overflow-hidden`}
-   &.active {
-      ${tw`border border-2 border-red-400`}
-   }
-`
+const Product = styled.li(
+   ({ hasColor }) => css`
+      ${tw`relative border flex flex-col bg-white p-2 rounded overflow-hidden`}
+      &.active {
+         ${tw`border border-2 border-red-400`}
+         ${hasColor?.highlight && `border-color: ${hasColor.highlight}`}
+      }
+   `
+)
 
 const Check = styled(CheckIcon)(
    () => css`

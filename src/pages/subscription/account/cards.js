@@ -9,7 +9,7 @@ import {
    CardElement,
 } from '@stripe/react-stripe-js'
 import { navigate } from 'gatsby'
-import tw, { styled } from 'twin.macro'
+import tw, { styled, css } from 'twin.macro'
 import { useKeycloak } from '@react-keycloak/web'
 
 import {
@@ -21,6 +21,7 @@ import {
    HelperBar,
    ProfileSidebar,
 } from '../../../components'
+import { useConfig } from '../../../lib'
 import { useUser } from '../../../context'
 import { CloseIcon } from '../../../assets/icons'
 import { UPDATE_CUSTOMER, CREATE_STRIPE_PAYMENT_METHOD } from '../../../graphql'
@@ -52,6 +53,7 @@ const Content = () => {
    const { user } = useUser()
    const { addToast } = useToasts()
    const [keycloak] = useKeycloak()
+   const { configOf } = useConfig()
    const [tunnel, toggleTunnel] = React.useState(false)
    const [updateCustomer] = useMutation(UPDATE_CUSTOMER, {
       refetchQueries: ['customer'],
@@ -72,11 +74,12 @@ const Content = () => {
          },
       })
    }
+   const hasColor = configOf('theme-color', 'Visual')
 
    return (
       <div tw="px-3">
          <header tw="mt-6 mb-3 flex items-center justify-between">
-            <h2 tw="text-gray-600 text-xl">Cards</h2>
+            <Title hasColor={hasColor}>Cards</Title>
             {user?.platform_customer?.paymentMethods.length > 0 && (
                <Button size="sm" onClick={() => toggleTunnel(true)}>
                   Add Card
@@ -351,12 +354,20 @@ const Main = styled.main`
    grid-template-columns: 240px 1fr;
 `
 
+const Title = styled.h2(
+   ({ hasColor }) => css`
+      ${tw`text-green-600 text-2xl`}
+      ${hasColor?.accent && `color: ${hasColor.accent}`}
+   `
+)
+
 const PaymentMethods = styled.ul`
    ${tw`
    grid 
    gap-2
    sm:grid-cols-1
    md:grid-cols-2
+   lg:grid-cols-3
 `}
    grid-auto-rows: minmax(120px, auto);
 `

@@ -5,8 +5,9 @@ import { useKeycloak } from '@react-keycloak/web'
 import { useToasts } from 'react-toast-notifications'
 import { useMutation, useQuery } from '@apollo/react-hooks'
 
+import { useConfig } from '../../../lib'
+import { isClient, formatDate } from '../../../utils'
 import { SEO, Layout, StepsNavbar } from '../../../components'
-
 import {
    usePayment,
    ProfileSection,
@@ -14,7 +15,6 @@ import {
    PaymentSection,
 } from '../../../sections/checkout'
 import { useUser } from '../../../context'
-import { isClient, formatDate } from '../../../utils'
 import {
    UPDATE_CART,
    CART,
@@ -46,6 +46,7 @@ const PaymentContent = ({ isCheckout }) => {
    const { user } = useUser()
    const { state } = usePayment()
    const { addToast } = useToasts()
+   const { configOf } = useConfig()
    const [updateCustomer] = useMutation(UPDATE_CUSTOMER, {
       refetchQueries: ['customer'],
       onCompleted: () => {
@@ -128,19 +129,23 @@ const PaymentContent = ({ isCheckout }) => {
          state.payment.selected?.id
       )
    }
+   const hasColor = configOf('theme-color', 'Visual')
 
    return (
       <Main>
          <section>
+            <header tw="my-3 pb-1 border-b flex items-center justify-between">
+               <SectionTitle hasColor={hasColor}>Profile Details</SectionTitle>
+            </header>
             <ProfileSection />
             <PaymentSection />
          </section>
          {cart?.cartInfo && (
             <section>
                <header tw="my-3 pb-1 border-b flex items-center justify-between">
-                  <h4 tw="text-lg text-gray-700">
+                  <SectionTitle hasColor={hasColor}>
                      Order Summary ({cart.cartInfo.products.length})
-                  </h4>
+                  </SectionTitle>
                </header>
                <CartProducts>
                   {cart.cartInfo.products.map(product => (
@@ -213,6 +218,13 @@ const CartProduct = ({ product }) => {
    )
 }
 
+const SectionTitle = styled.h3(
+   ({ hasColor }) => css`
+      ${tw`text-green-600 text-lg`}
+      ${hasColor?.accent && `color: ${hasColor.accent}`}
+   `
+)
+
 const CartProducts = styled.ul`
    ${tw`space-y-2 mb-3`}
    overflow-y: auto;
@@ -222,7 +234,7 @@ const CartProducts = styled.ul`
 const CartProductContainer = styled.li`
    ${tw`h-20 bg-white border flex items-center px-2 rounded`}
    aside {
-      ${tw`w-24 h-16 bg-green-300 rounded flex items-center justify-center`}
+      ${tw`w-24 h-16 bg-gray-300 rounded flex items-center justify-center`}
    }
 `
 

@@ -1,8 +1,9 @@
 import React from 'react'
 import { navigate } from 'gatsby'
-import { styled } from 'twin.macro'
+import tw, { styled, css } from 'twin.macro'
 import { useKeycloak } from '@react-keycloak/web'
 
+import { useConfig } from '../../../lib'
 import { useUser } from '../../../context'
 import { SEO, Layout, ProfileSidebar, Form } from '../../../components'
 
@@ -30,9 +31,15 @@ export default Profile
 
 const ProfileForm = () => {
    const { user } = useUser()
+   const { configOf } = useConfig()
+
+   const hasColor = configOf('theme-color', 'Visual')
 
    return (
-      <section tw="p-6 w-full md:w-5/12">
+      <section tw="px-6 w-full md:w-5/12">
+         <header tw="mt-6 mb-3 flex items-center justify-between">
+            <Title hasColor={hasColor}>Profile</Title>
+         </header>
          <Form.Field tw="mr-3">
             <Form.Label>Email</Form.Label>
             <Form.DisabledText>
@@ -62,6 +69,13 @@ const ProfileForm = () => {
       </section>
    )
 }
+
+const Title = styled.h2(
+   ({ hasColor }) => css`
+      ${tw`text-green-600 text-2xl`}
+      ${hasColor?.accent && `color: ${hasColor.accent}`}
+   `
+)
 
 const Main = styled.main`
    display: grid;

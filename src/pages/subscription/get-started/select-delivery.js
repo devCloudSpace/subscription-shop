@@ -5,6 +5,7 @@ import { useMutation } from '@apollo/react-hooks'
 import { useKeycloak } from '@react-keycloak/web'
 import { useToasts } from 'react-toast-notifications'
 
+import { useConfig } from '../../../lib'
 import { UPDATE_CUSTOMER } from '../../../graphql'
 import { SEO, Layout, StepsNavbar } from '../../../components'
 
@@ -39,6 +40,7 @@ const SelectDelivery = () => {
 export default SelectDelivery
 
 const DeliveryContent = () => {
+   const { configOf } = useConfig()
    const [keycloak] = useKeycloak()
    const { state } = useDelivery()
    const { addToast } = useToasts()
@@ -81,17 +83,18 @@ const DeliveryContent = () => {
       if (state.address.error) return false
       return true
    }
+   const hasColor = configOf('theme-color', 'Visual')
    return (
       <Main>
          <header css={tw`flex items-center justify-between border-b`}>
-            <h1 css={tw`pt-3 pb-1 mb-3 text-green-600 text-3xl`}>Delivery</h1>
+            <Title hasColor={hasColor}>Delivery</Title>
          </header>
          <AddressSection />
-         <h2 css={tw`my-3 text-gray-600 text-xl`}>Delivery Day</h2>
+         <SectionTitle hasColor={hasColor}>Delivery Day</SectionTitle>
          <DeliverySection />
-         <h2 css={tw`my-3 text-gray-600 text-xl`}>
+         <SectionTitle hasColor={hasColor}>
             Select your first delivery date
-         </h2>
+         </SectionTitle>
          <DeliveryDateSection />
          <div tw="mt-4 w-full flex items-center justify-center">
             <Button onClick={() => nextStep()} disabled={!isValid()}>
@@ -109,6 +112,20 @@ const Main = styled.main`
    width: calc(100vw - 40px);
    min-height: calc(100vh - 128px);
 `
+
+const Title = styled.h2(
+   ({ hasColor }) => css`
+      ${tw`text-green-600 text-2xl py-3`}
+      ${hasColor?.accent && `color: ${hasColor.accent}`}
+   `
+)
+
+const SectionTitle = styled.h3(
+   ({ hasColor }) => css`
+      ${tw`my-3 text-green-600 text-lg`}
+      ${hasColor?.accent && `color: ${hasColor.accent}`}
+   `
+)
 
 const Button = styled.button(
    ({ disabled }) => css`

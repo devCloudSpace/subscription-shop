@@ -3,6 +3,7 @@ import { navigate } from 'gatsby'
 import tw, { styled, css } from 'twin.macro'
 
 import { useDelivery } from './state'
+import { useConfig } from '../../lib'
 import { useUser } from '../../context'
 import { CheckIcon } from '../../assets/icons'
 import { AddressTunnel } from './address_tunnel'
@@ -10,6 +11,7 @@ import { Button, HelperBar } from '../../components'
 
 export const AddressSection = () => {
    const { user } = useUser()
+   const { configOf } = useConfig()
    const { state, dispatch } = useDelivery()
 
    React.useEffect(() => {
@@ -28,11 +30,12 @@ export const AddressSection = () => {
    const toggleTunnel = value => {
       dispatch({ type: 'TOGGLE_TUNNEL', payload: value })
    }
+   const hasColor = configOf('theme-color', 'Visual')
 
    return (
       <>
          <header css={tw`mt-6 mb-3 flex items-center justify-between`}>
-            <h2 css={tw`text-gray-600 text-xl`}>Select Address</h2>
+            <SectionTitle hasColor={hasColor}>Select Address</SectionTitle>
             {user?.platform_customer?.addresses.length > 0 && (
                <Button size="sm" onClick={() => toggleTunnel(true)}>
                   Add Address
@@ -103,6 +106,13 @@ const AddressList = styled.ul`
    `}
    grid-auto-rows: minmax(130px, auto);
 `
+
+const SectionTitle = styled.h3(
+   ({ hasColor }) => css`
+      ${tw`text-green-600 text-xl`}
+      ${hasColor?.accent && `color: ${hasColor.accent}`}
+   `
+)
 
 const AddressCard = styled.li`
    ${tw`flex border text-gray-700 cursor-pointer`}
