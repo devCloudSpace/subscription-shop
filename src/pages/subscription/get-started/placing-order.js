@@ -1,14 +1,16 @@
 import React from 'react'
 import { navigate } from 'gatsby'
-import tw, { styled } from 'twin.macro'
+import tw, { styled, css } from 'twin.macro'
 import { useSubscription } from '@apollo/react-hooks'
 
+import { useConfig } from '../../../lib'
 import { CART_STATUS } from '../../../graphql'
 import { isClient, formatDate } from '../../../utils'
 import { Layout, SEO, Loader, HelperBar } from '../../../components'
 import { PlacedOrderIllo, CartIllo, PaymentIllo } from '../../../assets/icons'
 
 const PlacingOrder = () => {
+   const { configOf } = useConfig()
    const { loading, data: { cart = {} } = {} } = useSubscription(CART_STATUS, {
       variables: {
          id: isClient && window.localStorage.getItem('cartId'),
@@ -26,6 +28,7 @@ const PlacingOrder = () => {
       isClient && window.localStorage.removeItem('plan')
       navigate('/subscription/menu')
    }
+   const hasColor = configOf('theme-color', 'Visual')
 
    return (
       <Layout>
@@ -40,10 +43,10 @@ const PlacingOrder = () => {
                         <>
                            <section>
                               <header tw="my-3 pb-1 border-b flex items-center justify-between">
-                                 <h4 tw="text-lg text-gray-700">
+                                 <SectionTitle hasColor={hasColor}>
                                     Order Summary (
                                     {cart.cartInfo.products.length})
-                                 </h4>
+                                 </SectionTitle>
                               </header>
                               <CartProducts>
                                  {cart.cartInfo.products.map(product => (
@@ -197,6 +200,13 @@ const Wrapper = styled.div`
    ${tw`bg-gray-100`}
 `
 
+const SectionTitle = styled.h3(
+   ({ hasColor }) => css`
+      ${tw`text-green-600 text-lg`}
+      ${hasColor?.accent && `color: ${hasColor.accent}`}
+   `
+)
+
 const Main = styled.main`
    margin: auto;
    max-width: 980px;
@@ -233,6 +243,6 @@ const CartProducts = styled.ul`
 const CartProductContainer = styled.li`
    ${tw`h-20 bg-white border flex items-center px-2 rounded`}
    aside {
-      ${tw`w-24 h-16 bg-green-300 rounded flex items-center justify-center`}
+      ${tw`w-24 h-16 bg-gray-300 rounded flex items-center justify-center`}
    }
 `

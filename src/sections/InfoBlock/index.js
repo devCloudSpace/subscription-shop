@@ -1,9 +1,13 @@
 import React from 'react'
 import tw, { styled, css } from 'twin.macro'
 
+import { useConfig } from '../../lib'
+
 const InfoBlock = ({ heading, subHeading, columns, children, orientation }) => {
+   const { configOf } = useConfig('Visual')
+
    return (
-      <BlockWrapper>
+      <BlockWrapper hasColor={configOf('theme-color')}>
          {heading && <Heading>{heading}</Heading>}
          {subHeading && <SubHeading>{subHeading}</SubHeading>}
          <Container count={columns} orientation={orientation}>
@@ -32,7 +36,7 @@ const Item = ({ icon, heading, subHeading }) => {
             />
          )}
          <section>
-            {heading && <h3 tw="text-2xl text-green-700">{heading}</h3>}
+            {heading && <h3 tw="text-xl text-green-700">{heading}</h3>}
             {subHeading && <p tw="text-gray-700">{subHeading}</p>}
          </section>
       </li>
@@ -43,12 +47,18 @@ InfoBlock.Item = Item
 
 export { InfoBlock }
 
-const BlockWrapper = styled.div`
-   padding: 48px 0;
-   margin: 0 auto;
-   max-width: 980px;
-   width: calc(100% - 40px);
-`
+const BlockWrapper = styled.div(
+   ({ hasColor }) => css`
+      padding: 48px 0;
+      margin: 0 auto;
+      max-width: 980px;
+      width: calc(100% - 40px);
+      h1,
+      h3 {
+         color: ${hasColor.accent || tw`text-green-600`};
+      }
+   `
+)
 
 const Container = styled.ul(
    ({ count, orientation }) => css`

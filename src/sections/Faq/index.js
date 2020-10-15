@@ -1,11 +1,13 @@
 import React from 'react'
-import tw, { styled } from 'twin.macro'
+import tw, { styled, css } from 'twin.macro'
 
+import { useConfig } from '../../lib'
 import { PlusIcon, MinusIcon } from '../../assets/icons'
 
 const Faq = ({ heading, subHeading, children, ...props }) => {
+   const { configOf } = useConfig('Visual')
    return (
-      <BlockWrapper {...props}>
+      <BlockWrapper {...props} hasColor={configOf('theme-color')}>
          {heading && <Heading>{heading}</Heading>}
          {subHeading && <SubHeading>{subHeading}</SubHeading>}
          <Container>{children}</Container>
@@ -33,24 +35,19 @@ const Item = ({ icon, question, answer }) => {
             />
          )}
          {question && (
-            <div
-               role="button"
-               tabIndex="0"
+            <button
                onClick={() => toggleIsOpen(!isOpen)}
-               onKeyPress={e => e.charCode === 32 && toggleIsOpen(!isOpen)}
                tw="bg-gray-100 pr-2 flex justify-between items-center cursor-pointer"
             >
-               <h4 tw="text-lg p-3 text-green-700">{question}</h4>
-               {isOpen ? (
-                  <span tw="h-8 w-8 flex items-center justify-center">
+               <h4 tw="text-lg p-3 text-gray-700">{question}</h4>
+               <span tw="h-8 w-8 flex items-center justify-center">
+                  {isOpen ? (
                      <MinusIcon tw="stroke-current text-green-700" />
-                  </span>
-               ) : (
-                  <span tw="h-8 w-8 flex items-center justify-center">
+                  ) : (
                      <PlusIcon tw="stroke-current text-green-700" />
-                  </span>
-               )}
-            </div>
+                  )}
+               </span>
+            </button>
          )}
          {isOpen && (
             <div tw="border-t pt-2 pb-3 px-3">
@@ -65,12 +62,17 @@ Faq.Item = Item
 
 export { Faq }
 
-const BlockWrapper = styled.div`
-   max-width: 980px;
-   padding: 48px 0;
-   margin: 0 auto;
-   width: calc(100% - 40px);
-`
+const BlockWrapper = styled.div(
+   ({ hasColor }) => css`
+      max-width: 980px;
+      padding: 48px 0;
+      margin: 0 auto;
+      width: calc(100% - 40px);
+      h1 {
+         color: ${hasColor?.accent || tw`text-green-600`};
+      }
+   `
+)
 
 const Container = styled.ul`
    ${tw`mt-6`}

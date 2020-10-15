@@ -262,7 +262,7 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
 const SkeletonCartProduct = () => {
    return (
       <SkeletonCartProductContainer>
-         <aside tw="w-32 h-16 bg-green-300 rounded" />
+         <aside tw="w-32 h-16 bg-gray-300 rounded" />
          <main tw="w-full h-16 pl-3">
             <span />
             <span />
@@ -342,7 +342,7 @@ const SkeletonCartProductContainer = styled.li`
 const CartProductContainer = styled.li`
    ${tw`h-20 bg-white border flex items-center px-2 rounded`}
    aside {
-      ${tw`w-24 h-16 bg-green-300 rounded flex items-center justify-center`}
+      ${tw`w-24 h-16 bg-gray-300 rounded flex items-center justify-center`}
       span.remove_product {
          display: none;
          background: rgba(0, 0, 0, 0.3);

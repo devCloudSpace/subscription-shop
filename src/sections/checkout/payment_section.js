@@ -2,13 +2,15 @@ import React from 'react'
 import tw, { styled, css } from 'twin.macro'
 
 import { usePayment } from './state'
+import { useConfig } from '../../lib'
 import { useUser } from '../../context'
+import { HelperBar } from '../../components'
 import { CheckIcon } from '../../assets/icons'
 import { PaymentTunnel } from './payment_tunnel'
-import { HelperBar } from '../../components'
 
 export const PaymentSection = () => {
    const { user } = useUser()
+   const { configOf } = useConfig()
    const { state, dispatch } = usePayment()
 
    React.useEffect(() => {
@@ -30,11 +32,14 @@ export const PaymentSection = () => {
          },
       })
    }
+   const hasColor = configOf('theme-color', 'Visual')
 
    return (
       <>
          <header tw="my-3 pb-1 border-b flex items-center justify-between">
-            <h4 tw="text-lg text-gray-700">Select Payment Method</h4>
+            <SectionTitle hasColor={hasColor}>
+               Select Payment Method
+            </SectionTitle>
             {user?.platform_customer?.paymentMethods.length > 0 && (
                <OutlineButton onClick={() => toggleTunnel(true)}>
                   Add Card
@@ -108,6 +113,13 @@ const PaymentMethods = styled.ul`
 `}
    grid-auto-rows: minmax(120px, auto);
 `
+
+const SectionTitle = styled.h3(
+   ({ hasColor }) => css`
+      ${tw`text-green-600 text-lg`}
+      ${hasColor?.accent && `color: ${hasColor.accent}`}
+   `
+)
 
 const PaymentMethod = styled.li`
    ${tw`flex border text-gray-700`}

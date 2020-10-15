@@ -1,14 +1,17 @@
 import React from 'react'
 import { Link } from 'gatsby'
-import tw, { styled } from 'twin.macro'
+import tw, { styled, css } from 'twin.macro'
 import { useKeycloak } from '@react-keycloak/web'
 
+import { useConfig } from '../../lib'
 import { SEO, Layout } from '../../components'
 import { FaqSection, InfoSection } from '../../sections'
 
 export default () => {
    const [keycloak] = useKeycloak()
+   const { configOf } = useConfig()
 
+   const hasColor = configOf('theme-color', 'Visual')
    return (
       <Layout>
          <SEO title="Home" />
@@ -17,9 +20,14 @@ export default () => {
                <div>
                   <Tagline>Your next great meal is at your fingertips.</Tagline>
                   {keycloak?.authenticated ? (
-                     <CTA to="/subscription/menu">Select Menu</CTA>
+                     <CTA hasColor={hasColor} to="/subscription/menu">
+                        Select Menu
+                     </CTA>
                   ) : (
-                     <CTA to="/subscription/get-started/select-plan">
+                     <CTA
+                        hasColor={hasColor}
+                        to="/subscription/get-started/select-plan"
+                     >
                         Get Started
                      </CTA>
                   )}
@@ -71,13 +79,17 @@ const Header = styled.header`
    }
 `
 
-const CTA = styled(Link)`
-   ${tw`
+const CTA = styled(Link)(
+   ({ hasColor }) => css`
+      ${tw`
       rounded 
       px-6 h-12 
       shadow-xl
-      bg-orange-400 
+      text-white
+      bg-green-700 
       inline-flex items-center 
       uppercase tracking-wider font-medium 
    `}
-`
+      ${hasColor?.accent && `background-color: ${hasColor.accent}`}
+   `
+)

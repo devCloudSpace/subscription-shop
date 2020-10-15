@@ -4,6 +4,7 @@ import tw, { styled, css } from 'twin.macro'
 import { useKeycloak } from '@react-keycloak/web'
 import { useSubscription } from '@apollo/react-hooks'
 
+import { useConfig } from '../../../lib'
 import { useUser } from '../../../context'
 import { ORDER_HISTORY, ORDER } from '../../../graphql'
 import { formatDate, formatCurrency } from '../../../utils'
@@ -43,6 +44,7 @@ const OrderHistory = () => {
 }
 
 const Listing = ({ current, setCurrent }) => {
+   const { configOf } = useConfig()
    const [keycloak] = useKeycloak()
    const { loading, data: { orders = {} } = {} } = useSubscription(
       ORDER_HISTORY,
@@ -59,6 +61,8 @@ const Listing = ({ current, setCurrent }) => {
          },
       }
    )
+   const hasColor = configOf('theme-color', 'Visual')
+
    if (loading)
       return (
          <aside tw="border-r overflow-y-auto">
@@ -72,10 +76,11 @@ const Listing = ({ current, setCurrent }) => {
       )
    return (
       <aside tw="border-r overflow-y-auto">
-         <h2 tw="px-3 pt-3 pb-1 mb-2 text-green-600 text-2xl">Orders</h2>
+         <Title hasColor={hasColor}>Orders</Title>
          <ul tw="px-2 space-y-2">
             {orders.nodes.map(node => (
                <Date
+                  hasColor={hasColor}
                   key={node.occurrenceId}
                   onClick={() => setCurrent(node.occurrenceId)}
                   className={`${node.occurrenceId === current ? 'active' : ''}`}
@@ -94,6 +99,7 @@ const Listing = ({ current, setCurrent }) => {
 
 const Details = ({ current }) => {
    const { user } = useUser()
+   const { configOf } = useConfig()
    const [keycloak] = useKeycloak()
    const { loading, data: { order = {} } = {} } = useSubscription(ORDER, {
       variables: {
@@ -105,6 +111,7 @@ const Details = ({ current }) => {
    const paymentMethod = user?.platform_customer?.paymentMethods.find(
       node => node.stripePaymentMethodId === order?.cart?.paymentMethodId
    )
+   const hasColor = configOf('theme-color', 'Visual')
 
    if (loading)
       return (
@@ -130,10 +137,12 @@ const Details = ({ current }) => {
    return (
       <main tw="mx-3">
          <header tw="flex items-center justify-between">
-            <h2 tw="pt-3 pb-1 mb-2 text-green-600 text-2xl">Order Details</h2>
-            <Status status={order?.cart?.order?.status}>
-               {order?.cart?.order?.status}
-            </Status>
+            <Title hasColor={hasColor}>Order Details</Title>
+            {order?.cart?.order?.status && (
+               <Status status={order?.cart?.order?.status}>
+                  {order?.cart?.order?.status}
+               </Status>
+            )}
          </header>
          <ProductCards>
             {order?.cart?.cartInfo?.products.map(product => (
@@ -234,7 +243,7 @@ const CartProduct = ({ product }) => {
 const SkeletonCartProduct = () => {
    return (
       <SkeletonCartProductContainer>
-         <aside tw="w-32 h-16 bg-green-300 rounded" />
+         <aside tw="w-32 h-16 bg-gray-300 rounded" />
          <main tw="w-full h-16 pl-3">
             <span />
             <span />
@@ -250,6 +259,13 @@ const Main = styled.main`
    grid-template-columns: 240px 1fr;
 `
 
+const Title = styled.h2(
+   ({ hasColor }) => css`
+      ${tw`px-3 pt-3 pb-1 mb-2 text-green-600 text-2xl`}
+      ${hasColor?.accent && `color: ${hasColor.accent}`}
+   `
+)
+
 const Wrapper = styled.div`
    display: grid;
    grid-template-columns: 280px 1fr;
@@ -258,12 +274,21 @@ const Wrapper = styled.div`
    }
 `
 
-const Date = styled.li`
-   ${tw`cursor-pointer px-2 py-2 rounded hover:(text-white bg-green-400)`}
-   &.active {
-      ${tw`text-white bg-green-600 hover:(bg-green-700)`}
-   }
-`
+const Date = styled.li(
+   ({ hasColor }) => css`
+      ${tw`cursor-pointer px-2 py-2 rounded hover:(text-white bg-green-400)`}
+      &.active {
+         ${tw`text-white bg-green-600 hover:(bg-green-700)`}
+         ${hasColor?.highlight &&
+         css`
+            background: ${hasColor.highlight};
+            :hover {
+               background: ${hasColor.highlight};
+            }
+         `}
+      }
+   `
+)
 
 const ProductCards = styled.ul`
    display: grid;
@@ -274,7 +299,7 @@ const ProductCards = styled.ul`
 const CartProductContainer = styled.li`
    ${tw`h-20 bg-white border flex items-center px-2 rounded`}
    aside {
-      ${tw`w-24 h-16 bg-green-300 rounded flex items-center justify-center`}
+      ${tw`w-24 h-16 bg-gray-300 rounded flex items-center justify-center`}
    }
 `
 

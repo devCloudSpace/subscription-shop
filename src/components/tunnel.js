@@ -1,6 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import tw, { styled, css } from 'twin.macro'
+import { useConfig } from '../lib'
 
 import { isClient, useOnClickOutside } from '../utils'
 
@@ -49,9 +50,10 @@ export const Tunnel = ({ isOpen, toggleTunnel, size, children }) => {
 }
 
 const Header = ({ title, children }) => {
+   const { configOf } = useConfig('Visual')
    return (
       <TunnelHeader>
-         <h1 css={tw`truncate text-base md:text-xl text-gray-700`}>{title}</h1>
+         <Title hasColor={configOf('theme-color')}>{title}</Title>
          {children}
       </TunnelHeader>
    )
@@ -69,6 +71,13 @@ const Wrapper = styled.div`
    ${tw`fixed inset-0`}
    background: rgba(0,0,0,0.2);
 `
+
+const Title = styled.h2(
+   ({ hasColor }) => css`
+      ${tw`text-green-600 text-xl`}
+      ${hasColor?.accent && `color: ${hasColor.accent}`}
+   `
+)
 
 const Content = styled.div(
    ({ size }) => css`

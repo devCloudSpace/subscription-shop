@@ -1,6 +1,6 @@
 import React from 'react'
 import { navigate } from 'gatsby'
-import tw, { styled } from 'twin.macro'
+import tw, { styled, css } from 'twin.macro'
 import { useToasts } from 'react-toast-notifications'
 
 import { useConfig } from '../../lib'
@@ -48,12 +48,11 @@ export const Plan = ({ plan }) => {
       singular: config?.itemLabel?.singular || 'recipe',
       plural: config?.itemLabel?.singular || 'recipes',
    }
+   const hasColor = configOf('theme-color', 'Visual')
    if (!defaultServing) return <Loader inline />
    return (
       <li css={tw`border rounded-lg p-8`}>
-         <h2 css={tw`mb-5 text-2xl font-medium tracking-wide text-green-700`}>
-            {plan.title}
-         </h2>
+         <Title hasColor={hasColor}>{plan.title}</Title>
          <section css={tw`h-12 mb-4 flex items-center justify-between`}>
             {plan.servings.length === 1 ? (
                <span
@@ -124,26 +123,24 @@ export const Plan = ({ plan }) => {
          <hr />
          <div tw="mb-6 flex items-center">
             <section tw="h-full flex-1">
-               <span tw="text-green-700 font-medium">
+               <Price hasColor={hasColor}>
                   {formatCurrency(
                      Number.parseFloat(
-                        defaultItemCount?.price ||
-                           0 /
-                              (defaultItemCount?.count ||
-                                 1 * defaultServing.size ||
-                                 1)
+                        (defaultItemCount?.price || 1) /
+                           ((defaultItemCount?.count || 1) *
+                              (defaultServing?.size || 1))
                      ).toFixed(2)
                   )}{' '}
-               </span>
+               </Price>
                <span tw="text-gray-600">
                   / {yieldLabel.singular} x{' '}
-                  {defaultServing.size || 0 * defaultItemCount?.count || 0}
+                  {(defaultServing.size || 1) * (defaultItemCount?.count || 1)}
                </span>
             </section>
             <section tw="h-full flex-1 flex flex-col text-right border-l py-1">
-               <span tw="text-green-700 text-2xl font-medium">
+               <TotalPrice hasColor={hasColor}>
                   {formatCurrency(defaultItemCount?.price)}
-               </span>
+               </TotalPrice>
                <span tw="text-gray-600">Weekly total</span>
             </section>
          </div>
@@ -151,6 +148,27 @@ export const Plan = ({ plan }) => {
       </li>
    )
 }
+
+const Title = styled.h2(
+   ({ hasColor }) => css`
+      ${tw`mb-5 text-2xl font-medium tracking-wide text-green-600`}
+      ${hasColor?.accent && `color: ${hasColor?.accent}`}
+   `
+)
+
+const Price = styled.span(
+   ({ hasColor }) => css`
+      ${tw`font-medium text-green-600`}
+      ${hasColor?.accent && `color: ${hasColor?.accent}`}
+   `
+)
+
+const TotalPrice = styled.span(
+   ({ hasColor }) => css`
+      ${tw`text-2xl font-medium text-green-600`}
+      ${hasColor?.accent && `color: ${hasColor?.accent}`}
+   `
+)
 
 const CountList = styled.ul`
    border-radius: 4px;

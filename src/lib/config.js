@@ -70,7 +70,7 @@ export const useConfig = (globalType = '') => {
 
    const hasConfig = React.useCallback(
       (identifier = '', localType = '') => {
-         const type = globalType || localType
+         const type = localType || globalType
          if (isEmpty(state.settings)) return false
          if (identifier && type) {
             const index = state.settings[type].findIndex(
@@ -87,7 +87,7 @@ export const useConfig = (globalType = '') => {
 
    const configOf = React.useCallback(
       (identifier = '', localType = '') => {
-         const type = globalType || localType
+         const type = localType || globalType
          if (isEmpty(state.settings)) return {}
          if (identifier && type) {
             return state.settings[type].find(

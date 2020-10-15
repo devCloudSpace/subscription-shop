@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'gatsby'
-import tw, { styled } from 'twin.macro'
+import tw, { styled, css } from 'twin.macro'
 import { useKeycloak } from '@react-keycloak/web'
 
 import { Header } from './header'
@@ -16,7 +16,7 @@ export const Layout = ({ children, noHeader }) => {
       <UserProvider>
          {!noHeader && <Header />}
          {children}
-         <Footer tw="bg-green-600 text-white">
+         <Footer hasColor={configOf('theme-color', 'Visual')}>
             <div>
                <section>
                   <h2 tw="text-3xl">Subscription Shop</h2>
@@ -70,20 +70,23 @@ export const Layout = ({ children, noHeader }) => {
    )
 }
 
-const Footer = styled.footer`
-   height: 320px;
-   padding: 24px 0;
-   background-size: 160px;
-   background-color: transparent;
-   background-image: url('https://dailykit-assets.s3.us-east-2.amazonaws.com/subs-icons/pattern.png');
-   div {
-      margin: 0 auto;
-      max-width: 980px;
-      width: calc(100% - 40px);
-      ${tw`grid gap-6`}
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-   }
-   @media (max-width: 768px) {
-      height: auto;
-   }
-`
+const Footer = styled.footer(
+   ({ hasColor }) => css`
+      height: 320px;
+      padding: 24px 0;
+      background-size: 160px;
+      ${tw`bg-green-600 text-white`}
+      ${hasColor?.accent && `background-color: ${hasColor.accent}`};
+      background-image: url('https://dailykit-assets.s3.us-east-2.amazonaws.com/subs-icons/pattern.png');
+      div {
+         margin: 0 auto;
+         max-width: 980px;
+         width: calc(100% - 40px);
+         ${tw`grid gap-6`}
+         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      }
+      @media (max-width: 768px) {
+         height: auto;
+      }
+   `
+)

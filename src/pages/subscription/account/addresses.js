@@ -1,10 +1,11 @@
 import React from 'react'
 import { navigate } from 'gatsby'
-import tw, { styled } from 'twin.macro'
+import tw, { styled, css } from 'twin.macro'
 import { useKeycloak } from '@react-keycloak/web'
 import { useToasts } from 'react-toast-notifications'
 import { useMutation, useLazyQuery } from '@apollo/react-hooks'
 
+import { useConfig } from '../../../lib'
 import { useUser } from '../../../context'
 import { CloseIcon } from '../../../assets/icons'
 import { useScript, isClient } from '../../../utils'
@@ -51,6 +52,7 @@ const Content = () => {
    const { user } = useUser()
    const [keycloak] = useKeycloak()
    const { addToast } = useToasts()
+   const { configOf } = useConfig()
    const [selected, setSelected] = React.useState(null)
    const [tunnel, toggleTunnel] = React.useState(false)
    const [updateCustomer] = useMutation(UPDATE_CUSTOMER, {
@@ -95,11 +97,12 @@ const Content = () => {
          },
       })
    }
+   const hasColor = configOf('theme-color', 'Visual')
 
    return (
       <div tw="px-3">
          <header tw="mt-6 mb-3 flex items-center justify-between">
-            <h2 tw="text-gray-600 text-xl">Addresses</h2>
+            <Title hasColor={hasColor}>Addresses</Title>
             {user?.platform_customer?.addresses.length > 0 && (
                <Button size="sm" onClick={() => toggleTunnel(true)}>
                   Add Address
@@ -328,6 +331,13 @@ const Main = styled.main`
    grid-template-columns: 240px 1fr;
 `
 
+const Title = styled.h2(
+   ({ hasColor }) => css`
+      ${tw`text-green-600 text-2xl`}
+      ${hasColor?.accent && `color: ${hasColor.accent}`}
+   `
+)
+
 const AddressSearch = styled.section`
    margin-bottom: 16px;
    .google-places-autocomplete {
@@ -376,6 +386,7 @@ const AddressList = styled.ul`
       gap-2
       sm:grid-cols-1
       md:grid-cols-2
+      lg:grid-cols-3
    `}
    grid-auto-rows: minmax(130px, auto);
 `
