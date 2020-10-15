@@ -467,9 +467,9 @@ export const OUR_MENU = {
 }
 
 export const SETTINGS = gql`
-   subscription settings($domain: String_comparison_exp!) {
+   subscription settings($domain: String_comparison_exp) {
       settings: brands_brand_subscriptionStoreSetting(
-         where: { brand: { domain: $domain } }
+         where: { brand: { _or: [{ domain: $domain }, { id: { _eq: 1 } }] } }
       ) {
          value
          brandId
