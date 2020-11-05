@@ -6,8 +6,8 @@ import { useToasts } from 'react-toast-notifications'
 import { useMutation, useQuery } from '@apollo/react-hooks'
 
 import { useConfig } from '../../../lib'
-import { isClient, formatDate } from '../../../utils'
 import { SEO, Layout, StepsNavbar } from '../../../components'
+import { isClient, formatDate, formatCurrency } from '../../../utils'
 import {
    usePayment,
    ProfileSection,
@@ -156,7 +156,7 @@ const PaymentContent = ({ isCheckout }) => {
                   ))}
                </CartProducts>
                <Button onClick={handleSubmit} disabled={!Boolean(isValid())}>
-                  Confirm & Pay {cart.amount}
+                  Confirm & Pay {formatCurrency(cart.amount)}
                </Button>
                <section tw="my-4 text-gray-700">
                   * Your box will be delivered on{' '}

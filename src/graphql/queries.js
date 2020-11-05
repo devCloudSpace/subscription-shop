@@ -173,9 +173,7 @@ export const OCCURENCE_PRODUCTS_BY_CATEGORIES = gql`
          }
       ) {
          name
-         productsAggregate: subscriptionOccurenceProducts_aggregate(
-            distinct_on: simpleRecipeProductOptionId
-         ) {
+         productsAggregate: subscriptionOccurenceProducts_aggregate {
             aggregate {
                count
             }
@@ -185,7 +183,7 @@ export const OCCURENCE_PRODUCTS_BY_CATEGORIES = gql`
                addonLabel
                addonPrice
                isSingleSelect
-               productOption: simpleRecipeProductOption {
+               simpleRecipeProductOption {
                   id
                   simpleRecipeYieldId
                   product: simpleRecipeProduct {
@@ -197,6 +195,15 @@ export const OCCURENCE_PRODUCTS_BY_CATEGORIES = gql`
                         name
                         image
                      }
+                  }
+               }
+               inventoryProductOption {
+                  id
+                  quantity
+                  product: inventoryProduct {
+                     id
+                     name
+                     assets
                   }
                }
             }
@@ -231,6 +238,17 @@ export const RECIPE_DETAILS = gql`
                }
             }
          }
+      }
+   }
+`
+
+export const INVENTORY_DETAILS = gql`
+   query inventoryProduct(
+      $id: Int!
+      $args: products_inventoryProductCartItem_args!
+   ) {
+      inventoryProduct(id: $id) {
+         cartItem(args: $args)
       }
    }
 `
