@@ -315,46 +315,22 @@ const Content = () => {
                            {category.productsAggregate.nodes.map(
                               (node, index) => (
                                  <Product
-                                    key={`${index}-${node.productOption.id}`}
-                                 >
-                                    <div tw="flex items-center justify-center h-48 bg-gray-200 mb-2 rounded overflow-hidden">
-                                       {node.productOption.product.assets
-                                          ?.images.length > 0 ? (
-                                          <img
-                                             alt={
-                                                node.productOption.product
-                                                   .recipe.name
-                                             }
-                                             title={
-                                                node.productOption.product
-                                                   .recipe.name
-                                             }
-                                             src={
-                                                node.productOption.product
-                                                   .assets.images[0]
-                                             }
-                                             css={tw`h-full w-full object-cover select-none`}
-                                          />
-                                       ) : (
-                                          <span>No Photos</span>
-                                       )}
-                                    </div>
-                                    {node.addonLabel && (
-                                       <Label>
-                                          {node.addonLabel} {node.addonPrice}
-                                       </Label>
-                                    )}
-                                    <div tw="flex items-center justify-between">
-                                       <section tw="flex items-center">
-                                          <Link
-                                             tw="text-gray-700"
-                                             to={`/subscription/recipes?id=${node.productOption.product.id}&serving=${node.productOption.simpleRecipeYieldId}`}
-                                          >
-                                             {node.productOption.product.name}
-                                          </Link>
-                                       </section>
-                                    </div>
-                                 </Product>
+                                    addOnLabel={node.addOnLabel}
+                                    addOnPrice={node.addOnPrice}
+                                    type={
+                                       node.simpleRecipeProductOption?.id
+                                          ? 'SRP'
+                                          : 'IP'
+                                    }
+                                    option={
+                                       node.simpleRecipeProductOption ||
+                                       node.inventoryProductOption
+                                    }
+                                    key={`${index}-${
+                                       node.simpleRecipeProductOption?.id ||
+                                       node.inventoryProductOption?.id
+                                    }`}
+                                 />
                               )
                            )}
                         </Products>
@@ -373,6 +349,55 @@ const Content = () => {
          )}
       </Main>
    )
+}
+
+const Product = ({ type, option, addOnPrice, addOnLabel }) => {
+   return (
+      <Styles.Product>
+         <div tw="flex items-center justify-center h-48 bg-gray-200 mb-2 rounded overflow-hidden">
+            {option?.product?.cartItem?.image ? (
+               <img
+                  alt={option?.product?.cartItem?.name}
+                  title={option?.product?.cartItem?.name}
+                  src={option?.product?.cartItem?.image}
+                  css={tw`h-full w-full object-cover select-none`}
+               />
+            ) : (
+               <span>No Photos</span>
+            )}
+         </div>
+         {addOnLabel && (
+            <Label>
+               {addOnLabel} {addOnPrice}
+            </Label>
+         )}
+         <div tw="flex items-center justify-between">
+            <section tw="flex items-center">
+               <Link
+                  tw="text-gray-700"
+                  to={`/subscription/${
+                     type === 'SRP' ? 'recipes' : 'inventory'
+                  }?id=${option?.product?.id}${
+                     type === 'SRP'
+                        ? `&serving=${option?.simpleRecipeYieldId}`
+                        : `&option=${option?.id}`
+                  }`}
+               >
+                  {option?.product?.name}
+               </Link>
+            </section>
+         </div>
+      </Styles.Product>
+   )
+}
+
+const Styles = {
+   Product: styled.li`
+      ${tw`relative border flex flex-col bg-white p-2 rounded overflow-hidden`}
+      &.active {
+         ${tw`border border-2 border-red-400`}
+      }
+   `,
 }
 
 const Main = styled.main`
@@ -424,13 +449,6 @@ const SliderButton = styled.button`
 const Products = styled.ul`
    ${tw`grid gap-3`}
    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-`
-
-const Product = styled.li`
-   ${tw`relative border flex flex-col bg-white p-2 rounded overflow-hidden`}
-   &.active {
-      ${tw`border border-2 border-red-400`}
-   }
 `
 
 const Label = styled.span`

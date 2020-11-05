@@ -84,65 +84,12 @@ export const Menu = () => {
                <Products>
                   {category.productsAggregate.nodes.map((node, index) => (
                      <Product
+                        node={node}
+                        isAdded={isAdded}
                         hasColor={hasColor}
-                        key={`${index}-${node.productOption.id}`}
-                        className={`${isAdded(node.id) && 'active'}`}
-                     >
-                        <div
-                           css={tw`flex items-center justify-center h-48 bg-gray-200 mb-2 rounded overflow-hidden`}
-                        >
-                           {node.productOption.product.assets?.images.length >
-                           0 ? (
-                              <img
-                                 alt={node.productOption.product.recipe.name}
-                                 title={node.productOption.product.recipe.name}
-                                 src={
-                                    node.productOption.product.assets.images[0]
-                                 }
-                                 css={tw`h-full w-full object-cover select-none`}
-                              />
-                           ) : (
-                              <span>No Photos</span>
-                           )}
-                        </div>
-                        {node.addonLabel && (
-                           <Label>
-                              {node.addonLabel} {node.addonPrice}
-                           </Label>
-                        )}
-                        <div css={tw`flex items-center justify-between`}>
-                           <section tw="flex items-center">
-                              <Check
-                                 size={16}
-                                 className={`${isAdded(node.id) && 'active'}`}
-                              />
-                              <Link
-                                 tw="text-gray-700"
-                                 to={`/subscription/recipes?id=${node.productOption.product.id}&serving=${node.productOption.simpleRecipeYieldId}`}
-                              >
-                                 {node.productOption.product.name}
-                              </Link>
-                           </section>
-                           {['PENDING', undefined].includes(
-                              state?.weeks[state?.week?.id]?.orderCartStatus
-                           ) &&
-                              state?.week?.isValid &&
-                              !isAdded(node.id) && (
-                                 <button
-                                    onClick={() =>
-                                       selectRecipe(
-                                          node.id,
-                                          node.cartItem,
-                                          node.addonPrice
-                                       )
-                                    }
-                                    tw="text-sm uppercase font-medium tracking-wider border border-gray-300 rounded px-1 text-gray-500"
-                                 >
-                                    Add
-                                 </button>
-                              )}
-                        </div>
-                     </Product>
+                        selectRecipe={selectRecipe}
+                        key={`${index}-${node?.id}`}
+                     />
                   ))}
                </Products>
             </section>
@@ -151,20 +98,91 @@ export const Menu = () => {
    )
 }
 
+const Product = ({ node, isAdded, hasColor, selectRecipe }) => {
+   const { state } = useMenu()
+   const type = node?.simpleRecipeProductOption?.id ? 'SRP' : 'IP'
+   const option =
+      type === 'SRP'
+         ? node.simpleRecipeProductOption
+         : node.inventoryProductOption
+   return (
+      <Styles.Product
+         hasColor={hasColor}
+         className={`${isAdded(node?.id) && 'active'}`}
+      >
+         <div
+            css={tw`flex items-center justify-center h-48 bg-gray-200 mb-2 rounded overflow-hidden`}
+         >
+            {node?.cartItem?.image ? (
+               <img
+                  alt={node?.cartItem?.name}
+                  title={node?.cartItem?.name}
+                  src={node?.cartItem?.image}
+                  css={tw`h-full w-full object-cover select-none`}
+               />
+            ) : (
+               <span>No Photos</span>
+            )}
+         </div>
+         {node.addOnLabel && (
+            <Label>
+               {node.addOnLabel} {node.addOnPrice}
+            </Label>
+         )}
+         <div css={tw`flex items-center justify-between`}>
+            <section tw="flex items-center">
+               <Check
+                  size={16}
+                  className={`${isAdded(node?.id) && 'active'}`}
+               />
+               <Link
+                  tw="text-gray-700"
+                  to={`/subscription/${
+                     type === 'SRP' ? 'recipes' : 'inventory'
+                  }?id=${option?.product?.id}${
+                     type === 'SRP'
+                        ? `&serving=${option?.simpleRecipeYieldId}`
+                        : `&option=${option?.id}`
+                  }`}
+               >
+                  {option.product.name}
+               </Link>
+            </section>
+            {['PENDING', undefined].includes(
+               state?.weeks[state?.week?.id]?.orderCartStatus
+            ) &&
+               state?.week?.isValid &&
+               !isAdded(node.id) && (
+                  <button
+                     onClick={() =>
+                        selectRecipe(node.id, node.cartItem, node.addonPrice)
+                     }
+                     tw="text-sm uppercase font-medium tracking-wider border border-gray-300 rounded px-1 text-gray-500"
+                  >
+                     Add
+                  </button>
+               )}
+         </div>
+      </Styles.Product>
+   )
+}
+
+const Styles = {
+   Product: styled.li(
+      ({ hasColor }) => css`
+         ${tw`relative border flex flex-col bg-white p-2 rounded overflow-hidden`}
+         &.active {
+            ${tw`border border-2 border-red-400`}
+            ${hasColor?.highlight && `border-color: ${hasColor.highlight}`}
+         }
+      `
+   ),
+}
+
 const Products = styled.ul`
    ${tw`grid gap-3`}
    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
 `
-
-const Product = styled.li(
-   ({ hasColor }) => css`
-      ${tw`relative border flex flex-col bg-white p-2 rounded overflow-hidden`}
-      &.active {
-         ${tw`border border-2 border-red-400`}
-         ${hasColor?.highlight && `border-color: ${hasColor.highlight}`}
-      }
-   `
-)
 
 const Check = styled(CheckIcon)(
    () => css`
