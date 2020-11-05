@@ -1,5 +1,5 @@
 import React from 'react'
-import { groupBy, isEmpty } from 'lodash'
+import { groupBy, has, isEmpty } from 'lodash'
 import { useSubscription } from '@apollo/react-hooks'
 
 import { isClient } from '../utils'
@@ -72,7 +72,7 @@ export const useConfig = (globalType = '') => {
       (identifier = '', localType = '') => {
          const type = localType || globalType
          if (isEmpty(state.settings)) return false
-         if (identifier && type) {
+         if (identifier && type && has(state.settings, type)) {
             const index = state.settings[type].findIndex(
                node => node.identifier === identifier
             )
@@ -89,7 +89,7 @@ export const useConfig = (globalType = '') => {
       (identifier = '', localType = '') => {
          const type = localType || globalType
          if (isEmpty(state.settings)) return {}
-         if (identifier && type) {
+         if (identifier && type && has(state.settings, type)) {
             return state.settings[type].find(
                node => node.identifier === identifier
             ).value

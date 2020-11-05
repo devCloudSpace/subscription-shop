@@ -13,7 +13,8 @@ export const Plans = () => {
    const { brand } = useConfig()
    const { addToast } = useToasts()
    const [plans, setPlans] = React.useState([])
-   const { loading, error } = useSubscription(PLANS, {
+   const [isLoading, setIsLoading] = React.useState(true)
+   const { error } = useSubscription(PLANS, {
       variables: { brandId: brand.id },
       onSubscriptionData: ({ subscriptionData: { data = {} } = {} }) => {
          const { plans } = data
@@ -26,22 +27,23 @@ export const Plans = () => {
                ),
             }))
          setPlans(filtered)
-      },
-      onError: error => {
-         addToast(error.message, {
-            appearance: 'error',
-         })
+         setIsLoading(false)
       },
    })
 
-   if (loading)
+   if (isLoading)
       return (
          <List>
             <SkeletonPlan />
             <SkeletonPlan />
          </List>
       )
-   if (error) return <div>{error.message}</div>
+   if (error) {
+      setIsLoading(false)
+      addToast('Something went wrong, please refresh the page!', {
+         appearance: 'error',
+      })
+   }
    if (plans.length === 0)
       return (
          <Wrapper tw="py-3">
