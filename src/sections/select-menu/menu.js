@@ -139,13 +139,13 @@ const Product = ({ node, isAdded, hasColor, selectRecipe }) => {
                   tw="text-gray-700"
                   to={`/subscription/${
                      type === 'SRP' ? 'recipes' : 'inventory'
-                  }?id=${option?.product?.id}${
+                  }?id=${node?.cartItem?.id}${
                      type === 'SRP'
                         ? `&serving=${option?.simpleRecipeYieldId}`
                         : `&option=${option?.id}`
                   }`}
                >
-                  {option.product.name}
+                  {node?.cartItem?.name}
                </Link>
             </section>
             {['PENDING', undefined].includes(

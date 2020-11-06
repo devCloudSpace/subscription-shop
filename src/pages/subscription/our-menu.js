@@ -315,17 +315,7 @@ const Content = () => {
                            {category.productsAggregate.nodes.map(
                               (node, index) => (
                                  <Product
-                                    addOnLabel={node.addOnLabel}
-                                    addOnPrice={node.addOnPrice}
-                                    type={
-                                       node.simpleRecipeProductOption?.id
-                                          ? 'SRP'
-                                          : 'IP'
-                                    }
-                                    option={
-                                       node.simpleRecipeProductOption ||
-                                       node.inventoryProductOption
-                                    }
+                                    node={node}
                                     key={`${index}-${
                                        node.simpleRecipeProductOption?.id ||
                                        node.inventoryProductOption?.id
@@ -351,24 +341,29 @@ const Content = () => {
    )
 }
 
-const Product = ({ type, option, addOnPrice, addOnLabel }) => {
+const Product = ({ node }) => {
+   const type = node?.simpleRecipeProductOption?.id ? 'SRP' : 'IP'
+   const option =
+      type === 'SRP'
+         ? node.simpleRecipeProductOption
+         : node.inventoryProductOption
    return (
       <Styles.Product>
          <div tw="flex items-center justify-center h-48 bg-gray-200 mb-2 rounded overflow-hidden">
-            {option?.product?.cartItem?.image ? (
+            {node?.cartItem?.image ? (
                <img
-                  alt={option?.product?.cartItem?.name}
-                  title={option?.product?.cartItem?.name}
-                  src={option?.product?.cartItem?.image}
+                  alt={node?.cartItem?.name}
+                  title={node?.cartItem?.name}
+                  src={node?.cartItem?.image}
                   css={tw`h-full w-full object-cover select-none`}
                />
             ) : (
                <span>No Photos</span>
             )}
          </div>
-         {addOnLabel && (
+         {node?.addOnLabel && (
             <Label>
-               {addOnLabel} {addOnPrice}
+               {node?.addOnLabel} {node?.addOnPrice}
             </Label>
          )}
          <div tw="flex items-center justify-between">
@@ -377,13 +372,13 @@ const Product = ({ type, option, addOnPrice, addOnLabel }) => {
                   tw="text-gray-700"
                   to={`/subscription/${
                      type === 'SRP' ? 'recipes' : 'inventory'
-                  }?id=${option?.product?.id}${
+                  }?id=${option?.cartItem?.id}${
                      type === 'SRP'
                         ? `&serving=${option?.simpleRecipeYieldId}`
                         : `&option=${option?.id}`
                   }`}
                >
-                  {option?.product?.name}
+                  {option?.cartItem?.name}
                </Link>
             </section>
          </div>

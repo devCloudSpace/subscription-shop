@@ -97,19 +97,6 @@ const InventoryImage = styled.div`
    }
 `
 
-const StepImage = styled.div`
-   max-width: 340px;
-   ${tw`my-2`}
-   img {
-      width: 100%;
-      height: 220px;
-      ${tw`object-cover rounded`}
-      @media (max-width: 567px) {
-         height: 160px;
-      }
-   }
-`
-
 const Button = styled.button`
    left: 50%;
    bottom: 16px;
