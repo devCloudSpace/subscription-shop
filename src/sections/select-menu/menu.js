@@ -36,7 +36,7 @@ export const Menu = () => {
       }
    )
 
-   const selectRecipe = (id, cart, addonPrice) => {
+   const selectRecipe = (cart, addonPrice) => {
       const isFull = state.weeks[state.week.id].cart.products.every(
          node => Object.keys(node).length !== 0
       )
@@ -47,7 +47,7 @@ export const Menu = () => {
       }
       dispatch({
          type: 'SELECT_RECIPE',
-         payload: { weekId: state.week.id, cart: { ...cart, addonPrice, id } },
+         payload: { weekId: state.week.id, cart: { ...cart, addonPrice } },
       })
       addToast(`You've selected the recipe ${cart.name}.`, {
          appearance: 'info',
@@ -155,7 +155,7 @@ const Product = ({ node, isAdded, hasColor, selectRecipe }) => {
                !isAdded(node.id) && (
                   <button
                      onClick={() =>
-                        selectRecipe(node.id, node.cartItem, node.addonPrice)
+                        selectRecipe(node.cartItem, node.addonPrice)
                      }
                      tw="text-sm uppercase font-medium tracking-wider border border-gray-300 rounded px-1 text-gray-500"
                   >
