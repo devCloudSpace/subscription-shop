@@ -9,6 +9,7 @@ import { useMenu } from './state'
 import { useConfig } from '../../lib'
 import { useUser } from '../../context'
 import { HelperBar } from '../../components'
+import { formatCurrency } from '../../utils'
 import { SkeletonProduct } from './skeletons'
 import { CheckIcon } from '../../assets/icons'
 import { OCCURENCE_PRODUCTS_BY_CATEGORIES } from '../../graphql'
@@ -139,9 +140,9 @@ const Product = ({ node, isAdded, hasColor, selectRecipe }) => {
                <span>No Photos</span>
             )}
          </div>
-         {node.addOnLabel && (
+         {node.addonLabel && (
             <Label>
-               {node.addOnLabel} {node.addOnPrice}
+               {node.addonLabel} {formatCurrency(Number(node.addonPrice) || 0)}
             </Label>
          )}
          <div css={tw`flex items-center justify-between`}>

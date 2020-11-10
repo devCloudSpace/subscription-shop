@@ -264,6 +264,8 @@ export const ORDER = gql`
             amount
             address
             cartInfo
+            itemTotal
+            addOnTotal
             deliveryPrice
             paymentMethodId
             order {
