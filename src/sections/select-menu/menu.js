@@ -58,8 +58,8 @@ export const Menu = () => {
 
    const isAdded = (id, optionId) => {
       const week = state?.weeks[state.week.id]
-      const products = week?.cart?.products.filter(node => !isEmpty(node))
-      return products.findIndex(
+      const products = week?.cart?.products.filter(node => !isEmpty(node)) || []
+      return products?.findIndex(
          node => node?.id === id && node?.option?.id === optionId
       ) === -1
          ? false
