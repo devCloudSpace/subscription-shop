@@ -12,7 +12,9 @@ export const ITEM_COUNT = gql`
             leadTime
          }
          invalid: subscriptions(
-            where: { availableZipcodes: { zipcode: { _neq: $zipcode } } }
+            where: {
+               _not: { availableZipcodes: { zipcode: { _eq: $zipcode } } }
+            }
          ) {
             id
             rrule

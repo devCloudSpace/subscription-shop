@@ -1,6 +1,7 @@
 import React from 'react'
 import { navigate } from 'gatsby'
 import { rrulestr } from 'rrule'
+import { isEmpty } from 'lodash'
 import tw, { styled, css } from 'twin.macro'
 import { useLazyQuery } from '@apollo/react-hooks'
 import { useToasts } from 'react-toast-notifications'
@@ -20,7 +21,7 @@ export const DeliverySection = () => {
       ITEM_COUNT,
       {
          onError: error => {
-            addToast(error.message, {
+            addToast('Failed to fetch delivery days', {
                appearance: 'error',
             })
          },
@@ -39,7 +40,7 @@ export const DeliverySection = () => {
    }, [user.subscriptionId, dispatch])
 
    React.useEffect(() => {
-      if (Object.keys(state.address.selected).length > 0) {
+      if (!isEmpty(state.address.selected)) {
          fetchDays({
             variables: {
                id: isClient && window.localStorage.getItem('plan'),
@@ -59,7 +60,7 @@ export const DeliverySection = () => {
             <Loader inline />
          </>
       )
-   if (Object.keys(state.address.selected).length === 0)
+   if (isEmpty(state.address.selected))
       return (
          <>
             <HelperBar type="info">
@@ -71,7 +72,7 @@ export const DeliverySection = () => {
       )
    return (
       <>
-         {itemCount?.valid?.length === 0 && itemCount?.invalid?.length === 0 && (
+         {isEmpty(itemCount?.valid) && isEmpty(itemCount?.invalid) && (
             <HelperBar type="warning">
                <HelperBar.SubTitle>
                   No days are available for delivery on this address.
@@ -85,7 +86,7 @@ export const DeliverySection = () => {
                </HelperBar.Button>
             </HelperBar>
          )}
-         {itemCount?.valid?.length === 0 && itemCount?.invalid?.length > 0 && (
+         {isEmpty(itemCount?.valid) && !isEmpty(itemCount?.invalid) && (
             <HelperBar type="warning">
                <HelperBar.SubTitle>
                   Following days are not available for delivery on this address.
