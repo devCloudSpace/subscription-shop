@@ -11,6 +11,7 @@ import {
 import { navigate } from 'gatsby'
 import tw, { styled, css } from 'twin.macro'
 import { useKeycloak } from '@react-keycloak/web'
+import { useToasts } from 'react-toast-notifications'
 
 import {
    SEO,
@@ -24,8 +25,7 @@ import {
 import { useConfig } from '../../../lib'
 import { useUser } from '../../../context'
 import { CloseIcon } from '../../../assets/icons'
-import { UPDATE_CUSTOMER, CREATE_STRIPE_PAYMENT_METHOD } from '../../../graphql'
-import { useToasts } from 'react-toast-notifications'
+import { BRAND, CREATE_STRIPE_PAYMENT_METHOD } from '../../../graphql'
 
 const ManageCards = () => {
    const [keycloak] = useKeycloak()
@@ -53,9 +53,9 @@ const Content = () => {
    const { user } = useUser()
    const { addToast } = useToasts()
    const [keycloak] = useKeycloak()
-   const { configOf } = useConfig()
+   const { brand, configOf } = useConfig()
    const [tunnel, toggleTunnel] = React.useState(false)
-   const [updateCustomer] = useMutation(UPDATE_CUSTOMER, {
+   const [updateBrandCustomer] = useMutation(BRAND.CUSTOMER.UPDATE, {
       refetchQueries: ['customer'],
       onCompleted: () => {
          addToast('Successfully changed default address.', {
@@ -65,9 +65,16 @@ const Content = () => {
    })
 
    const makeDefault = method => {
-      updateCustomer({
+      updateBrandCustomer({
          variables: {
-            keycloakId: keycloak?.tokenParsed?.sub,
+            where: {
+               keycloakId: {
+                  _eq: keycloak?.tokenParsed?.sub,
+               },
+               brandId: {
+                  _eq: brand.id,
+               },
+            },
             _set: {
                subscriptionPaymentMethodId: method.stripePaymentMethodId,
             },
@@ -178,7 +185,8 @@ const stripePromise = loadStripe(process.env.GATSBY_STRIPE_KEY)
 
 export const PaymentForm = ({ intent, toggleTunnel }) => {
    const { user } = useUser()
-   const [updateCustomer] = useMutation(UPDATE_CUSTOMER, {
+   const { brand } = useConfig()
+   const [updateBrandCustomer] = useMutation(BRAND.CUSTOMER.UPDATE, {
       refetchQueries: ['customer'],
    })
    const [createPaymentMethod] = useMutation(CREATE_STRIPE_PAYMENT_METHOD, {
@@ -209,9 +217,16 @@ export const PaymentForm = ({ intent, toggleTunnel }) => {
                   },
                })
                if (!user.subscriptionPaymentMethodId) {
-                  await updateCustomer({
+                  await updateBrandCustomer({
                      variables: {
-                        keycloakId: user.keycloakId,
+                        where: {
+                           keycloakId: {
+                              _eq: user.keycloakId,
+                           },
+                           brandId: {
+                              _eq: brand.id,
+                           },
+                        },
                         _set: {
                            subscriptionPaymentMethodId: data.id,
                         },

@@ -11,16 +11,18 @@ import {
 } from '@stripe/react-stripe-js'
 
 import { usePayment } from './state'
+import { useConfig } from '../../lib'
 import { useUser } from '../../context'
 import { Loader } from '../../components'
-import { UPDATE_CUSTOMER, CREATE_STRIPE_PAYMENT_METHOD } from '../../graphql'
+import { BRAND, CREATE_STRIPE_PAYMENT_METHOD } from '../../graphql'
 
 const stripePromise = loadStripe(process.env.GATSBY_STRIPE_KEY)
 
 export const PaymentForm = ({ intent }) => {
    const { user } = useUser()
+   const { brand } = useConfig()
    const { dispatch } = usePayment()
-   const [updateCustomer] = useMutation(UPDATE_CUSTOMER, {
+   const [updateBrandCustomer] = useMutation(BRAND.CUSTOMER.UPDATE, {
       refetchQueries: ['customer'],
    })
    const [createPaymentMethod] = useMutation(CREATE_STRIPE_PAYMENT_METHOD, {
@@ -51,21 +53,20 @@ export const PaymentForm = ({ intent }) => {
                   },
                })
                if (!user.subscriptionPaymentMethodId) {
-                  await updateCustomer({
+                  await updateBrandCustomer({
                      variables: {
-                        keycloakId: user.keycloakId,
-                        _set: {
-                           subscriptionPaymentMethodId: data.id,
+                        where: {
+                           keycloakId: { _eq: user.keycloakId },
+                           brandId: { _eq: brand.id },
                         },
+                        _set: { subscriptionPaymentMethodId: data.id },
                      },
                   })
                }
 
                dispatch({
                   type: 'TOGGLE_TUNNEL',
-                  payload: {
-                     isVisible: false,
-                  },
+                  payload: { isVisible: false },
                })
             } else {
                // TODO: delete stripe payment method on failure

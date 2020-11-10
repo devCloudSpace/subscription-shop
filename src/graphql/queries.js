@@ -24,21 +24,6 @@ export const ITEM_COUNT = gql`
    }
 `
 
-export const CUSTOMERS = gql`
-   query customers($where: crm_customer_bool_exp, $brandId: Int!) {
-      customers(where: $where) {
-         id
-         keycloakId
-         isSubscriber
-         subscriptionId
-         brandCustomers(where: { brandId: { _eq: $brandId } }) {
-            id
-            isSubscriber
-         }
-      }
-   }
-`
-
 export const PLANS = gql`
    subscription plans($brandId: Int!) {
       plans: subscription_subscriptionTitle(
@@ -443,22 +428,22 @@ export const CUSTOMER = {
             id
             keycloakId
             isSubscriber
-            subscriptionId
-            subscriptionAddressId
-            subscriptionPaymentMethodId
             brandCustomers(where: { brandId: { _eq: $brandId } }) {
                id
                brandId
                keycloakId
                isSubscriber
-            }
-            subscription {
-               recipes: subscriptionItemCount {
-                  count
-                  price
-                  servingId: subscriptionServingId
-                  serving: subscriptionServing {
-                     size: servingSize
+               subscriptionId
+               subscriptionAddressId
+               subscriptionPaymentMethodId
+               subscription {
+                  recipes: subscriptionItemCount {
+                     count
+                     price
+                     servingId: subscriptionServingId
+                     serving: subscriptionServing {
+                        size: servingSize
+                     }
                   }
                }
             }
