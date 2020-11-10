@@ -25,12 +25,16 @@ export const ITEM_COUNT = gql`
 `
 
 export const CUSTOMERS = gql`
-   query customers($where: crm_customer_bool_exp) {
+   query customers($where: crm_customer_bool_exp, $brandId: Int!) {
       customers(where: $where) {
          id
          keycloakId
          isSubscriber
          subscriptionId
+         brandCustomers(where: { brandId: { _eq: $brandId } }) {
+            id
+            isSubscriber
+         }
       }
    }
 `
@@ -79,61 +83,6 @@ export const PLANS = gql`
                id
                count
                price
-            }
-         }
-      }
-   }
-`
-
-export const CUSTOMER_DETAILS = gql`
-   query customer($keycloakId: String!) {
-      customer(keycloakId: $keycloakId) {
-         id
-         keycloakId
-         isSubscriber
-         subscriptionId
-         subscriptionAddressId
-         subscriptionPaymentMethodId
-         subscription {
-            recipes: subscriptionItemCount {
-               count
-               price
-               servingId: subscriptionServingId
-               serving: subscriptionServing {
-                  size: servingSize
-               }
-            }
-         }
-         platform_customer {
-            email
-            firstName
-            lastName
-            keycloakId
-            phoneNumber
-            stripeCustomerId
-            addresses: customerAddresses {
-               id
-               lat
-               lng
-               line1
-               line2
-               city
-               state
-               country
-               zipcode
-               label
-               notes
-            }
-            paymentMethods: stripePaymentMethods {
-               brand
-               last4
-               country
-               expMonth
-               expYear
-               funding
-               keycloakId
-               cardHolderName
-               stripePaymentMethodId
             }
          }
       }
@@ -486,3 +435,66 @@ export const SETTINGS = gql`
       }
    }
 `
+
+export const CUSTOMER = {
+   DETAILS: gql`
+      query customer($keycloakId: String!, $brandId: Int!) {
+         customer(keycloakId: $keycloakId) {
+            id
+            keycloakId
+            isSubscriber
+            subscriptionId
+            subscriptionAddressId
+            subscriptionPaymentMethodId
+            brandCustomers(where: { brandId: { _eq: $brandId } }) {
+               id
+               brandId
+               keycloakId
+               isSubscriber
+            }
+            subscription {
+               recipes: subscriptionItemCount {
+                  count
+                  price
+                  servingId: subscriptionServingId
+                  serving: subscriptionServing {
+                     size: servingSize
+                  }
+               }
+            }
+            platform_customer {
+               email
+               firstName
+               lastName
+               keycloakId
+               phoneNumber
+               stripeCustomerId
+               addresses: customerAddresses {
+                  id
+                  lat
+                  lng
+                  line1
+                  line2
+                  city
+                  state
+                  country
+                  zipcode
+                  label
+                  notes
+               }
+               paymentMethods: stripePaymentMethods {
+                  brand
+                  last4
+                  country
+                  expMonth
+                  expYear
+                  funding
+                  keycloakId
+                  cardHolderName
+                  stripePaymentMethodId
+               }
+            }
+         }
+      }
+   `,
+}

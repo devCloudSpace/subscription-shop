@@ -107,3 +107,27 @@ export const UPDATE_CART = gql`
       }
    }
 `
+
+export const BRAND = {
+   CUSTOMER: {
+      CREATE: gql`
+         mutation createBrandCustomer(
+            $object: crm_brand_customer_insert_input!
+         ) {
+            createBrandCustomer(object: $object) {
+               id
+            }
+         }
+      `,
+      UPDATE: gql`
+         mutation updateBrandCustomers(
+            $where: crm_brand_customer_bool_exp!
+            $_set: crm_brand_customer_set_input!
+         ) {
+            updateBrandCustomers(where: $where, _set: $_set) {
+               affected_rows
+            }
+         }
+      `,
+   },
+}

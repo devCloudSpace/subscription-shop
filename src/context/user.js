@@ -3,8 +3,8 @@ import React from 'react'
 import { useKeycloak } from '@react-keycloak/web'
 import { useQuery } from '@apollo/react-hooks'
 
+import { CUSTOMER } from '../graphql'
 import { PageLoader } from '../components'
-import { CUSTOMER_DETAILS } from '../graphql'
 
 const UserContext = React.createContext()
 
@@ -12,7 +12,7 @@ export const UserProvider = ({ children }) => {
    const [keycloak] = useKeycloak()
    const [user, setUser] = React.useState({})
    const { loading, data: { customer = {} } = {} } = useQuery(
-      CUSTOMER_DETAILS,
+      CUSTOMER.DETAILS,
       {
          fetchPolicy: 'network-only',
          variables: {

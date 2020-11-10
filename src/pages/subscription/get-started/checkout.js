@@ -16,10 +16,11 @@ import {
 } from '../../../sections/checkout'
 import { useUser } from '../../../context'
 import {
-   UPDATE_CART,
    CART,
-   UPDATE_DAILYKEY_CUSTOMER,
+   BRAND,
+   UPDATE_CART,
    UPDATE_CUSTOMER,
+   UPDATE_DAILYKEY_CUSTOMER,
 } from '../../../graphql'
 
 const Checkout = () => {
@@ -47,7 +48,8 @@ const PaymentContent = ({ isCheckout }) => {
    const { state } = usePayment()
    const { addToast } = useToasts()
    const { configOf } = useConfig()
-   const [updateCustomer] = useMutation(UPDATE_CUSTOMER, {
+
+   const [updateBrandCustomer] = useMutation(BRAND.CUSTOMER.UPDATE, {
       refetchQueries: ['customer'],
       onCompleted: () => {
          addToast('Saved you preferences.', {
@@ -55,10 +57,21 @@ const PaymentContent = ({ isCheckout }) => {
          })
          navigate(`/subscription/get-started/placing-order`)
       },
-      onError: error => {
-         addToast(error.message, {
-            appearance: 'danger',
+   })
+   const [updateCustomer] = useMutation(UPDATE_CUSTOMER, {
+      refetchQueries: ['customer'],
+      onCompleted: () => {
+         updateBrandCustomer({
+            variables: {
+               where: {
+                  keycloakId: { _eq: user.keycloakId },
+               },
+               _set: { isSubscriber: true },
+            },
          })
+      },
+      onError: error => {
+         addToast(error.message, { appearance: 'danger' })
       },
    })
 
@@ -67,16 +80,12 @@ const PaymentContent = ({ isCheckout }) => {
          updateCustomer({
             variables: {
                keycloakId: user.keycloakId,
-               _set: {
-                  isSubscriber: true,
-               },
+               _set: { isSubscriber: true },
             },
          })
       },
       onError: error => {
-         addToast(error.message, {
-            appearance: 'danger',
-         })
+         addToast(error.message, { appearance: 'danger' })
       },
    })
 
