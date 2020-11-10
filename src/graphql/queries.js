@@ -188,10 +188,6 @@ export const OCCURENCE_PRODUCTS_BY_CATEGORIES = gql`
                simpleRecipeProductOption {
                   id
                   simpleRecipeYieldId
-                  product: simpleRecipeProduct {
-                     id
-                     name
-                  }
                }
                inventoryProductOption {
                   id

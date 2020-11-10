@@ -1,5 +1,6 @@
 import React from 'react'
 import { Link } from 'gatsby'
+import { isEmpty, uniqBy } from 'lodash'
 import tw, { styled, css } from 'twin.macro'
 import { useQuery } from '@apollo/react-hooks'
 import { useToasts } from 'react-toast-notifications'
@@ -54,9 +55,11 @@ export const Menu = () => {
       })
    }
 
-   const isAdded = id => {
-      return state?.weeks[state.week.id]?.cart.products.findIndex(
-         node => node?.id === id
+   const isAdded = (id, optionId) => {
+      const week = state?.weeks[state.week.id]
+      const products = week?.cart?.products.filter(node => !isEmpty(node))
+      return products.findIndex(
+         node => node?.id === id && node?.option?.id === optionId
       ) === -1
          ? false
          : true
@@ -64,7 +67,7 @@ export const Menu = () => {
    const hasColor = configOf('theme-color', 'Visual')
 
    if (loading) return <SkeletonProduct />
-   if (categories.length === 0)
+   if (isEmpty(categories))
       return (
          <main tw="pt-4">
             <HelperBar>
@@ -79,10 +82,18 @@ export const Menu = () => {
          {categories.map(category => (
             <section key={category.name} css={tw`mb-8`}>
                <h4 css={tw`text-lg text-gray-700 my-3 pb-1 border-b`}>
-                  {category.name} ({category.productsAggregate.aggregate.count})
+                  {category.name} (
+                  {
+                     uniqBy(category.productsAggregate.nodes, v =>
+                        [v?.cartItem?.id, v?.cartItem?.option?.id].join()
+                     ).length
+                  }
+                  )
                </h4>
                <Products>
-                  {category.productsAggregate.nodes.map((node, index) => (
+                  {uniqBy(category.productsAggregate.nodes, v =>
+                     [v?.cartItem?.id, v?.cartItem?.option?.id].join()
+                  ).map((node, index) => (
                      <Product
                         node={node}
                         isAdded={isAdded}
@@ -108,7 +119,11 @@ const Product = ({ node, isAdded, hasColor, selectRecipe }) => {
    return (
       <Styles.Product
          hasColor={hasColor}
-         className={`${isAdded(node?.id) && 'active'}`}
+         className={`${
+            isAdded(node?.cartItem?.id, node?.cartItem?.option?.id)
+               ? 'active'
+               : ''
+         }`}
       >
          <div
             css={tw`flex items-center justify-center h-48 bg-gray-200 mb-2 rounded overflow-hidden`}
@@ -133,7 +148,11 @@ const Product = ({ node, isAdded, hasColor, selectRecipe }) => {
             <section tw="flex items-center">
                <Check
                   size={16}
-                  className={`${isAdded(node?.id) && 'active'}`}
+                  className={`${
+                     isAdded(node?.cartItem?.id, node?.cartItem?.option?.id)
+                        ? 'active'
+                        : ''
+                  }`}
                />
                <Link
                   tw="text-gray-700"
@@ -152,7 +171,7 @@ const Product = ({ node, isAdded, hasColor, selectRecipe }) => {
                state?.weeks[state?.week?.id]?.orderCartStatus
             ) &&
                state?.week?.isValid &&
-               !isAdded(node.id) && (
+               !isAdded(node?.cartItem?.id, node?.cartItem?.option?.id) && (
                   <button
                      onClick={() =>
                         selectRecipe(node.cartItem, node.addonPrice)
@@ -173,7 +192,9 @@ const Styles = {
          ${tw`relative border flex flex-col bg-white p-2 rounded overflow-hidden`}
          &.active {
             ${tw`border border-2 border-red-400`}
-            ${hasColor?.highlight && `border-color: ${hasColor.highlight}`}
+            border-color: ${
+               hasColor?.highlight ? hasColor.highlight : '#38a169'
+            }
          }
       `
    ),

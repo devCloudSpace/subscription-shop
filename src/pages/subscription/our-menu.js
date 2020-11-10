@@ -3,9 +3,9 @@
 import React from 'react'
 import moment from 'moment'
 import { Link } from 'gatsby'
-import { isEmpty } from 'lodash'
 import { rrulestr } from 'rrule'
 import tw, { styled } from 'twin.macro'
+import { isEmpty, uniqBy } from 'lodash'
 import { useLazyQuery } from '@apollo/react-hooks'
 
 import { useConfig } from '../../lib'
@@ -120,7 +120,7 @@ const Content = () => {
          setCurrent(0)
          setCategories([])
       }
-   }, [fetchTitles])
+   }, [fetchTitles, brand.id])
 
    const next = () => {
       const nextOne = (current + 1 + occurences.length) % occurences.length
@@ -310,20 +310,28 @@ const Content = () => {
                      <section key={category.name} css={tw`mb-8`}>
                         <h4 css={tw`text-lg text-gray-700 my-3 pb-1 border-b`}>
                            {category.name} (
-                           {category.productsAggregate.aggregate.count})
+                           {
+                              uniqBy(category.productsAggregate.nodes, v =>
+                                 [
+                                    v?.cartItem?.id,
+                                    v?.cartItem?.option?.id,
+                                 ].join()
+                              ).length
+                           }
+                           )
                         </h4>
                         <Products>
-                           {category.productsAggregate.nodes.map(
-                              (node, index) => (
-                                 <Product
-                                    node={node}
-                                    key={`${index}-${
-                                       node.simpleRecipeProductOption?.id ||
-                                       node.inventoryProductOption?.id
-                                    }`}
-                                 />
-                              )
-                           )}
+                           {uniqBy(category.productsAggregate.nodes, v =>
+                              [v?.cartItem?.id, v?.cartItem?.option?.id].join()
+                           ).map((node, index) => (
+                              <Product
+                                 node={node}
+                                 key={`${index}-${
+                                    node.simpleRecipeProductOption?.id ||
+                                    node.inventoryProductOption?.id
+                                 }`}
+                              />
+                           ))}
                         </Products>
                      </section>
                   ))
