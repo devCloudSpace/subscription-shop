@@ -102,7 +102,6 @@ const Content = () => {
    const [fetchTitles, { loading, data: { titles = [] } = {} }] = useLazyQuery(
       OUR_MENU.TITLES,
       {
-         variables: { brandId: brand.id },
          onCompleted: ({ titles = [] }) => {
             if (titles.length > 0) {
                const [title] = titles
@@ -113,7 +112,9 @@ const Content = () => {
    )
 
    React.useEffect(() => {
-      fetchTitles()
+      fetchTitles({
+         variables: { brandId: brand.id },
+      })
       return () => {
          setOccurences([])
          setCurrent(0)
@@ -372,13 +373,13 @@ const Product = ({ node }) => {
                   tw="text-gray-700"
                   to={`/subscription/${
                      type === 'SRP' ? 'recipes' : 'inventory'
-                  }?id=${option?.cartItem?.id}${
+                  }?id=${node?.id}${
                      type === 'SRP'
                         ? `&serving=${option?.simpleRecipeYieldId}`
                         : `&option=${option?.id}`
                   }`}
                >
-                  {option?.cartItem?.name}
+                  {node?.cartItem?.name}
                </Link>
             </section>
          </div>
