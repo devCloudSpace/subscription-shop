@@ -32,9 +32,19 @@ export const StepsNavbar = () => {
       if (location.pathname.includes('/get-started/checkout')) return 100
    })
 
+   const brand = configOf('theme-brand', 'brand')
    return (
       <Navbar>
-         <Brand to="/subscription">Subscription Shop</Brand>
+         <Brand to="/subscription" title={brand?.name || 'Subscription Shop'}>
+            {brand?.logo?.logoMark && (
+               <img
+                  tw="h-10 w-10"
+                  src={brand?.logo?.logoMark}
+                  alt={brand?.name || 'Subscription Shop'}
+               />
+            )}
+            {brand?.name && <span tw="ml-2">{brand?.name}</span>}
+         </Brand>
          <Progress>
             <ProgressBar current={currentStep} />
             <Steps>

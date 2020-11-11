@@ -15,7 +15,7 @@ export const Header = () => {
    const brand = configOf('theme-brand', 'brand')
    return (
       <Wrapper>
-         <Brand to="/subscription">
+         <Brand to="/subscription" title={brand?.name || 'Subscription Shop'}>
             {brand?.logo?.logoMark && (
                <img
                   tw="h-10 w-10"
