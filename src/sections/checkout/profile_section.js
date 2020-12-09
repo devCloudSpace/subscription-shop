@@ -33,7 +33,7 @@ export const ProfileSection = () => {
       })
    }
    return (
-      <main tw="flex flex-col">
+      <main css={tw`flex flex-col`}>
          <Form.Field tw="w-full md:w-3/12">
             <Form.Label>First Name*</Form.Label>
             <Form.Text

@@ -10,8 +10,10 @@ import { useConfig } from '../lib/config'
 import { MailIcon, PhoneIcon } from '../assets/icons'
 
 export const Layout = ({ children, noHeader }) => {
-   const { hasConfig, configOf } = useConfig()
    const [keycloak] = useKeycloak()
+   const { hasConfig, configOf } = useConfig()
+
+   const brand = configOf('theme-brand', 'brand')
    return (
       <UserProvider>
          {!noHeader && <Header />}
@@ -19,7 +21,7 @@ export const Layout = ({ children, noHeader }) => {
          <Footer hasColor={configOf('theme-color', 'Visual')}>
             <div>
                <section>
-                  <h2 tw="text-3xl">Subscription Shop</h2>
+                  <h2 tw="text-3xl">{brand?.name || 'Subscription Shop'}</h2>
                   {hasConfig('Location', 'availability') && (
                      <p tw="mt-2">
                         {normalizeAddress(configOf('Location', 'availability'))}

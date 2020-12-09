@@ -5,7 +5,8 @@
    "scripts": {
       "build": "gatsby build --prefix-paths",
       "develop": "gatsby develop",
-      "serve": "gatsby serve --prefix-paths"
+      "serve": "gatsby serve --prefix-paths",
+      "lint:graphql": "eslint src/graphql/**/*.js"
    },
    "dependencies": {
       "@apollo/react-hooks": "^3.1.5",
@@ -46,6 +47,7 @@
    },
    "devDependencies": {
       "babel-preset-gatsby": "^0.2.26",
+      "eslint-plugin-graphql": "^4.0.0",
       "gatsby-plugin-asset-path": "^3.0.2",
       "postcss-preset-env": "^6.7.0",
       "tailwindcss": "^1.6.0",

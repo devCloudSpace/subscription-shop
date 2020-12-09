@@ -89,8 +89,8 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
                customerId: user.id,
                paymentStatus: 'PENDING',
                cartInfo: {
-                  total: weekTotal,
                   products: week.cart.products,
+                  total: user?.subscription?.recipes?.price,
                },
                ...(user?.subscriptionPaymentMethodId && {
                   paymentMethodId: user?.subscriptionPaymentMethodId,

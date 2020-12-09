@@ -1,4 +1,5 @@
 import React from 'react'
+import { isEmpty } from 'lodash'
 import { navigate } from 'gatsby'
 import tw, { styled, css } from 'twin.macro'
 import { useKeycloak } from '@react-keycloak/web'
@@ -11,9 +12,9 @@ import { CloseIcon } from '../../../assets/icons'
 import { useScript, isClient } from '../../../utils'
 import GooglePlacesAutocomplete from 'react-google-places-autocomplete'
 import {
-   CREATE_CUSTOMER_ADDRESS,
-   UPDATE_CUSTOMER,
+   BRAND,
    ZIPCODE_AVAILABILITY,
+   CREATE_CUSTOMER_ADDRESS,
 } from '../../../graphql'
 import {
    SEO,
@@ -52,10 +53,10 @@ const Content = () => {
    const { user } = useUser()
    const [keycloak] = useKeycloak()
    const { addToast } = useToasts()
-   const { configOf } = useConfig()
+   const { brand, configOf } = useConfig()
    const [selected, setSelected] = React.useState(null)
    const [tunnel, toggleTunnel] = React.useState(false)
-   const [updateCustomer] = useMutation(UPDATE_CUSTOMER, {
+   const [updateBrandCustomer] = useMutation(BRAND.CUSTOMER.UPDATE, {
       refetchQueries: ['customer'],
       onCompleted: () => {
          setSelected(null)
@@ -66,21 +67,32 @@ const Content = () => {
    })
 
    const [validate] = useLazyQuery(ZIPCODE_AVAILABILITY, {
-      onCompleted: ({ subscription_zipcode }) => {
-         if (subscription_zipcode.length === 0) {
+      onCompleted: ({ subscription_zipcode = [] }) => {
+         if (isEmpty(subscription_zipcode)) {
             addToast('Sorry, this address is not deliverable on your plan.', {
                appearance: 'warning',
             })
          } else {
-            updateCustomer({
+            updateBrandCustomer({
                variables: {
-                  keycloakId: keycloak?.tokenParsed?.sub,
+                  where: {
+                     keycloakId: {
+                        _eq: keycloak?.tokenParsed?.sub,
+                     },
+                     brandId: {
+                        _eq: brand.id,
+                     },
+                  },
                   _set: {
                      subscriptionAddressId: selected,
                   },
                },
             })
          }
+      },
+      onError: error => {
+         addToast('Something went wrong', { appearance: 'error' })
+         console.log('validate -> zipcode -> error', error)
       },
    })
 

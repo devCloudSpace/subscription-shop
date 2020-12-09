@@ -158,26 +158,19 @@ const Details = ({ current }) => {
                <tr>
                   <td tw="border px-2 py-1">Base Price</td>
                   <td tw="text-right border px-2 py-1">
-                     {formatCurrency(
-                        order?.occurrence?.subscription?.item?.price || 0
-                     )}
+                     {formatCurrency(Number(order?.cart?.itemTotal) || 0)}
                   </td>
                </tr>
                <tr tw="bg-gray-100">
                   <td tw="border px-2 py-1">Add on Total</td>
                   <td tw="text-right border px-2 py-1">
-                     {formatCurrency(
-                        order?.cart?.cartInfo?.products.reduce(
-                           (a, b) => a + b.addonPrice || 0,
-                           0
-                        )
-                     )}
+                     {formatCurrency(Number(order?.cart?.addOnTotal) || 0)}
                   </td>
                </tr>
                <tr>
                   <td tw="border px-2 py-1">Delivery</td>
                   <td tw="text-right border px-2 py-1">
-                     {formatCurrency(order?.cart?.deliveryPrice || 0)}
+                     {formatCurrency(Number(order?.cart?.deliveryPrice) || 0)}
                   </td>
                </tr>
                <tr tw="bg-gray-100">
@@ -231,10 +224,31 @@ const CartProduct = ({ product }) => {
                </span>
             )}
          </aside>
-         <main tw="h-16 pl-3">
-            <p tw="truncate text-gray-800" title={product.name}>
+         <main tw="h-20 pl-3">
+            <h3 tw="text-lg text-gray-800" title={product.name}>
                {product.name}
-            </p>
+            </h3>
+            {(Boolean(product.addOnPrice) || product.addOnLabel) && (
+               <h4 tw="mt-2 uppercase tracking-wider text-sm font-medium text-gray-600">
+                  Add On
+               </h4>
+            )}
+            {Boolean(product.addOnPrice) && (
+               <span
+                  tw="mr-2 text-gray-600 truncate"
+                  title={product.addOnPrice}
+               >
+                  Price:{' '}
+                  <span tw="text-gray-800">
+                     {formatCurrency(Number(product.addOnPrice) || 0)}
+                  </span>
+               </span>
+            )}
+            {product.addOnLabel && (
+               <span tw="text-gray-600 truncate" title={product.addOnLabel}>
+                  Label: <span tw="text-gray-800">{product.addOnLabel}</span>
+               </span>
+            )}
          </main>
       </CartProductContainer>
    )
@@ -293,13 +307,13 @@ const Date = styled.li(
 const ProductCards = styled.ul`
    display: grid;
    grid-gap: 16px;
-   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+   grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
 `
 
 const CartProductContainer = styled.li`
-   ${tw`h-20 bg-white border flex items-center px-2 rounded`}
+   ${tw`h-24 bg-white border flex items-center px-2 rounded`}
    aside {
-      ${tw`w-24 h-16 bg-gray-300 rounded flex items-center justify-center`}
+      ${tw`w-24 h-20 border bg-gray-300 rounded flex items-center justify-center`}
    }
 `
 

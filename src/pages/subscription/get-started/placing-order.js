@@ -146,7 +146,7 @@ const PlacingOrder = () => {
                                     Your order has been placed. Continue
                                     selecting menu for others weeks.
                                  </HelperBar.SubTitle>
-                                 <HelperBar.Button onClick={() => gotoMenu()}>
+                                 <HelperBar.Button onClick={gotoMenu}>
                                     Browse Menu
                                  </HelperBar.Button>
                               </HelperBar>

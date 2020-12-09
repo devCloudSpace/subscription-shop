@@ -12,23 +12,14 @@ export const ITEM_COUNT = gql`
             leadTime
          }
          invalid: subscriptions(
-            where: { availableZipcodes: { zipcode: { _neq: $zipcode } } }
+            where: {
+               _not: { availableZipcodes: { zipcode: { _eq: $zipcode } } }
+            }
          ) {
             id
             rrule
             leadTime
          }
-      }
-   }
-`
-
-export const CUSTOMERS = gql`
-   query customers($where: crm_customer_bool_exp) {
-      customers(where: $where) {
-         id
-         keycloakId
-         isSubscriber
-         subscriptionId
       }
    }
 `
@@ -83,61 +74,6 @@ export const PLANS = gql`
    }
 `
 
-export const CUSTOMER_DETAILS = gql`
-   query customer($keycloakId: String!) {
-      customer(keycloakId: $keycloakId) {
-         id
-         keycloakId
-         isSubscriber
-         subscriptionId
-         subscriptionAddressId
-         subscriptionPaymentMethodId
-         subscription {
-            recipes: subscriptionItemCount {
-               count
-               price
-               servingId: subscriptionServingId
-               serving: subscriptionServing {
-                  size: servingSize
-               }
-            }
-         }
-         platform_customer {
-            email
-            firstName
-            lastName
-            keycloakId
-            phoneNumber
-            stripeCustomerId
-            addresses: customerAddresses {
-               id
-               lat
-               lng
-               line1
-               line2
-               city
-               state
-               country
-               zipcode
-               label
-               notes
-            }
-            paymentMethods: stripePaymentMethods {
-               brand
-               last4
-               country
-               expMonth
-               expYear
-               funding
-               keycloakId
-               cardHolderName
-               stripePaymentMethodId
-            }
-         }
-      }
-   }
-`
-
 export const OCCURENCES_BY_SUBSCRIPTION = gql`
    query subscription(
       $id: Int!
@@ -186,25 +122,10 @@ export const OCCURENCE_PRODUCTS_BY_CATEGORIES = gql`
                simpleRecipeProductOption {
                   id
                   simpleRecipeYieldId
-                  product: simpleRecipeProduct {
-                     id
-                     name
-                     assets
-                     recipe: simpleRecipe {
-                        id
-                        name
-                        image
-                     }
-                  }
                }
                inventoryProductOption {
                   id
                   quantity
-                  product: inventoryProduct {
-                     id
-                     name
-                     assets
-                  }
                }
             }
          }
@@ -343,6 +264,8 @@ export const ORDER = gql`
             amount
             address
             cartInfo
+            itemTotal
+            addOnTotal
             deliveryPrice
             paymentMethodId
             order {
@@ -487,7 +410,9 @@ export const OUR_MENU = {
 export const SETTINGS = gql`
    subscription settings($domain: String_comparison_exp) {
       settings: brands_brand_subscriptionStoreSetting(
-         where: { brand: { _or: [{ domain: $domain }, { id: { _eq: 1 } }] } }
+         where: {
+            brand: { _or: [{ domain: $domain }, { isDefault: { _eq: true } }] }
+         }
       ) {
          value
          brandId
@@ -499,3 +424,66 @@ export const SETTINGS = gql`
       }
    }
 `
+
+export const CUSTOMER = {
+   DETAILS: gql`
+      query customer($keycloakId: String!, $brandId: Int!) {
+         customer(keycloakId: $keycloakId) {
+            id
+            keycloakId
+            isSubscriber
+            brandCustomers(where: { brandId: { _eq: $brandId } }) {
+               id
+               brandId
+               keycloakId
+               isSubscriber
+               subscriptionId
+               subscriptionAddressId
+               subscriptionPaymentMethodId
+               subscription {
+                  recipes: subscriptionItemCount {
+                     count
+                     price
+                     servingId: subscriptionServingId
+                     serving: subscriptionServing {
+                        size: servingSize
+                     }
+                  }
+               }
+            }
+            platform_customer {
+               email
+               firstName
+               lastName
+               keycloakId
+               phoneNumber
+               stripeCustomerId
+               addresses: customerAddresses {
+                  id
+                  lat
+                  lng
+                  line1
+                  line2
+                  city
+                  state
+                  country
+                  zipcode
+                  label
+                  notes
+               }
+               paymentMethods: stripePaymentMethods {
+                  brand
+                  last4
+                  country
+                  expMonth
+                  expYear
+                  funding
+                  keycloakId
+                  cardHolderName
+                  stripePaymentMethodId
+               }
+            }
+         }
+      }
+   `,
+}

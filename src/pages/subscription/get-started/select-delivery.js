@@ -6,7 +6,7 @@ import { useKeycloak } from '@react-keycloak/web'
 import { useToasts } from 'react-toast-notifications'
 
 import { useConfig } from '../../../lib'
-import { UPDATE_CUSTOMER } from '../../../graphql'
+import { BRAND } from '../../../graphql'
 import { SEO, Layout, StepsNavbar } from '../../../components'
 
 import {
@@ -40,11 +40,11 @@ const SelectDelivery = () => {
 export default SelectDelivery
 
 const DeliveryContent = () => {
-   const { configOf } = useConfig()
    const [keycloak] = useKeycloak()
    const { state } = useDelivery()
    const { addToast } = useToasts()
-   const [updateCustomer] = useMutation(UPDATE_CUSTOMER, {
+   const { brand, configOf } = useConfig()
+   const [updateBrandCustomer] = useMutation(BRAND.CUSTOMER.UPDATE, {
       refetchQueries: ['customer'],
       onCompleted: () => {
          addToast('Successfully saved delivery preferences.', {
@@ -65,9 +65,16 @@ const DeliveryContent = () => {
       },
    })
    const nextStep = () => {
-      updateCustomer({
+      updateBrandCustomer({
          variables: {
-            keycloakId: keycloak?.tokenParsed?.sub,
+            where: {
+               keycloakId: {
+                  _eq: keycloak?.tokenParsed?.sub,
+               },
+               brandId: {
+                  _eq: brand.id,
+               },
+            },
             _set: {
                subscriptionId: state.delivery.selected.id,
                subscriptionAddressId: state.address.selected.id,

@@ -3,15 +3,28 @@ import { Link } from 'gatsby'
 import tw, { styled } from 'twin.macro'
 import { useKeycloak } from '@react-keycloak/web'
 
+import { useConfig } from '../lib'
 import { useUser } from '../context'
 import { isClient, getInitials } from '../utils'
 
 export const Header = () => {
    const { user } = useUser()
+   const { configOf } = useConfig()
    const [keycloak, initialized] = useKeycloak()
+
+   const brand = configOf('theme-brand', 'brand')
    return (
       <Wrapper>
-         <Brand to="/subscription">Subscription Shop</Brand>
+         <Brand to="/subscription" title={brand?.name || 'Subscription Shop'}>
+            {brand?.logo?.logoMark && (
+               <img
+                  tw="h-10 w-10"
+                  src={brand?.logo?.logoMark}
+                  alt={brand?.name || 'Subscription Shop'}
+               />
+            )}
+            {brand?.name && <span tw="ml-2">{brand?.name}</span>}
+         </Brand>
          <section tw="flex items-center justify-between">
             <ul />
             <ul tw="px-4 flex space-x-4">

@@ -3,9 +3,9 @@
 import React from 'react'
 import moment from 'moment'
 import { Link } from 'gatsby'
-import { isEmpty } from 'lodash'
 import { rrulestr } from 'rrule'
 import tw, { styled } from 'twin.macro'
+import { isEmpty, uniqBy } from 'lodash'
 import { useLazyQuery } from '@apollo/react-hooks'
 
 import { useConfig } from '../../lib'
@@ -102,7 +102,6 @@ const Content = () => {
    const [fetchTitles, { loading, data: { titles = [] } = {} }] = useLazyQuery(
       OUR_MENU.TITLES,
       {
-         variables: { brandId: brand.id },
          onCompleted: ({ titles = [] }) => {
             if (titles.length > 0) {
                const [title] = titles
@@ -113,13 +112,15 @@ const Content = () => {
    )
 
    React.useEffect(() => {
-      fetchTitles()
+      fetchTitles({
+         variables: { brandId: brand.id },
+      })
       return () => {
          setOccurences([])
          setCurrent(0)
          setCategories([])
       }
-   }, [fetchTitles])
+   }, [fetchTitles, brand.id])
 
    const next = () => {
       const nextOne = (current + 1 + occurences.length) % occurences.length
@@ -309,30 +310,28 @@ const Content = () => {
                      <section key={category.name} css={tw`mb-8`}>
                         <h4 css={tw`text-lg text-gray-700 my-3 pb-1 border-b`}>
                            {category.name} (
-                           {category.productsAggregate.aggregate.count})
+                           {
+                              uniqBy(category.productsAggregate.nodes, v =>
+                                 [
+                                    v?.cartItem?.id,
+                                    v?.cartItem?.option?.id,
+                                 ].join()
+                              ).length
+                           }
+                           )
                         </h4>
                         <Products>
-                           {category.productsAggregate.nodes.map(
-                              (node, index) => (
-                                 <Product
-                                    addOnLabel={node.addOnLabel}
-                                    addOnPrice={node.addOnPrice}
-                                    type={
-                                       node.simpleRecipeProductOption?.id
-                                          ? 'SRP'
-                                          : 'IP'
-                                    }
-                                    option={
-                                       node.simpleRecipeProductOption ||
-                                       node.inventoryProductOption
-                                    }
-                                    key={`${index}-${
-                                       node.simpleRecipeProductOption?.id ||
-                                       node.inventoryProductOption?.id
-                                    }`}
-                                 />
-                              )
-                           )}
+                           {uniqBy(category.productsAggregate.nodes, v =>
+                              [v?.cartItem?.id, v?.cartItem?.option?.id].join()
+                           ).map((node, index) => (
+                              <Product
+                                 node={node}
+                                 key={`${index}-${
+                                    node.simpleRecipeProductOption?.id ||
+                                    node.inventoryProductOption?.id
+                                 }`}
+                              />
+                           ))}
                         </Products>
                      </section>
                   ))
@@ -351,24 +350,29 @@ const Content = () => {
    )
 }
 
-const Product = ({ type, option, addOnPrice, addOnLabel }) => {
+const Product = ({ node }) => {
+   const type = node?.simpleRecipeProductOption?.id ? 'SRP' : 'IP'
+   const option =
+      type === 'SRP'
+         ? node.simpleRecipeProductOption
+         : node.inventoryProductOption
    return (
       <Styles.Product>
          <div tw="flex items-center justify-center h-48 bg-gray-200 mb-2 rounded overflow-hidden">
-            {option?.product?.cartItem?.image ? (
+            {node?.cartItem?.image ? (
                <img
-                  alt={option?.product?.cartItem?.name}
-                  title={option?.product?.cartItem?.name}
-                  src={option?.product?.cartItem?.image}
+                  alt={node?.cartItem?.name}
+                  title={node?.cartItem?.name}
+                  src={node?.cartItem?.image}
                   css={tw`h-full w-full object-cover select-none`}
                />
             ) : (
                <span>No Photos</span>
             )}
          </div>
-         {addOnLabel && (
+         {node?.addOnLabel && (
             <Label>
-               {addOnLabel} {addOnPrice}
+               {node?.addOnLabel} {node?.addOnPrice}
             </Label>
          )}
          <div tw="flex items-center justify-between">
@@ -377,13 +381,13 @@ const Product = ({ type, option, addOnPrice, addOnLabel }) => {
                   tw="text-gray-700"
                   to={`/subscription/${
                      type === 'SRP' ? 'recipes' : 'inventory'
-                  }?id=${option?.product?.id}${
+                  }?id=${node?.id}${
                      type === 'SRP'
                         ? `&serving=${option?.simpleRecipeYieldId}`
                         : `&option=${option?.id}`
                   }`}
                >
-                  {option?.product?.name}
+                  {node?.cartItem?.name}
                </Link>
             </section>
          </div>
