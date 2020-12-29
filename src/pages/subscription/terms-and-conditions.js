@@ -1,14 +1,17 @@
 import React from 'react'
 import tw from 'twin.macro'
 import { Layout } from '../../components'
+import { useConfig } from '../../lib'
 
 const Para = tw.p`mb-4`
-
 const SubHeading = tw.h2`text-3xl text-gray-700 py-2 my-3 border-b-2 border-gray-200 `
-
 const List = tw.ul`pl-6 py-3 list-disc`
 
 const termsAndConditions = () => {
+   const { configOf } = useConfig('brand')
+
+   const { name } = configOf('theme-brand')
+
    return (
       <Layout>
          <div tw="min-h-screen text-gray-600 md:mx-64 mx-10 mb-4">
@@ -16,17 +19,16 @@ const termsAndConditions = () => {
                Terms & Conditions
             </h1>
             <div tw="text-lg">
-               <Para>Welcome to ciycookit!</Para>
+               <Para>Welcome to {name}!</Para>
                <Para>
                   These terms and conditions outline the rules and regulations
-                  for the use of Cook It Yourself's Website, located at
-                  www.ciycookit.com.
+                  for the use of Cook It Yourself's Website, located at www.
+                  {name}.com.
                </Para>
                <Para>
                   By accessing this website we assume you accept these terms and
-                  conditions. Do not continue to use ciycookit if you do not
-                  agree to take all of the terms and conditions stated on this
-                  page.
+                  conditions. Do not continue to use {name} if you do not agree
+                  to take all of the terms and conditions stated on this page.
                </Para>
                <Para>
                   The following terminology applies to these Terms and
@@ -48,8 +50,8 @@ const termsAndConditions = () => {
                </Para>
                <SubHeading>Cookies</SubHeading>
                <Para>
-                  We employ the use of cookies. By accessing ciycookit, you
-                  agreed to use cookies in agreement with the Cook It Yourself's
+                  We employ the use of cookies. By accessing {name}, you agreed
+                  to use cookies in agreement with the Cook It Yourself's
                   Privacy Policy.
                </Para>
                <Para>
@@ -63,19 +65,17 @@ const termsAndConditions = () => {
                <Para>
                   Unless otherwise stated, Cook It Yourself and/or its licensors
                   own the intellectual property rights for all material on
-                  ciycookit. All intellectual property rights are reserved. You
-                  may access this from ciycookit for your own personal use
-                  subjected to restrictions set in these terms and conditions.
+                  {name}. All intellectual property rights are reserved. You may
+                  access this from {name} for your own personal use subjected to
+                  restrictions set in these terms and conditions.
                </Para>
                <Para>
                   You must not:
                   <List>
-                     <li>Republish material from ciycookit</li>
-                     <li>Sell, rent or sub-license material from ciycookit</li>
-                     <li>
-                        Reproduce, duplicate or copy material from ciycookit
-                     </li>
-                     <li>Redistribute content from ciycookit</li>
+                     <li>Republish material from {name}</li>
+                     <li>Sell, rent or sub-license material from {name}</li>
+                     <li>Reproduce, duplicate or copy material from {name}</li>
+                     <li>Redistribute content from {name}</li>
                   </List>
                </Para>
                <Para>
