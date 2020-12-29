@@ -95,6 +95,7 @@ export const WeekPicker = ({ isFixed }) => {
                const validWeekIndex = visibleOccurences.findIndex(
                   node => node.isValid
                )
+               if (validWeekIndex === -1) return
                setCurrent(validWeekIndex)
                dispatch({ type: 'SET_OCCURENCES', payload: visibleOccurences })
                dispatch({

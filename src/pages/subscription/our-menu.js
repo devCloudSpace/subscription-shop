@@ -381,7 +381,7 @@ const Product = ({ node }) => {
                   tw="text-gray-700"
                   to={`/subscription/${
                      type === 'SRP' ? 'recipes' : 'inventory'
-                  }?id=${node?.id}${
+                  }?id=${node?.cartItem?.id}${
                      type === 'SRP'
                         ? `&serving=${option?.simpleRecipeYieldId}`
                         : `&option=${option?.id}`

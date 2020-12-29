@@ -1,4 +1,5 @@
 import React from 'react'
+import { isEmpty } from 'lodash'
 import { navigate } from 'gatsby'
 import tw, { styled, css } from 'twin.macro'
 
@@ -16,10 +17,13 @@ export const AddressSection = () => {
 
    React.useEffect(() => {
       if (user.subscriptionAddressId) {
-         dispatch({
-            type: 'SET_ADDRESS',
-            payload: user?.defaultAddress,
-         })
+         addressSelection(user?.defaultAddress)
+      } else if (
+         Array.isArray(user?.platform_customer?.addresses) &&
+         !isEmpty(user?.platform_customer?.addresses)
+      ) {
+         const [address] = user?.platform_customer?.addresses
+         addressSelection(address)
       }
    }, [dispatch, user])
 

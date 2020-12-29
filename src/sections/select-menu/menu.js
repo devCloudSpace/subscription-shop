@@ -117,6 +117,16 @@ const Product = ({ node, isAdded, hasColor, selectRecipe }) => {
       type === 'SRP'
          ? node.simpleRecipeProductOption
          : node.inventoryProductOption
+
+   const canAdd = () => {
+      return (
+         ['PENDING', undefined].includes(
+            state?.weeks[state?.week?.id]?.orderCartStatus
+         ) &&
+         state?.week?.isValid &&
+         !isAdded(node?.cartItem?.id, node?.cartItem?.option?.id)
+      )
+   }
    return (
       <Styles.Product
          hasColor={hasColor}
@@ -168,20 +178,16 @@ const Product = ({ node, isAdded, hasColor, selectRecipe }) => {
                   {node?.cartItem?.name}
                </Link>
             </section>
-            {['PENDING', undefined].includes(
-               state?.weeks[state?.week?.id]?.orderCartStatus
-            ) &&
-               state?.week?.isValid &&
-               !isAdded(node?.cartItem?.id, node?.cartItem?.option?.id) && (
-                  <button
-                     onClick={() =>
-                        selectRecipe(node.cartItem, node.addonPrice)
-                     }
-                     tw="text-sm uppercase font-medium tracking-wider border border-gray-300 rounded px-1 text-gray-500"
-                  >
-                     Add
-                  </button>
-               )}
+            {(canAdd() || !node.isSingleSelect) && (
+               <button
+                  onClick={() => selectRecipe(node.cartItem, node.addonPrice)}
+                  tw="text-sm uppercase font-medium tracking-wider border border-gray-300 rounded px-1 text-gray-500"
+               >
+                  {isAdded(node?.cartItem?.id, node?.cartItem?.option?.id)
+                     ? 'Add Again'
+                     : 'Add'}
+               </button>
+            )}
          </div>
       </Styles.Product>
    )
