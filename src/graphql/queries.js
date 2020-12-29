@@ -42,11 +42,13 @@ export const PLANS = gql`
                id
                count
                price
+               isTaxIncluded
             }
             itemCounts: subscriptionItemCounts {
                id
                count
                price
+               isTaxIncluded
             }
          }
          servings: subscriptionServings(
@@ -60,6 +62,7 @@ export const PLANS = gql`
                id
                count
                price
+               isTaxIncluded
             }
             itemCounts: subscriptionItemCounts(
                order_by: { count: asc, price: asc }
@@ -68,6 +71,7 @@ export const PLANS = gql`
                id
                count
                price
+               isTaxIncluded
             }
          }
       }
@@ -444,6 +448,8 @@ export const CUSTOMER = {
                   recipes: subscriptionItemCount {
                      count
                      price
+                     tax
+                     isTaxIncluded
                      servingId: subscriptionServingId
                      serving: subscriptionServing {
                         size: servingSize

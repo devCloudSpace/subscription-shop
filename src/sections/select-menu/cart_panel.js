@@ -164,12 +164,19 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
       )
    }
 
+   const basePrice = user?.subscription?.recipes?.price
+   const itemCountTax = user?.subscription?.recipes?.tax
+   const isTaxIncluded = user?.subscription?.recipes?.isTaxIncluded
    const week = state?.weeks[state.week.id]
    const addOnTotal = week?.cart?.products
       .filter(node => Object.keys(node).length > 0)
       .reduce((a, b) => a + b.addonPrice || 0, 0)
-   const weekTotal =
-      user?.subscription?.recipes?.price + addOnTotal + zipcode.price
+   const chargesTotal = basePrice + addOnTotal + zipcode.price
+   const weekTotal = isTaxIncluded
+      ? chargesTotal -
+        (chargesTotal - (chargesTotal * 100) / (100 + itemCountTax))
+      : chargesTotal
+   const tax = weekTotal * (itemCountTax / 100)
 
    return (
       <section>
@@ -220,7 +227,11 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
                <tr>
                   <td tw="border px-2 py-1">Base Price</td>
                   <td tw="text-right border px-2 py-1">
-                     {formatCurrency(user?.subscription?.recipes?.price)}
+                     {formatCurrency(
+                        isTaxIncluded
+                           ? weekTotal - (addOnTotal + zipcode.price)
+                           : basePrice
+                     )}
                   </td>
                </tr>
                <tr tw="bg-gray-100">
@@ -236,9 +247,21 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
                   </td>
                </tr>
                <tr tw="bg-gray-100">
-                  <td tw="border px-2 py-1">This weeks total</td>
+                  <td tw="border px-2 py-1">Week Total</td>
                   <td tw="text-right border px-2 py-1">
-                     {formatCurrency(weekTotal) || 0}
+                     {formatCurrency(weekTotal || 0)}
+                  </td>
+               </tr>
+               <tr>
+                  <td tw="border px-2 py-1">Tax</td>
+                  <td tw="text-right border px-2 py-1">
+                     {formatCurrency(tax || 0)}
+                  </td>
+               </tr>
+               <tr tw="bg-gray-100">
+                  <td tw="border px-2 py-1">Total</td>
+                  <td tw="text-right border px-2 py-1">
+                     {formatCurrency(weekTotal + tax || 0)}
                   </td>
                </tr>
             </tbody>

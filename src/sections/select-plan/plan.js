@@ -141,6 +141,11 @@ export const Plan = ({ plan }) => {
                <TotalPrice hasColor={hasColor}>
                   {formatCurrency(defaultItemCount?.price)}
                </TotalPrice>
+               <span tw="text-gray-600 italic text-sm">
+                  {defaultItemCount.isTaxIncluded
+                     ? 'Tax Inclusive'
+                     : 'Tax Exclusive'}
+               </span>
                <span tw="text-gray-600">Weekly total</span>
             </section>
          </div>
