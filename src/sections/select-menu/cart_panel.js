@@ -1,5 +1,6 @@
 import React from 'react'
 import moment from 'moment'
+import { isEmpty } from 'lodash'
 import { navigate } from 'gatsby'
 import { useLocation } from '@reach/router'
 import tw, { styled, css } from 'twin.macro'
@@ -202,12 +203,13 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
          </header>
          <CartProducts>
             {week?.cart.products.map((product, index) =>
-               Object.keys(product).length === 0 ? (
+               isEmpty(product) ? (
                   <SkeletonCartProduct key={index} />
                ) : (
                   <CartProduct
-                     key={`product-${product.cartItemId}`}
+                     index={index}
                      product={product}
+                     key={`product-${product.cartItemId}`}
                   />
                )
             )}
@@ -271,13 +273,13 @@ const SkeletonCartProduct = () => {
    )
 }
 
-const CartProduct = ({ product }) => {
+const CartProduct = ({ product, index }) => {
    const { addToast } = useToasts()
    const { state, dispatch } = useMenu()
-   const removeRecipe = id => {
+   const removeRecipe = () => {
       dispatch({
          type: 'REMOVE_RECIPE',
-         payload: { weekId: state.week.id, productId: id },
+         payload: { weekId: state.week.id, index },
       })
       addToast(`You've removed the recipe ${product.name}.`, {
          appearance: 'warning',
@@ -303,7 +305,7 @@ const CartProduct = ({ product }) => {
             ) &&
                state?.week?.isValid && (
                   <span className="remove_product">
-                     <button onClick={() => removeRecipe(product.id)}>
+                     <button onClick={() => removeRecipe()}>
                         <CloseIcon
                            size={16}
                            tw="stroke-current text-green-400"
