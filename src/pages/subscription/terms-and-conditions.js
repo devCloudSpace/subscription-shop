@@ -7,7 +7,7 @@ const Para = tw.p`mb-4`
 const SubHeading = tw.h2`text-3xl text-gray-700 py-2 my-3 border-b-2 border-gray-200 `
 const List = tw.ul`pl-6 py-3 list-disc`
 
-const termsAndConditions = () => {
+const TermsAndConditions = () => {
    const { configOf } = useConfig('brand')
 
    const { name } = configOf('theme-brand')
@@ -295,4 +295,4 @@ const termsAndConditions = () => {
    )
 }
 
-export default termsAndConditions
+export default TermsAndConditions
