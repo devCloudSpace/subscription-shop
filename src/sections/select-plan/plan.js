@@ -40,6 +40,7 @@ export const Plan = ({ plan }) => {
    }
 
    const config = configOf('primary-labels')
+   const colorConfig = configOf('theme-color', 'Visual')
    const yieldLabel = {
       singular: config?.yieldLabel?.singular || 'serving',
       plural: config?.yieldLabel?.singular || 'servings',
@@ -149,7 +150,9 @@ export const Plan = ({ plan }) => {
                <span tw="text-gray-600">Weekly total</span>
             </section>
          </div>
-         <Button onClick={() => selectPlan()}>Select</Button>
+         <Button bg={colorConfig?.accent} onClick={() => selectPlan()}>
+            Select
+         </Button>
       </li>
    )
 }
@@ -197,6 +200,9 @@ const CountListItem = styled.li`
       `}
 `
 
-const Button = styled.button`
-   ${tw`w-full h-12 bg-blue-400 uppercase tracking-wider font-medium text-white rounded-full`}
-`
+const Button = styled.button(
+   ({ bg }) => css`
+      ${tw`w-full h-12 bg-blue-400 uppercase tracking-wider font-medium text-white rounded-full`};
+      ${bg && `background-color: ${bg};`}
+   `
+)

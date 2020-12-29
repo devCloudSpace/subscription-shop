@@ -1,9 +1,9 @@
 import React from 'react'
+import { isEmpty } from 'lodash'
 import { navigate } from 'gatsby'
 import tw, { styled } from 'twin.macro'
 import { useKeycloak } from '@react-keycloak/web'
 
-import { SEO, Layout, StepsNavbar, HelperBar } from '../../../components'
 import {
    Menu,
    CartPanel,
@@ -11,6 +11,8 @@ import {
    MenuProvider,
    useMenu,
 } from '../../../sections/select-menu'
+import { useConfig } from '../../../lib'
+import { SEO, Layout, StepsNavbar, HelperBar } from '../../../components'
 
 const SelectMenu = () => {
    const [keycloak] = useKeycloak()
@@ -21,6 +23,9 @@ const SelectMenu = () => {
       }
    }, [keycloak])
 
+   const { configOf } = useConfig('Select-Menu')
+   const config = configOf('select-menu-header')
+
    return (
       <MenuProvider>
          <Layout noHeader>
@@ -29,10 +34,23 @@ const SelectMenu = () => {
             <Main>
                <div>
                   <WeekPicker isFixed />
-                  <Header>
-                     <h1 css={tw`text-2xl md:text-4xl text-gray-700`}>
-                        Explore our Menus
-                     </h1>
+                  <Header
+                     url={
+                        !isEmpty(config?.header?.images)
+                           ? config?.header?.images[0]?.url
+                           : ''
+                     }
+                  >
+                     {config?.header?.heading && (
+                        <h1 css={tw`text-4xl text-white z-10`}>
+                           {config?.header?.heading}
+                        </h1>
+                     )}
+                     {config?.header?.subHeading && (
+                        <h3 css={tw`text-xl text-gray-100 z-10`}>
+                           {config?.header?.subHeading}
+                        </h3>
+                     )}
                   </Header>
                </div>
                <MenuContent />
@@ -72,8 +90,26 @@ const Main = styled.main`
 `
 
 const Header = styled.header`
-   height: 320px;
-   ${tw`bg-gray-100 flex items-center justify-center`}
+   height: 480px;
+   position: relative;
+   ${tw`bg-gray-100 flex flex-col items-center justify-center`}
+   ::before {
+      content: '';
+      position: absolute;
+      height: 100%;
+      width: 100%;
+      z-index: 0;
+      background-image: url(${props => props.url});
+      ${tw`bg-no-repeat bg-center bg-cover`}
+   }
+   ::after {
+      content: '';
+      position: absolute;
+      height: 100%;
+      width: 100%;
+      z-index: 1;
+      ${tw`bg-black opacity-25`}
+   }
 `
 
 const Content = styled.section`
