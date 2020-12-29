@@ -142,7 +142,7 @@ export const Plan = ({ plan }) => {
                   {formatCurrency(defaultItemCount?.price)}
                </TotalPrice>
                <span tw="text-gray-600 italic text-sm">
-                  {defaultItemCount.isTaxIncluded
+                  {defaultItemCount?.isTaxIncluded
                      ? 'Tax Inclusive'
                      : 'Tax Exclusive'}
                </span>
