@@ -64,6 +64,21 @@ export const Layout = ({ children, noHeader }) => {
                      <li tw="mb-3">
                         <Link to="/subscription/menu">Menu</Link>
                      </li>
+                     <li tw="mb-3">
+                        <Link to="/subscription/terms-and-conditions/">
+                           Terms and Conditions
+                        </Link>
+                     </li>
+                     <li tw="mb-3">
+                        <Link to="/subscription/privacy-policy/">
+                           Privacy Policy
+                        </Link>
+                     </li>
+                     <li tw="mb-3">
+                        <Link to="/subscription/refund-policy/">
+                           Refund Policy
+                        </Link>
+                     </li>
                   </ul>
                </section>
             </div>
