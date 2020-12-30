@@ -8,6 +8,7 @@ import { useToasts } from 'react-toast-notifications'
 import { useQuery, useMutation } from '@apollo/react-hooks'
 
 import { useMenu } from './state'
+import { useConfig } from '../../lib'
 import { useUser } from '../../context'
 import { HelperBar } from '../../components'
 import { CloseIcon } from '../../assets/icons'
