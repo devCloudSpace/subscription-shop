@@ -113,7 +113,14 @@ export const OCCURENCE_PRODUCTS_BY_CATEGORIES = gql`
          }
       ) {
          name
-         productsAggregate: subscriptionOccurenceProducts_aggregate {
+         productsAggregate: subscriptionOccurenceProducts_aggregate(
+            where: {
+               _or: [
+                  { subscriptionId: $subscriptionId }
+                  { subscriptionOccurenceId: $occurenceId }
+               ]
+            }
+         ) {
             aggregate {
                count
             }
