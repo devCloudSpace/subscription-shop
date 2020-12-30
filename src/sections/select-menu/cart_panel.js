@@ -216,7 +216,7 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
                   <CartProduct
                      index={index}
                      product={product}
-                     key={`product-${product.cartItemId}`}
+                     key={`product-${product.cartItemId}-${index}`}
                   />
                )
             )}
@@ -338,7 +338,7 @@ const CartProduct = ({ product, index }) => {
                )}
          </aside>
          <main tw="h-16 pl-3">
-            <p tw="truncate text-gray-800" title={product.name}>
+            <p tw="text-gray-800" title={product.name}>
                {product.name}
             </p>
          </main>
