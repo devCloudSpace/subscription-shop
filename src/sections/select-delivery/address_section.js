@@ -16,9 +16,7 @@ export const AddressSection = () => {
    const { state, dispatch } = useDelivery()
 
    React.useEffect(() => {
-      if (user.subscriptionAddressId) {
-         addressSelection(user?.defaultAddress)
-      } else if (
+      if (
          Array.isArray(user?.platform_customer?.addresses) &&
          !isEmpty(user?.platform_customer?.addresses)
       ) {

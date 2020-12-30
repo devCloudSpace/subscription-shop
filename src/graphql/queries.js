@@ -471,7 +471,7 @@ export const CUSTOMER = {
                keycloakId
                phoneNumber
                stripeCustomerId
-               addresses: customerAddresses {
+               addresses: customerAddresses(order_by: { created_at: desc }) {
                   id
                   lat
                   lng
