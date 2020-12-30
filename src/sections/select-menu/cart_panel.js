@@ -24,6 +24,7 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
    const location = useLocation()
    const { addToast } = useToasts()
    const { state, dispatch } = useMenu()
+   const { configOf } = useConfig()
    const [skipCarts] = useMutation(INSERT_SUBSCRIPTION_OCCURENCE_CUSTOMERS)
    const [upsertCart] = useMutation(CREATE_CART, {
       refetchQueries: () => ['cart'],
@@ -86,8 +87,8 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
          variables: {
             object: {
                status: 'PENDING',
-               amount: weekTotal,
                customerId: user.id,
+               amount: weekTotal + tax,
                paymentStatus: 'PENDING',
                cartInfo: {
                   products: week.cart.products,
@@ -178,6 +179,8 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
       : chargesTotal
    const tax = weekTotal * (itemCountTax / 100)
 
+   const hasColor = configOf('theme-color', 'Visual')
+
    return (
       <section>
          <header tw="my-3 pb-1 border-b flex items-center justify-between">
@@ -247,18 +250,12 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
                   </td>
                </tr>
                <tr tw="bg-gray-100">
-                  <td tw="border px-2 py-1">Week Total</td>
-                  <td tw="text-right border px-2 py-1">
-                     {formatCurrency(weekTotal || 0)}
-                  </td>
-               </tr>
-               <tr>
                   <td tw="border px-2 py-1">Tax</td>
                   <td tw="text-right border px-2 py-1">
                      {formatCurrency(tax || 0)}
                   </td>
                </tr>
-               <tr tw="bg-gray-100">
+               <tr>
                   <td tw="border px-2 py-1">Total</td>
                   <td tw="text-right border px-2 py-1">
                      {formatCurrency(weekTotal + tax || 0)}
@@ -274,8 +271,9 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
             </HelperBar>
          ) : (
             <SaveButton
-               disabled={!state?.week?.isValid || isCartValid()}
+               bg={hasColor?.accent}
                onClick={submitSelection}
+               disabled={!state?.week?.isValid || isCartValid()}
             >
                {isCheckout ? 'Save and Proceed to Checkout' : 'Save Selection'}
             </SaveButton>
@@ -385,7 +383,7 @@ const CartProductContainer = styled.li`
 `
 
 const SaveButton = styled.button(
-   ({ disabled }) => css`
+   ({ disabled, bg }) => css`
       ${tw`
       h-10
       w-full
@@ -394,16 +392,20 @@ const SaveButton = styled.button(
       text-center
       bg-green-500
    `}
-      ${disabled &&
-      tw`
+
+${bg && `background-color: ${bg};`}
+      ${
+         disabled &&
+         tw`
          h-10
          w-full
          rounded
-         text-white
+         text-gray-600
          text-center
-         bg-green-300
+         bg-gray-200
          cursor-not-allowed 
-      `}
+      `
+      }
    `
 )
 
