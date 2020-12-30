@@ -141,7 +141,7 @@ const SectionTitle = styled.h3(
 const Button = styled.button(
    ({ disabled, bg }) => css`
       ${tw`h-10 rounded px-8 text-white bg-green-600`}
-      ${disabled && tw`cursor-not-allowed bg-green-300 hover:bg-green-300`}
+      ${disabled && tw`cursor-not-allowed bg-green-300`}
       ${bg && `background-color: ${bg};`}
    `
 )

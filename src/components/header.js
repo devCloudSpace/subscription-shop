@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'gatsby'
-import tw, { styled } from 'twin.macro'
+import tw, { styled, css } from 'twin.macro'
 import { useKeycloak } from '@react-keycloak/web'
 
 import { useConfig } from '../lib'
@@ -13,6 +13,7 @@ export const Header = () => {
    const [keycloak, initialized] = useKeycloak()
 
    const brand = configOf('theme-brand', 'brand')
+   const theme = configOf('theme-color', 'Visual')
    return (
       <Wrapper>
          <Brand to="/subscription" title={brand?.name || 'Subscription Shop'}>
@@ -61,7 +62,7 @@ export const Header = () => {
                         </Link>
                      )}
                      <button
-                        css={tw`bg-red-600 text-white rounded px-2 py-1`}
+                        css={tw`text-red-600 rounded px-2 py-1`}
                         onClick={() =>
                            keycloak.logout({
                               redirectUri: isClient
@@ -74,12 +75,9 @@ export const Header = () => {
                      </button>
                   </>
                ) : (
-                  <Link
-                     to="/subscription/login"
-                     css={tw`bg-blue-600 text-white rounded px-2 py-1`}
-                  >
+                  <Login to="/subscription/login" bg={theme?.accent}>
                      Log In
-                  </Link>
+                  </Login>
                )}
             </section>
          )}
@@ -97,3 +95,10 @@ const Wrapper = styled.header`
 const Brand = styled(Link)`
    ${tw`w-auto h-full px-6 flex items-center border-r`}
 `
+
+const Login = styled(Link)(
+   ({ bg }) => css`
+      ${tw`bg-blue-600 text-white rounded px-2 py-1`}
+      ${bg && `background-color: ${bg};`}
+   `
+)
