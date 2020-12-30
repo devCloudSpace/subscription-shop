@@ -73,7 +73,7 @@ export const AddressSection = () => {
                            tw="stroke-current text-gray-400"
                         />
                      </AddressCardLeft>
-                     <label>
+                     <label onClick={() => addressSelection(address)}>
                         <span>{address.line1}</span>
                         <span>{address.line2}</span>
                         <span>{address.city}</span>
@@ -119,7 +119,7 @@ const SectionTitle = styled.h3(
 const AddressCard = styled.li`
    ${tw`flex border text-gray-700 cursor-pointer`}
    label {
-      ${tw`p-3`}
+      ${tw`p-3 cursor-pointer`}
    }
    span {
       ${tw`block`}
