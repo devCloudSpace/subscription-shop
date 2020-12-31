@@ -1,6 +1,6 @@
 import React from 'react'
 import axios from 'axios'
-import { styled } from 'twin.macro'
+import tw, { styled } from 'twin.macro'
 import { loadStripe } from '@stripe/stripe-js'
 import { useMutation } from '@apollo/react-hooks'
 import {
@@ -69,11 +69,10 @@ export const PaymentForm = ({ intent }) => {
                   payload: { isVisible: false },
                })
             } else {
-               // TODO: delete stripe payment method on failure
-               throw Error("Couldn't complete card setup, please try again")
+               throw "Couldn't complete card setup, please try again"
             }
          } else {
-            throw Error("Couldn't complete card setup, please try again")
+            throw "Couldn't complete card setup, please try again"
          }
       } catch (error) {}
    }
@@ -93,6 +92,7 @@ const CardSetupForm = ({ intent, handleResult }) => {
    const elements = useElements()
    const inputRef = React.useRef(null)
    const [name, setName] = React.useState('')
+   const [error, setError] = React.useState('')
    const [submitting, setSubmitting] = React.useState(false)
 
    React.useEffect(() => {
@@ -100,6 +100,7 @@ const CardSetupForm = ({ intent, handleResult }) => {
    }, [])
 
    const handleSubmit = async event => {
+      setError('')
       setSubmitting(true)
       event.preventDefault()
 
@@ -117,9 +118,11 @@ const CardSetupForm = ({ intent, handleResult }) => {
       })
 
       if (result.error) {
-         // Display result.error.message in your UI.
+         setSubmitting(false)
+         setError(result.error.message)
       } else {
          handleResult(result)
+         setError('')
       }
    }
 
@@ -143,11 +146,15 @@ const CardSetupForm = ({ intent, handleResult }) => {
             <CardSection />
          </div>
          <button
-            disabled={!stripe}
-            tw="mt-3 w-full h-10 bg-blue-600 text-sm py-1 text-white uppercase font-medium tracking-wider rounded"
+            disabled={!stripe || submitting}
+            css={[
+               tw`mt-3 w-full h-10 bg-blue-600 text-sm py-1 text-white uppercase font-medium tracking-wider rounded`,
+               submitting && tw`cursor-not-allowed`,
+            ]}
          >
             {submitting ? 'Saving...' : 'Save'}
          </button>
+         {error && <span tw="block text-red-500 mt-2">{error}</span>}
       </form>
    )
 }
@@ -169,15 +176,10 @@ const CARD_ELEMENT_OPTIONS = {
 }
 
 const CardSection = () => {
-   const [error, setError] = React.useState('')
    return (
       <CardSectionWrapper>
          <span tw="block text-sm text-gray-500">Card Details</span>
-         <CardElement
-            options={CARD_ELEMENT_OPTIONS}
-            onChange={({ error }) => setError(error?.message || '')}
-         />
-         {error && <span tw="block mt-1 text-red-400">{error}</span>}
+         <CardElement options={CARD_ELEMENT_OPTIONS} />
       </CardSectionWrapper>
    )
 }
