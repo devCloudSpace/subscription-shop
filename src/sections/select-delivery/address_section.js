@@ -32,12 +32,12 @@ export const AddressSection = () => {
    const toggleTunnel = value => {
       dispatch({ type: 'TOGGLE_TUNNEL', payload: value })
    }
-   const hasColor = configOf('theme-color', 'Visual')
+   const theme = configOf('theme-color', 'Visual')
 
    return (
       <>
          <header css={tw`mt-6 mb-3 flex items-center justify-between`}>
-            <SectionTitle hasColor={hasColor}>Select Address</SectionTitle>
+            <SectionTitle theme={theme}>Select Address</SectionTitle>
             {user?.platform_customer?.addresses.length > 0 && (
                <Button size="sm" onClick={() => toggleTunnel(true)}>
                   Add Address
@@ -110,9 +110,9 @@ const AddressList = styled.ul`
 `
 
 const SectionTitle = styled.h3(
-   ({ hasColor }) => css`
+   ({ theme }) => css`
       ${tw`text-green-600 text-xl`}
-      ${hasColor?.accent && `color: ${hasColor.accent}`}
+      ${theme?.accent && `color: ${theme.accent}`}
    `
 )
 

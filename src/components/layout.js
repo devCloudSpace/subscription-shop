@@ -5,7 +5,6 @@ import { useKeycloak } from '@react-keycloak/web'
 
 import { Header } from './header'
 import { normalizeAddress } from '../utils'
-import { UserProvider } from '../context'
 import { useConfig } from '../lib/config'
 import { MailIcon, PhoneIcon } from '../assets/icons'
 
@@ -16,7 +15,7 @@ export const Layout = ({ children, noHeader }) => {
    const brand = configOf('theme-brand', 'brand')
    const store = configOf('Store Availability', 'availability')
    return (
-      <UserProvider>
+      <>
          {!noHeader && <Header />}
          {children}
          {store?.isStoreLive === false && (
@@ -24,7 +23,7 @@ export const Layout = ({ children, noHeader }) => {
                Store running in test mode so payments will be bypassed
             </div>
          )}
-         <Footer hasColor={configOf('theme-color', 'Visual')}>
+         <Footer theme={configOf('theme-color', 'Visual')}>
             <div>
                <section>
                   <h2 tw="text-3xl">{brand?.name || 'Subscription Shop'}</h2>
@@ -89,17 +88,17 @@ export const Layout = ({ children, noHeader }) => {
                </section>
             </div>
          </Footer>
-      </UserProvider>
+      </>
    )
 }
 
 const Footer = styled.footer(
-   ({ hasColor }) => css`
+   ({ theme }) => css`
       height: 320px;
       padding: 24px 0;
       background-size: 160px;
       ${tw`bg-green-600 text-white`}
-      ${hasColor?.accent && `background-color: ${hasColor.accent}`};
+      ${theme?.accent && `background-color: ${theme.accent}`};
       background-image: url('https://dailykit-assets.s3.us-east-2.amazonaws.com/subs-icons/pattern.png');
       div {
          margin: 0 auto;

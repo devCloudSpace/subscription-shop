@@ -180,7 +180,7 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
       : chargesTotal
    const tax = weekTotal * (itemCountTax / 100)
 
-   const hasColor = configOf('theme-color', 'Visual')
+   const theme = configOf('theme-color', 'Visual')
 
    return (
       <section>
@@ -272,7 +272,7 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
             </HelperBar>
          ) : (
             <SaveButton
-               bg={hasColor?.accent}
+               bg={theme?.accent}
                onClick={submitSelection}
                disabled={!state?.week?.isValid || isCartValid()}
             >

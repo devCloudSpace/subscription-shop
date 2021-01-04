@@ -32,14 +32,12 @@ export const PaymentSection = () => {
          },
       })
    }
-   const hasColor = configOf('theme-color', 'Visual')
+   const theme = configOf('theme-color', 'Visual')
 
    return (
       <>
          <header tw="my-3 pb-1 border-b flex items-center justify-between">
-            <SectionTitle hasColor={hasColor}>
-               Select Payment Method
-            </SectionTitle>
+            <SectionTitle theme={theme}>Select Payment Method</SectionTitle>
             {user?.platform_customer?.paymentMethods.length > 0 && (
                <OutlineButton onClick={() => toggleTunnel(true)}>
                   Add Card
@@ -115,9 +113,9 @@ const PaymentMethods = styled.ul`
 `
 
 const SectionTitle = styled.h3(
-   ({ hasColor }) => css`
+   ({ theme }) => css`
       ${tw`text-green-600 text-lg`}
-      ${hasColor?.accent && `color: ${hasColor.accent}`}
+      ${theme?.accent && `color: ${theme.accent}`}
    `
 )
 

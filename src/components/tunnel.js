@@ -53,7 +53,7 @@ const Header = ({ title, children }) => {
    const { configOf } = useConfig('Visual')
    return (
       <TunnelHeader>
-         <Title hasColor={configOf('theme-color')}>{title}</Title>
+         <Title theme={configOf('theme-color')}>{title}</Title>
          {children}
       </TunnelHeader>
    )
@@ -73,9 +73,9 @@ const Wrapper = styled.div`
 `
 
 const Title = styled.h2(
-   ({ hasColor }) => css`
+   ({ theme }) => css`
       ${tw`text-green-600 text-xl`}
-      ${hasColor?.accent && `color: ${hasColor.accent}`}
+      ${theme?.accent && `color: ${theme.accent}`}
    `
 )
 
