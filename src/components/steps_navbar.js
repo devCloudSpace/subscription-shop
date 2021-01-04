@@ -1,13 +1,15 @@
 import React from 'react'
-import { Link } from 'gatsby'
+import { Link, navigate } from 'gatsby'
 import { useLocation } from '@reach/router'
 import tw, { styled, css } from 'twin.macro'
 import { useKeycloak } from '@react-keycloak/web'
 
 import { useConfig } from '../lib'
-import { isClient } from '../utils'
+import { useUser } from '../context'
+import { isClient, isKeycloakSupported } from '../utils'
 
 export const StepsNavbar = () => {
+   const { user, setUser } = useUser()
    const { hasConfig, configOf } = useConfig()
    const [keycloak, initialized] = useKeycloak()
    const [steps, setSteps] = React.useState({
@@ -34,6 +36,21 @@ export const StepsNavbar = () => {
 
    const brand = configOf('theme-brand', 'brand')
    const theme = configOf('theme-color', 'Visual')
+
+   const logout = () => {
+      if (isKeycloakSupported()) {
+         keycloak.logout({
+            redirectUri: isClient
+               ? `${window.location.origin}/subscription`
+               : '',
+         })
+      } else {
+         isClient && localStorage.removeItem('token')
+         setUser({})
+         navigate('/subscription')
+      }
+   }
+
    return (
       <Navbar>
          <Brand to="/subscription" title={brand?.name || 'Subscription Shop'}>
@@ -56,18 +73,12 @@ export const StepsNavbar = () => {
                <Step>{steps.checkout}</Step>
             </Steps>
          </Progress>
-         {initialized && (
+         {(isKeycloakSupported() ? initialized : true) && (
             <section tw="px-4 ml-auto">
-               {keycloak.authenticated ? (
+               {user?.keycloakId || keycloak.authenticated ? (
                   <button
+                     onClick={logout}
                      css={tw`text-red-600 rounded px-2 py-1`}
-                     onClick={() =>
-                        keycloak.logout({
-                           redirectUri: isClient
-                              ? `${window.location.origin}/subscription`
-                              : '',
-                        })
-                     }
                   >
                      Logout
                   </button>

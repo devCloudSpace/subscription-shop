@@ -24,13 +24,13 @@ import {
 } from '../../../graphql'
 
 const Checkout = () => {
-   const [keycloak] = useKeycloak()
+   const { user } = useUser()
 
    React.useEffect(() => {
-      if (!keycloak?.tokenParsed?.sub) {
+      if (!user?.keycloakId) {
          navigate('/subscription/get-started/select-plan')
       }
-   }, [keycloak])
+   }, [user])
 
    return (
       <Layout noHeader>
@@ -138,13 +138,13 @@ const PaymentContent = ({ isCheckout }) => {
          state.payment.selected?.id
       )
    }
-   const hasColor = configOf('theme-color', 'Visual')
+   const theme = configOf('theme-color', 'Visual')
 
    return (
       <Main>
          <section>
             <header tw="my-3 pb-1 border-b flex items-center justify-between">
-               <SectionTitle hasColor={hasColor}>Profile Details</SectionTitle>
+               <SectionTitle theme={theme}>Profile Details</SectionTitle>
             </header>
             <ProfileSection />
             <PaymentSection />
@@ -152,7 +152,7 @@ const PaymentContent = ({ isCheckout }) => {
          {cart?.cartInfo && (
             <section>
                <header tw="my-3 pb-1 border-b flex items-center justify-between">
-                  <SectionTitle hasColor={hasColor}>
+                  <SectionTitle theme={theme}>
                      Order Summary ({cart.cartInfo.products.length})
                   </SectionTitle>
                </header>
@@ -166,7 +166,7 @@ const PaymentContent = ({ isCheckout }) => {
                </CartProducts>
                <Button
                   onClick={handleSubmit}
-                  bg={hasColor?.accent}
+                  bg={theme?.accent}
                   disabled={!Boolean(isValid())}
                >
                   Confirm & Pay {formatCurrency(cart.amount)}
@@ -232,9 +232,9 @@ const CartProduct = ({ product }) => {
 }
 
 const SectionTitle = styled.h3(
-   ({ hasColor }) => css`
+   ({ theme }) => css`
       ${tw`text-green-600 text-lg`}
-      ${hasColor?.accent && `color: ${hasColor.accent}`}
+      ${theme?.accent && `color: ${theme.accent}`}
    `
 )
 

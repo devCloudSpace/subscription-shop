@@ -15,14 +15,6 @@ import { useUser } from '../../context'
 import { useConfig } from '../../lib'
 
 const MenuPage = () => {
-   const [keycloak] = useKeycloak()
-
-   React.useEffect(() => {
-      if (!keycloak?.tokenParsed?.sub) {
-         navigate('/subscription/get-started/select-plan')
-      }
-   }, [keycloak])
-
    return (
       <MenuProvider>
          <Layout>
@@ -40,13 +32,19 @@ const MenuContent = () => {
    const { configOf } = useConfig('Select-Menu')
    const config = configOf('select-menu-header')
 
-   if (Object.keys(user).length === 0)
+   React.useEffect(() => {
+      if (!user?.keycloakId) {
+         navigate('/subscription/get-started/select-plan')
+      }
+   }, [user])
+
+   if (isEmpty(user))
       return (
          <Main>
             <Loader inline />
          </Main>
       )
-   if (user.isSubscriber)
+   if (user?.isSubscriber)
       return (
          <Main>
             <div>

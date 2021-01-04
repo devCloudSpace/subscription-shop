@@ -8,6 +8,7 @@ import { ToastProvider } from 'react-toast-notifications'
 import './src/styles/globals.css'
 
 import { PageLoader } from './src/components'
+import { UserProvider } from './src/context'
 import { ApolloProvider, ConfigProvider } from './src/lib'
 
 const keycloak = new Keycloak({
@@ -28,13 +29,15 @@ export const wrapRootElement = ({ element }) => {
       >
          <ApolloProvider>
             <ConfigProvider>
-               <ToastProvider
-                  autoDismiss
-                  placement="top-center"
-                  autoDismissTimeout={3000}
-               >
-                  <div css={tw`overflow-hidden`}>{element}</div>
-               </ToastProvider>
+               <UserProvider>
+                  <ToastProvider
+                     autoDismiss
+                     placement="top-center"
+                     autoDismissTimeout={3000}
+                  >
+                     <div css={tw`overflow-hidden`}>{element}</div>
+                  </ToastProvider>
+               </UserProvider>
             </ConfigProvider>
          </ApolloProvider>
       </KeycloakProvider>

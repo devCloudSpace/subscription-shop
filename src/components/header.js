@@ -1,16 +1,30 @@
 import React from 'react'
-import { Link } from 'gatsby'
+import { Link, navigate } from 'gatsby'
 import tw, { styled, css } from 'twin.macro'
 import { useKeycloak } from '@react-keycloak/web'
 
 import { useConfig } from '../lib'
 import { useUser } from '../context'
-import { isClient, getInitials } from '../utils'
+import { isClient, getInitials, isKeycloakSupported } from '../utils'
 
 export const Header = () => {
-   const { user } = useUser()
+   const { user, setUser } = useUser()
    const { configOf } = useConfig()
    const [keycloak, initialized] = useKeycloak()
+
+   const logout = () => {
+      if (isKeycloakSupported()) {
+         keycloak.logout({
+            redirectUri: isClient
+               ? `${window.location.origin}/subscription`
+               : '',
+         })
+      } else {
+         isClient && localStorage.removeItem('token')
+         setUser({})
+         navigate('/subscription')
+      }
+   }
 
    const brand = configOf('theme-brand', 'brand')
    const theme = configOf('theme-color', 'Visual')
@@ -29,7 +43,7 @@ export const Header = () => {
          <section tw="flex items-center justify-between">
             <ul />
             <ul tw="px-4 flex space-x-4">
-               {keycloak.authenticated ? (
+               {user?.keycloakId || keycloak.authenticated ? (
                   <li tw="text-gray-800">
                      <Link to="/subscription/menu">Select Menu</Link>
                   </li>
@@ -38,7 +52,7 @@ export const Header = () => {
                      <Link to="/subscription/our-menu">Our Menu</Link>
                   </li>
                )}
-               {!keycloak.authenticated && (
+               {(!user?.keycloakId || !keycloak.authenticated) && (
                   <li tw="text-gray-800">
                      <Link to="/subscription/get-started/select-plan">
                         Our Plans
@@ -47,9 +61,9 @@ export const Header = () => {
                )}
             </ul>
          </section>
-         {initialized && (
+         {(isKeycloakSupported() ? initialized : true) && (
             <section tw="px-4 ml-auto">
-               {keycloak.authenticated ? (
+               {user?.keycloakId || keycloak.authenticated ? (
                   <>
                      {user?.platform_customer?.firstName && (
                         <Link
@@ -63,13 +77,7 @@ export const Header = () => {
                      )}
                      <button
                         css={tw`text-red-600 rounded px-2 py-1`}
-                        onClick={() =>
-                           keycloak.logout({
-                              redirectUri: isClient
-                                 ? `${window.location.origin}/subscription`
-                                 : '',
-                           })
-                        }
+                        onClick={logout}
                      >
                         Logout
                      </button>

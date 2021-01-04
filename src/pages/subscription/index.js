@@ -4,14 +4,16 @@ import tw, { styled, css } from 'twin.macro'
 import { useKeycloak } from '@react-keycloak/web'
 
 import { useConfig } from '../../lib'
+import { useUser } from '../../context'
 import { SEO, Layout } from '../../components'
 import { FaqSection, InfoSection } from '../../sections'
 
 export default () => {
+   const { user } = useUser()
    const [keycloak] = useKeycloak()
    const { configOf } = useConfig()
 
-   const hasColor = configOf('theme-color', 'Visual')
+   const theme = configOf('theme-color', 'Visual')
    return (
       <Layout>
          <SEO title="Home" />
@@ -19,13 +21,13 @@ export default () => {
             <Header>
                <div>
                   <Tagline>Your next great meal is at your fingertips.</Tagline>
-                  {keycloak?.authenticated ? (
-                     <CTA hasColor={hasColor} to="/subscription/menu">
+                  {user?.keycloakId || keycloak?.authenticated ? (
+                     <CTA theme={theme} to="/subscription/menu">
                         Select Menu
                      </CTA>
                   ) : (
                      <CTA
-                        hasColor={hasColor}
+                        theme={theme}
                         to="/subscription/get-started/select-plan"
                      >
                         Get Started
@@ -80,7 +82,7 @@ const Header = styled.header`
 `
 
 const CTA = styled(Link)(
-   ({ hasColor }) => css`
+   ({ theme }) => css`
       ${tw`
       rounded 
       px-6 h-12 
@@ -90,6 +92,6 @@ const CTA = styled(Link)(
       inline-flex items-center 
       uppercase tracking-wider font-medium 
    `}
-      ${hasColor?.accent && `background-color: ${hasColor.accent}`}
+      ${theme?.accent && `background-color: ${theme.accent}`}
    `
 )
