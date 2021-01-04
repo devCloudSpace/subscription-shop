@@ -1,5 +1,6 @@
 import React from 'react'
 import tw from 'twin.macro'
+import ReactHtmlParser from 'react-html-parser'
 import { Layout, StyledArticle } from '../../components'
 import { useConfig } from '../../lib'
 
@@ -12,9 +13,7 @@ const RefundPolicy = () => {
                Refund Policy
             </h1>
             <div tw="text-lg">
-               <StyledArticle
-                  dangerouslySetInnerHTML={{ __html: value }}
-               ></StyledArticle>
+               <StyledArticle>{ReactHtmlParser(value)}</StyledArticle>
             </div>
          </div>
       </Layout>
