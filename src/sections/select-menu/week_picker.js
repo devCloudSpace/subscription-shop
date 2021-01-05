@@ -50,7 +50,7 @@ export const WeekPicker = ({ isFixed }) => {
                weekId: state.week.id,
                cartExists: week.cartExists || false,
                isSkipped: week.isSkipped || false,
-               orderCartId: week.orderCartStatus || null,
+               orderCartId: week.orderCartId || null,
                orderCartStatus: week.orderCartStatus || undefined,
                products: isSelectionEmpty ? products : week.cart.products,
             },
