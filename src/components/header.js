@@ -8,12 +8,13 @@ import { useUser } from '../context'
 import { isClient, getInitials, isKeycloakSupported } from '../utils'
 
 export const Header = () => {
-   const { user, setUser } = useUser()
+   const { isAuthenticated, user, dispatch } = useUser()
    const { configOf } = useConfig()
    const [keycloak, initialized] = useKeycloak()
 
    const logout = () => {
       if (isKeycloakSupported()) {
+         dispatch({ type: 'CLEAR_USER' })
          keycloak.logout({
             redirectUri: isClient
                ? `${window.location.origin}/subscription`
@@ -21,7 +22,7 @@ export const Header = () => {
          })
       } else {
          isClient && localStorage.removeItem('token')
-         setUser({})
+         dispatch({ type: 'CLEAR_USER' })
          navigate('/subscription')
       }
    }
@@ -43,7 +44,7 @@ export const Header = () => {
          <section tw="flex items-center justify-between">
             <ul />
             <ul tw="px-4 flex space-x-4">
-               {user?.keycloakId || keycloak.authenticated ? (
+               {isAuthenticated ? (
                   <li tw="text-gray-800">
                      <Link to="/subscription/menu">Select Menu</Link>
                   </li>
@@ -52,7 +53,7 @@ export const Header = () => {
                      <Link to="/subscription/our-menu">Our Menu</Link>
                   </li>
                )}
-               {(!user?.keycloakId || !keycloak.authenticated) && (
+               {!isAuthenticated && (
                   <li tw="text-gray-800">
                      <Link to="/subscription/get-started/select-plan">
                         Our Plans
@@ -63,7 +64,7 @@ export const Header = () => {
          </section>
          {(isKeycloakSupported() ? initialized : true) && (
             <section tw="px-4 ml-auto">
-               {user?.keycloakId || keycloak.authenticated ? (
+               {isAuthenticated ? (
                   <>
                      {user?.platform_customer?.firstName && (
                         <Link

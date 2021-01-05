@@ -15,6 +15,13 @@ import { useUser } from '../../context'
 import { useConfig } from '../../lib'
 
 const MenuPage = () => {
+   const { isAuthenticated } = useUser()
+
+   React.useEffect(() => {
+      if (!isAuthenticated) {
+         navigate('/subscription/get-started/select-plan')
+      }
+   }, [isAuthenticated])
    return (
       <MenuProvider>
          <Layout>
@@ -31,12 +38,6 @@ const MenuContent = () => {
    const { user } = useUser()
    const { configOf } = useConfig('Select-Menu')
    const config = configOf('select-menu-header')
-
-   React.useEffect(() => {
-      if (!user?.keycloakId) {
-         navigate('/subscription/get-started/select-plan')
-      }
-   }, [user])
 
    if (isEmpty(user))
       return (

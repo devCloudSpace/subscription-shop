@@ -9,7 +9,7 @@ import { useUser } from '../context'
 import { isClient, isKeycloakSupported } from '../utils'
 
 export const StepsNavbar = () => {
-   const { user, setUser } = useUser()
+   const { isAuthenticated, dispatch } = useUser()
    const { hasConfig, configOf } = useConfig()
    const [keycloak, initialized] = useKeycloak()
    const [steps, setSteps] = React.useState({
@@ -39,6 +39,7 @@ export const StepsNavbar = () => {
 
    const logout = () => {
       if (isKeycloakSupported()) {
+         dispatch({ type: 'CLEAR_USER' })
          keycloak.logout({
             redirectUri: isClient
                ? `${window.location.origin}/subscription`
@@ -46,7 +47,7 @@ export const StepsNavbar = () => {
          })
       } else {
          isClient && localStorage.removeItem('token')
-         setUser({})
+         dispatch({ type: 'CLEAR_USER' })
          navigate('/subscription')
       }
    }
@@ -75,7 +76,7 @@ export const StepsNavbar = () => {
          </Progress>
          {(isKeycloakSupported() ? initialized : true) && (
             <section tw="px-4 ml-auto">
-               {user?.keycloakId || keycloak.authenticated ? (
+               {isAuthenticated ? (
                   <button
                      onClick={logout}
                      css={tw`text-red-600 rounded px-2 py-1`}

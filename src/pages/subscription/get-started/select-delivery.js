@@ -18,13 +18,13 @@ import {
 } from '../../../sections/select-delivery'
 
 const SelectDelivery = () => {
-   const { user } = useUser()
+   const { isAuthenticated } = useUser()
 
    React.useEffect(() => {
-      if (!user?.keycloakId) {
+      if (!isAuthenticated) {
          navigate('/subscription/get-started/select-plan')
       }
-   }, [user])
+   }, [isAuthenticated])
 
    return (
       <Layout noHeader>
