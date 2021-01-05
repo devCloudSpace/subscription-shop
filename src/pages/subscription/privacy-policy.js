@@ -1,8 +1,12 @@
 import React from 'react'
 import tw from 'twin.macro'
-import { Layout, Para, SubHeading, List } from '../../components'
+import ReactHtmlParser from 'react-html-parser'
+import { Layout, StyledArticle } from '../../components'
+import { useConfig } from '../../lib'
 
 const PrivacyPolicy = () => {
+   const { value } = useConfig('brand').configOf('Privacy Policy')
+
    return (
       <Layout>
          <div tw="min-h-full text-gray-600 md:mx-64 mx-10 mb-4">
@@ -10,23 +14,7 @@ const PrivacyPolicy = () => {
                Privacy Policy
             </h1>
             <div tw="text-lg">
-               <SubHeading>Mock sub heading</SubHeading>
-               <Para>
-                  Mock Paragraph Unless otherwise stated, Cook It Yourself
-                  and/or its licensors own the intellectual property rights for
-                  all material on . All intellectual property rights are
-                  reserved. You may access this from for your own personal use
-                  subjected to restrictions set in these terms and conditions.
-               </Para>
-               <Para>
-                  You must not:
-                  <List>
-                     <li>Mock list</li>
-                     <li>Sell, rent or sub-license material from </li>
-                     <li>Reproduce, duplicate or copy material from </li>
-                     <li>Redistribute content from </li>
-                  </List>
-               </Para>
+               <StyledArticle>{ReactHtmlParser(value)}</StyledArticle>
             </div>
          </div>
       </Layout>

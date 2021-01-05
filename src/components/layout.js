@@ -14,6 +14,11 @@ export const Layout = ({ children, noHeader }) => {
    const { hasConfig, configOf } = useConfig()
 
    const brand = configOf('theme-brand', 'brand')
+   const {
+      isPrivacyPolicyAvailable,
+      isRefundPolicyAvailable,
+      isTermsAndConditionsAvailable,
+   } = configOf('Policy Availability', 'brand')
    const store = configOf('Store Availability', 'availability')
    return (
       <UserProvider>
@@ -70,21 +75,32 @@ export const Layout = ({ children, noHeader }) => {
                      <li tw="mb-3">
                         <Link to="/subscription/menu">Menu</Link>
                      </li>
-                     <li tw="mb-3">
-                        <Link to="/subscription/terms-and-conditions/">
-                           Terms and Conditions
-                        </Link>
-                     </li>
-                     <li tw="mb-3">
-                        <Link to="/subscription/privacy-policy/">
-                           Privacy Policy
-                        </Link>
-                     </li>
-                     <li tw="mb-3">
-                        <Link to="/subscription/refund-policy/">
-                           Refund Policy
-                        </Link>
-                     </li>
+                  </ul>
+               </section>
+               <section>
+                  <h4 tw="text-2xl mb-4 mt-2">Policy</h4>
+                  <ul>
+                     {isTermsAndConditionsAvailable && (
+                        <li tw="mb-3">
+                           <Link to="/subscription/terms-and-conditions/">
+                              Terms and Conditions
+                           </Link>
+                        </li>
+                     )}
+                     {isPrivacyPolicyAvailable && (
+                        <li tw="mb-3">
+                           <Link to="/subscription/privacy-policy/">
+                              Privacy Policy
+                           </Link>
+                        </li>
+                     )}
+                     {isRefundPolicyAvailable && (
+                        <li tw="mb-3">
+                           <Link to="/subscription/refund-policy/">
+                              Refund Policy
+                           </Link>
+                        </li>
+                     )}
                   </ul>
                </section>
             </div>
