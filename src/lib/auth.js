@@ -4,7 +4,7 @@ import { isEmpty } from 'lodash'
 
 import { isClient } from '../utils'
 
-const AUTH_SERVER_URL = `${process.env.GATSBY_KEYCLOAK_URL}realms/consumers/protocol/openid-connect/token`
+const AUTH_SERVER_URL = `${process.env.GATSBY_KEYCLOAK_URL}/realms/consumers/protocol/openid-connect/token`
 
 export const auth = {
    login: async ({ email, password }) => {
