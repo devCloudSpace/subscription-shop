@@ -104,7 +104,11 @@ const DeliveryContent = () => {
          </SectionTitle>
          <DeliveryDateSection />
          <div tw="mt-4 w-full flex items-center justify-center">
-            <Button onClick={() => nextStep()} disabled={!isValid()}>
+            <Button
+               bg={hasColor?.accent}
+               onClick={() => nextStep()}
+               disabled={!isValid()}
+            >
                Continue
             </Button>
          </div>
@@ -135,8 +139,9 @@ const SectionTitle = styled.h3(
 )
 
 const Button = styled.button(
-   ({ disabled }) => css`
-      ${tw`h-10 rounded px-8 text-white bg-green-600 hover:bg-green-700`}
-      ${disabled && tw`cursor-not-allowed bg-green-300 hover:bg-green-300`}
+   ({ disabled, bg }) => css`
+      ${tw`h-10 rounded px-8 text-white bg-green-600`}
+      ${disabled && tw`cursor-not-allowed bg-green-300`}
+      ${bg && `background-color: ${bg};`}
    `
 )

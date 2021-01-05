@@ -98,9 +98,9 @@ const PaymentContent = ({ isCheckout }) => {
                _set: {
                   customerInfo: {
                      customerEmail: user?.platform_customer?.email,
-                     customerPhone: user?.platform_customer?.phoneNumber,
-                     customerLastName: user?.platform_customer?.lastName,
-                     customerFirstName: user?.platform_customer?.firstName,
+                     customerPhone: state?.profile?.phoneNumber,
+                     customerLastName: state?.profile?.lastName,
+                     customerFirstName: state?.profile?.firstName,
                   },
                   paymentMethodId: state.payment.selected.id,
                   ...(isCheckout && { status: 'PROCESS' }),
@@ -164,7 +164,11 @@ const PaymentContent = ({ isCheckout }) => {
                      />
                   ))}
                </CartProducts>
-               <Button onClick={handleSubmit} disabled={!Boolean(isValid())}>
+               <Button
+                  onClick={handleSubmit}
+                  bg={hasColor?.accent}
+                  disabled={!Boolean(isValid())}
+               >
                   Confirm & Pay {formatCurrency(cart.amount)}
                </Button>
                <section tw="my-4 text-gray-700">
@@ -260,8 +264,9 @@ const Main = styled.main`
 `
 
 const Button = styled.button(
-   ({ disabled }) => css`
-      ${tw`w-full h-10 rounded px-3 text-white bg-green-600 hover:bg-green-700`}
-      ${disabled && tw`cursor-not-allowed bg-green-300 hover:bg-green-300`}
+   ({ disabled, bg }) => css`
+      ${tw`w-full h-10 rounded px-3 text-white bg-green-600`}
+      ${disabled && tw`cursor-not-allowed bg-green-300`}
+      ${bg && `background-color: ${bg};`}
    `
 )

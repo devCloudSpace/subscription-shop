@@ -33,6 +33,7 @@ export const StepsNavbar = () => {
    })
 
    const brand = configOf('theme-brand', 'brand')
+   const theme = configOf('theme-color', 'Visual')
    return (
       <Navbar>
          <Brand to="/subscription" title={brand?.name || 'Subscription Shop'}>
@@ -46,7 +47,7 @@ export const StepsNavbar = () => {
             {brand?.name && <span tw="ml-2">{brand?.name}</span>}
          </Brand>
          <Progress>
-            <ProgressBar current={currentStep} />
+            <ProgressBar theme={theme} current={currentStep} />
             <Steps>
                <Step>Select Plan</Step>
                <Step>{steps.register}</Step>
@@ -59,7 +60,7 @@ export const StepsNavbar = () => {
             <section tw="px-4 ml-auto">
                {keycloak.authenticated ? (
                   <button
-                     css={tw`bg-red-600 text-white rounded px-2 py-1`}
+                     css={tw`text-red-600 rounded px-2 py-1`}
                      onClick={() =>
                         keycloak.logout({
                            redirectUri: isClient
@@ -111,10 +112,10 @@ const Step = styled.li`
 `
 
 const ProgressBar = styled.span(
-   ({ current }) => css`
+   ({ current, theme }) => css`
       margin: 8px auto;
       width: calc(100% - 128px);
-      ${tw`bg-gray-200 h-2 rounded relative`}
+      ${tw`bg-gray-200 h-2 rounded relative`};
       :before {
          top: 0;
          left: 0;
@@ -123,6 +124,7 @@ const ProgressBar = styled.span(
          position: absolute;
          width: ${current}%;
          ${tw`bg-green-600 rounded`}
+         ${theme.accent && `background-color: ${theme.accent};`};
       }
       :after {
          top: -4px;
@@ -132,6 +134,7 @@ const ProgressBar = styled.span(
          position: absolute;
          left: calc(${current}% - 8px);
          ${tw`bg-green-600 rounded-full`}
+         ${theme.highlight && `background-color: ${theme.highlight};`};
       }
    `
 )

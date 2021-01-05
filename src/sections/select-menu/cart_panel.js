@@ -1,5 +1,6 @@
 import React from 'react'
 import moment from 'moment'
+import { isEmpty } from 'lodash'
 import { navigate } from 'gatsby'
 import { useLocation } from '@reach/router'
 import tw, { styled, css } from 'twin.macro'
@@ -7,6 +8,7 @@ import { useToasts } from 'react-toast-notifications'
 import { useQuery, useMutation } from '@apollo/react-hooks'
 
 import { useMenu } from './state'
+import { useConfig } from '../../lib'
 import { useUser } from '../../context'
 import { HelperBar } from '../../components'
 import { CloseIcon } from '../../assets/icons'
@@ -23,6 +25,7 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
    const location = useLocation()
    const { addToast } = useToasts()
    const { state, dispatch } = useMenu()
+   const { configOf } = useConfig()
    const [skipCarts] = useMutation(INSERT_SUBSCRIPTION_OCCURENCE_CUSTOMERS)
    const [upsertCart] = useMutation(CREATE_CART, {
       refetchQueries: () => ['cart'],
@@ -85,8 +88,8 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
          variables: {
             object: {
                status: 'PENDING',
-               amount: weekTotal,
                customerId: user.id,
+               amount: weekTotal + tax,
                paymentStatus: 'PENDING',
                cartInfo: {
                   products: week.cart.products,
@@ -163,12 +166,21 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
       )
    }
 
+   const basePrice = user?.subscription?.recipes?.price
+   const itemCountTax = user?.subscription?.recipes?.tax
+   const isTaxIncluded = user?.subscription?.recipes?.isTaxIncluded
    const week = state?.weeks[state.week.id]
    const addOnTotal = week?.cart?.products
       .filter(node => Object.keys(node).length > 0)
       .reduce((a, b) => a + b.addonPrice || 0, 0)
-   const weekTotal =
-      user?.subscription?.recipes?.price + addOnTotal + zipcode.price
+   const chargesTotal = basePrice + addOnTotal + zipcode.price
+   const weekTotal = isTaxIncluded
+      ? chargesTotal -
+        (chargesTotal - (chargesTotal * 100) / (100 + itemCountTax))
+      : chargesTotal
+   const tax = weekTotal * (itemCountTax / 100)
+
+   const hasColor = configOf('theme-color', 'Visual')
 
    return (
       <section>
@@ -202,12 +214,13 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
          </header>
          <CartProducts>
             {week?.cart.products.map((product, index) =>
-               Object.keys(product).length === 0 ? (
+               isEmpty(product) ? (
                   <SkeletonCartProduct key={index} />
                ) : (
                   <CartProduct
-                     key={`product-${product.cartItemId}`}
+                     index={index}
                      product={product}
+                     key={`product-${product.cartItemId}-${index}`}
                   />
                )
             )}
@@ -218,7 +231,11 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
                <tr>
                   <td tw="border px-2 py-1">Base Price</td>
                   <td tw="text-right border px-2 py-1">
-                     {formatCurrency(user?.subscription?.recipes?.price)}
+                     {formatCurrency(
+                        isTaxIncluded
+                           ? weekTotal - (addOnTotal + zipcode.price)
+                           : basePrice
+                     )}
                   </td>
                </tr>
                <tr tw="bg-gray-100">
@@ -234,9 +251,15 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
                   </td>
                </tr>
                <tr tw="bg-gray-100">
-                  <td tw="border px-2 py-1">This weeks total</td>
+                  <td tw="border px-2 py-1">Tax</td>
                   <td tw="text-right border px-2 py-1">
-                     {formatCurrency(weekTotal) || 0}
+                     {formatCurrency(tax || 0)}
+                  </td>
+               </tr>
+               <tr>
+                  <td tw="border px-2 py-1">Total</td>
+                  <td tw="text-right border px-2 py-1">
+                     {formatCurrency(weekTotal + tax || 0)}
                   </td>
                </tr>
             </tbody>
@@ -249,8 +272,9 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
             </HelperBar>
          ) : (
             <SaveButton
-               disabled={!state?.week?.isValid || isCartValid()}
+               bg={hasColor?.accent}
                onClick={submitSelection}
+               disabled={!state?.week?.isValid || isCartValid()}
             >
                {isCheckout ? 'Save and Proceed to Checkout' : 'Save Selection'}
             </SaveButton>
@@ -271,13 +295,13 @@ const SkeletonCartProduct = () => {
    )
 }
 
-const CartProduct = ({ product }) => {
+const CartProduct = ({ product, index }) => {
    const { addToast } = useToasts()
    const { state, dispatch } = useMenu()
-   const removeRecipe = id => {
+   const removeRecipe = () => {
       dispatch({
          type: 'REMOVE_RECIPE',
-         payload: { weekId: state.week.id, productId: id },
+         payload: { weekId: state.week.id, index },
       })
       addToast(`You've removed the recipe ${product.name}.`, {
          appearance: 'warning',
@@ -303,7 +327,7 @@ const CartProduct = ({ product }) => {
             ) &&
                state?.week?.isValid && (
                   <span className="remove_product">
-                     <button onClick={() => removeRecipe(product.id)}>
+                     <button onClick={() => removeRecipe()}>
                         <CloseIcon
                            size={16}
                            tw="stroke-current text-green-400"
@@ -313,7 +337,7 @@ const CartProduct = ({ product }) => {
                )}
          </aside>
          <main tw="h-16 pl-3">
-            <p tw="truncate text-gray-800" title={product.name}>
+            <p tw="text-gray-800" title={product.name}>
                {product.name}
             </p>
          </main>
@@ -360,7 +384,7 @@ const CartProductContainer = styled.li`
 `
 
 const SaveButton = styled.button(
-   ({ disabled }) => css`
+   ({ disabled, bg }) => css`
       ${tw`
       h-10
       w-full
@@ -369,16 +393,20 @@ const SaveButton = styled.button(
       text-center
       bg-green-500
    `}
-      ${disabled &&
-      tw`
+
+${bg && `background-color: ${bg};`}
+      ${
+         disabled &&
+         tw`
          h-10
          w-full
          rounded
-         text-white
+         text-gray-600
          text-center
-         bg-green-300
+         bg-gray-200
          cursor-not-allowed 
-      `}
+      `
+      }
    `
 )
 

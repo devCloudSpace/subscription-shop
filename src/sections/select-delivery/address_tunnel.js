@@ -25,6 +25,7 @@ export const AddressTunnel = () => {
          addToast('Address has been saved.', {
             appearance: 'success',
          })
+         dispatch({ type: 'SET_ADDRESS', payload: address })
       },
       onError: error => {
          addToast(error.message, {

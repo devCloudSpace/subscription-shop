@@ -19,10 +19,16 @@ export const Layout = ({ children, noHeader }) => {
       isRefundPolicyAvailable,
       isTermsAndConditionsAvailable,
    } = configOf('Policy Availability', 'brand')
+   const store = configOf('Store Availability', 'availability')
    return (
       <UserProvider>
          {!noHeader && <Header />}
          {children}
+         {store?.isStoreLive === false && (
+            <div tw="bg-gray-200 text-gray-700 w-full h-10 flex items-center justify-center">
+               Store running in test mode so payments will be bypassed
+            </div>
+         )}
          <Footer hasColor={configOf('theme-color', 'Visual')}>
             <div>
                <section>

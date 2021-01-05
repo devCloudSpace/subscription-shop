@@ -43,8 +43,18 @@ export const Plans = () => {
       addToast('Something went wrong, please refresh the page!', {
          appearance: 'error',
       })
+      return (
+         <Wrapper tw="py-3">
+            <HelperBar type="danger">
+               <HelperBar.SubTitle>
+                  Something went wrong, please refresh the page!
+               </HelperBar.SubTitle>
+            </HelperBar>
+         </Wrapper>
+      )
    }
-   if (plans.length === 0)
+   if (plans.length === 0) {
+      setIsLoading(false)
       return (
          <Wrapper tw="py-3">
             <HelperBar type="info">
@@ -52,6 +62,7 @@ export const Plans = () => {
             </HelperBar>
          </Wrapper>
       )
+   }
    return (
       <List count={plans.length}>
          {plans.map(plan => (
