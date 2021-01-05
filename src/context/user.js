@@ -12,11 +12,34 @@ import { isClient, isKeycloakSupported } from '../utils'
 
 const UserContext = React.createContext()
 
+const reducers = (state, { type, payload }) => {
+   switch (type) {
+      case 'SET_USER':
+         return {
+            ...state,
+            isAuthenticated: true,
+            user: { ...state.user, ...payload },
+         }
+      case 'CLEAR_USER':
+         return {
+            ...state,
+            user: {},
+            isAuthenticated: false,
+         }
+   }
+}
+
 export const UserProvider = ({ children }) => {
    const { brand } = useConfig()
    const [keycloak] = useKeycloak()
-   const [user, setUser] = React.useState({})
+   const [isLoading, setIsLoading] = React.useState(true)
    const [keycloakId, setKeycloakId] = React.useState('')
+   const [state, dispatch] = React.useReducer(reducers, {
+      isAuthenticated: false,
+      user: {
+         keycloakId: '',
+      },
+   })
    const { loading, data: { customer = {} } = {} } = useQuery(
       CUSTOMER.DETAILS,
       {
@@ -26,6 +49,9 @@ export const UserProvider = ({ children }) => {
             keycloakId,
             brandId: brand.id,
          },
+         onError: () => {
+            setIsLoading(false)
+         },
       }
    )
 
@@ -33,16 +59,19 @@ export const UserProvider = ({ children }) => {
       if (isClient) {
          if (isKeycloakSupported()) {
             setKeycloakId(keycloak?.tokenParsed?.sub)
+            dispatch({ type: 'SET_USER', payload: { keycloakId: user?.sub } })
          } else if (localStorage.getItem('token')) {
-            setKeycloakId(jwtDecode(localStorage.getItem('token'))?.sub)
+            const user = jwtDecode(localStorage.getItem('token'))
+            setKeycloakId(user?.sub)
+            dispatch({ type: 'SET_USER', payload: { keycloakId: user?.sub } })
          } else if (!localStorage.getItem('token')) {
-            setUser({})
+            dispatch({ type: 'CLEAR_USER' })
          }
       }
    }, [keycloak])
 
    React.useEffect(() => {
-      if (customer?.id) {
+      if (!loading && customer?.id) {
          const sub = {}
          const { brandCustomers = [], ...rest } = customer
 
@@ -71,13 +100,20 @@ export const UserProvider = ({ children }) => {
             )
          }
 
-         setUser({ ...rest, ...sub })
+         dispatch({ type: 'SET_USER', payload: { ...rest, ...sub } })
+         setIsLoading(false)
       }
-   }, [customer])
+   }, [loading, customer])
 
-   if (loading) return <PageLoader />
+   if (isLoading) return <PageLoader />
    return (
-      <UserContext.Provider value={{ user, setUser }}>
+      <UserContext.Provider
+         value={{
+            isAuthenticated: state.isAuthenticated,
+            user: state.user,
+            dispatch,
+         }}
+      >
          {children}
       </UserContext.Provider>
    )
