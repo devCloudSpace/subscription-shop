@@ -1,6 +1,7 @@
 import React from 'react'
 import { isEmpty } from 'lodash'
 import { navigate } from 'gatsby'
+import jwtDecode from 'jwt-decode'
 import tw, { styled } from 'twin.macro'
 import { useKeycloak } from '@react-keycloak/web'
 import { useToasts } from 'react-toast-notifications'
@@ -11,14 +12,13 @@ import { useConfig, auth } from '../../../lib'
 import { isClient, isKeycloakSupported } from '../../../utils'
 import { SEO, Layout, StepsNavbar } from '../../../components'
 import { BRAND, CREATE_CUSTOMER, CUSTOMER } from '../../../graphql'
-import jwtDecode from 'jwt-decode'
 
 export default () => {
-   const { user } = useUser()
    const { brand } = useConfig()
    const [keycloak] = useKeycloak()
    const { addToast } = useToasts()
-   const [current, setCurrent] = React.useState('LOGIN')
+   const { user, dispatch } = useUser()
+   const [current, setCurrent] = React.useState('REGISTER')
 
    const [create_brand_customer] = useMutation(BRAND.CUSTOMER.CREATE, {
       refetchQueries: ['customer'],
@@ -32,6 +32,7 @@ export default () => {
    const [create] = useMutation(CREATE_CUSTOMER, {
       refetchQueries: ['customer'],
       onCompleted: () => {
+         dispatch({ type: 'SET_USER', payload: {} })
          navigate('/subscription/get-started/select-delivery')
       },
       onError: () =>
@@ -40,7 +41,7 @@ export default () => {
          }),
    })
    const [customer] = useLazyQuery(CUSTOMER.DETAILS, {
-      onCompleted: ({ customer = {} }) => {
+      onCompleted: async ({ customer = {} }) => {
          if (isEmpty(customer)) {
             console.log('CUSTOMER DOESNT EXISTS')
             create({
@@ -66,8 +67,11 @@ export default () => {
             return
          }
          console.log('CUSTOMER EXISTS')
+
+         const user = await processUser(customer)
+         dispatch({ type: 'SET_USER', payload: user })
+
          const { brandCustomers = {} } = customer
-         console.log('brandCustomers', brandCustomers)
          if (isEmpty(brandCustomers)) {
             console.log('BRAND_CUSTOMER DOESNT EXISTS')
             create_brand_customer({
@@ -83,6 +87,7 @@ export default () => {
          } else if (customer.isSubscriber && brandCustomers[0].isSubscriber) {
             console.log('BRAND_CUSTOMER EXISTS & CUSTOMER IS SUBSCRIBED')
             navigate('/subscription/menu')
+            isClient && localStorage.removeItem('plan')
          } else {
             console.log('CUSTOMER ISNT SUBSCRIBED')
             navigate('/subscription/get-started/select-delivery')
@@ -341,6 +346,36 @@ const RegisterPanel = ({ customer, setCurrent }) => {
          {error && <span tw="self-start block text-red-500 mt-2">{error}</span>}
       </Panel>
    )
+}
+
+const processUser = customer => {
+   const sub = {}
+   const { brandCustomers = [], ...rest } = customer
+
+   if (!isEmpty(brandCustomers)) {
+      const [brand_customer] = brandCustomers
+
+      const {
+         subscription = null,
+         subscriptionId = null,
+         subscriptionAddressId = null,
+         subscriptionPaymentMethodId = null,
+      } = brand_customer
+
+      rest.subscription = subscription
+      rest.subscriptionId = subscriptionId
+      rest.subscriptionAddressId = subscriptionAddressId
+      rest.subscriptionPaymentMethodId = subscriptionPaymentMethodId
+
+      sub.defaultAddress = rest?.platform_customer?.addresses.find(
+         address => address.id === subscriptionAddressId
+      )
+
+      sub.defaultPaymentMethod = rest?.platform_customer?.paymentMethods.find(
+         method => method.stripePaymentMethodId === subscriptionPaymentMethodId
+      )
+   }
+   return { ...rest, ...sub }
 }
 
 const Main = styled.main`
