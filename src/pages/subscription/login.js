@@ -14,10 +14,10 @@ import { isClient, isKeycloakSupported } from '../../utils'
 import { BRAND, CREATE_CUSTOMER, CUSTOMER } from '../../graphql'
 
 const Login = () => {
-   const { user } = useUser()
    const { brand } = useConfig()
    const [keycloak] = useKeycloak()
    const { addToast } = useToasts()
+   const { user, dispatch } = useUser()
    const [current, setCurrent] = React.useState('LOGIN')
 
    const [create_brand_customer] = useMutation(BRAND.CUSTOMER.CREATE, {
@@ -163,20 +163,8 @@ const Login = () => {
                      >
                         Login
                      </Tab>
-                     <Tab
-                        className={current === 'REGISTER' ? 'active' : ''}
-                        onClick={() => setCurrent('REGISTER')}
-                     >
-                        Register
-                     </Tab>
                   </TabList>
                   {current === 'LOGIN' && <LoginPanel customer={customer} />}
-                  {current === 'REGISTER' && (
-                     <RegisterPanel
-                        setCurrent={setCurrent}
-                        customer={customer}
-                     />
-                  )}
                </>
             )}
          </Main>
@@ -256,92 +244,6 @@ const LoginPanel = ({ customer }) => {
          >
             Login
          </Submit>
-         {error && <span tw="self-start block text-red-500 mt-2">{error}</span>}
-      </Panel>
-   )
-}
-
-const RegisterPanel = ({ customer, setCurrent }) => {
-   const { brand } = useConfig()
-   const [error, setError] = React.useState('')
-   const [form, setForm] = React.useState({
-      email: '',
-      password: '',
-   })
-
-   const isValid = form.email && form.password
-
-   const onChange = e => {
-      const { name, value } = e.target
-      setForm(form => ({
-         ...form,
-         [name]: value,
-      }))
-   }
-
-   const submit = async () => {
-      try {
-         setError('')
-         const result = await auth.register({
-            email: form.email,
-            password: form.password,
-         })
-         if (result?.success) {
-            const token = await auth.login({
-               email: form.email,
-               password: form.password,
-            })
-            if (token?.sub) {
-               customer({
-                  variables: {
-                     keycloakId: token?.sub,
-                     brandId: brand.id,
-                  },
-               })
-            }
-         }
-      } catch (error) {
-         if (error.includes('exists')) {
-            return setError('Email is already in use!')
-         }
-         setError('Failed to register, please try again!')
-      }
-   }
-
-   return (
-      <Panel>
-         <FieldSet>
-            <Label htmlFor="email">Email</Label>
-            <Input
-               type="email"
-               name="email"
-               value={form.email}
-               onChange={onChange}
-               placeholder="Enter your email"
-            />
-         </FieldSet>
-         <FieldSet>
-            <Label htmlFor="password">Password</Label>
-            <Input
-               name="password"
-               type="password"
-               onChange={onChange}
-               value={form.password}
-               placeholder="Enter your password"
-            />
-         </FieldSet>
-         <Submit
-            className={!isValid ? 'disabled' : ''}
-            onClick={() => isValid && submit()}
-         >
-            Register
-         </Submit>
-         <button
-            tw="self-start mt-2 text-blue-500"
-            onClick={() => setCurrent('LOGIN')}
-         >
-            Login instead?
-         </button>
          {error && <span tw="self-start block text-red-500 mt-2">{error}</span>}
       </Panel>
    )
