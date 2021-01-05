@@ -101,8 +101,8 @@ export const UserProvider = ({ children }) => {
          }
 
          dispatch({ type: 'SET_USER', payload: { ...rest, ...sub } })
-         setIsLoading(false)
       }
+      setIsLoading(false)
    }, [loading, customer])
 
    if (isLoading) return <PageLoader />
