@@ -23,7 +23,7 @@ const Inventory = () => {
          })
       },
    })
-
+   console.log(inventory)
    React.useEffect(() => {
       let params = new URL(location.href).searchParams
       let inventoryId = Number(params.get('id'))
@@ -56,7 +56,10 @@ const Inventory = () => {
       )
    return (
       <Layout>
-         <SEO title={inventory?.cartItem?.name} />
+         <SEO
+            title={inventory?.cartItem?.name}
+            richresult={inventory.richresult}
+         />
          <InventoryContainer>
             <h1 tw="py-4 text-2xl md:text-3xl tracking-wide text-teal-900">
                {inventory?.cartItem?.name}
