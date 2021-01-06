@@ -2,7 +2,6 @@ import React from 'react'
 import { isEmpty } from 'lodash'
 import { navigate } from 'gatsby'
 import tw, { styled } from 'twin.macro'
-import { useKeycloak } from '@react-keycloak/web'
 
 import {
    Menu,
@@ -12,16 +11,18 @@ import {
    useMenu,
 } from '../../../sections/select-menu'
 import { useConfig } from '../../../lib'
+import { useUser } from '../../../context'
 import { SEO, Layout, StepsNavbar, HelperBar } from '../../../components'
 
 const SelectMenu = () => {
-   const [keycloak] = useKeycloak()
+   const { user } = useUser()
 
    React.useEffect(() => {
-      if (!keycloak?.tokenParsed?.sub) {
+      if (!user?.keycloakId) {
+         console.log('navigate called')
          navigate('/subscription/get-started/select-plan')
       }
-   }, [keycloak])
+   }, [user])
 
    const { configOf } = useConfig('Select-Menu')
    const config = configOf('select-menu-header')

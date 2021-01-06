@@ -7,7 +7,7 @@ const InfoBlock = ({ heading, subHeading, columns, children, orientation }) => {
    const { configOf } = useConfig('Visual')
 
    return (
-      <BlockWrapper hasColor={configOf('theme-color')}>
+      <BlockWrapper theme={configOf('theme-color')}>
          {heading && <Heading>{heading}</Heading>}
          {subHeading && <SubHeading>{subHeading}</SubHeading>}
          <Container count={columns} orientation={orientation}>
@@ -48,14 +48,14 @@ InfoBlock.Item = Item
 export { InfoBlock }
 
 const BlockWrapper = styled.div(
-   ({ hasColor }) => css`
+   ({ theme }) => css`
       padding: 48px 0;
       margin: 0 auto;
       max-width: 980px;
       width: calc(100% - 40px);
       h1,
       h3 {
-         color: ${hasColor.accent || tw`text-green-600`};
+         color: ${theme.accent || tw`text-green-600`};
       }
    `
 )

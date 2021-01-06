@@ -11,6 +11,7 @@
    "dependencies": {
       "@apollo/react-hooks": "^3.1.5",
       "@emotion/core": "^10.0.28",
+      "@emotion/react": "^11.1.4",
       "@emotion/styled": "^10.0.27",
       "@react-keycloak/web": "^2.1.1",
       "@stripe/react-stripe-js": "^1.1.2",
@@ -32,6 +33,7 @@
       "graphql": "^15.3.0",
       "graphql-tag": "^2.10.3",
       "isomorphic-fetch": "^2.2.1",
+      "jwt-decode": "^3.1.2",
       "keycloak-js": "^10.0.2",
       "lodash": "^4.17.20",
       "moment": "^2.27.0",
@@ -45,6 +47,7 @@
       "react-toast-notifications": "^2.4.0",
       "rrule": "2.6.4",
       "subscriptions-transport-ws": "^0.9.16",
+      "tailwind": "^4.0.0",
       "ws": "^7.3.1"
    },
    "devDependencies": {
@@ -53,7 +56,7 @@
       "gatsby-plugin-asset-path": "^3.0.2",
       "postcss-preset-env": "^6.7.0",
       "tailwindcss": "^1.6.0",
-      "twin.macro": "^1.7.0"
+      "twin.macro": "^2.0.7"
    },
    "repository": {
       "type": "git",

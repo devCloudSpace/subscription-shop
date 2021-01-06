@@ -20,6 +20,11 @@ import {
    INSERT_SUBSCRIPTION_OCCURENCE_CUSTOMERS,
 } from '../../graphql'
 
+const evalTime = (date, time) => {
+   const [hour, minute] = time.split(':')
+   return moment(date).hour(hour).minute(minute).second(0).toISOString()
+}
+
 export const CartPanel = ({ noSkip, isCheckout }) => {
    const { user } = useUser()
    const location = useLocation()
@@ -81,9 +86,8 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
          zipcode: user?.defaultAddress?.zipcode,
       },
    })
+
    const submitSelection = () => {
-      const evalTime = (time, hour) =>
-         moment(time).hour(hour).minute(0).second(0).toISOString()
       upsertCart({
          variables: {
             object: {
@@ -113,8 +117,8 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
                fulfillmentInfo: {
                   type: 'PREORDER_DELIVERY',
                   slot: {
-                     from: evalTime(state.week.fulfillmentDate, 8),
-                     to: evalTime(state.week.fulfillmentDate, 20),
+                     from: evalTime(state.week.fulfillmentDate, zipcode?.from),
+                     to: evalTime(state.week.fulfillmentDate, zipcode?.to),
                   },
                },
 
@@ -180,7 +184,7 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
       : chargesTotal
    const tax = weekTotal * (itemCountTax / 100)
 
-   const hasColor = configOf('theme-color', 'Visual')
+   const theme = configOf('theme-color', 'Visual')
 
    return (
       <section>
@@ -272,7 +276,7 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
             </HelperBar>
          ) : (
             <SaveButton
-               bg={hasColor?.accent}
+               bg={theme?.accent}
                onClick={submitSelection}
                disabled={!state?.week?.isValid || isCartValid()}
             >

@@ -209,6 +209,8 @@ export const ZIPCODE = gql`
          zipcode: $zipcode
       ) {
          price: deliveryPrice
+         from: deliveryTime(path: "from")
+         to: deliveryTime(path: "to")
       }
    }
 `

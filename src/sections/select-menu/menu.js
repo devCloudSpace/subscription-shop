@@ -65,7 +65,7 @@ export const Menu = () => {
          ? false
          : true
    }
-   const hasColor = configOf('theme-color', 'Visual')
+   const theme = configOf('theme-color', 'Visual')
 
    if (loading) return <SkeletonProduct />
    if (isEmpty(categories))
@@ -98,7 +98,7 @@ export const Menu = () => {
                      <Product
                         node={node}
                         isAdded={isAdded}
-                        hasColor={hasColor}
+                        theme={theme}
                         selectRecipe={selectRecipe}
                         key={`${index}-${node?.id}`}
                      />
@@ -110,7 +110,7 @@ export const Menu = () => {
    )
 }
 
-const Product = ({ node, isAdded, hasColor, selectRecipe }) => {
+const Product = ({ node, isAdded, theme, selectRecipe }) => {
    const { state } = useMenu()
    const type = node?.simpleRecipeProductOption?.id ? 'SRP' : 'IP'
    const option =
@@ -129,7 +129,7 @@ const Product = ({ node, isAdded, hasColor, selectRecipe }) => {
    }
    return (
       <Styles.Product
-         hasColor={hasColor}
+         theme={theme}
          className={`${
             isAdded(node?.cartItem?.id, node?.cartItem?.option?.id)
                ? 'active'
@@ -195,13 +195,11 @@ const Product = ({ node, isAdded, hasColor, selectRecipe }) => {
 
 const Styles = {
    Product: styled.li(
-      ({ hasColor }) => css`
+      ({ theme }) => css`
          ${tw`relative border flex flex-col bg-white p-2 rounded overflow-hidden`}
          &.active {
             ${tw`border border-2 border-red-400`}
-            border-color: ${
-               hasColor?.highlight ? hasColor.highlight : '#38a169'
-            }
+            border-color: ${theme?.highlight ? theme.highlight : '#38a169'}
          }
       `
    ),

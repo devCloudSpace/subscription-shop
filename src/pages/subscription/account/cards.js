@@ -10,7 +10,6 @@ import {
 } from '@stripe/react-stripe-js'
 import { navigate } from 'gatsby'
 import tw, { styled, css } from 'twin.macro'
-import { useKeycloak } from '@react-keycloak/web'
 import { useToasts } from 'react-toast-notifications'
 
 import {
@@ -28,13 +27,13 @@ import { CloseIcon } from '../../../assets/icons'
 import { BRAND, CREATE_STRIPE_PAYMENT_METHOD } from '../../../graphql'
 
 const ManageCards = () => {
-   const [keycloak] = useKeycloak()
+   const { user } = useUser()
 
    React.useEffect(() => {
-      if (!keycloak?.authenticated) {
+      if (!user?.keycloakId) {
          navigate('/subscription')
       }
-   }, [keycloak])
+   }, [user])
 
    return (
       <Layout>
@@ -52,7 +51,6 @@ export default ManageCards
 const Content = () => {
    const { user } = useUser()
    const { addToast } = useToasts()
-   const [keycloak] = useKeycloak()
    const { brand, configOf } = useConfig()
    const [tunnel, toggleTunnel] = React.useState(false)
    const [updateBrandCustomer] = useMutation(BRAND.CUSTOMER.UPDATE, {
@@ -69,7 +67,7 @@ const Content = () => {
          variables: {
             where: {
                keycloakId: {
-                  _eq: keycloak?.tokenParsed?.sub,
+                  _eq: user?.keycloakId,
                },
                brandId: {
                   _eq: brand.id,
@@ -81,12 +79,12 @@ const Content = () => {
          },
       })
    }
-   const hasColor = configOf('theme-color', 'Visual')
+   const theme = configOf('theme-color', 'Visual')
 
    return (
       <div tw="px-3">
          <header tw="mt-6 mb-3 flex items-center justify-between">
-            <Title hasColor={hasColor}>Cards</Title>
+            <Title theme={theme}>Cards</Title>
             {user?.platform_customer?.paymentMethods.length > 0 && (
                <Button size="sm" onClick={() => toggleTunnel(true)}>
                   Add Card
@@ -370,9 +368,9 @@ const Main = styled.main`
 `
 
 const Title = styled.h2(
-   ({ hasColor }) => css`
+   ({ theme }) => css`
       ${tw`text-green-600 text-2xl`}
-      ${hasColor?.accent && `color: ${hasColor.accent}`}
+      ${theme?.accent && `color: ${theme.accent}`}
    `
 )
 
