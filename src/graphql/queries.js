@@ -158,6 +158,7 @@ export const RECIPE_DETAILS = gql`
             procedures
             image
             assets
+            richResult
             yields: simpleRecipeYields(where: { id: { _eq: $yieldId } }) {
                id
                yield
