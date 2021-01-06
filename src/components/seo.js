@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet'
 import { useConfig } from '../lib'
 import { useStaticQuery, graphql } from 'gatsby'
 
-export const SEO = ({ description, title, lang = 'en', meta }) => {
+export const SEO = ({ description, title, lang = 'en', meta, richresult }) => {
    const { site } = useStaticQuery(
       graphql`
          query {
@@ -38,6 +38,12 @@ export const SEO = ({ description, title, lang = 'en', meta }) => {
             { name: `twitter:description`, content: metaDescription },
          ].concat(meta)}
          link={[{ rel: 'icon', type: 'image/png', href: favicon }]}
+         script={[
+            {
+               type: 'application/ld+json',
+               innerHTML: JSON.stringify(richresult),
+            },
+         ]}
       />
    )
 }
