@@ -1,6 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { Helmet } from 'react-helmet'
+import { useConfig } from '../lib'
 import { useStaticQuery, graphql } from 'gatsby'
 
 export const SEO = ({ description, title, lang = 'en', meta }) => {
@@ -16,6 +17,8 @@ export const SEO = ({ description, title, lang = 'en', meta }) => {
          }
       `
    )
+
+   const { favicon } = useConfig().configOf('theme-brand', 'brand')
 
    const metaTitle = title || site.siteMetadata.title
    const metaDescription = description || site.siteMetadata.description
@@ -34,6 +37,7 @@ export const SEO = ({ description, title, lang = 'en', meta }) => {
             { name: `twitter:title`, content: metaTitle },
             { name: `twitter:description`, content: metaDescription },
          ].concat(meta)}
+         link={[{ rel: 'icon', type: 'image/png', href: favicon }]}
       />
    )
 }

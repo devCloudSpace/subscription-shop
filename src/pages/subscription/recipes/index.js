@@ -23,7 +23,7 @@ const Recipe = () => {
          })
       },
    })
-
+   console.log(recipe)
    React.useEffect(() => {
       let params = new URL(location.href).searchParams
       let recipeId = Number(params.get('id'))
