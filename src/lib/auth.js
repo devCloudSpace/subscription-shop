@@ -34,7 +34,7 @@ export const auth = {
             },
             data: searchParams,
          })
-         if (response.statusText === 'OK' && response.status === 200) {
+         if (response.status === 200) {
             isClient &&
                localStorage.setItem('token', response.data.access_token)
             const token = jwt_decode(response.data.access_token)
