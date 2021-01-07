@@ -31,8 +31,11 @@ export default () => {
    })
    const [create] = useMutation(CREATE_CUSTOMER, {
       refetchQueries: ['customer'],
-      onCompleted: () => {
-         dispatch({ type: 'SET_USER', payload: {} })
+      onCompleted: async ({ createCustomer }) => {
+         if (!isEmpty(createCustomer)) {
+            const user = await processUser(createCustomer)
+            dispatch({ type: 'SET_USER', payload: user })
+         }
          navigate('/subscription/get-started/select-delivery')
       },
       onError: () =>
