@@ -23,7 +23,7 @@ const Recipe = () => {
          })
       },
    })
-
+   console.log(recipe)
    React.useEffect(() => {
       let params = new URL(location.href).searchParams
       let recipeId = Number(params.get('id'))
@@ -54,7 +54,7 @@ const Recipe = () => {
       )
    return (
       <Layout>
-         <SEO title={recipe.name} />
+         <SEO title={recipe.name} richresult={recipe.richResult} />
          <RecipeContainer>
             <h1 tw="py-4 text-2xl md:text-3xl tracking-wide text-teal-900">
                {recipe.name}
