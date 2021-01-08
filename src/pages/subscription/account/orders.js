@@ -78,9 +78,10 @@ const Listing = ({ current, setCurrent }) => {
       <aside tw="border-r overflow-y-auto">
          <Title theme={theme}>Orders</Title>
          <ul tw="px-2 space-y-2">
+            {console.log(window)}
             {orders.nodes.map(
                (node, i) =>
-                  i + 1 <= orderWindow && (
+                  (i + 1 <= orderWindow || window.innerWidth > 786) && (
                      <Date
                         theme={theme}
                         key={node.occurrenceId}
@@ -97,7 +98,7 @@ const Listing = ({ current, setCurrent }) => {
                      </Date>
                   )
             )}
-            {orders.nodes.length > orderWindow && (
+            {orders.nodes.length > orderWindow && window.innerWidth <= 786 && (
                <div
                   tw="float-right text-sm text-blue-500"
                   onClick={() => setOrderWindow(orderWindow + 4)}
