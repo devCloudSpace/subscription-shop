@@ -268,6 +268,9 @@ const Main = styled.main`
    display: grid;
    grid-template-rows: 1fr;
    grid-template-columns: 240px 1fr;
+   @media (max-width: 768px) {
+      display: block;
+   }
 `
 
 const Title = styled.h2(
@@ -283,6 +286,12 @@ const Wrapper = styled.div`
    grid-template-columns: 280px 1fr;
    > aside {
       height: calc(100vh - 64px);
+   }
+   @media (max-width: 768px) {
+      display: block;
+      > aside {
+         height: max-content;
+      }
    }
 `
 

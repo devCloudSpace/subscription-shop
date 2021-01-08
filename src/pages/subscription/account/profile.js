@@ -45,7 +45,7 @@ const ProfileForm = () => {
                {user?.platform_customer?.email}
             </Form.DisabledText>
          </Form.Field>
-         <div tw="flex">
+         <div tw="flex flex-wrap md:flex-nowrap">
             <Form.Field tw="mr-3">
                <Form.Label>First Name</Form.Label>
                <Form.Text
@@ -81,4 +81,7 @@ const Main = styled.main`
    grid-template-rows: 1fr;
    height: calc(100vh - 64px);
    grid-template-columns: 240px 1fr;
+   @media (max-width: 768px) {
+      display: block;
+   }
 `
