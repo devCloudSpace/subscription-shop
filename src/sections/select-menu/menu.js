@@ -65,7 +65,7 @@ export const Menu = () => {
          ? false
          : true
    }
-   const hasColor = configOf('theme-color', 'Visual')
+   const theme = configOf('theme-color', 'Visual')
 
    if (loading) return <SkeletonProduct />
    if (isEmpty(categories))
@@ -98,7 +98,7 @@ export const Menu = () => {
                      <Product
                         node={node}
                         isAdded={isAdded}
-                        hasColor={hasColor}
+                        theme={theme}
                         selectRecipe={selectRecipe}
                         key={`${index}-${node?.id}`}
                      />
@@ -110,16 +110,26 @@ export const Menu = () => {
    )
 }
 
-const Product = ({ node, isAdded, hasColor, selectRecipe }) => {
+const Product = ({ node, isAdded, theme, selectRecipe }) => {
    const { state } = useMenu()
    const type = node?.simpleRecipeProductOption?.id ? 'SRP' : 'IP'
    const option =
       type === 'SRP'
          ? node.simpleRecipeProductOption
          : node.inventoryProductOption
+
+   const canAdd = () => {
+      return (
+         ['PENDING', undefined].includes(
+            state?.weeks[state?.week?.id]?.orderCartStatus
+         ) &&
+         state?.week?.isValid &&
+         !isAdded(node?.cartItem?.id, node?.cartItem?.option?.id)
+      )
+   }
    return (
       <Styles.Product
-         hasColor={hasColor}
+         theme={theme}
          className={`${
             isAdded(node?.cartItem?.id, node?.cartItem?.option?.id)
                ? 'active'
@@ -168,20 +178,16 @@ const Product = ({ node, isAdded, hasColor, selectRecipe }) => {
                   {node?.cartItem?.name}
                </Link>
             </section>
-            {['PENDING', undefined].includes(
-               state?.weeks[state?.week?.id]?.orderCartStatus
-            ) &&
-               state?.week?.isValid &&
-               !isAdded(node?.cartItem?.id, node?.cartItem?.option?.id) && (
-                  <button
-                     onClick={() =>
-                        selectRecipe(node.cartItem, node.addonPrice)
-                     }
-                     tw="text-sm uppercase font-medium tracking-wider border border-gray-300 rounded px-1 text-gray-500"
-                  >
-                     Add
-                  </button>
-               )}
+            {(canAdd() || !node.isSingleSelect) && (
+               <button
+                  onClick={() => selectRecipe(node.cartItem, node.addonPrice)}
+                  tw="text-sm uppercase font-medium tracking-wider border border-gray-300 rounded px-1 text-gray-500"
+               >
+                  {isAdded(node?.cartItem?.id, node?.cartItem?.option?.id)
+                     ? 'Add Again'
+                     : 'Add'}
+               </button>
+            )}
          </div>
       </Styles.Product>
    )
@@ -189,13 +195,11 @@ const Product = ({ node, isAdded, hasColor, selectRecipe }) => {
 
 const Styles = {
    Product: styled.li(
-      ({ hasColor }) => css`
+      ({ theme }) => css`
          ${tw`relative border flex flex-col bg-white p-2 rounded overflow-hidden`}
          &.active {
             ${tw`border border-2 border-red-400`}
-            border-color: ${
-               hasColor?.highlight ? hasColor.highlight : '#38a169'
-            }
+            border-color: ${theme?.highlight ? theme.highlight : '#38a169'}
          }
       `
    ),

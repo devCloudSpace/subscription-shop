@@ -2,7 +2,6 @@ import React from 'react'
 import moment from 'moment'
 import { useLocation } from '@reach/router'
 import tw, { styled, css } from 'twin.macro'
-import { useKeycloak } from '@react-keycloak/web'
 import { useToasts } from 'react-toast-notifications'
 import { useQuery, useLazyQuery } from '@apollo/react-hooks'
 
@@ -17,7 +16,6 @@ export const WeekPicker = ({ isFixed }) => {
    const { user } = useUser()
    const location = useLocation()
    const { addToast } = useToasts()
-   const [keycloak] = useKeycloak()
    const { state, dispatch } = useMenu()
    const [current, setCurrent] = React.useState(0)
    const [fetchCart, { data: { cart } = {} }] = useLazyQuery(CART_BY_WEEK, {
@@ -52,7 +50,7 @@ export const WeekPicker = ({ isFixed }) => {
                weekId: state.week.id,
                cartExists: week.cartExists || false,
                isSkipped: week.isSkipped || false,
-               orderCartId: week.orderCartStatus || null,
+               orderCartId: week.orderCartId || null,
                orderCartStatus: week.orderCartStatus || undefined,
                products: isSelectionEmpty ? products : week.cart.products,
             },
@@ -95,6 +93,7 @@ export const WeekPicker = ({ isFixed }) => {
                const validWeekIndex = visibleOccurences.findIndex(
                   node => node.isValid
                )
+               if (validWeekIndex === -1) return
                setCurrent(validWeekIndex)
                dispatch({ type: 'SET_OCCURENCES', payload: visibleOccurences })
                dispatch({
@@ -103,7 +102,7 @@ export const WeekPicker = ({ isFixed }) => {
                })
                fetchCart({
                   variables: {
-                     keycloakId: keycloak?.tokenParsed?.sub,
+                     keycloakId: user?.keycloakId,
                      weekId: visibleOccurences[validWeekIndex].id,
                   },
                })
@@ -128,7 +127,7 @@ export const WeekPicker = ({ isFixed }) => {
       dispatch({ type: 'SET_WEEK', payload: state.occurences[nextOne] })
       fetchCart({
          variables: {
-            keycloakId: keycloak?.tokenParsed?.sub,
+            keycloakId: user?.keycloakId,
             weekId: state.occurences[nextOne].id,
          },
       })
@@ -143,7 +142,7 @@ export const WeekPicker = ({ isFixed }) => {
       dispatch({ type: 'SET_WEEK', payload: state.occurences[previousOne] })
       fetchCart({
          variables: {
-            keycloakId: keycloak?.tokenParsed?.sub,
+            keycloakId: user?.keycloakId,
             weekId: state.occurences[previousOne].id,
          },
       })

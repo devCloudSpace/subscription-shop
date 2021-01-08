@@ -1,7 +1,6 @@
 import React from 'react'
 import { navigate } from 'gatsby'
 import tw, { styled, css } from 'twin.macro'
-import { useKeycloak } from '@react-keycloak/web'
 import { useSubscription } from '@apollo/react-hooks'
 
 import { useConfig } from '../../../lib'
@@ -11,13 +10,13 @@ import { formatDate, formatCurrency } from '../../../utils'
 import { SEO, Layout, HelperBar, ProfileSidebar } from '../../../components'
 
 const Orders = () => {
-   const [keycloak] = useKeycloak()
+   const { user } = useUser()
 
    React.useEffect(() => {
-      if (!keycloak?.authenticated) {
+      if (!user?.keycloakId) {
          navigate('/subscription')
       }
-   }, [keycloak])
+   }, [user])
 
    return (
       <Layout>
@@ -44,13 +43,13 @@ const OrderHistory = () => {
 }
 
 const Listing = ({ current, setCurrent }) => {
+   const { user } = useUser()
    const { configOf } = useConfig()
-   const [keycloak] = useKeycloak()
    const { loading, data: { orders = {} } = {} } = useSubscription(
       ORDER_HISTORY,
       {
          variables: {
-            keycloakId: { _eq: keycloak?.tokenParsed?.sub },
+            keycloakId: { _eq: user?.keycloakId },
          },
          onSubscriptionData: ({
             subscriptionData: { data: { orders = {} } = {} } = {},
@@ -61,7 +60,7 @@ const Listing = ({ current, setCurrent }) => {
          },
       }
    )
-   const hasColor = configOf('theme-color', 'Visual')
+   const theme = configOf('theme-color', 'Visual')
 
    if (loading)
       return (
@@ -76,11 +75,11 @@ const Listing = ({ current, setCurrent }) => {
       )
    return (
       <aside tw="border-r overflow-y-auto">
-         <Title hasColor={hasColor}>Orders</Title>
+         <Title theme={theme}>Orders</Title>
          <ul tw="px-2 space-y-2">
             {orders.nodes.map(node => (
                <Date
-                  hasColor={hasColor}
+                  theme={theme}
                   key={node.occurrenceId}
                   onClick={() => setCurrent(node.occurrenceId)}
                   className={`${node.occurrenceId === current ? 'active' : ''}`}
@@ -100,10 +99,9 @@ const Listing = ({ current, setCurrent }) => {
 const Details = ({ current }) => {
    const { user } = useUser()
    const { configOf } = useConfig()
-   const [keycloak] = useKeycloak()
    const { loading, data: { order = {} } = {} } = useSubscription(ORDER, {
       variables: {
-         keycloakId: keycloak?.tokenParsed?.sub,
+         keycloakId: user?.keycloakId,
          subscriptionOccurenceId: current,
       },
    })
@@ -111,7 +109,7 @@ const Details = ({ current }) => {
    const paymentMethod = user?.platform_customer?.paymentMethods.find(
       node => node.stripePaymentMethodId === order?.cart?.paymentMethodId
    )
-   const hasColor = configOf('theme-color', 'Visual')
+   const theme = configOf('theme-color', 'Visual')
 
    if (loading)
       return (
@@ -137,7 +135,7 @@ const Details = ({ current }) => {
    return (
       <main tw="mx-3">
          <header tw="flex items-center justify-between">
-            <Title hasColor={hasColor}>Order Details</Title>
+            <Title theme={theme}>Order Details</Title>
             {order?.cart?.order?.status && (
                <Status status={order?.cart?.order?.status}>
                   {order?.cart?.order?.status}
@@ -269,19 +267,19 @@ const SkeletonCartProduct = () => {
 const Main = styled.main`
    display: grid;
    grid-template-rows: 1fr;
-   height: calc(100vh - 64px);
    grid-template-columns: 240px 1fr;
 `
 
 const Title = styled.h2(
-   ({ hasColor }) => css`
+   ({ theme }) => css`
       ${tw`px-3 pt-3 pb-1 mb-2 text-green-600 text-2xl`}
-      ${hasColor?.accent && `color: ${hasColor.accent}`}
+      ${theme?.accent && `color: ${theme.accent}`}
    `
 )
 
 const Wrapper = styled.div`
    display: grid;
+   background: #fff;
    grid-template-columns: 280px 1fr;
    > aside {
       height: calc(100vh - 64px);
@@ -289,15 +287,15 @@ const Wrapper = styled.div`
 `
 
 const Date = styled.li(
-   ({ hasColor }) => css`
+   ({ theme }) => css`
       ${tw`cursor-pointer px-2 py-2 rounded hover:(text-white bg-green-400)`}
       &.active {
          ${tw`text-white bg-green-600 hover:(bg-green-700)`}
-         ${hasColor?.highlight &&
+         ${theme?.highlight &&
          css`
-            background: ${hasColor.highlight};
+            background: ${theme.highlight};
             :hover {
-               background: ${hasColor.highlight};
+               background: ${theme.highlight};
             }
          `}
       }

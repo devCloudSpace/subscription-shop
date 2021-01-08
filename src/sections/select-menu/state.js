@@ -1,4 +1,5 @@
 import React from 'react'
+import { isEmpty } from 'lodash'
 
 export const MenuContext = React.createContext()
 
@@ -34,9 +35,7 @@ const reducers = (state, { type, payload }) => {
       case 'SELECT_RECIPE': {
          const weeks = state.weeks
          const products = weeks[payload.weekId].cart.products
-         const index = products.findIndex(
-            node => Object.keys(node).length === 0
-         )
+         const index = products.findIndex(node => isEmpty(node))
          products[index] = payload.cart
 
          weeks[payload.weekId] = {
@@ -56,10 +55,7 @@ const reducers = (state, { type, payload }) => {
       case 'REMOVE_RECIPE': {
          const weeks = state.weeks
          const products = weeks[payload.weekId].cart.products
-         const index = products.findIndex(
-            node => node?.id === payload.productId
-         )
-         products[index] = {}
+         products[payload.index] = {}
 
          weeks[payload.weekId] = {
             ...weeks[payload.weekId],

@@ -2,7 +2,6 @@ import React from 'react'
 import { isEmpty } from 'lodash'
 import { navigate } from 'gatsby'
 import tw, { styled, css } from 'twin.macro'
-import { useKeycloak } from '@react-keycloak/web'
 import { useToasts } from 'react-toast-notifications'
 import { useMutation, useLazyQuery } from '@apollo/react-hooks'
 
@@ -28,13 +27,13 @@ import {
 } from '../../../components'
 
 const Addresses = () => {
-   const [keycloak] = useKeycloak()
+   const { user } = useUser()
 
    React.useEffect(() => {
-      if (!keycloak?.authenticated) {
-         navigate('/subscription')
+      if (!user?.keycloakId) {
+         navigate('/subscription/')
       }
-   }, [keycloak])
+   }, [user])
 
    return (
       <Layout>
@@ -51,7 +50,6 @@ export default Addresses
 
 const Content = () => {
    const { user } = useUser()
-   const [keycloak] = useKeycloak()
    const { addToast } = useToasts()
    const { brand, configOf } = useConfig()
    const [selected, setSelected] = React.useState(null)
@@ -77,7 +75,7 @@ const Content = () => {
                variables: {
                   where: {
                      keycloakId: {
-                        _eq: keycloak?.tokenParsed?.sub,
+                        _eq: user?.keycloakId,
                      },
                      brandId: {
                         _eq: brand.id,
@@ -109,12 +107,12 @@ const Content = () => {
          },
       })
    }
-   const hasColor = configOf('theme-color', 'Visual')
+   const theme = configOf('theme-color', 'Visual')
 
    return (
       <div tw="px-3">
          <header tw="mt-6 mb-3 flex items-center justify-between">
-            <Title hasColor={hasColor}>Addresses</Title>
+            <Title theme={theme}>Addresses</Title>
             {user?.platform_customer?.addresses.length > 0 && (
                <Button size="sm" onClick={() => toggleTunnel(true)}>
                   Add Address
@@ -167,7 +165,7 @@ const Content = () => {
 }
 
 export const AddressTunnel = ({ tunnel, toggleTunnel }) => {
-   const [keycloak] = useKeycloak()
+   const { user } = userUser()
    const { addToast } = useToasts()
    const [formStatus, setFormStatus] = React.useState('PENDING')
    const [address, setAddress] = React.useState(null)
@@ -237,7 +235,7 @@ export const AddressTunnel = ({ tunnel, toggleTunnel }) => {
       setFormStatus('SAVING')
       createAddress({
          variables: {
-            object: { ...address, keycloakId: keycloak?.tokenParsed?.sub },
+            object: { ...address, keycloakId: user?.keycloakId },
          },
       })
    }
@@ -344,9 +342,9 @@ const Main = styled.main`
 `
 
 const Title = styled.h2(
-   ({ hasColor }) => css`
+   ({ theme }) => css`
       ${tw`text-green-600 text-2xl`}
-      ${hasColor?.accent && `color: ${hasColor.accent}`}
+      ${theme?.accent && `color: ${theme.accent}`}
    `
 )
 

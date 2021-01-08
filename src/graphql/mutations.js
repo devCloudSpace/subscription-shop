@@ -15,6 +15,7 @@ export const CREATE_CUSTOMER = gql`
    mutation createCustomer($object: crm_customer_insert_input!) {
       createCustomer(object: $object) {
          id
+         keycloakId
       }
    }
 `

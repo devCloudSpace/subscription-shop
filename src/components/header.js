@@ -1,18 +1,34 @@
 import React from 'react'
-import { Link } from 'gatsby'
-import tw, { styled } from 'twin.macro'
+import { Link, navigate } from 'gatsby'
+import tw, { styled, css } from 'twin.macro'
 import { useKeycloak } from '@react-keycloak/web'
 
 import { useConfig } from '../lib'
 import { useUser } from '../context'
-import { isClient, getInitials } from '../utils'
+import { isClient, getInitials, isKeycloakSupported } from '../utils'
 
 export const Header = () => {
-   const { user } = useUser()
+   const { isAuthenticated, user, dispatch } = useUser()
    const { configOf } = useConfig()
    const [keycloak, initialized] = useKeycloak()
 
+   const logout = () => {
+      if (isKeycloakSupported()) {
+         dispatch({ type: 'CLEAR_USER' })
+         keycloak.logout({
+            redirectUri: isClient
+               ? `${window.location.origin}/subscription`
+               : '',
+         })
+      } else {
+         isClient && localStorage.removeItem('token')
+         dispatch({ type: 'CLEAR_USER' })
+         navigate('/subscription')
+      }
+   }
+
    const brand = configOf('theme-brand', 'brand')
+   const theme = configOf('theme-color', 'Visual')
    return (
       <Wrapper>
          <Brand to="/subscription" title={brand?.name || 'Subscription Shop'}>
@@ -28,7 +44,7 @@ export const Header = () => {
          <section tw="flex items-center justify-between">
             <ul />
             <ul tw="px-4 flex space-x-4">
-               {keycloak.authenticated ? (
+               {isAuthenticated ? (
                   <li tw="text-gray-800">
                      <Link to="/subscription/menu">Select Menu</Link>
                   </li>
@@ -37,7 +53,7 @@ export const Header = () => {
                      <Link to="/subscription/our-menu">Our Menu</Link>
                   </li>
                )}
-               {!keycloak.authenticated && (
+               {!isAuthenticated && (
                   <li tw="text-gray-800">
                      <Link to="/subscription/get-started/select-plan">
                         Our Plans
@@ -46,9 +62,9 @@ export const Header = () => {
                )}
             </ul>
          </section>
-         {initialized && (
+         {(isKeycloakSupported() ? initialized : true) && (
             <section tw="px-4 ml-auto">
-               {keycloak.authenticated ? (
+               {isAuthenticated ? (
                   <>
                      {user?.platform_customer?.firstName && (
                         <Link
@@ -61,25 +77,16 @@ export const Header = () => {
                         </Link>
                      )}
                      <button
-                        css={tw`bg-red-600 text-white rounded px-2 py-1`}
-                        onClick={() =>
-                           keycloak.logout({
-                              redirectUri: isClient
-                                 ? `${window.location.origin}/subscription`
-                                 : '',
-                           })
-                        }
+                        css={tw`text-red-600 rounded px-2 py-1`}
+                        onClick={logout}
                      >
                         Logout
                      </button>
                   </>
                ) : (
-                  <Link
-                     to="/subscription/login"
-                     css={tw`bg-blue-600 text-white rounded px-2 py-1`}
-                  >
+                  <Login to="/subscription/login" bg={theme?.accent}>
                      Log In
-                  </Link>
+                  </Login>
                )}
             </section>
          )}
@@ -97,3 +104,10 @@ const Wrapper = styled.header`
 const Brand = styled(Link)`
    ${tw`w-auto h-full px-6 flex items-center border-r`}
 `
+
+const Login = styled(Link)(
+   ({ bg }) => css`
+      ${tw`bg-blue-600 text-white rounded px-2 py-1`}
+      ${bg && `background-color: ${bg};`}
+   `
+)

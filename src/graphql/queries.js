@@ -42,11 +42,13 @@ export const PLANS = gql`
                id
                count
                price
+               isTaxIncluded
             }
             itemCounts: subscriptionItemCounts {
                id
                count
                price
+               isTaxIncluded
             }
          }
          servings: subscriptionServings(
@@ -60,6 +62,7 @@ export const PLANS = gql`
                id
                count
                price
+               isTaxIncluded
             }
             itemCounts: subscriptionItemCounts(
                order_by: { count: asc, price: asc }
@@ -68,6 +71,7 @@ export const PLANS = gql`
                id
                count
                price
+               isTaxIncluded
             }
          }
       }
@@ -109,7 +113,14 @@ export const OCCURENCE_PRODUCTS_BY_CATEGORIES = gql`
          }
       ) {
          name
-         productsAggregate: subscriptionOccurenceProducts_aggregate {
+         productsAggregate: subscriptionOccurenceProducts_aggregate(
+            where: {
+               _or: [
+                  { subscriptionId: $subscriptionId }
+                  { subscriptionOccurenceId: $occurenceId }
+               ]
+            }
+         ) {
             aggregate {
                count
             }
@@ -147,6 +158,7 @@ export const RECIPE_DETAILS = gql`
             procedures
             image
             assets
+            richResult
             yields: simpleRecipeYields(where: { id: { _eq: $yieldId } }) {
                id
                yield
@@ -198,6 +210,8 @@ export const ZIPCODE = gql`
          zipcode: $zipcode
       ) {
          price: deliveryPrice
+         from: deliveryTime(path: "from")
+         to: deliveryTime(path: "to")
       }
    }
 `
@@ -444,6 +458,8 @@ export const CUSTOMER = {
                   recipes: subscriptionItemCount {
                      count
                      price
+                     tax
+                     isTaxIncluded
                      servingId: subscriptionServingId
                      serving: subscriptionServing {
                         size: servingSize
@@ -458,7 +474,7 @@ export const CUSTOMER = {
                keycloakId
                phoneNumber
                stripeCustomerId
-               addresses: customerAddresses {
+               addresses: customerAddresses(order_by: { created_at: desc }) {
                   id
                   lat
                   lng

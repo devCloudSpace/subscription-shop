@@ -1,32 +1,77 @@
 import 'twin.macro'
+import jwtDecode from 'jwt-decode'
 import React from 'react'
+import { isEmpty } from 'lodash'
 import { useQuery } from '@apollo/react-hooks'
 import { useKeycloak } from '@react-keycloak/web'
 
 import { useConfig } from '../lib'
 import { CUSTOMER } from '../graphql'
 import { PageLoader } from '../components'
-import { isEmpty } from 'lodash'
+import { isClient, isKeycloakSupported } from '../utils'
 
 const UserContext = React.createContext()
+
+const reducers = (state, { type, payload }) => {
+   switch (type) {
+      case 'SET_USER':
+         return {
+            ...state,
+            isAuthenticated: true,
+            user: { ...state.user, ...payload },
+         }
+      case 'CLEAR_USER':
+         return {
+            ...state,
+            user: {},
+            isAuthenticated: false,
+         }
+   }
+}
 
 export const UserProvider = ({ children }) => {
    const { brand } = useConfig()
    const [keycloak] = useKeycloak()
-   const [user, setUser] = React.useState({})
+   const [isLoading, setIsLoading] = React.useState(true)
+   const [keycloakId, setKeycloakId] = React.useState('')
+   const [state, dispatch] = React.useReducer(reducers, {
+      isAuthenticated: false,
+      user: {
+         keycloakId: '',
+      },
+   })
    const { loading, data: { customer = {} } = {} } = useQuery(
       CUSTOMER.DETAILS,
       {
+         skip: !keycloakId && !brand.id,
          fetchPolicy: 'network-only',
          variables: {
+            keycloakId,
             brandId: brand.id,
-            keycloakId: keycloak?.tokenParsed?.sub,
+         },
+         onError: () => {
+            setIsLoading(false)
          },
       }
    )
 
    React.useEffect(() => {
-      if (customer?.id) {
+      if (isClient) {
+         if (isKeycloakSupported()) {
+            setKeycloakId(keycloak?.tokenParsed?.sub)
+            dispatch({ type: 'SET_USER', payload: { keycloakId: user?.sub } })
+         } else if (localStorage.getItem('token')) {
+            const user = jwtDecode(localStorage.getItem('token'))
+            setKeycloakId(user?.sub)
+            dispatch({ type: 'SET_USER', payload: { keycloakId: user?.sub } })
+         } else if (!localStorage.getItem('token')) {
+            dispatch({ type: 'CLEAR_USER' })
+         }
+      }
+   }, [keycloak])
+
+   React.useEffect(() => {
+      if (!loading && customer?.id) {
          const sub = {}
          const { brandCustomers = [], ...rest } = customer
 
@@ -55,13 +100,22 @@ export const UserProvider = ({ children }) => {
             )
          }
 
-         setUser({ ...rest, ...sub })
+         dispatch({ type: 'SET_USER', payload: { ...rest, ...sub } })
       }
-   }, [customer])
+      setIsLoading(false)
+   }, [loading, customer])
 
-   if (loading) return <PageLoader />
+   if (isLoading) return <PageLoader />
    return (
-      <UserContext.Provider value={{ user }}>{children}</UserContext.Provider>
+      <UserContext.Provider
+         value={{
+            isAuthenticated: state.isAuthenticated,
+            user: state.user,
+            dispatch,
+         }}
+      >
+         {children}
+      </UserContext.Provider>
    )
 }
 

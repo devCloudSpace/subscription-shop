@@ -7,7 +7,7 @@ import { PlusIcon, MinusIcon } from '../../assets/icons'
 const Faq = ({ heading, subHeading, children, ...props }) => {
    const { configOf } = useConfig('Visual')
    return (
-      <BlockWrapper {...props} hasColor={configOf('theme-color')}>
+      <BlockWrapper {...props} theme={configOf('theme-color')}>
          {heading && <Heading>{heading}</Heading>}
          {subHeading && <SubHeading>{subHeading}</SubHeading>}
          <Container>{children}</Container>
@@ -63,13 +63,13 @@ Faq.Item = Item
 export { Faq }
 
 const BlockWrapper = styled.div(
-   ({ hasColor }) => css`
+   ({ theme }) => css`
       max-width: 980px;
       padding: 48px 0;
       margin: 0 auto;
       width: calc(100% - 40px);
       h1 {
-         color: ${hasColor?.accent || tw`text-green-600`};
+         color: ${theme?.accent || tw`text-green-600`};
       }
    `
 )

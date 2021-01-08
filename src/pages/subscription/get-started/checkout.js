@@ -24,13 +24,13 @@ import {
 } from '../../../graphql'
 
 const Checkout = () => {
-   const [keycloak] = useKeycloak()
+   const { user } = useUser()
 
    React.useEffect(() => {
-      if (!keycloak?.tokenParsed?.sub) {
+      if (!user?.keycloakId) {
          navigate('/subscription/get-started/select-plan')
       }
-   }, [keycloak])
+   }, [user])
 
    return (
       <Layout noHeader>
@@ -98,9 +98,9 @@ const PaymentContent = ({ isCheckout }) => {
                _set: {
                   customerInfo: {
                      customerEmail: user?.platform_customer?.email,
-                     customerPhone: user?.platform_customer?.phoneNumber,
-                     customerLastName: user?.platform_customer?.lastName,
-                     customerFirstName: user?.platform_customer?.firstName,
+                     customerPhone: state?.profile?.phoneNumber,
+                     customerLastName: state?.profile?.lastName,
+                     customerFirstName: state?.profile?.firstName,
                   },
                   paymentMethodId: state.payment.selected.id,
                   ...(isCheckout && { status: 'PROCESS' }),
@@ -138,13 +138,13 @@ const PaymentContent = ({ isCheckout }) => {
          state.payment.selected?.id
       )
    }
-   const hasColor = configOf('theme-color', 'Visual')
+   const theme = configOf('theme-color', 'Visual')
 
    return (
       <Main>
          <section>
             <header tw="my-3 pb-1 border-b flex items-center justify-between">
-               <SectionTitle hasColor={hasColor}>Profile Details</SectionTitle>
+               <SectionTitle theme={theme}>Profile Details</SectionTitle>
             </header>
             <ProfileSection />
             <PaymentSection />
@@ -152,7 +152,7 @@ const PaymentContent = ({ isCheckout }) => {
          {cart?.cartInfo && (
             <section>
                <header tw="my-3 pb-1 border-b flex items-center justify-between">
-                  <SectionTitle hasColor={hasColor}>
+                  <SectionTitle theme={theme}>
                      Order Summary ({cart.cartInfo.products.length})
                   </SectionTitle>
                </header>
@@ -164,7 +164,11 @@ const PaymentContent = ({ isCheckout }) => {
                      />
                   ))}
                </CartProducts>
-               <Button onClick={handleSubmit} disabled={!Boolean(isValid())}>
+               <Button
+                  onClick={handleSubmit}
+                  bg={theme?.accent}
+                  disabled={!Boolean(isValid())}
+               >
                   Confirm & Pay {formatCurrency(cart.amount)}
                </Button>
                <section tw="my-4 text-gray-700">
@@ -228,9 +232,9 @@ const CartProduct = ({ product }) => {
 }
 
 const SectionTitle = styled.h3(
-   ({ hasColor }) => css`
+   ({ theme }) => css`
       ${tw`text-green-600 text-lg`}
-      ${hasColor?.accent && `color: ${hasColor.accent}`}
+      ${theme?.accent && `color: ${theme.accent}`}
    `
 )
 
@@ -260,8 +264,9 @@ const Main = styled.main`
 `
 
 const Button = styled.button(
-   ({ disabled }) => css`
-      ${tw`w-full h-10 rounded px-3 text-white bg-green-600 hover:bg-green-700`}
-      ${disabled && tw`cursor-not-allowed bg-green-300 hover:bg-green-300`}
+   ({ disabled, bg }) => css`
+      ${tw`w-full h-10 rounded px-3 text-white bg-green-600`}
+      ${disabled && tw`cursor-not-allowed bg-green-300`}
+      ${bg && `background-color: ${bg};`}
    `
 )

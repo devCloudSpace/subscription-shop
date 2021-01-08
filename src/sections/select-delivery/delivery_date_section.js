@@ -1,5 +1,6 @@
 import React from 'react'
 import { navigate } from 'gatsby'
+import { isEmpty } from 'lodash'
 import tw, { styled, css } from 'twin.macro'
 import { useLazyQuery } from '@apollo/react-hooks'
 import { useToasts } from 'react-toast-notifications'
@@ -63,47 +64,43 @@ export const DeliveryDateSection = () => {
             </HelperBar>
          </>
       )
+   if (isEmpty(occurences)) {
+      ;<HelperBar type="warning">
+         <HelperBar.SubTitle>
+            No dates are available for delivery on this address.
+         </HelperBar.SubTitle>
+         <HelperBar.Button
+            onClick={() => navigate('/subscription/get-started/select-plan')}
+         >
+            Select Plan
+         </HelperBar.Button>
+      </HelperBar>
+   }
    return (
-      <>
-         {occurences.length === 0 && (
-            <HelperBar type="warning">
-               <HelperBar.SubTitle>
-                  No dates are available for delivery on this address.
-               </HelperBar.SubTitle>
-               <HelperBar.Button
-                  onClick={() =>
-                     navigate('/subscription/get-started/select-plan')
-                  }
+      <DeliveryDates>
+         {occurences.map(occurence => (
+            <DeliveryDate
+               key={occurence.id}
+               onClick={() => occurenceSelection(occurence)}
+            >
+               <DeliveryDateLeft
+                  className={`${
+                     occurence.id === state.delivery_date.selected?.id &&
+                     'active'
+                  }`}
                >
-                  Select Plan
-               </HelperBar.Button>
-            </HelperBar>
-         )}
-         <DeliveryDates>
-            {occurences.map(occurence => (
-               <DeliveryDate
-                  key={occurence.id}
-                  onClick={() => occurenceSelection(occurence)}
-               >
-                  <DeliveryDateLeft
-                     className={`${
-                        occurence.id === state.delivery_date.selected?.id &&
-                        'active'
-                     }`}
-                  >
-                     <CheckIcon size={20} tw="stroke-current text-gray-400" />
-                  </DeliveryDateLeft>
-                  <label css={tw`w-full cursor-pointer`}>
-                     {formatDate(occurence.fulfillmentDate, {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric',
-                     })}
-                  </label>
-               </DeliveryDate>
-            ))}
-         </DeliveryDates>
-      </>
+                  <CheckIcon size={20} tw="stroke-current text-gray-400" />
+               </DeliveryDateLeft>
+               <label css={tw`w-full cursor-pointer`}>
+                  {formatDate(occurence.fulfillmentDate, {
+                     year: 'numeric',
+                     month: 'short',
+                     day: 'numeric',
+                  })}
+               </label>
+            </DeliveryDate>
+         ))}
+      </DeliveryDates>
    )
 }
 

@@ -28,7 +28,7 @@ const PlacingOrder = () => {
       isClient && window.localStorage.removeItem('plan')
       navigate('/subscription/menu')
    }
-   const hasColor = configOf('theme-color', 'Visual')
+   const theme = configOf('theme-color', 'Visual')
 
    return (
       <Layout>
@@ -43,7 +43,7 @@ const PlacingOrder = () => {
                         <>
                            <section>
                               <header tw="my-3 pb-1 border-b flex items-center justify-between">
-                                 <SectionTitle hasColor={hasColor}>
+                                 <SectionTitle theme={theme}>
                                     Order Summary (
                                     {cart.cartInfo.products.length})
                                  </SectionTitle>
@@ -201,9 +201,9 @@ const Wrapper = styled.div`
 `
 
 const SectionTitle = styled.h3(
-   ({ hasColor }) => css`
+   ({ theme }) => css`
       ${tw`text-green-600 text-lg`}
-      ${hasColor?.accent && `color: ${hasColor.accent}`}
+      ${theme?.accent && `color: ${theme.accent}`}
    `
 )
 

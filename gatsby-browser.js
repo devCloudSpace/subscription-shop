@@ -8,6 +8,8 @@ import { ToastProvider } from 'react-toast-notifications'
 import './src/styles/globals.css'
 
 import { PageLoader } from './src/components'
+import { UserProvider } from './src/context'
+import { isKeycloakSupported } from './src/utils'
 import { ApolloProvider, ConfigProvider } from './src/lib'
 
 const keycloak = new Keycloak({
@@ -17,29 +19,36 @@ const keycloak = new Keycloak({
 })
 
 export const wrapRootElement = ({ element }) => {
-   return (
-      <KeycloakProvider
-         keycloak={keycloak}
-         initConfig={{
-            onLoad: 'check-sso',
-            silentCheckSsoRedirectUri: `${window.location.origin}/subscription/silent-check-sso.xhtml`,
-         }}
-         LoadingComponent={<PageLoader />}
-      >
-         <ApolloProvider>
-            <ConfigProvider>
-               <ToastProvider
-                  autoDismiss
-                  placement="top-center"
-                  autoDismissTimeout={3000}
-               >
-                  <div css={tw`overflow-hidden`}>{element}</div>
-               </ToastProvider>
-            </ConfigProvider>
-         </ApolloProvider>
-      </KeycloakProvider>
-   )
+   if (isKeycloakSupported()) {
+      return (
+         <KeycloakProvider
+            keycloak={keycloak}
+            initConfig={{
+               onLoad: 'check-sso',
+               silentCheckSsoRedirectUri: `${window.location.origin}/subscription/silent-check-sso.xhtml`,
+            }}
+            LoadingComponent={<PageLoader />}
+         >
+            <App element={element}/>
+         </KeycloakProvider>
+      )
+   }
+   return <App element={element}/>
 }
+
+const App = ({element}) => <ApolloProvider>
+<ConfigProvider>
+   <UserProvider>
+      <ToastProvider
+         autoDismiss
+         placement="top-center"
+         autoDismissTimeout={3000}
+      >
+         <div css={tw`overflow-hidden`}>{element}</div>
+      </ToastProvider>
+   </UserProvider>
+</ConfigProvider>
+</ApolloProvider>
 
 wrapRootElement.propTypes = {
    element: PropTypes.node,

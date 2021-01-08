@@ -6,13 +6,14 @@ import { useToasts } from 'react-toast-notifications'
 import GooglePlacesAutocomplete from 'react-google-places-autocomplete'
 
 import { useDelivery } from './state'
+import { useUser } from '../../context'
 import { CloseIcon } from '../../assets/icons'
 import { useScript, isClient } from '../../utils'
 import { CREATE_CUSTOMER_ADDRESS } from '../../graphql'
 import { Tunnel, Button, Form, Spacer } from '../../components'
 
 export const AddressTunnel = () => {
-   const [keycloak] = useKeycloak()
+   const { user } = useUser()
    const { addToast } = useToasts()
    const { state, dispatch } = useDelivery()
    const [formStatus, setFormStatus] = React.useState('PENDING')
@@ -25,6 +26,7 @@ export const AddressTunnel = () => {
          addToast('Address has been saved.', {
             appearance: 'success',
          })
+         dispatch({ type: 'SET_ADDRESS', payload: address })
       },
       onError: error => {
          addToast(error.message, {
@@ -83,7 +85,7 @@ export const AddressTunnel = () => {
       setFormStatus('SAVING')
       createAddress({
          variables: {
-            object: { ...address, keycloakId: keycloak?.tokenParsed?.sub },
+            object: { ...address, keycloakId: user?.keycloakId },
          },
       })
    }

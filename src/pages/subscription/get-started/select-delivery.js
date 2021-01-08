@@ -2,11 +2,11 @@ import React from 'react'
 import { navigate } from 'gatsby'
 import tw, { styled, css } from 'twin.macro'
 import { useMutation } from '@apollo/react-hooks'
-import { useKeycloak } from '@react-keycloak/web'
 import { useToasts } from 'react-toast-notifications'
 
 import { useConfig } from '../../../lib'
 import { BRAND } from '../../../graphql'
+import { useUser } from '../../../context'
 import { SEO, Layout, StepsNavbar } from '../../../components'
 
 import {
@@ -18,13 +18,13 @@ import {
 } from '../../../sections/select-delivery'
 
 const SelectDelivery = () => {
-   const [keycloak] = useKeycloak()
+   const { isAuthenticated } = useUser()
 
    React.useEffect(() => {
-      if (!keycloak?.tokenParsed?.sub) {
+      if (!isAuthenticated) {
          navigate('/subscription/get-started/select-plan')
       }
-   }, [keycloak])
+   }, [isAuthenticated])
 
    return (
       <Layout noHeader>
@@ -40,7 +40,7 @@ const SelectDelivery = () => {
 export default SelectDelivery
 
 const DeliveryContent = () => {
-   const [keycloak] = useKeycloak()
+   const { user } = useUser()
    const { state } = useDelivery()
    const { addToast } = useToasts()
    const { brand, configOf } = useConfig()
@@ -69,7 +69,7 @@ const DeliveryContent = () => {
          variables: {
             where: {
                keycloakId: {
-                  _eq: keycloak?.tokenParsed?.sub,
+                  _eq: user?.keycloakId,
                },
                brandId: {
                   _eq: brand.id,
@@ -90,21 +90,25 @@ const DeliveryContent = () => {
       if (state.address.error) return false
       return true
    }
-   const hasColor = configOf('theme-color', 'Visual')
+   const theme = configOf('theme-color', 'Visual')
    return (
       <Main>
          <header css={tw`flex items-center justify-between border-b`}>
-            <Title hasColor={hasColor}>Delivery</Title>
+            <Title theme={theme}>Delivery</Title>
          </header>
          <AddressSection />
-         <SectionTitle hasColor={hasColor}>Delivery Day</SectionTitle>
+         <SectionTitle theme={theme}>Delivery Day</SectionTitle>
          <DeliverySection />
-         <SectionTitle hasColor={hasColor}>
+         <SectionTitle theme={theme}>
             Select your first delivery date
          </SectionTitle>
          <DeliveryDateSection />
          <div tw="mt-4 w-full flex items-center justify-center">
-            <Button onClick={() => nextStep()} disabled={!isValid()}>
+            <Button
+               bg={theme?.accent}
+               onClick={() => nextStep()}
+               disabled={!isValid()}
+            >
                Continue
             </Button>
          </div>
@@ -121,22 +125,23 @@ const Main = styled.main`
 `
 
 const Title = styled.h2(
-   ({ hasColor }) => css`
+   ({ theme }) => css`
       ${tw`text-green-600 text-2xl py-3`}
-      ${hasColor?.accent && `color: ${hasColor.accent}`}
+      ${theme?.accent && `color: ${theme.accent}`}
    `
 )
 
 const SectionTitle = styled.h3(
-   ({ hasColor }) => css`
+   ({ theme }) => css`
       ${tw`my-3 text-green-600 text-lg`}
-      ${hasColor?.accent && `color: ${hasColor.accent}`}
+      ${theme?.accent && `color: ${theme.accent}`}
    `
 )
 
 const Button = styled.button(
-   ({ disabled }) => css`
-      ${tw`h-10 rounded px-8 text-white bg-green-600 hover:bg-green-700`}
-      ${disabled && tw`cursor-not-allowed bg-green-300 hover:bg-green-300`}
+   ({ disabled, bg }) => css`
+      ${tw`h-10 rounded px-8 text-white bg-green-600`}
+      ${disabled && tw`cursor-not-allowed bg-green-300`}
+      ${bg && `background-color: ${bg};`}
    `
 )

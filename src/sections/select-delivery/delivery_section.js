@@ -70,22 +70,22 @@ export const DeliverySection = () => {
             </HelperBar>
          </>
       )
+   if (isEmpty(itemCount?.valid) && isEmpty(itemCount?.invalid)) {
+      return (
+         <HelperBar type="warning">
+            <HelperBar.SubTitle>
+               No days are available for delivery on this address.
+            </HelperBar.SubTitle>
+            <HelperBar.Button
+               onClick={() => navigate('/subscription/get-started/select-plan')}
+            >
+               Select Plan
+            </HelperBar.Button>
+         </HelperBar>
+      )
+   }
    return (
       <>
-         {isEmpty(itemCount?.valid) && isEmpty(itemCount?.invalid) && (
-            <HelperBar type="warning">
-               <HelperBar.SubTitle>
-                  No days are available for delivery on this address.
-               </HelperBar.SubTitle>
-               <HelperBar.Button
-                  onClick={() =>
-                     navigate('/subscription/get-started/select-plan')
-                  }
-               >
-                  Select Plan
-               </HelperBar.Button>
-            </HelperBar>
-         )}
          {isEmpty(itemCount?.valid) && !isEmpty(itemCount?.invalid) && (
             <HelperBar type="warning">
                <HelperBar.SubTitle>
@@ -112,7 +112,6 @@ export const DeliverySection = () => {
                <DeliveryDay
                   key={day.id}
                   className="invalid"
-                  onClick={() => daySelection(day)}
                   title="Not available on this address"
                >
                   <DeliveryDayLeft
@@ -157,6 +156,7 @@ const DeliveryDay = styled.li`
    ${tw`cursor-pointer flex items-center border capitalize text-gray-700`}
    &.invalid {
       opacity: 0.6;
+      cursor: not-allowed;
       position: relative;
       :after {
          top: 0;

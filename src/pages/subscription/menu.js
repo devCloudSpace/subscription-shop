@@ -1,4 +1,5 @@
 import React from 'react'
+import { isEmpty } from 'lodash'
 import { navigate } from 'gatsby'
 import tw, { styled } from 'twin.macro'
 import { useKeycloak } from '@react-keycloak/web'
@@ -11,16 +12,16 @@ import {
    MenuProvider,
 } from '../../sections/select-menu'
 import { useUser } from '../../context'
+import { useConfig } from '../../lib'
 
 const MenuPage = () => {
-   const [keycloak] = useKeycloak()
+   const { isAuthenticated } = useUser()
 
    React.useEffect(() => {
-      if (!keycloak?.tokenParsed?.sub) {
+      if (!isAuthenticated) {
          navigate('/subscription/get-started/select-plan')
       }
-   }, [keycloak])
-
+   }, [isAuthenticated])
    return (
       <MenuProvider>
          <Layout>
@@ -35,22 +36,37 @@ export default MenuPage
 
 const MenuContent = () => {
    const { user } = useUser()
+   const { configOf } = useConfig('Select-Menu')
+   const config = configOf('select-menu-header')
 
-   if (Object.keys(user).length === 0)
+   if (isEmpty(user))
       return (
          <Main>
             <Loader inline />
          </Main>
       )
-   if (user.isSubscriber)
+   if (user?.isSubscriber)
       return (
          <Main>
             <div>
                <WeekPicker />
-               <Header>
-                  <h1 css={tw`text-2xl md:text-4xl text-gray-700`}>
-                     Explore our Menus
-                  </h1>
+               <Header
+                  url={
+                     !isEmpty(config?.header?.images)
+                        ? config?.header?.images[0]?.url
+                        : ''
+                  }
+               >
+                  {config?.header?.heading && (
+                     <h1 css={tw`text-4xl text-white z-10`}>
+                        {config?.header?.heading}
+                     </h1>
+                  )}
+                  {config?.header?.subHeading && (
+                     <h3 css={tw`text-xl text-gray-100 z-10`}>
+                        {config?.header?.subHeading}
+                     </h3>
+                  )}
                </Header>
             </div>
             <Content>
@@ -83,13 +99,30 @@ const MenuContent = () => {
 const Main = styled.main`
    margin: auto;
    padding-bottom: 24px;
-   width: calc(100vw - 40px);
    min-height: calc(100vh - 128px);
 `
 
 const Header = styled.header`
-   height: 320px;
-   ${tw`bg-gray-100 flex items-center justify-center`}
+   height: 480px;
+   position: relative;
+   ${tw`bg-gray-100 flex flex-col items-center justify-center`}
+   ::before {
+      content: '';
+      position: absolute;
+      height: 100%;
+      width: 100%;
+      z-index: 0;
+      background-image: url(${props => props.url});
+      ${tw`bg-no-repeat bg-center bg-cover`}
+   }
+   ::after {
+      content: '';
+      position: absolute;
+      height: 100%;
+      width: 100%;
+      z-index: 1;
+      ${tw`bg-black opacity-25`}
+   }
 `
 
 const Content = styled.section`

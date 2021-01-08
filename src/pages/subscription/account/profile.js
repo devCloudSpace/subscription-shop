@@ -1,20 +1,19 @@
 import React from 'react'
 import { navigate } from 'gatsby'
 import tw, { styled, css } from 'twin.macro'
-import { useKeycloak } from '@react-keycloak/web'
 
 import { useConfig } from '../../../lib'
 import { useUser } from '../../../context'
 import { SEO, Layout, ProfileSidebar, Form } from '../../../components'
 
 const Profile = () => {
-   const [keycloak] = useKeycloak()
+   const { user } = useUser()
 
    React.useEffect(() => {
-      if (!keycloak?.authenticated) {
+      if (!user?.keycloakId) {
          navigate('/subscription')
       }
-   }, [keycloak])
+   }, [user])
 
    return (
       <Layout>
@@ -33,12 +32,12 @@ const ProfileForm = () => {
    const { user } = useUser()
    const { configOf } = useConfig()
 
-   const hasColor = configOf('theme-color', 'Visual')
+   const theme = configOf('theme-color', 'Visual')
 
    return (
       <section tw="px-6 w-full md:w-5/12">
          <header tw="mt-6 mb-3 flex items-center justify-between">
-            <Title hasColor={hasColor}>Profile</Title>
+            <Title theme={theme}>Profile</Title>
          </header>
          <Form.Field tw="mr-3">
             <Form.Label>Email</Form.Label>
@@ -71,9 +70,9 @@ const ProfileForm = () => {
 }
 
 const Title = styled.h2(
-   ({ hasColor }) => css`
+   ({ theme }) => css`
       ${tw`text-green-600 text-2xl`}
-      ${hasColor?.accent && `color: ${hasColor.accent}`}
+      ${theme?.accent && `color: ${theme.accent}`}
    `
 )
 

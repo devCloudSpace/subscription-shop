@@ -40,6 +40,7 @@ export const Plan = ({ plan }) => {
    }
 
    const config = configOf('primary-labels')
+   const colorConfig = configOf('theme-color', 'Visual')
    const yieldLabel = {
       singular: config?.yieldLabel?.singular || 'serving',
       plural: config?.yieldLabel?.singular || 'servings',
@@ -48,11 +49,11 @@ export const Plan = ({ plan }) => {
       singular: config?.itemLabel?.singular || 'recipe',
       plural: config?.itemLabel?.singular || 'recipes',
    }
-   const hasColor = configOf('theme-color', 'Visual')
+   const theme = configOf('theme-color', 'Visual')
    if (!defaultServing) return <Loader inline />
    return (
       <li css={tw`border rounded-lg p-8`}>
-         <Title hasColor={hasColor}>{plan.title}</Title>
+         <Title theme={theme}>{plan.title}</Title>
          <section css={tw`h-12 mb-4 flex items-center justify-between`}>
             {plan.servings.length === 1 ? (
                <span
@@ -123,7 +124,7 @@ export const Plan = ({ plan }) => {
          <hr />
          <div tw="mb-6 flex items-center">
             <section tw="h-full flex-1">
-               <Price hasColor={hasColor}>
+               <Price theme={theme}>
                   {formatCurrency(
                      Number.parseFloat(
                         (defaultItemCount?.price || 1) /
@@ -138,35 +139,42 @@ export const Plan = ({ plan }) => {
                </span>
             </section>
             <section tw="h-full flex-1 flex flex-col text-right border-l py-1">
-               <TotalPrice hasColor={hasColor}>
+               <TotalPrice theme={theme}>
                   {formatCurrency(defaultItemCount?.price)}
                </TotalPrice>
+               <span tw="text-gray-600 italic text-sm">
+                  {defaultItemCount?.isTaxIncluded
+                     ? 'Tax Inclusive'
+                     : 'Tax Exclusive'}
+               </span>
                <span tw="text-gray-600">Weekly total</span>
             </section>
          </div>
-         <Button onClick={() => selectPlan()}>Select</Button>
+         <Button bg={colorConfig?.accent} onClick={() => selectPlan()}>
+            Select
+         </Button>
       </li>
    )
 }
 
 const Title = styled.h2(
-   ({ hasColor }) => css`
+   ({ theme }) => css`
       ${tw`mb-5 text-2xl font-medium tracking-wide text-green-600`}
-      ${hasColor?.accent && `color: ${hasColor?.accent}`}
+      ${theme?.accent && `color: ${theme?.accent}`}
    `
 )
 
 const Price = styled.span(
-   ({ hasColor }) => css`
+   ({ theme }) => css`
       ${tw`font-medium text-green-600`}
-      ${hasColor?.accent && `color: ${hasColor?.accent}`}
+      ${theme?.accent && `color: ${theme?.accent}`}
    `
 )
 
 const TotalPrice = styled.span(
-   ({ hasColor }) => css`
+   ({ theme }) => css`
       ${tw`text-2xl font-medium text-green-600`}
-      ${hasColor?.accent && `color: ${hasColor?.accent}`}
+      ${theme?.accent && `color: ${theme?.accent}`}
    `
 )
 
@@ -192,6 +200,9 @@ const CountListItem = styled.li`
       `}
 `
 
-const Button = styled.button`
-   ${tw`w-full h-12 bg-blue-400 uppercase tracking-wider font-medium text-white rounded-full`}
-`
+const Button = styled.button(
+   ({ bg }) => css`
+      ${tw`w-full h-12 bg-blue-400 uppercase tracking-wider font-medium text-white rounded-full`};
+      ${bg && `background-color: ${bg};`}
+   `
+)
