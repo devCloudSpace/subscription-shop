@@ -43,6 +43,7 @@ const OrderHistory = () => {
 }
 
 const Listing = ({ current, setCurrent }) => {
+   const [orderWindow, setOrderWindow] = React.useState(1)
    const { user } = useUser()
    const { configOf } = useConfig()
    const { loading, data: { orders = {} } = {} } = useSubscription(
@@ -77,20 +78,33 @@ const Listing = ({ current, setCurrent }) => {
       <aside tw="border-r overflow-y-auto">
          <Title theme={theme}>Orders</Title>
          <ul tw="px-2 space-y-2">
-            {orders.nodes.map(node => (
-               <Date
-                  theme={theme}
-                  key={node.occurrenceId}
-                  onClick={() => setCurrent(node.occurrenceId)}
-                  className={`${node.occurrenceId === current ? 'active' : ''}`}
+            {orders.nodes.map(
+               (node, i) =>
+                  i + 1 <= orderWindow && (
+                     <Date
+                        theme={theme}
+                        key={node.occurrenceId}
+                        onClick={() => setCurrent(node.occurrenceId)}
+                        className={`${
+                           node.occurrenceId === current ? 'active' : ''
+                        }`}
+                     >
+                        {formatDate(node.occurrence.date, {
+                           month: 'short',
+                           day: 'numeric',
+                           year: 'numeric',
+                        })}
+                     </Date>
+                  )
+            )}
+            {orders.nodes.length > orderWindow && (
+               <div
+                  tw="float-right text-sm text-blue-500"
+                  onClick={() => setOrderWindow(orderWindow + 4)}
                >
-                  {formatDate(node.occurrence.date, {
-                     month: 'short',
-                     day: 'numeric',
-                     year: 'numeric',
-                  })}
-               </Date>
-            ))}
+                  View More
+               </div>
+            )}
          </ul>
       </aside>
    )

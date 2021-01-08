@@ -14,7 +14,7 @@ export const ProfileSidebar = () => {
    return (
       <>
          <div
-            tw="px-5 pt-2 w-max m-auto cursor-pointer md:hidden"
+            tw="px-5 py-2 w-max m-auto cursor-pointer md:hidden"
             onClick={() => setToggle(!toggle)}
          >
             <User />
@@ -45,6 +45,6 @@ const MenuLink = styled(Link)`
 const Aside = styled.aside(
    ({ toggle }) => css`
       ${tw`bg-gray-100 border-r block transition`}
-      ${toggle ? tw`hidden md:block` : tw`block md:hidden`}
+      ${toggle ? tw`hidden md:block` : tw`block md:hidden `}
    `
 )
