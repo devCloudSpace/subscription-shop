@@ -220,9 +220,13 @@ export const CART = gql`
    query cart($id: Int!) {
       cart: cartByPK(id: $id) {
          id
+         tax
+         tip
          amount
          address
          cartInfo
+         totalPrice
+         deliveryPrice
          fulfillmentInfo
       }
    }

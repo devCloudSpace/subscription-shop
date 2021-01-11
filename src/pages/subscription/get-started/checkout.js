@@ -49,6 +49,12 @@ const PaymentContent = ({ isCheckout }) => {
    const { addToast } = useToasts()
    const { configOf } = useConfig()
 
+   const { data: { cart = {} } = {} } = useQuery(CART, {
+      variables: {
+         id: isClient && window.localStorage.getItem('cartId'),
+      },
+   })
+
    const [updateBrandCustomer] = useMutation(BRAND.CUSTOMER.UPDATE, {
       refetchQueries: ['customer'],
       onCompleted: () => {
@@ -103,7 +109,7 @@ const PaymentContent = ({ isCheckout }) => {
                      customerFirstName: state?.profile?.firstName,
                   },
                   paymentMethodId: state.payment.selected.id,
-                  ...(isCheckout && { status: 'PROCESS' }),
+                  ...(isCheckout && { status: 'PROCESS', amount: cart.totalPrice }),
                },
             },
          })
@@ -113,11 +119,6 @@ const PaymentContent = ({ isCheckout }) => {
       },
    })
 
-   const { data: { cart = {} } = {} } = useQuery(CART, {
-      variables: {
-         id: isClient && window.localStorage.getItem('cartId'),
-      },
-   })
 
    const handleSubmit = () => {
       updatePlatformCustomer({
@@ -169,7 +170,7 @@ const PaymentContent = ({ isCheckout }) => {
                   bg={theme?.accent}
                   disabled={!Boolean(isValid())}
                >
-                  Confirm & Pay {formatCurrency(cart.amount)}
+                  Confirm & Pay {formatCurrency(cart.totalPrice)}
                </Button>
                <section tw="my-4 text-gray-700">
                   * Your box will be delivered on{' '}

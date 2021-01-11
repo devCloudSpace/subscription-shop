@@ -93,11 +93,13 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
             object: {
                status: 'PENDING',
                customerId: user.id,
-               amount: weekTotal + tax,
                paymentStatus: 'PENDING',
                cartInfo: {
+                  tax,
                   products: week.cart.products,
-                  total: user?.subscription?.recipes?.price,
+                  total: isTaxIncluded
+                     ? weekTotal - (addOnTotal + zipcode.price)
+                     : basePrice,
                },
                ...(user?.subscriptionPaymentMethodId && {
                   paymentMethodId: user?.subscriptionPaymentMethodId,
@@ -176,7 +178,7 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
    const week = state?.weeks[state.week.id]
    const addOnTotal = week?.cart?.products
       .filter(node => Object.keys(node).length > 0)
-      .reduce((a, b) => a + b.addonPrice || 0, 0)
+      .reduce((a, b) => a + b.addOnPrice || 0, 0)
    const chargesTotal = basePrice + addOnTotal + zipcode.price
    const weekTotal = isTaxIncluded
       ? chargesTotal -
@@ -397,11 +399,9 @@ const SaveButton = styled.button(
       text-center
       bg-green-500
    `}
-
-${bg && `background-color: ${bg};`}
-      ${
-         disabled &&
-         tw`
+      ${bg && `background-color: ${bg};`}
+      ${disabled &&
+      tw`
          h-10
          w-full
          rounded
@@ -409,8 +409,7 @@ ${bg && `background-color: ${bg};`}
          text-center
          bg-gray-200
          cursor-not-allowed 
-      `
-      }
+      `}
    `
 )
 
