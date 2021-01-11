@@ -78,7 +78,6 @@ const Listing = ({ current, setCurrent }) => {
       <aside tw="border-r overflow-y-auto">
          <Title theme={theme}>Orders</Title>
          <ul tw="px-2 space-y-2">
-            {console.log(window)}
             {orders.nodes.map(
                (node, i) =>
                   (i + 1 <= orderWindow || window.innerWidth > 786) && (

@@ -1,38 +1,37 @@
 import React, { useState } from 'react'
-import { User } from '../assets/icons/User'
 import { Link } from 'gatsby'
 import tw, { styled, css } from 'twin.macro'
 
-export const ProfileSidebar = () => {
+export const ProfileSidebar = ({ toggle = true, logout }) => {
    const [menu] = useState([
       { title: 'Profile', href: '/subscription/account/profile/' },
       { title: 'Order History', href: '/subscription/account/orders/' },
       { title: 'Manage Addresses', href: '/subscription/account/addresses/' },
       { title: 'Manage Cards', href: '/subscription/account/cards/' },
    ])
-   const [toggle, setToggle] = useState(true)
+
    return (
-      <>
-         <div
-            tw="px-5 py-2 w-max m-auto cursor-pointer md:hidden"
-            onClick={() => setToggle(!toggle)}
-         >
-            <User />
-         </div>
-         <Aside toggle={toggle}>
-            <ul>
-               {menu.map(node => (
-                  <MenuLink
-                     to={node.href}
-                     key={node.href}
-                     activeClassName="active"
-                  >
-                     {node.title}
-                  </MenuLink>
-               ))}
-            </ul>
-         </Aside>
-      </>
+      <Aside toggle={toggle}>
+         <ul>
+            {menu.map(node => (
+               <MenuLink
+                  to={node.href}
+                  key={node.href}
+                  activeClassName="active"
+               >
+                  {node.title}
+               </MenuLink>
+            ))}
+            {window.innerWidth < 786 && (
+               <button
+                  css={tw`text-red-600 rounded pl-3 py-1`}
+                  onClick={logout}
+               >
+                  Logout
+               </button>
+            )}
+         </ul>
+      </Aside>
    )
 }
 
@@ -44,7 +43,21 @@ const MenuLink = styled(Link)`
 `
 const Aside = styled.aside(
    ({ toggle }) => css`
-      ${tw`bg-gray-100 border-r block transition`}
-      ${toggle ? tw`hidden md:block` : tw`block md:hidden `}
+      ${tw`bg-gray-100 border-r block z-10`}
+      ${
+         toggle
+            ? tw`hidden md:block`
+            : tw`block md:hidden md:static absolute top-16 right-0 bottom-0 left-0`
+      }
+       ${
+          !toggle &&
+          `
+            left: -100px;
+            animation: slide 0.5s forwards;
+            @keyframes slide {
+               100% { left: 0; }
+            }
+         `
+       }  
    `
 )

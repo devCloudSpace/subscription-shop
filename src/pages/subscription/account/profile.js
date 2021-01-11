@@ -81,6 +81,7 @@ const Main = styled.main`
    grid-template-rows: 1fr;
    height: calc(100vh - 64px);
    grid-template-columns: 240px 1fr;
+   position: relative;
    @media (max-width: 768px) {
       display: block;
    }
