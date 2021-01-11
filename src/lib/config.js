@@ -90,9 +90,10 @@ export const useConfig = (globalType = '') => {
          const type = localType || globalType
          if (isEmpty(state.settings)) return {}
          if (identifier && type && has(state.settings, type)) {
-            return state.settings[type].find(
-               node => node.identifier === identifier
-            ).value
+            return (
+               state.settings[type].find(node => node.identifier === identifier)
+                  ?.value || {}
+            )
          }
          return {}
       },
