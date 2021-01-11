@@ -79,6 +79,6 @@ const Title = styled.h2(
 const Main = styled.main`
    display: grid;
    grid-template-rows: 1fr;
-   height: calc(100vh - 64px);
+   min-height: calc(100vh - 64px);
    grid-template-columns: 240px 1fr;
 `
