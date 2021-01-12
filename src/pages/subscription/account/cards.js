@@ -363,7 +363,7 @@ const createSetupIntent = async customer => {
 const Main = styled.main`
    display: grid;
    grid-template-rows: 1fr;
-   height: calc(100vh - 64px);
+   min-height: calc(100vh - 64px);
    grid-template-columns: 240px 1fr;
    @media (max-width: 768px) {
       display: block;

@@ -38,7 +38,7 @@ export const Menu = () => {
       }
    )
 
-   const selectRecipe = (cart, addonPrice) => {
+   const selectRecipe = (cart, addOnPrice) => {
       const isFull = state.weeks[state.week.id].cart.products.every(
          node => Object.keys(node).length !== 0
       )
@@ -49,7 +49,7 @@ export const Menu = () => {
       }
       dispatch({
          type: 'SELECT_RECIPE',
-         payload: { weekId: state.week.id, cart: { ...cart, addonPrice } },
+         payload: { weekId: state.week.id, cart: { ...cart, addOnPrice } },
       })
       addToast(`You've selected the recipe ${cart.name}.`, {
          appearance: 'info',
