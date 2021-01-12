@@ -22,6 +22,7 @@ const MenuPage = () => {
          navigate('/subscription/get-started/select-plan')
       }
    }, [isAuthenticated])
+
    return (
       <MenuProvider>
          <Layout>
@@ -38,7 +39,6 @@ const MenuContent = () => {
    const { user } = useUser()
    const { configOf } = useConfig('Select-Menu')
    const config = configOf('select-menu-header')
-
    if (isEmpty(user))
       return (
          <Main>

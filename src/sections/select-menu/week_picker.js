@@ -200,6 +200,10 @@ const Occurence = styled.div(
       grid-template-columns: ${isFixed ? '1fr' : '64px 1fr 64px'};
       @media (max-width: 567px) {
          grid-template-columns: ${isFixed ? '1fr' : '48px 1fr 48px'};
+         position: fixed;
+         background-color: #fff;
+         z-index: 1000;
+         top: 64px;
       }
    `
 )

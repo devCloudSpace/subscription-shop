@@ -172,6 +172,26 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
       )
    }
 
+   const [showSummaryBar, setShowSummaryBar] = React.useState(true)
+   const myCartRef = React.useRef()
+   React.useEffect(() => {
+      if (isClient) {
+         window.addEventListener('scroll', e => {
+            const position = myCartRef.current.getBoundingClientRect()
+            if (position.top >= 0 && position.bottom <= window.innerHeight) {
+               setShowSummaryBar(false)
+            } else {
+               setShowSummaryBar(true)
+            }
+         })
+      }
+   }, [])
+
+   const showCart = () => {
+      myCartRef.current.scrollIntoView({ behavior: 'auto', block: 'center' })
+      setShowSummaryBar(false)
+   }
+
    const basePrice = user?.subscription?.recipes?.price
    const itemCountTax = user?.subscription?.recipes?.tax
    const isTaxIncluded = user?.subscription?.recipes?.isTaxIncluded
@@ -187,105 +207,143 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
    const tax = weekTotal * (itemCountTax / 100)
 
    const theme = configOf('theme-color', 'Visual')
-
    return (
-      <section>
-         <header tw="my-3 pb-1 border-b flex items-center justify-between">
-            <h4 tw="text-lg text-gray-700">
-               Cart{' '}
-               {
-                  week?.cart.products.filter(
-                     node => Object.keys(node).length !== 0
-                  ).length
-               }
-               /{user?.subscription?.recipes?.count}
-            </h4>
-            {['PENDING', undefined].includes(week?.orderCartStatus) &&
-               state?.week?.isValid &&
-               !noSkip && (
-                  <SkipWeek>
-                     <label htmlFor="skip" tw="mr-2 text-gray-600">
-                        Skip
-                     </label>
-                     <input
-                        name="skip"
-                        type="checkbox"
-                        className="toggle"
-                        onChange={skipWeek}
-                        checked={week?.isSkipped}
-                        tw="cursor-pointer appearance-none"
+      <>
+         {isClient &&
+            window.innerWidth < 786 &&
+            showSummaryBar &&
+            (['ORDER_PLACED', 'PROCESS'].includes(week?.orderCartStatus) ? (
+               <HelperBar type="success">
+                  <HelperBar.SubTitle>
+                     Your order has been placed for this week.
+                  </HelperBar.SubTitle>
+               </HelperBar>
+            ) : (
+               <SummaryBar>
+                  <div>
+                     <h4 tw="text-base text-gray-700">
+                        Cart{' '}
+                        {
+                           week?.cart.products.filter(
+                              node => Object.keys(node).length !== 0
+                           ).length
+                        }
+                        /{user?.subscription?.recipes?.count}
+                     </h4>
+                     <h4 tw="text-blue-700 pt-2" onClick={showCart}>
+                        View full sum <span>&#8657;</span>
+                     </h4>
+                  </div>
+                  <SaveButton
+                     bg={theme?.accent}
+                     onClick={submitSelection}
+                     disabled={!state?.week?.isValid || isCartValid()}
+                     small={true}
+                  >
+                     {isCheckout ? 'Save and Proceed to Checkout' : 'Save '}
+                  </SaveButton>
+               </SummaryBar>
+            ))}
+         <section ref={myCartRef}>
+            <header tw="my-3 pb-1 border-b flex items-center justify-between">
+               <h4 tw="text-lg text-gray-700">
+                  Cart{' '}
+                  {
+                     week?.cart.products.filter(
+                        node => Object.keys(node).length !== 0
+                     ).length
+                  }
+                  /{user?.subscription?.recipes?.count}
+               </h4>
+               {['PENDING', undefined].includes(week?.orderCartStatus) &&
+                  state?.week?.isValid &&
+                  !noSkip && (
+                     <SkipWeek>
+                        <label htmlFor="skip" tw="mr-2 text-gray-600">
+                           Skip
+                        </label>
+                        <input
+                           name="skip"
+                           type="checkbox"
+                           className="toggle"
+                           onChange={skipWeek}
+                           checked={week?.isSkipped}
+                           tw="cursor-pointer appearance-none"
+                        />
+                     </SkipWeek>
+                  )}
+            </header>
+            <CartProducts>
+               {week?.cart.products.map((product, index) =>
+                  isEmpty(product) ? (
+                     <SkeletonCartProduct key={index} />
+                  ) : (
+                     <CartProduct
+                        index={index}
+                        product={product}
+                        key={`product-${product.cartItemId}-${index}`}
                      />
-                  </SkipWeek>
+                  )
                )}
-         </header>
-         <CartProducts>
-            {week?.cart.products.map((product, index) =>
-               isEmpty(product) ? (
-                  <SkeletonCartProduct key={index} />
-               ) : (
-                  <CartProduct
-                     index={index}
-                     product={product}
-                     key={`product-${product.cartItemId}-${index}`}
-                  />
-               )
+            </CartProducts>
+            <h4 tw="text-lg text-gray-700 my-3 pb-1 border-b">Charges</h4>
+            <table tw="my-3 w-full table-auto">
+               <tbody>
+                  <tr>
+                     <td tw="border px-2 py-1">Base Price</td>
+                     <td tw="text-right border px-2 py-1">
+                        {formatCurrency(
+                           isTaxIncluded
+                              ? weekTotal - (addOnTotal + zipcode.price)
+                              : basePrice
+                        )}
+                     </td>
+                  </tr>
+                  <tr tw="bg-gray-100">
+                     <td tw="border px-2 py-1">Add on Total</td>
+                     <td tw="text-right border px-2 py-1">
+                        {formatCurrency(addOnTotal)}
+                     </td>
+                  </tr>
+                  <tr>
+                     <td tw="border px-2 py-1">Delivery</td>
+                     <td tw="text-right border px-2 py-1">
+                        {formatCurrency(zipcode.price)}
+                     </td>
+                  </tr>
+                  <tr tw="bg-gray-100">
+                     <td tw="border px-2 py-1">Tax</td>
+                     <td tw="text-right border px-2 py-1">
+                        {formatCurrency(tax || 0)}
+                     </td>
+                  </tr>
+                  <tr>
+                     <td tw="border px-2 py-1">Total</td>
+                     <td tw="text-right border px-2 py-1">
+                        {formatCurrency(weekTotal + tax || 0)}
+                     </td>
+                  </tr>
+               </tbody>
+            </table>
+            {['ORDER_PLACED', 'PROCESS'].includes(week?.orderCartStatus) ? (
+               <HelperBar type="success">
+                  <HelperBar.SubTitle>
+                     Your order has been placed for this week.
+                  </HelperBar.SubTitle>
+               </HelperBar>
+            ) : (
+               <SaveButton
+                  bg={theme?.accent}
+                  onClick={submitSelection}
+                  disabled={!state?.week?.isValid || isCartValid()}
+               >
+                  {isCheckout
+                     ? 'Save and Proceed to Checkout'
+                     : 'Save Selection'}
+               </SaveButton>
             )}
-         </CartProducts>
-         <h4 tw="text-lg text-gray-700 my-3 pb-1 border-b">Charges</h4>
-         <table tw="my-3 w-full table-auto">
-            <tbody>
-               <tr>
-                  <td tw="border px-2 py-1">Base Price</td>
-                  <td tw="text-right border px-2 py-1">
-                     {formatCurrency(
-                        isTaxIncluded
-                           ? weekTotal - (addOnTotal + zipcode.price)
-                           : basePrice
-                     )}
-                  </td>
-               </tr>
-               <tr tw="bg-gray-100">
-                  <td tw="border px-2 py-1">Add on Total</td>
-                  <td tw="text-right border px-2 py-1">
-                     {formatCurrency(addOnTotal)}
-                  </td>
-               </tr>
-               <tr>
-                  <td tw="border px-2 py-1">Delivery</td>
-                  <td tw="text-right border px-2 py-1">
-                     {formatCurrency(zipcode.price)}
-                  </td>
-               </tr>
-               <tr tw="bg-gray-100">
-                  <td tw="border px-2 py-1">Tax</td>
-                  <td tw="text-right border px-2 py-1">
-                     {formatCurrency(tax || 0)}
-                  </td>
-               </tr>
-               <tr>
-                  <td tw="border px-2 py-1">Total</td>
-                  <td tw="text-right border px-2 py-1">
-                     {formatCurrency(weekTotal + tax || 0)}
-                  </td>
-               </tr>
-            </tbody>
-         </table>
-         {['ORDER_PLACED', 'PROCESS'].includes(week?.orderCartStatus) ? (
-            <HelperBar type="success">
-               <HelperBar.SubTitle>
-                  Your order has been placed for this week.
-               </HelperBar.SubTitle>
-            </HelperBar>
-         ) : (
-            <SaveButton
-               bg={theme?.accent}
-               onClick={submitSelection}
-               disabled={!state?.week?.isValid || isCartValid()}
-            >
-               {isCheckout ? 'Save and Proceed to Checkout' : 'Save Selection'}
-            </SaveButton>
-         )}
-      </section>
+         </section>
+      </>
    )
 }
 
@@ -390,7 +448,7 @@ const CartProductContainer = styled.li`
 `
 
 const SaveButton = styled.button(
-   ({ disabled, bg }) => css`
+   ({ disabled, bg, small }) => css`
       ${tw`
       h-10
       w-full
@@ -400,8 +458,9 @@ const SaveButton = styled.button(
       bg-green-500
    `}
       ${bg && `background-color: ${bg};`}
-      ${disabled &&
-      tw`
+      ${
+         disabled &&
+         tw`
          h-10
          w-full
          rounded
@@ -409,7 +468,9 @@ const SaveButton = styled.button(
          text-center
          bg-gray-200
          cursor-not-allowed 
-      `}
+      `
+      }
+      ${small && ` width: max-content; padding: 0 2rem`}
    `
 )
 
@@ -440,3 +501,7 @@ const SkipWeek = styled.span(
       }
    `
 )
+
+const SummaryBar = styled.div`
+   ${tw`md:hidden fixed left-0 right-0 bottom-0 z-10 bg-white flex p-3 border-2 justify-between items-center`}
+`
