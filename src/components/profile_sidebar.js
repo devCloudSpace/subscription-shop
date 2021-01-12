@@ -22,14 +22,12 @@ export const ProfileSidebar = ({ toggle = true, logout }) => {
                   {node.title}
                </MenuLink>
             ))}
-            {window.innerWidth < 786 && (
-               <button
-                  css={tw`text-red-600 rounded pl-3 py-1`}
-                  onClick={logout}
-               >
-                  Logout
-               </button>
-            )}
+            <button
+               css={tw`text-red-600 rounded pl-3 py-1 md:hidden block`}
+               onClick={logout}
+            >
+               Logout
+            </button>
          </ul>
       </Aside>
    )

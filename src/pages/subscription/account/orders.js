@@ -6,7 +6,7 @@ import { useSubscription } from '@apollo/react-hooks'
 import { useConfig } from '../../../lib'
 import { useUser } from '../../../context'
 import { ORDER_HISTORY, ORDER } from '../../../graphql'
-import { formatDate, formatCurrency } from '../../../utils'
+import { formatDate, formatCurrency, isClient } from '../../../utils'
 import { SEO, Layout, HelperBar, ProfileSidebar } from '../../../components'
 
 const Orders = () => {
@@ -80,7 +80,8 @@ const Listing = ({ current, setCurrent }) => {
          <ul tw="px-2 space-y-2">
             {orders.nodes.map(
                (node, i) =>
-                  (i + 1 <= orderWindow || window.innerWidth > 786) && (
+                  (i + 1 <= orderWindow ||
+                     (isClient && window.innerWidth > 786)) && (
                      <Date
                         theme={theme}
                         key={node.occurrenceId}
@@ -97,9 +98,9 @@ const Listing = ({ current, setCurrent }) => {
                      </Date>
                   )
             )}
-            {orders.nodes.length > orderWindow && window.innerWidth <= 786 && (
+            {orders.nodes.length > orderWindow && (
                <div
-                  tw="float-right text-sm text-blue-500"
+                  tw="float-right text-sm text-blue-500 block md:hidden"
                   onClick={() => setOrderWindow(orderWindow + 4)}
                >
                   View More

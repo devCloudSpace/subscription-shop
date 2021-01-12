@@ -75,7 +75,7 @@ export const Header = () => {
                   {isAuthenticated ? (
                      <>
                         {user?.platform_customer?.firstName &&
-                           (window.innerWidth > 786 ? (
+                           (isClient && window.innerWidth > 786 ? (
                               <Link
                                  to="/subscription/account/profile/"
                                  tw="mr-3 inline-flex items-center justify-center rounded-full h-10 w-10 bg-gray-200"
