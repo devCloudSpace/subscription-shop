@@ -111,7 +111,7 @@ export const Header = () => {
                </section>
             )}
          </Wrapper>
-         {innerWidth < 786 && (
+         {isClient && window.innerWidth < 786 && (
             <ProfileSidebar toggle={toggle} logout={logout} />
          )}
       </>
