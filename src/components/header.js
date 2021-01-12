@@ -95,14 +95,13 @@ export const Header = () => {
                                  )}
                               </Link>
                            ))}
-                        {window.innerWidth > 786 && (
-                           <button
-                              css={tw`text-red-600 rounded px-2 py-1`}
-                              onClick={logout}
-                           >
-                              Logout
-                           </button>
-                        )}
+
+                        <button
+                           css={tw`text-red-600 rounded px-2 py-1 hidden md:inline-block `}
+                           onClick={logout}
+                        >
+                           Logout
+                        </button>
                      </>
                   ) : (
                      <Login to="/subscription/login" bg={theme?.accent}>
