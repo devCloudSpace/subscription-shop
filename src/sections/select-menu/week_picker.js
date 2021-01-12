@@ -202,7 +202,7 @@ const Occurence = styled.div(
          grid-template-columns: ${isFixed ? '1fr' : '48px 1fr 48px'};
          position: fixed;
          background-color: #fff;
-         z-index: 1000;
+         z-index: 10;
          top: 64px;
       }
    `

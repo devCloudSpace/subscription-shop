@@ -177,8 +177,8 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
    React.useEffect(() => {
       if (isClient) {
          window.addEventListener('scroll', e => {
-            const position = myCartRef.current.getBoundingClientRect()
-            if (position.top >= 0 && position.bottom <= window.innerHeight) {
+            const position = myCartRef.current?.getBoundingClientRect()
+            if (position?.top >= 0 && position?.bottom <= window.innerHeight) {
                setShowSummaryBar(false)
             } else {
                setShowSummaryBar(true)
@@ -188,7 +188,7 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
    }, [])
 
    const showCart = () => {
-      myCartRef.current.scrollIntoView({ behavior: 'auto', block: 'center' })
+      myCartRef.current?.scrollIntoView({ behavior: 'auto', block: 'center' })
       setShowSummaryBar(false)
    }
 

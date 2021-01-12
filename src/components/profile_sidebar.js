@@ -41,7 +41,7 @@ const MenuLink = styled(Link)`
 `
 const Aside = styled.aside(
    ({ toggle }) => css`
-      ${tw`bg-gray-100 border-r block z-10`}
+      ${tw`bg-gray-100 border-r block z-20`}
       ${
          toggle
             ? tw`hidden md:block`
