@@ -25,7 +25,12 @@ const evalTime = (date, time) => {
    return moment(date).hour(hour).minute(minute).second(0).toISOString()
 }
 
-export const CartPanel = ({ noSkip, isCheckout }) => {
+export const CartPanel = ({
+   noSkip,
+   isCheckout,
+   showSummaryBar,
+   setShowSummaryBar,
+}) => {
    const { user } = useUser()
    const location = useLocation()
    const { addToast } = useToasts()
@@ -172,26 +177,6 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
       )
    }
 
-   const [showSummaryBar, setShowSummaryBar] = React.useState(true)
-   const myCartRef = React.useRef()
-   React.useEffect(() => {
-      if (isClient) {
-         window.addEventListener('scroll', e => {
-            const position = myCartRef.current?.getBoundingClientRect()
-            if (position?.top >= 0 && position?.bottom <= window.innerHeight) {
-               setShowSummaryBar(false)
-            } else {
-               setShowSummaryBar(true)
-            }
-         })
-      }
-   }, [])
-
-   const showCart = () => {
-      myCartRef.current?.scrollIntoView({ behavior: 'auto', block: 'center' })
-      setShowSummaryBar(false)
-   }
-
    const basePrice = user?.subscription?.recipes?.price
    const itemCountTax = user?.subscription?.recipes?.tax
    const isTaxIncluded = user?.subscription?.recipes?.isTaxIncluded
@@ -209,9 +194,7 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
    const theme = configOf('theme-color', 'Visual')
    return (
       <>
-         {isClient &&
-            window.innerWidth < 786 &&
-            showSummaryBar &&
+         {showSummaryBar &&
             (['ORDER_PLACED', 'PROCESS'].includes(week?.orderCartStatus) ? (
                <HelperBar type="success">
                   <HelperBar.SubTitle>
@@ -230,13 +213,15 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
                         }
                         /{user?.subscription?.recipes?.count}
                      </h4>
-                     <h4 tw="text-blue-700 pt-2" onClick={showCart}>
+                     <h4
+                        tw="text-blue-700 pt-2"
+                        onClick={() => setShowSummaryBar(false)}
+                     >
                         View full sum <span>&#8657;</span>
                      </h4>
                   </div>
                   <SaveButton
                      bg={theme?.accent}
-                     onClick={submitSelection}
                      disabled={!state?.week?.isValid || isCartValid()}
                      small={true}
                   >
@@ -244,7 +229,7 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
                   </SaveButton>
                </SummaryBar>
             ))}
-         <section ref={myCartRef}>
+         <CartWrapper showSummaryBar={showSummaryBar}>
             <header tw="my-3 pb-1 border-b flex items-center justify-between">
                <h4 tw="text-lg text-gray-700">
                   Cart{' '}
@@ -272,6 +257,12 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
                         />
                      </SkipWeek>
                   )}
+               <button
+                  tw="md:hidden rounded-full border-2 border-green-400 h-6 w-6 "
+                  onClick={() => setShowSummaryBar(true)}
+               >
+                  <CloseIcon size={16} tw="stroke-current text-green-400" />
+               </button>
             </header>
             <CartProducts>
                {week?.cart.products.map((product, index) =>
@@ -342,7 +333,7 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
                      : 'Save Selection'}
                </SaveButton>
             )}
-         </section>
+         </CartWrapper>
       </>
    )
 }
@@ -505,3 +496,17 @@ const SkipWeek = styled.span(
 const SummaryBar = styled.div`
    ${tw`md:hidden fixed left-0 right-0 bottom-0 z-10 bg-white flex p-3 border-2 justify-between items-center`}
 `
+const CartWrapper = styled.section(
+   ({ showSummaryBar }) => css`
+      @media (max-width: 786px) {
+         position: fixed;
+         left: 0px;
+         right: 0px;
+         top: 30%;
+         background-color: #ffff;
+         padding: 1rem;
+         z-index: 100;
+         ${showSummaryBar ? `display: none` : `display: block`}
+      }
+   `
+)

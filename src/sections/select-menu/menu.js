@@ -14,7 +14,7 @@ import { SkeletonProduct } from './skeletons'
 import { CheckIcon } from '../../assets/icons'
 import { OCCURENCE_PRODUCTS_BY_CATEGORIES } from '../../graphql'
 
-export const Menu = () => {
+export const Menu = ({ closeCart }) => {
    const { user } = useUser()
    const { addToast } = useToasts()
    const { state, dispatch } = useMenu()
@@ -79,7 +79,7 @@ export const Menu = () => {
          </main>
       )
    return (
-      <main>
+      <main onClick={closeCart}>
          {categories.map(category => (
             <section key={category.name} css={tw`mb-8`}>
                <h4 css={tw`text-lg text-gray-700 my-3 pb-1 border-b`}>
