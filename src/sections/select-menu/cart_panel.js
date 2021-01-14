@@ -504,9 +504,11 @@ const CartWrapper = styled.section(
          left: 0px;
          right: 0px;
          top: 30%;
+         bottom: 0px;
          background-color: #ffff;
          padding: 1rem;
          z-index: 1020;
+         overflow: scroll;
          ${showSummaryBar
             ? `display: none`
             : `display: block;
