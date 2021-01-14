@@ -39,10 +39,7 @@ const MenuContent = () => {
    const { user } = useUser()
    const { configOf } = useConfig('Select-Menu')
    const config = configOf('select-menu-header')
-   const [showSummaryBar, setShowSummaryBar] = React.useState(true)
-   const handleClose = e => {
-      if (!showSummaryBar) setShowSummaryBar(true)
-   }
+
    if (isEmpty(user))
       return (
          <Main>
@@ -55,7 +52,6 @@ const MenuContent = () => {
             <div>
                <WeekPicker />
                <Header
-                  onClick={handleClose}
                   url={
                      !isEmpty(config?.header?.images)
                         ? config?.header?.images[0]?.url
@@ -75,11 +71,8 @@ const MenuContent = () => {
                </Header>
             </div>
             <Content>
-               <Menu closeCart={handleClose} />
-               <CartPanel
-                  showSummaryBar={showSummaryBar}
-                  setShowSummaryBar={setShowSummaryBar}
-               />
+               <Menu />
+               <CartPanel />
             </Content>
          </Main>
       )

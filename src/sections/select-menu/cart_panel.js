@@ -25,12 +25,7 @@ const evalTime = (date, time) => {
    return moment(date).hour(hour).minute(minute).second(0).toISOString()
 }
 
-export const CartPanel = ({
-   noSkip,
-   isCheckout,
-   showSummaryBar,
-   setShowSummaryBar,
-}) => {
+export const CartPanel = ({ noSkip, isCheckout }) => {
    const { user } = useUser()
    const location = useLocation()
    const { addToast } = useToasts()
@@ -177,6 +172,8 @@ export const CartPanel = ({
       )
    }
 
+   const [showSummaryBar, setShowSummaryBar] = React.useState(true)
+
    const basePrice = user?.subscription?.recipes?.price
    const itemCountTax = user?.subscription?.recipes?.tax
    const isTaxIncluded = user?.subscription?.recipes?.isTaxIncluded
@@ -217,7 +214,7 @@ export const CartPanel = ({
                         tw="text-blue-700 pt-2"
                         onClick={() => setShowSummaryBar(false)}
                      >
-                        View full sum <span>&#8657;</span>
+                        View full summary <span>&#8657;</span>
                      </h4>
                   </div>
                   <SaveButton
@@ -229,6 +226,10 @@ export const CartPanel = ({
                   </SaveButton>
                </SummaryBar>
             ))}
+         <Overlay
+            showOverlay={!showSummaryBar}
+            onClick={() => setShowSummaryBar(true)}
+         />
          <CartWrapper showSummaryBar={showSummaryBar}>
             <header tw="my-3 pb-1 border-b flex items-center justify-between">
                <h4 tw="text-lg text-gray-700">
@@ -505,8 +506,31 @@ const CartWrapper = styled.section(
          top: 30%;
          background-color: #ffff;
          padding: 1rem;
-         z-index: 100;
-         ${showSummaryBar ? `display: none` : `display: block`}
+         z-index: 1020;
+         ${showSummaryBar
+            ? `display: none`
+            : `display: block;
+            top: 100%;
+            animation: slide 0.5s forwards;
+            @keyframes slide{
+               100% { top: 30%; }
+            }
+         `}
+      }
+   `
+)
+
+const Overlay = styled.div(
+   ({ showOverlay }) => css`
+      @media (max-width: 786px) {
+         position: fixed;
+         left: 0px;
+         right: 0px;
+         top: 0px;
+         bottom: 0px;
+         background-color: rgba(0, 0, 0, 0.6);
+         z-index: 1010;
+         ${showOverlay ? `display: block` : `display: none`}
       }
    `
 )
