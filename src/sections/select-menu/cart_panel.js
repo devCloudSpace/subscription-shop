@@ -12,7 +12,7 @@ import { useConfig } from '../../lib'
 import { useUser } from '../../context'
 import { HelperBar } from '../../components'
 import { CloseIcon } from '../../assets/icons'
-import { isClient, formatCurrency } from '../../utils'
+import { isClient, formatCurrency, formatDate } from '../../utils'
 import {
    ZIPCODE,
    CREATE_CART,
@@ -190,6 +190,22 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
 
    return (
       <section>
+         <div tw="mt-4 text-gray-500">
+            * Your box will be delivered on{' '}
+            <span>
+               {formatDate(state.week.fulfillmentDate, {
+                  month: 'short',
+                  day: 'numeric',
+               })}
+            </span>{' '}
+            at{' '}
+            <span>
+               {user.defaultAddress.line1},&nbsp;
+               {user.defaultAddress?.line2 && `, ${user.defaultAddress?.line2}`}
+               {user.defaultAddress?.city}, {user.defaultAddress?.state},&nbsp;
+               {user.defaultAddress?.zipcode}
+            </span>
+         </div>
          <header tw="my-3 pb-1 border-b flex items-center justify-between">
             <h4 tw="text-lg text-gray-700">
                Cart{' '}
@@ -400,8 +416,9 @@ const SaveButton = styled.button(
       bg-green-500
    `}
       ${bg && `background-color: ${bg};`}
-      ${disabled &&
-      tw`
+      ${
+         disabled &&
+         tw`
          h-10
          w-full
          rounded
@@ -409,7 +426,8 @@ const SaveButton = styled.button(
          text-center
          bg-gray-200
          cursor-not-allowed 
-      `}
+      `
+      }
    `
 )
 
