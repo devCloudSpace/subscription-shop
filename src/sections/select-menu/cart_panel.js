@@ -12,7 +12,12 @@ import { useConfig } from '../../lib'
 import { useUser } from '../../context'
 import { HelperBar } from '../../components'
 import { CloseIcon } from '../../assets/icons'
-import { isClient, formatCurrency, formatDate } from '../../utils'
+import {
+   isClient,
+   formatCurrency,
+   formatDate,
+   normalizeAddress,
+} from '../../utils'
 import {
    ZIPCODE,
    CREATE_CART,
@@ -30,6 +35,7 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
    const location = useLocation()
    const { addToast } = useToasts()
    const { state, dispatch } = useMenu()
+   console.log(state, user)
    const { configOf } = useConfig()
    const [skipCarts] = useMutation(INSERT_SUBSCRIPTION_OCCURENCE_CUSTOMERS)
    const [upsertCart] = useMutation(CREATE_CART, {
@@ -86,7 +92,7 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
          zipcode: user?.defaultAddress?.zipcode,
       },
    })
-
+   console.log(zipcode)
    const submitSelection = () => {
       upsertCart({
          variables: {
@@ -190,22 +196,6 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
 
    return (
       <section>
-         <div tw="mt-4 text-gray-500">
-            * Your box will be delivered on{' '}
-            <span>
-               {formatDate(state.week.fulfillmentDate, {
-                  month: 'short',
-                  day: 'numeric',
-               })}
-            </span>{' '}
-            at{' '}
-            <span>
-               {user.defaultAddress.line1},&nbsp;
-               {user.defaultAddress?.line2 && `, ${user.defaultAddress?.line2}`}
-               {user.defaultAddress?.city}, {user.defaultAddress?.state},&nbsp;
-               {user.defaultAddress?.zipcode}
-            </span>
-         </div>
          <header tw="my-3 pb-1 border-b flex items-center justify-between">
             <h4 tw="text-lg text-gray-700">
                Cart{' '}
@@ -301,6 +291,19 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
                {isCheckout ? 'Save and Proceed to Checkout' : 'Save Selection'}
             </SaveButton>
          )}
+         <div tw="mt-4 text-gray-500">
+            * Your box will be delivered on{' '}
+            <span>
+               {formatDate(state.week.fulfillmentDate, {
+                  month: 'short',
+                  day: 'numeric',
+               })}
+               &nbsp;between {zipcode.from}
+               &nbsp;-&nbsp;
+               {zipcode.to}
+            </span>{' '}
+            at <span>{normalizeAddress(user.defaultAddress)}</span>
+         </div>
       </section>
    )
 }

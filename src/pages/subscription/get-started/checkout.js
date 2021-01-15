@@ -7,7 +7,12 @@ import { useMutation, useQuery } from '@apollo/react-hooks'
 
 import { useConfig } from '../../../lib'
 import { SEO, Layout, StepsNavbar } from '../../../components'
-import { isClient, formatDate, formatCurrency } from '../../../utils'
+import {
+   isClient,
+   formatDate,
+   formatCurrency,
+   normalizeAddress,
+} from '../../../utils'
 import {
    usePayment,
    ProfileSection,
@@ -109,7 +114,10 @@ const PaymentContent = ({ isCheckout }) => {
                      customerFirstName: state?.profile?.firstName,
                   },
                   paymentMethodId: state.payment.selected.id,
-                  ...(isCheckout && { status: 'PROCESS', amount: cart.totalPrice }),
+                  ...(isCheckout && {
+                     status: 'PROCESS',
+                     amount: cart.totalPrice,
+                  }),
                },
             },
          })
@@ -118,7 +126,6 @@ const PaymentContent = ({ isCheckout }) => {
          addToast(error.message, { appearance: 'success' })
       },
    })
-
 
    const handleSubmit = () => {
       updatePlatformCustomer({
@@ -190,13 +197,7 @@ const PaymentContent = ({ isCheckout }) => {
                         hour: 'numeric',
                      })}
                   </span>{' '}
-                  at{' '}
-                  <span>
-                     {cart.address?.line1},&nbsp;
-                     {cart.address?.line2 && `, ${cart.address?.line2}`}
-                     {cart.address?.city}, {cart.address?.state},&nbsp;
-                     {cart.address?.zipcode}
-                  </span>
+                  at <span>{normalizeAddress(user.defaultAddress)}</span>
                </section>
             </section>
          )}
