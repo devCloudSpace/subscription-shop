@@ -136,6 +136,7 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
                         isSkipped: week.isSkipped,
                         keycloakId: user.keycloakId,
                         subscriptionOccurenceId: state.week.id,
+                        brand_customerId: user.brandCustomerId,
                      },
                   ],
                   on_conflict: {
@@ -419,9 +420,8 @@ const SaveButton = styled.button(
       bg-green-500
    `}
       ${bg && `background-color: ${bg};`}
-      ${
-         disabled &&
-         tw`
+      ${disabled &&
+      tw`
          h-10
          w-full
          rounded
@@ -429,8 +429,7 @@ const SaveButton = styled.button(
          text-center
          bg-gray-200
          cursor-not-allowed 
-      `
-      }
+      `}
    `
 )
 
