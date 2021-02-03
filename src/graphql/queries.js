@@ -187,10 +187,11 @@ export const INVENTORY_DETAILS = gql`
 `
 
 export const CART_BY_WEEK = gql`
-   query cart($keycloakId: String!, $weekId: Int!) {
+   query cart($keycloakId: String!, $weekId: Int!, $brand_customerId: Int!) {
       cart: subscription_subscriptionOccurence_customer_by_pk(
          keycloakId: $keycloakId
          subscriptionOccurenceId: $weekId
+         brand_customerId: $brand_customerId
       ) {
          isAuto
          isSkipped
@@ -220,9 +221,13 @@ export const CART = gql`
    query cart($id: Int!) {
       cart: cartByPK(id: $id) {
          id
+         tax
+         tip
          amount
          address
          cartInfo
+         totalPrice
+         deliveryPrice
          fulfillmentInfo
       }
    }
@@ -261,9 +266,14 @@ export const ORDER_HISTORY = gql`
 `
 
 export const ORDER = gql`
-   subscription order($keycloakId: String!, $subscriptionOccurenceId: Int!) {
+   subscription order(
+      $keycloakId: String!
+      $subscriptionOccurenceId: Int!
+      $brand_customerId: Int!
+   ) {
       order: subscription_subscriptionOccurence_customer_by_pk(
          keycloakId: $keycloakId
+         brand_customerId: $brand_customerId
          subscriptionOccurenceId: $subscriptionOccurenceId
       ) {
          isSkipped

@@ -165,7 +165,7 @@ const Content = () => {
 }
 
 export const AddressTunnel = ({ tunnel, toggleTunnel }) => {
-   const { user } = userUser()
+   const { user } = useUser()
    const { addToast } = useToasts()
    const [formStatus, setFormStatus] = React.useState('PENDING')
    const [address, setAddress] = React.useState(null)
@@ -337,7 +337,7 @@ export const AddressTunnel = ({ tunnel, toggleTunnel }) => {
 const Main = styled.main`
    display: grid;
    grid-template-rows: 1fr;
-   height: calc(100vh - 64px);
+   min-height: calc(100vh - 64px);
    grid-template-columns: 240px 1fr;
 `
 

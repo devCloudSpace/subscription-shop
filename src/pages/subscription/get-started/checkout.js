@@ -7,7 +7,12 @@ import { useMutation, useQuery } from '@apollo/react-hooks'
 
 import { useConfig } from '../../../lib'
 import { SEO, Layout, StepsNavbar } from '../../../components'
-import { isClient, formatDate, formatCurrency } from '../../../utils'
+import {
+   isClient,
+   formatDate,
+   formatCurrency,
+   normalizeAddress,
+} from '../../../utils'
 import {
    usePayment,
    ProfileSection,
@@ -48,6 +53,12 @@ const PaymentContent = ({ isCheckout }) => {
    const { state } = usePayment()
    const { addToast } = useToasts()
    const { configOf } = useConfig()
+
+   const { data: { cart = {} } = {} } = useQuery(CART, {
+      variables: {
+         id: isClient && window.localStorage.getItem('cartId'),
+      },
+   })
 
    const [updateBrandCustomer] = useMutation(BRAND.CUSTOMER.UPDATE, {
       refetchQueries: ['customer'],
@@ -103,19 +114,16 @@ const PaymentContent = ({ isCheckout }) => {
                      customerFirstName: state?.profile?.firstName,
                   },
                   paymentMethodId: state.payment.selected.id,
-                  ...(isCheckout && { status: 'PROCESS' }),
+                  ...(isCheckout && {
+                     status: 'PROCESS',
+                     amount: cart.totalPrice,
+                  }),
                },
             },
          })
       },
       onError: error => {
          addToast(error.message, { appearance: 'success' })
-      },
-   })
-
-   const { data: { cart = {} } = {} } = useQuery(CART, {
-      variables: {
-         id: isClient && window.localStorage.getItem('cartId'),
       },
    })
 
@@ -169,7 +177,7 @@ const PaymentContent = ({ isCheckout }) => {
                   bg={theme?.accent}
                   disabled={!Boolean(isValid())}
                >
-                  Confirm & Pay {formatCurrency(cart.amount)}
+                  Confirm & Pay {formatCurrency(cart.totalPrice)}
                </Button>
                <section tw="my-4 text-gray-700">
                   * Your box will be delivered on{' '}
@@ -189,13 +197,7 @@ const PaymentContent = ({ isCheckout }) => {
                         hour: 'numeric',
                      })}
                   </span>{' '}
-                  at{' '}
-                  <span>
-                     {cart.address?.line1},&nbsp;
-                     {cart.address?.line2 && `, ${cart.address?.line2}`}
-                     {cart.address?.city}, {cart.address?.state},&nbsp;
-                     {cart.address?.zipcode}
-                  </span>
+                  at <span>{normalizeAddress(user.defaultAddress)}</span>
                </section>
             </section>
          )}

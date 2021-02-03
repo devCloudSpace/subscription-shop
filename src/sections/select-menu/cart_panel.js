@@ -12,7 +12,12 @@ import { useConfig } from '../../lib'
 import { useUser } from '../../context'
 import { HelperBar } from '../../components'
 import { CloseIcon } from '../../assets/icons'
-import { isClient, formatCurrency } from '../../utils'
+import {
+   isClient,
+   formatCurrency,
+   formatDate,
+   normalizeAddress,
+} from '../../utils'
 import {
    ZIPCODE,
    CREATE_CART,
@@ -30,6 +35,7 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
    const location = useLocation()
    const { addToast } = useToasts()
    const { state, dispatch } = useMenu()
+   console.log(state, user)
    const { configOf } = useConfig()
    const [skipCarts] = useMutation(INSERT_SUBSCRIPTION_OCCURENCE_CUSTOMERS)
    const [upsertCart] = useMutation(CREATE_CART, {
@@ -86,18 +92,20 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
          zipcode: user?.defaultAddress?.zipcode,
       },
    })
-
+   console.log(zipcode)
    const submitSelection = () => {
       upsertCart({
          variables: {
             object: {
                status: 'PENDING',
                customerId: user.id,
-               amount: weekTotal + tax,
                paymentStatus: 'PENDING',
                cartInfo: {
+                  tax,
                   products: week.cart.products,
-                  total: user?.subscription?.recipes?.price,
+                  total: isTaxIncluded
+                     ? weekTotal - (addOnTotal + zipcode.price)
+                     : basePrice,
                },
                ...(user?.subscriptionPaymentMethodId && {
                   paymentMethodId: user?.subscriptionPaymentMethodId,
@@ -128,6 +136,7 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
                         isSkipped: week.isSkipped,
                         keycloakId: user.keycloakId,
                         subscriptionOccurenceId: state.week.id,
+                        brand_customerId: user.brandCustomerId,
                      },
                   ],
                   on_conflict: {
@@ -176,7 +185,7 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
    const week = state?.weeks[state.week.id]
    const addOnTotal = week?.cart?.products
       .filter(node => Object.keys(node).length > 0)
-      .reduce((a, b) => a + b.addonPrice || 0, 0)
+      .reduce((a, b) => a + b.addOnPrice || 0, 0)
    const chargesTotal = basePrice + addOnTotal + zipcode.price
    const weekTotal = isTaxIncluded
       ? chargesTotal -
@@ -283,6 +292,19 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
                {isCheckout ? 'Save and Proceed to Checkout' : 'Save Selection'}
             </SaveButton>
          )}
+         <div tw="mt-4 text-gray-500">
+            * Your box will be delivered on{' '}
+            <span>
+               {formatDate(state.week.fulfillmentDate, {
+                  month: 'short',
+                  day: 'numeric',
+               })}
+               &nbsp;between {zipcode.from}
+               &nbsp;-&nbsp;
+               {zipcode.to}
+            </span>{' '}
+            at <span>{normalizeAddress(user.defaultAddress)}</span>
+         </div>
       </section>
    )
 }
@@ -397,11 +419,9 @@ const SaveButton = styled.button(
       text-center
       bg-green-500
    `}
-
-${bg && `background-color: ${bg};`}
-      ${
-         disabled &&
-         tw`
+      ${bg && `background-color: ${bg};`}
+      ${disabled &&
+      tw`
          h-10
          w-full
          rounded
@@ -409,8 +429,7 @@ ${bg && `background-color: ${bg};`}
          text-center
          bg-gray-200
          cursor-not-allowed 
-      `
-      }
+      `}
    `
 )
 
