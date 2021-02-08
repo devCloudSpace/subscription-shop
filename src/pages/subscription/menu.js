@@ -22,6 +22,7 @@ const MenuPage = () => {
          navigate('/subscription/get-started/select-plan')
       }
    }, [isAuthenticated])
+
    return (
       <MenuProvider>
          <Layout>

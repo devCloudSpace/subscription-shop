@@ -6,7 +6,7 @@ import { useSubscription } from '@apollo/react-hooks'
 import { useConfig } from '../../../lib'
 import { useUser } from '../../../context'
 import { ORDER_HISTORY, ORDER } from '../../../graphql'
-import { formatDate, formatCurrency, normalizeAddress } from '../../../utils'
+import { formatDate, formatCurrency, isClient, normalizeAddress } from '../../../utils'
 import { SEO, Layout, HelperBar, ProfileSidebar } from '../../../components'
 
 const Orders = () => {
@@ -43,6 +43,7 @@ const OrderHistory = () => {
 }
 
 const Listing = ({ current, setCurrent }) => {
+   const [orderWindow, setOrderWindow] = React.useState(1)
    const { user } = useUser()
    const { configOf } = useConfig()
    const { loading, data: { orders = {} } = {} } = useSubscription(
@@ -77,20 +78,34 @@ const Listing = ({ current, setCurrent }) => {
       <aside tw="border-r overflow-y-auto">
          <Title theme={theme}>Orders</Title>
          <ul tw="px-2 space-y-2">
-            {orders.nodes.map(node => (
-               <Date
-                  theme={theme}
-                  key={node.occurrenceId}
-                  onClick={() => setCurrent(node.occurrenceId)}
-                  className={`${node.occurrenceId === current ? 'active' : ''}`}
+            {orders.nodes.map(
+               (node, i) =>
+                  (i + 1 <= orderWindow ||
+                     (isClient && window.innerWidth > 786)) && (
+                     <Date
+                        theme={theme}
+                        key={node.occurrenceId}
+                        onClick={() => setCurrent(node.occurrenceId)}
+                        className={`${
+                           node.occurrenceId === current ? 'active' : ''
+                        }`}
+                     >
+                        {formatDate(node.occurrence.date, {
+                           month: 'short',
+                           day: 'numeric',
+                           year: 'numeric',
+                        })}
+                     </Date>
+                  )
+            )}
+            {orders.nodes.length > orderWindow && (
+               <div
+                  tw="float-right text-sm text-blue-500 block md:hidden"
+                  onClick={() => setOrderWindow(orderWindow + 4)}
                >
-                  {formatDate(node.occurrence.date, {
-                     month: 'short',
-                     day: 'numeric',
-                     year: 'numeric',
-                  })}
-               </Date>
-            ))}
+                  View More
+               </div>
+            )}
          </ul>
       </aside>
    )
@@ -269,6 +284,9 @@ const Main = styled.main`
    display: grid;
    grid-template-rows: 1fr;
    grid-template-columns: 240px 1fr;
+   @media (max-width: 768px) {
+      display: block;
+   }
 `
 
 const Title = styled.h2(
@@ -284,6 +302,12 @@ const Wrapper = styled.div`
    grid-template-columns: 280px 1fr;
    > aside {
       height: calc(100vh - 64px);
+   }
+   @media (max-width: 768px) {
+      display: block;
+      > aside {
+         height: max-content;
+      }
    }
 `
 

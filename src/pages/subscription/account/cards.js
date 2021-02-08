@@ -365,6 +365,9 @@ const Main = styled.main`
    grid-template-rows: 1fr;
    min-height: calc(100vh - 64px);
    grid-template-columns: 240px 1fr;
+   @media (max-width: 768px) {
+      display: block;
+   }
 `
 
 const Title = styled.h2(

@@ -179,6 +179,8 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
       )
    }
 
+   const [showSummaryBar, setShowSummaryBar] = React.useState(true)
+
    const basePrice = user?.subscription?.recipes?.price
    const itemCountTax = user?.subscription?.recipes?.tax
    const isTaxIncluded = user?.subscription?.recipes?.isTaxIncluded
@@ -194,107 +196,154 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
    const tax = weekTotal * (itemCountTax / 100)
 
    const theme = configOf('theme-color', 'Visual')
-
    return (
-      <section>
-         <header tw="my-3 pb-1 border-b flex items-center justify-between">
-            <h4 tw="text-lg text-gray-700">
-               Cart{' '}
-               {
-                  week?.cart.products.filter(
-                     node => Object.keys(node).length !== 0
-                  ).length
-               }
-               /{user?.subscription?.recipes?.count}
-            </h4>
-            {['PENDING', undefined].includes(week?.orderCartStatus) &&
-               state?.week?.isValid &&
-               !noSkip && (
-                  <SkipWeek>
-                     <label htmlFor="skip" tw="mr-2 text-gray-600">
-                        Skip
-                     </label>
-                     <input
-                        name="skip"
-                        type="checkbox"
-                        className="toggle"
-                        onChange={skipWeek}
-                        checked={week?.isSkipped}
-                        tw="cursor-pointer appearance-none"
+      <>
+         {showSummaryBar &&
+            (['ORDER_PLACED', 'PROCESS'].includes(week?.orderCartStatus) ? (
+               <HelperBar type="success">
+                  <HelperBar.SubTitle>
+                     Your order has been placed for this week.
+                  </HelperBar.SubTitle>
+               </HelperBar>
+            ) : (
+               <SummaryBar>
+                  <div>
+                     <h4 tw="text-base text-gray-700">
+                        Cart{' '}
+                        {
+                           week?.cart.products.filter(
+                              node => Object.keys(node).length !== 0
+                           ).length
+                        }
+                        /{user?.subscription?.recipes?.count}
+                     </h4>
+                     <h4
+                        tw="text-blue-700 pt-2"
+                        onClick={() => setShowSummaryBar(false)}
+                     >
+                        View full summary <span>&#8657;</span>
+                     </h4>
+                  </div>
+                  <SaveButton
+                     bg={theme?.accent}
+                     disabled={!state?.week?.isValid || isCartValid()}
+                     small={true}
+                  >
+                     {isCheckout ? 'Save and Proceed to Checkout' : 'Save '}
+                  </SaveButton>
+               </SummaryBar>
+            ))}
+         <Overlay
+            showOverlay={!showSummaryBar}
+            onClick={() => setShowSummaryBar(true)}
+         />
+         <CartWrapper showSummaryBar={showSummaryBar}>
+            <header tw="my-3 pb-1 border-b flex items-center justify-between">
+               <h4 tw="text-lg text-gray-700">
+                  Cart{' '}
+                  {
+                     week?.cart.products.filter(
+                        node => Object.keys(node).length !== 0
+                     ).length
+                  }
+                  /{user?.subscription?.recipes?.count}
+               </h4>
+               {['PENDING', undefined].includes(week?.orderCartStatus) &&
+                  state?.week?.isValid &&
+                  !noSkip && (
+                     <SkipWeek>
+                        <label htmlFor="skip" tw="mr-2 text-gray-600">
+                           Skip
+                        </label>
+                        <input
+                           name="skip"
+                           type="checkbox"
+                           className="toggle"
+                           onChange={skipWeek}
+                           checked={week?.isSkipped}
+                           tw="cursor-pointer appearance-none"
+                        />
+                     </SkipWeek>
+                  )}
+               <button
+                  tw="md:hidden rounded-full border-2 border-green-400 h-6 w-6 "
+                  onClick={() => setShowSummaryBar(true)}
+               >
+                  <CloseIcon size={16} tw="stroke-current text-green-400" />
+               </button>
+            </header>
+            <CartProducts>
+               {week?.cart.products.map((product, index) =>
+                  isEmpty(product) ? (
+                     <SkeletonCartProduct key={index} />
+                  ) : (
+                     <CartProduct
+                        index={index}
+                        product={product}
+                        key={`product-${product.cartItemId}-${index}`}
                      />
-                  </SkipWeek>
+                  )
                )}
-         </header>
-         <CartProducts>
-            {week?.cart.products.map((product, index) =>
-               isEmpty(product) ? (
-                  <SkeletonCartProduct key={index} />
-               ) : (
-                  <CartProduct
-                     index={index}
-                     product={product}
-                     key={`product-${product.cartItemId}-${index}`}
-                  />
-               )
+            </CartProducts>
+            <h4 tw="text-lg text-gray-700 my-3 pb-1 border-b">Charges</h4>
+            <table tw="my-3 w-full table-auto">
+               <tbody>
+                  <tr>
+                     <td tw="border px-2 py-1">Base Price</td>
+                     <td tw="text-right border px-2 py-1">
+                        {formatCurrency(
+                           isTaxIncluded
+                              ? weekTotal - (addOnTotal + zipcode.price)
+                              : basePrice
+                        )}
+                     </td>
+                  </tr>
+                  <tr tw="bg-gray-100">
+                     <td tw="border px-2 py-1">Add on Total</td>
+                     <td tw="text-right border px-2 py-1">
+                        {formatCurrency(addOnTotal)}
+                     </td>
+                  </tr>
+                  <tr>
+                     <td tw="border px-2 py-1">Delivery</td>
+                     <td tw="text-right border px-2 py-1">
+                        {formatCurrency(zipcode.price)}
+                     </td>
+                  </tr>
+                  <tr tw="bg-gray-100">
+                     <td tw="border px-2 py-1">Tax</td>
+                     <td tw="text-right border px-2 py-1">
+                        {formatCurrency(tax || 0)}
+                     </td>
+                  </tr>
+                  <tr>
+                     <td tw="border px-2 py-1">Total</td>
+                     <td tw="text-right border px-2 py-1">
+                        {formatCurrency(weekTotal + tax || 0)}
+                     </td>
+                  </tr>
+               </tbody>
+            </table>
+            {['ORDER_PLACED', 'PROCESS'].includes(week?.orderCartStatus) ? (
+               <HelperBar type="success">
+                  <HelperBar.SubTitle>
+                     Your order has been placed for this week.
+                  </HelperBar.SubTitle>
+               </HelperBar>
+            ) : (
+               <SaveButton
+                  bg={theme?.accent}
+                  onClick={submitSelection}
+                  disabled={!state?.week?.isValid || isCartValid()}
+               >
+                  {isCheckout
+                     ? 'Save and Proceed to Checkout'
+                     : 'Save Selection'}
+               </SaveButton>
             )}
-         </CartProducts>
-         <h4 tw="text-lg text-gray-700 my-3 pb-1 border-b">Charges</h4>
-         <table tw="my-3 w-full table-auto">
-            <tbody>
-               <tr>
-                  <td tw="border px-2 py-1">Base Price</td>
-                  <td tw="text-right border px-2 py-1">
-                     {formatCurrency(
-                        isTaxIncluded
-                           ? weekTotal - (addOnTotal + zipcode.price)
-                           : basePrice
-                     )}
-                  </td>
-               </tr>
-               <tr tw="bg-gray-100">
-                  <td tw="border px-2 py-1">Add on Total</td>
-                  <td tw="text-right border px-2 py-1">
-                     {formatCurrency(addOnTotal)}
-                  </td>
-               </tr>
-               <tr>
-                  <td tw="border px-2 py-1">Delivery</td>
-                  <td tw="text-right border px-2 py-1">
-                     {formatCurrency(zipcode.price)}
-                  </td>
-               </tr>
-               <tr tw="bg-gray-100">
-                  <td tw="border px-2 py-1">Tax</td>
-                  <td tw="text-right border px-2 py-1">
-                     {formatCurrency(tax || 0)}
-                  </td>
-               </tr>
-               <tr>
-                  <td tw="border px-2 py-1">Total</td>
-                  <td tw="text-right border px-2 py-1">
-                     {formatCurrency(weekTotal + tax || 0)}
-                  </td>
-               </tr>
-            </tbody>
-         </table>
-         {['ORDER_PLACED', 'PROCESS'].includes(week?.orderCartStatus) ? (
-            <HelperBar type="success">
-               <HelperBar.SubTitle>
-                  Your order has been placed for this week.
-               </HelperBar.SubTitle>
-            </HelperBar>
-         ) : (
-            <SaveButton
-               bg={theme?.accent}
-               onClick={submitSelection}
-               disabled={!state?.week?.isValid || isCartValid()}
-            >
-               {isCheckout ? 'Save and Proceed to Checkout' : 'Save Selection'}
-            </SaveButton>
-         )}
-         <div tw="mt-4 text-gray-500">
-            * Your box will be delivered on{' '}
-            <span>
+            <div tw="mt-4 text-gray-500">
+              * Your box will be delivered on{' '}
+              <span>
                {formatDate(state.week.fulfillmentDate, {
                   month: 'short',
                   day: 'numeric',
@@ -302,10 +351,11 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
                &nbsp;between {zipcode.from}
                &nbsp;-&nbsp;
                {zipcode.to}
-            </span>{' '}
-            at <span>{normalizeAddress(user.defaultAddress)}</span>
-         </div>
-      </section>
+              </span>{' '}
+              at <span>{normalizeAddress(user.defaultAddress)}</span>
+           </div>
+         </CartWrapper>
+      </>
    )
 }
 
@@ -410,7 +460,7 @@ const CartProductContainer = styled.li`
 `
 
 const SaveButton = styled.button(
-   ({ disabled, bg }) => css`
+   ({ disabled, bg, small }) => css`
       ${tw`
       h-10
       w-full
@@ -420,8 +470,9 @@ const SaveButton = styled.button(
       bg-green-500
    `}
       ${bg && `background-color: ${bg};`}
-      ${disabled &&
-      tw`
+      ${
+         disabled &&
+         tw`
          h-10
          w-full
          rounded
@@ -429,7 +480,9 @@ const SaveButton = styled.button(
          text-center
          bg-gray-200
          cursor-not-allowed 
-      `}
+      `
+      }
+      ${small && ` width: max-content; padding: 0 2rem`}
    `
 )
 
@@ -457,6 +510,49 @@ const SkipWeek = styled.span(
       .toggle:checked:after {
          transform: translatex(14px);
          ${tw`bg-white`}
+      }
+   `
+)
+
+const SummaryBar = styled.div`
+   ${tw`md:hidden fixed left-0 right-0 bottom-0 z-10 bg-white flex p-3 border-2 justify-between items-center`}
+`
+const CartWrapper = styled.section(
+   ({ showSummaryBar }) => css`
+      @media (max-width: 786px) {
+         position: fixed;
+         left: 0px;
+         right: 0px;
+         top: 30%;
+         bottom: 0px;
+         background-color: #ffff;
+         padding: 1rem;
+         z-index: 1020;
+         overflow: scroll;
+         ${showSummaryBar
+            ? `display: none`
+            : `display: block;
+            top: 100%;
+            animation: slide 0.5s forwards;
+            @keyframes slide{
+               100% { top: 30%; }
+            }
+         `}
+      }
+   `
+)
+
+const Overlay = styled.div(
+   ({ showOverlay }) => css`
+      @media (max-width: 786px) {
+         position: fixed;
+         left: 0px;
+         right: 0px;
+         top: 0px;
+         bottom: 0px;
+         background-color: rgba(0, 0, 0, 0.6);
+         z-index: 1010;
+         ${showOverlay ? `display: block` : `display: none`}
       }
    `
 )

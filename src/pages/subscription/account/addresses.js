@@ -110,7 +110,7 @@ const Content = () => {
    const theme = configOf('theme-color', 'Visual')
 
    return (
-      <div tw="px-3">
+      <div tw="px-3 mb-3">
          <header tw="mt-6 mb-3 flex items-center justify-between">
             <Title theme={theme}>Addresses</Title>
             {user?.platform_customer?.addresses.length > 0 && (
@@ -339,6 +339,9 @@ const Main = styled.main`
    grid-template-rows: 1fr;
    min-height: calc(100vh - 64px);
    grid-template-columns: 240px 1fr;
+   @media (max-width: 768px) {
+      display: block;
+   }
 `
 
 const Title = styled.h2(
