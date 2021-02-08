@@ -76,8 +76,9 @@ export const WeekPicker = ({ isFixed }) => {
    }, [cart, state.week, dispatch])
 
    const { loading } = useQuery(OCCURENCES_BY_SUBSCRIPTION, {
+      skip: !user?.subscriptionId,
       variables: {
-         id: user.subscriptionId,
+         id: user?.subscriptionId,
          where: {
             fulfillmentDate: {
                _eq: new URL(location.href).searchParams.get('date'),
@@ -103,11 +104,15 @@ export const WeekPicker = ({ isFixed }) => {
                fetchCart({
                   variables: {
                      keycloakId: user?.keycloakId,
+                     brand_customerId: user?.brandCustomerId,
                      weekId: visibleOccurences[validWeekIndex].id,
                   },
                })
             }
-         } else {
+         } else if (
+            subscription?.occurences?.length === 0 &&
+            user?.subscriptionId
+         ) {
             addToast('No weeks are available for menu selection.', {
                appearance: 'error',
             })
@@ -129,6 +134,7 @@ export const WeekPicker = ({ isFixed }) => {
          variables: {
             keycloakId: user?.keycloakId,
             weekId: state.occurences[nextOne].id,
+            brand_customerId: user?.brandCustomerId,
          },
       })
       addToast("Showing next week's menu.", {
@@ -144,6 +150,7 @@ export const WeekPicker = ({ isFixed }) => {
          variables: {
             keycloakId: user?.keycloakId,
             weekId: state.occurences[previousOne].id,
+            brand_customerId: user?.brandCustomerId,
          },
       })
       addToast("Showing previous week's menu.", {

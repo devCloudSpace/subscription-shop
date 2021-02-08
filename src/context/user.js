@@ -77,6 +77,7 @@ export const UserProvider = ({ children }) => {
 
          if (!isEmpty(brandCustomers)) {
             const [brand_customer] = brandCustomers
+            sub.brandCustomerId = brand_customer?.id
 
             const {
                subscription = null,

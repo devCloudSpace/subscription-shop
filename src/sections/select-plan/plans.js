@@ -12,12 +12,15 @@ import { HelperBar } from '../../components'
 export const Plans = () => {
    const { brand } = useConfig()
    const { addToast } = useToasts()
-   const [plans, setPlans] = React.useState([])
+   const [list, setList] = React.useState([])
    const [isLoading, setIsLoading] = React.useState(true)
-   const { error } = useSubscription(PLANS, {
-      variables: { brandId: brand.id },
-      onSubscriptionData: ({ subscriptionData: { data = {} } = {} }) => {
-         const { plans } = data
+   const { loading, error, data: { plans = [] } = {} } = useSubscription(
+      PLANS,
+      { variables: { brandId: brand.id } }
+   )
+
+   React.useEffect(() => {
+      if (!loading && plans.length > 0) {
          const filtered = plans
             .filter(plan => plan.servings.length > 0)
             .map(plan => ({
@@ -26,10 +29,10 @@ export const Plans = () => {
                   serving => serving.itemCounts.length > 0
                ),
             }))
-         setPlans(filtered)
+         setList(filtered)
          setIsLoading(false)
-      },
-   })
+      }
+   }, [loading, plans])
 
    if (isLoading)
       return (
@@ -53,7 +56,7 @@ export const Plans = () => {
          </Wrapper>
       )
    }
-   if (plans.length === 0) {
+   if (list.length === 0) {
       setIsLoading(false)
       return (
          <Wrapper tw="py-3">
@@ -64,8 +67,8 @@ export const Plans = () => {
       )
    }
    return (
-      <List count={plans.length}>
-         {plans.map(plan => (
+      <List count={list.length}>
+         {list.map(plan => (
             <Plan key={plan.id} plan={plan} />
          ))}
       </List>

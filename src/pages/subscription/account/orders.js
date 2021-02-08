@@ -6,7 +6,7 @@ import { useSubscription } from '@apollo/react-hooks'
 import { useConfig } from '../../../lib'
 import { useUser } from '../../../context'
 import { ORDER_HISTORY, ORDER } from '../../../graphql'
-import { formatDate, formatCurrency, isClient } from '../../../utils'
+import { formatDate, formatCurrency, isClient, normalizeAddress } from '../../../utils'
 import { SEO, Layout, HelperBar, ProfileSidebar } from '../../../components'
 
 const Orders = () => {
@@ -114,12 +114,17 @@ const Listing = ({ current, setCurrent }) => {
 const Details = ({ current }) => {
    const { user } = useUser()
    const { configOf } = useConfig()
-   const { loading, data: { order = {} } = {} } = useSubscription(ORDER, {
-      variables: {
-         keycloakId: user?.keycloakId,
-         subscriptionOccurenceId: current,
-      },
-   })
+   const { error, loading, data: { order = {} } = {} } = useSubscription(
+      ORDER,
+      {
+         skip: !user?.keycloakId && !current && !user?.brandCustomerId,
+         variables: {
+            keycloakId: user?.keycloakId,
+            subscriptionOccurenceId: current,
+            brand_customerId: user?.brandCustomerId,
+         },
+      }
+   )
 
    const paymentMethod = user?.platform_customer?.paymentMethods.find(
       node => node.stripePaymentMethodId === order?.cart?.paymentMethodId
@@ -196,11 +201,7 @@ const Details = ({ current }) => {
          </table>
          <h4 tw="text-lg text-gray-700 my-4 pb-1 border-b">Address</h4>
          <div>
-            <span>{order?.cart?.address?.line1 || ''}, </span>
-            <span>{order?.cart?.address?.city || ''}, </span>
-            <span>{order?.cart?.address?.state || ''}, </span>
-            <span>{order?.cart?.address?.country || ''}, </span>
-            <span>{order?.cart?.address?.zipcode || ''}</span>
+            <span>{normalizeAddress(order?.cart?.address || {})}</span>
          </div>
          <h4 tw="text-lg text-gray-700 my-4 pb-1 border-b">Payment</h4>
          <section tw="mb-3 p-2 border w-full">

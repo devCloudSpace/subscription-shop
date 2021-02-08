@@ -12,7 +12,12 @@ import { useConfig } from '../../lib'
 import { useUser } from '../../context'
 import { HelperBar } from '../../components'
 import { CloseIcon } from '../../assets/icons'
-import { isClient, formatCurrency } from '../../utils'
+import {
+   isClient,
+   formatCurrency,
+   formatDate,
+   normalizeAddress,
+} from '../../utils'
 import {
    ZIPCODE,
    CREATE_CART,
@@ -30,6 +35,7 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
    const location = useLocation()
    const { addToast } = useToasts()
    const { state, dispatch } = useMenu()
+   console.log(state, user)
    const { configOf } = useConfig()
    const [skipCarts] = useMutation(INSERT_SUBSCRIPTION_OCCURENCE_CUSTOMERS)
    const [upsertCart] = useMutation(CREATE_CART, {
@@ -86,7 +92,7 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
          zipcode: user?.defaultAddress?.zipcode,
       },
    })
-
+   console.log(zipcode)
    const submitSelection = () => {
       upsertCart({
          variables: {
@@ -130,6 +136,7 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
                         isSkipped: week.isSkipped,
                         keycloakId: user.keycloakId,
                         subscriptionOccurenceId: state.week.id,
+                        brand_customerId: user.brandCustomerId,
                      },
                   ],
                   on_conflict: {
@@ -334,6 +341,19 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
                      : 'Save Selection'}
                </SaveButton>
             )}
+            <div tw="mt-4 text-gray-500">
+              * Your box will be delivered on{' '}
+              <span>
+               {formatDate(state.week.fulfillmentDate, {
+                  month: 'short',
+                  day: 'numeric',
+               })}
+               &nbsp;between {zipcode.from}
+               &nbsp;-&nbsp;
+               {zipcode.to}
+              </span>{' '}
+              at <span>{normalizeAddress(user.defaultAddress)}</span>
+           </div>
          </CartWrapper>
       </>
    )
