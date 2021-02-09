@@ -8,12 +8,14 @@ export const processUser = customer => {
       const [brand_customer] = brandCustomers
 
       const {
+         id,
          subscription = null,
          subscriptionId = null,
          subscriptionAddressId = null,
          subscriptionPaymentMethodId = null,
       } = brand_customer
 
+      rest.brandCustomerId = id
       rest.subscription = subscription
       rest.subscriptionId = subscriptionId
       rest.subscriptionAddressId = subscriptionAddressId
