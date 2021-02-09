@@ -3,19 +3,17 @@ import { isEmpty } from 'lodash'
 import { navigate } from 'gatsby'
 import jwtDecode from 'jwt-decode'
 import tw, { styled } from 'twin.macro'
-import { useKeycloak } from '@react-keycloak/web'
 import { useToasts } from 'react-toast-notifications'
 import { useLazyQuery, useMutation } from '@apollo/react-hooks'
 
+import { isClient } from '../../../utils'
 import { useUser } from '../../../context'
 import { useConfig, auth } from '../../../lib'
-import { isClient, isKeycloakSupported } from '../../../utils'
 import { SEO, Layout, StepsNavbar } from '../../../components'
 import { BRAND, CREATE_CUSTOMER, CUSTOMER } from '../../../graphql'
 
 export default () => {
    const { brand } = useConfig()
-   const [keycloak] = useKeycloak()
    const { addToast } = useToasts()
    const { user, dispatch } = useUser()
    const [current, setCurrent] = React.useState('REGISTER')
@@ -45,25 +43,20 @@ export default () => {
    })
    const [customer] = useLazyQuery(CUSTOMER.DETAILS, {
       onCompleted: async ({ customer = {} }) => {
+         const { email = '', sub: keycloakId = '' } = jwtDecode(
+            localStorage.getItem('token')
+         )
          if (isEmpty(customer)) {
             console.log('CUSTOMER DOESNT EXISTS')
             create({
                variables: {
                   object: {
+                     email,
+                     keycloakId,
                      source: 'subscription',
                      sourceBrandId: brand.id,
-                     email: isKeycloakSupported()
-                        ? keycloak?.tokenParsed?.email
-                        : jwtDecode(localStorage.getItem('token')).email,
                      clientId: process.env.GATSBY_CLIENTID,
-                     keycloakId: isKeycloakSupported()
-                        ? keycloak?.tokenParsed?.sub
-                        : jwtDecode(localStorage.getItem('token')).sub,
-                     brandCustomers: {
-                        data: {
-                           brandId: brand.id,
-                        },
-                     },
+                     brandCustomers: { data: { brandId: brand.id } },
                   },
                },
             })
@@ -80,10 +73,8 @@ export default () => {
             create_brand_customer({
                variables: {
                   object: {
+                     keycloakId,
                      brandId: brand.id,
-                     keycloakId: isKeycloakSupported()
-                        ? keycloak?.tokenParsed?.sub
-                        : jwtDecode(localStorage.getItem('token')).sub,
                   },
                },
             })
@@ -99,91 +90,34 @@ export default () => {
    })
 
    React.useEffect(() => {
-      if (user?.keycloakId && !user?.isSubscriber) {
-         navigate('/subscription/get-started/select-delivery')
-      } else if (user?.keycloakId && user?.isSubscriber) {
-         navigate('/subscription/menu')
+      if (user?.keycloakId) {
+         if (user?.isSubscriber) navigate('/subscription/menu')
+         else navigate('/subscription/get-started/select-delivery')
       }
    }, [user])
-
-   React.useEffect(() => {
-      if (isKeycloakSupported() && keycloak?.authenticated) {
-         if ('tokenParsed' in keycloak && 'id' in brand) {
-            customer({
-               variables: {
-                  keycloakId: keycloak.tokenParsed?.sub,
-                  brandId: brand.id,
-               },
-            })
-         }
-      }
-   }, [keycloak, customer, brand])
-
-   React.useEffect(() => {
-      if (isClient && isKeycloakSupported()) {
-         let eventMethod = window.addEventListener
-            ? 'addEventListener'
-            : 'attachEvent'
-         let eventer = window[eventMethod]
-         let messageEvent =
-            eventMethod === 'attachEvent' ? 'onmessage' : 'message'
-
-         eventer(messageEvent, e => {
-            if (e.origin !== window.origin) return
-            try {
-               if (JSON.parse(e.data).success) {
-                  window.location.reload()
-               }
-            } catch (error) {}
-         })
-      }
-   }, [])
 
    return (
       <Layout noHeader>
          <SEO title="Register" />
          <StepsNavbar />
          <Main tw="pt-8">
-            {isKeycloakSupported() ? (
-               <>
-                  {!keycloak?.authenticated && (
-                     <iframe
-                        frameBorder="0"
-                        title="Register"
-                        tw="mx-auto w-full md:w-4/12 h-full"
-                        style={{ height: '780px' }}
-                        src={keycloak?.createRegisterUrl({
-                           redirectUri: isClient
-                              ? `${window.location.origin}/subscription/login-success.xhtml`
-                              : '',
-                        })}
-                     ></iframe>
-                  )}
-               </>
-            ) : (
-               <>
-                  <TabList>
-                     <Tab
-                        className={current === 'LOGIN' ? 'active' : ''}
-                        onClick={() => setCurrent('LOGIN')}
-                     >
-                        Login
-                     </Tab>
-                     <Tab
-                        className={current === 'REGISTER' ? 'active' : ''}
-                        onClick={() => setCurrent('REGISTER')}
-                     >
-                        Register
-                     </Tab>
-                  </TabList>
-                  {current === 'LOGIN' && <LoginPanel customer={customer} />}
-                  {current === 'REGISTER' && (
-                     <RegisterPanel
-                        setCurrent={setCurrent}
-                        customer={customer}
-                     />
-                  )}
-               </>
+            <TabList>
+               <Tab
+                  className={current === 'LOGIN' ? 'active' : ''}
+                  onClick={() => setCurrent('LOGIN')}
+               >
+                  Login
+               </Tab>
+               <Tab
+                  className={current === 'REGISTER' ? 'active' : ''}
+                  onClick={() => setCurrent('REGISTER')}
+               >
+                  Register
+               </Tab>
+            </TabList>
+            {current === 'LOGIN' && <LoginPanel customer={customer} />}
+            {current === 'REGISTER' && (
+               <RegisterPanel setCurrent={setCurrent} customer={customer} />
             )}
          </Main>
       </Layout>

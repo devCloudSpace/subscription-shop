@@ -1,7 +1,6 @@
 import React from 'react'
 import { Link } from 'gatsby'
 import tw, { styled, css } from 'twin.macro'
-import { useKeycloak } from '@react-keycloak/web'
 
 import { useConfig } from '../../lib'
 import { useUser } from '../../context'
@@ -9,8 +8,7 @@ import { SEO, Layout } from '../../components'
 import { FaqSection, InfoSection } from '../../sections'
 
 export default () => {
-   const { user } = useUser()
-   const [keycloak] = useKeycloak()
+   const { isAuthenticated } = useUser()
    const { configOf } = useConfig()
 
    const theme = configOf('theme-color', 'Visual')
@@ -21,7 +19,7 @@ export default () => {
             <Header>
                <div>
                   <Tagline>Your next great meal is at your fingertips.</Tagline>
-                  {user?.keycloakId || keycloak?.authenticated ? (
+                  {isAuthenticated ? (
                      <CTA theme={theme} to="/subscription/menu">
                         Select Menu
                      </CTA>

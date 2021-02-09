@@ -15,10 +15,10 @@ import { useUser } from '../../../context'
 import { SEO, Layout, StepsNavbar, HelperBar } from '../../../components'
 
 const SelectMenu = () => {
-   const { user } = useUser()
+   const { isAuthenticated } = useUser()
 
    React.useEffect(() => {
-      if (!user?.keycloakId) {
+      if (!isAuthenticated) {
          console.log('navigate called')
          navigate('/subscription/get-started/select-plan')
       }

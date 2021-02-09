@@ -3,19 +3,17 @@ import { isEmpty } from 'lodash'
 import { navigate } from 'gatsby'
 import jwtDecode from 'jwt-decode'
 import tw, { styled } from 'twin.macro'
-import { useKeycloak } from '@react-keycloak/web'
 import { useToasts } from 'react-toast-notifications'
 import { useLazyQuery, useMutation } from '@apollo/react-hooks'
 
+import { isClient } from '../../utils'
 import { useUser } from '../../context'
 import { useConfig, auth } from '../../lib'
 import { SEO, Layout } from '../../components'
-import { isClient, isKeycloakSupported } from '../../utils'
 import { BRAND, CREATE_CUSTOMER, CUSTOMER } from '../../graphql'
 
 const Login = () => {
    const { brand } = useConfig()
-   const [keycloak] = useKeycloak()
    const { addToast } = useToasts()
    const { user, dispatch } = useUser()
    const [current, setCurrent] = React.useState('LOGIN')
@@ -42,25 +40,20 @@ const Login = () => {
    })
    const [customer] = useLazyQuery(CUSTOMER.DETAILS, {
       onCompleted: async ({ customer = {} }) => {
+         const { email = '', sub: keycloakId = '' } = jwtDecode(
+            localStorage.getItem('token')
+         )
          if (isEmpty(customer)) {
             console.log('CUSTOMER DOESNT EXISTS')
             create({
                variables: {
                   object: {
+                     email,
+                     keycloakId,
                      source: 'subscription',
                      sourceBrandId: brand.id,
-                     email: isKeycloakSupported()
-                        ? keycloak?.tokenParsed?.email
-                        : jwtDecode(localStorage.getItem('token')).email,
                      clientId: process.env.GATSBY_CLIENTID,
-                     keycloakId: isKeycloakSupported()
-                        ? keycloak?.tokenParsed?.sub
-                        : jwtDecode(localStorage.getItem('token')).sub,
-                     brandCustomers: {
-                        data: {
-                           brandId: brand.id,
-                        },
-                     },
+                     brandCustomers: { data: { brandId: brand.id } },
                   },
                },
             })
@@ -76,10 +69,7 @@ const Login = () => {
             console.log('BRAND_CUSTOMER DOESNT EXISTS')
             create_brand_customer({
                variables: {
-                  object: {
-                     brandId: brand.id,
-                     keycloakId: keycloak?.tokenParsed?.sub,
-                  },
+                  object: { keycloakId, brandId: brand.id },
                },
             })
          } else if (customer.isSubscriber && brandCustomers[0].isSubscriber) {
@@ -94,79 +84,25 @@ const Login = () => {
    })
 
    React.useEffect(() => {
-      if (user?.keycloakId && !user?.isSubscriber) {
-         navigate('/subscription/get-started/select-delivery')
-      } else if (user?.keycloakId && user?.isSubscriber) {
-         navigate('/subscription/menu')
+      if (user?.keycloakId) {
+         if (user?.isSubscriber) navigate('/subscription/menu')
+         else navigate('/subscription/get-started/select-delivery')
       }
    }, [user])
-
-   React.useEffect(() => {
-      if (isKeycloakSupported() && keycloak?.authenticated) {
-         if ('tokenParsed' in keycloak && 'id' in brand) {
-            customer({
-               variables: {
-                  keycloakId: keycloak.tokenParsed?.sub,
-                  brandId: brand.id,
-               },
-            })
-         }
-      }
-   }, [keycloak, customer, brand])
-
-   React.useEffect(() => {
-      if (isClient && isKeycloakSupported()) {
-         let eventMethod = window.addEventListener
-            ? 'addEventListener'
-            : 'attachEvent'
-         let eventer = window[eventMethod]
-         let messageEvent =
-            eventMethod === 'attachEvent' ? 'onmessage' : 'message'
-
-         eventer(messageEvent, e => {
-            if (e.origin !== window.origin) return
-            try {
-               if (JSON.parse(e.data).success) {
-                  window.location.reload()
-               }
-            } catch (error) {}
-         })
-      }
-   }, [])
 
    return (
       <Layout>
          <SEO title="Login" />
          <Main tw="pt-8">
-            {isKeycloakSupported() ? (
-               <>
-                  {!keycloak?.authenticated && (
-                     <iframe
-                        frameBorder="0"
-                        title="Register"
-                        tw="mx-auto w-full md:w-4/12 h-full"
-                        style={{ height: '780px' }}
-                        src={keycloak?.createRegisterUrl({
-                           redirectUri: isClient
-                              ? `${window.location.origin}/subscription/login-success.xhtml`
-                              : '',
-                        })}
-                     ></iframe>
-                  )}
-               </>
-            ) : (
-               <>
-                  <TabList>
-                     <Tab
-                        className={current === 'LOGIN' ? 'active' : ''}
-                        onClick={() => setCurrent('LOGIN')}
-                     >
-                        Login
-                     </Tab>
-                  </TabList>
-                  {current === 'LOGIN' && <LoginPanel customer={customer} />}
-               </>
-            )}
+            <TabList>
+               <Tab
+                  className={current === 'LOGIN' ? 'active' : ''}
+                  onClick={() => setCurrent('LOGIN')}
+               >
+                  Login
+               </Tab>
+            </TabList>
+            {current === 'LOGIN' && <LoginPanel customer={customer} />}
          </Main>
       </Layout>
    )

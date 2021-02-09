@@ -27,11 +27,11 @@ import {
 } from '../../../components'
 
 const Addresses = () => {
-   const { user } = useUser()
+   const { isAuthenticated } = useUser()
 
    React.useEffect(() => {
-      if (!user?.keycloakId) {
-         navigate('/subscription/')
+      if (!isAuthenticated) {
+         navigate('/subscription')
       }
    }, [user])
 

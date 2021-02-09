@@ -1,15 +1,15 @@
 import React from 'react'
 import { Link } from 'gatsby'
 import tw, { styled, css } from 'twin.macro'
-import { useKeycloak } from '@react-keycloak/web'
 
 import { Header } from './header'
+import { useUser } from '../context'
 import { normalizeAddress } from '../utils'
 import { useConfig } from '../lib/config'
 import { MailIcon, PhoneIcon } from '../assets/icons'
 
 export const Layout = ({ children, noHeader }) => {
-   const [keycloak] = useKeycloak()
+   const { isAuthenticated } = useUser()
    const { hasConfig, configOf } = useConfig()
 
    const brand = configOf('theme-brand', 'brand')
@@ -64,7 +64,7 @@ export const Layout = ({ children, noHeader }) => {
                      <li tw="mb-3">
                         <Link to="/subscription">Home</Link>
                      </li>
-                     {keycloak?.authenticated && (
+                     {isAuthenticated && (
                         <li tw="mb-3">
                            <Link to="/subscription/account/profile/">
                               Profile

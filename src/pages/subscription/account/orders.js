@@ -6,14 +6,19 @@ import { useSubscription } from '@apollo/react-hooks'
 import { useConfig } from '../../../lib'
 import { useUser } from '../../../context'
 import { ORDER_HISTORY, ORDER } from '../../../graphql'
-import { formatDate, formatCurrency, isClient, normalizeAddress } from '../../../utils'
+import {
+   formatDate,
+   formatCurrency,
+   isClient,
+   normalizeAddress,
+} from '../../../utils'
 import { SEO, Layout, HelperBar, ProfileSidebar } from '../../../components'
 
 const Orders = () => {
-   const { user } = useUser()
+   const { isAuthenticated } = useUser()
 
    React.useEffect(() => {
-      if (!user?.keycloakId) {
+      if (!isAuthenticated) {
          navigate('/subscription')
       }
    }, [user])
