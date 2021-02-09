@@ -13,8 +13,9 @@ export const Header = () => {
    const { configOf } = useConfig()
    const logout = () => {
       isClient && localStorage.removeItem('token')
-      dispatch({ type: 'CLEAR_USER' })
-      navigate('/subscription')
+      if (isClient) {
+         window.location.href = window.location.origin + '/subscription'
+      }
    }
 
    const brand = configOf('theme-brand', 'brand')
