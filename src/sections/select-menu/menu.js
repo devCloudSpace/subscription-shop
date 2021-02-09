@@ -193,6 +193,11 @@ const Product = ({ node, isAdded, theme, selectRecipe }) => {
                </button>
             )}
          </div>
+         <p>
+            {type === 'SRP'
+               ? option?.simpleRecipeProduct?.additionalText
+               : option?.inventoryProduct?.additionalText}
+         </p>
       </Styles.Product>
    )
 }
