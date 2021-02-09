@@ -6,10 +6,10 @@ import tw, { styled } from 'twin.macro'
 import { useToasts } from 'react-toast-notifications'
 import { useLazyQuery, useMutation } from '@apollo/react-hooks'
 
-import { isClient } from '../../utils'
 import { useUser } from '../../context'
 import { useConfig, auth } from '../../lib'
 import { SEO, Layout } from '../../components'
+import { isClient, processUser } from '../../utils'
 import { BRAND, CREATE_CUSTOMER, CUSTOMER } from '../../graphql'
 
 const Login = () => {
@@ -21,72 +21,97 @@ const Login = () => {
    const [create_brand_customer] = useMutation(BRAND.CUSTOMER.CREATE, {
       refetchQueries: ['customer'],
       onCompleted: () => {
-         navigate('/subscription/get-started/select-delivery')
+         if (isClient) {
+            window.location.href =
+               window.location.origin +
+               '/subscription/get-started/select-delivery'
+         }
       },
       onError: error => {
          console.log(error)
       },
    })
-   const [create] = useMutation(CREATE_CUSTOMER, {
-      refetchQueries: ['customer'],
-      onCompleted: () => {
-         dispatch({ type: 'SET_USER', payload: {} })
-         navigate('/subscription/get-started/select-delivery')
-      },
-      onError: () =>
-         addToast('Something went wrong!', {
-            appearance: 'error',
-         }),
-   })
-   const [customer] = useLazyQuery(CUSTOMER.DETAILS, {
-      onCompleted: async ({ customer = {} }) => {
-         const { email = '', sub: keycloakId = '' } = jwtDecode(
-            localStorage.getItem('token')
-         )
-         if (isEmpty(customer)) {
-            console.log('CUSTOMER DOESNT EXISTS')
-            create({
-               variables: {
-                  object: {
-                     email,
-                     keycloakId,
-                     source: 'subscription',
-                     sourceBrandId: brand.id,
-                     clientId: process.env.GATSBY_CLIENTID,
-                     brandCustomers: { data: { brandId: brand.id } },
+   const [create, { loading: creatingCustomer }] = useMutation(
+      CREATE_CUSTOMER,
+      {
+         refetchQueries: ['customer'],
+         onCompleted: () => {
+            dispatch({ type: 'SET_USER', payload: {} })
+            if (isClient) {
+               window.location.href =
+                  window.location.origin +
+                  '/subscription/get-started/select-delivery'
+            }
+         },
+         onError: () =>
+            addToast('Something went wrong!', {
+               appearance: 'error',
+            }),
+      }
+   )
+   const [customer, { loading: loadingCustomerDetails }] = useLazyQuery(
+      CUSTOMER.DETAILS,
+      {
+         onCompleted: async ({ customer = {} }) => {
+            const { email = '', sub: keycloakId = '' } = jwtDecode(
+               localStorage.getItem('token')
+            )
+            if (isEmpty(customer)) {
+               console.log('CUSTOMER DOESNT EXISTS')
+               create({
+                  variables: {
+                     object: {
+                        email,
+                        keycloakId,
+                        source: 'subscription',
+                        sourceBrandId: brand.id,
+                        clientId: process.env.GATSBY_CLIENTID,
+                        brandCustomers: { data: { brandId: brand.id } },
+                     },
                   },
-               },
-            })
-            return
-         }
-         console.log('CUSTOMER EXISTS')
+               })
+               return
+            }
+            console.log('CUSTOMER EXISTS')
 
-         const user = await processUser(customer)
-         dispatch({ type: 'SET_USER', payload: user })
+            const user = await processUser(customer)
+            dispatch({ type: 'SET_USER', payload: user })
 
-         const { brandCustomers = {} } = customer
-         if (isEmpty(brandCustomers)) {
-            console.log('BRAND_CUSTOMER DOESNT EXISTS')
-            create_brand_customer({
-               variables: {
-                  object: { keycloakId, brandId: brand.id },
-               },
-            })
-         } else if (customer.isSubscriber && brandCustomers[0].isSubscriber) {
-            console.log('BRAND_CUSTOMER EXISTS & CUSTOMER IS SUBSCRIBED')
-            navigate('/subscription/menu')
-            isClient && localStorage.removeItem('plan')
-         } else {
-            console.log('CUSTOMER ISNT SUBSCRIBED')
-            navigate('/subscription/get-started/select-delivery')
-         }
-      },
-   })
+            const { brandCustomers = {} } = customer
+            if (isEmpty(brandCustomers)) {
+               console.log('BRAND_CUSTOMER DOESNT EXISTS')
+               create_brand_customer({
+                  variables: {
+                     object: { keycloakId, brandId: brand.id },
+                  },
+               })
+            } else if (
+               customer.isSubscriber &&
+               brandCustomers[0].isSubscriber
+            ) {
+               console.log('BRAND_CUSTOMER EXISTS & CUSTOMER IS SUBSCRIBED')
+               navigate('/subscription/menu')
+               isClient && localStorage.removeItem('plan')
+            } else {
+               console.log('CUSTOMER ISNT SUBSCRIBED')
+               if (isClient) {
+                  window.location.href =
+                     window.location.origin +
+                     '/subscription/get-started/select-delivery'
+               }
+            }
+         },
+      }
+   )
 
    React.useEffect(() => {
       if (user?.keycloakId) {
          if (user?.isSubscriber) navigate('/subscription/menu')
-         else navigate('/subscription/get-started/select-delivery')
+         else if (isClient) {
+            window.location.href =
+               window.location.origin +
+               '/subscription/get-started/select-delivery'
+         }
       }
    }, [user])
 
@@ -102,7 +127,12 @@ const Login = () => {
                   Login
                </Tab>
             </TabList>
-            {current === 'LOGIN' && <LoginPanel customer={customer} />}
+            {current === 'LOGIN' && (
+               <LoginPanel
+                  customer={customer}
+                  loading={loadingCustomerDetails || creatingCustomer}
+               />
+            )}
          </Main>
       </Layout>
    )
@@ -110,7 +140,7 @@ const Login = () => {
 
 export default Login
 
-const LoginPanel = ({ customer }) => {
+const LoginPanel = ({ loading, customer }) => {
    const { brand } = useConfig()
    const [error, setError] = React.useState('')
    const [form, setForm] = React.useState({
@@ -175,44 +205,14 @@ const LoginPanel = ({ customer }) => {
             />
          </FieldSet>
          <Submit
-            className={!isValid ? 'disabled' : ''}
+            className={!isValid || loading ? 'disabled' : ''}
             onClick={() => isValid && submit()}
          >
-            Login
+            {loading ? 'Logging In...' : 'Login'}
          </Submit>
          {error && <span tw="self-start block text-red-500 mt-2">{error}</span>}
       </Panel>
    )
-}
-
-const processUser = customer => {
-   const sub = {}
-   const { brandCustomers = [], ...rest } = customer
-
-   if (!isEmpty(brandCustomers)) {
-      const [brand_customer] = brandCustomers
-
-      const {
-         subscription = null,
-         subscriptionId = null,
-         subscriptionAddressId = null,
-         subscriptionPaymentMethodId = null,
-      } = brand_customer
-
-      rest.subscription = subscription
-      rest.subscriptionId = subscriptionId
-      rest.subscriptionAddressId = subscriptionAddressId
-      rest.subscriptionPaymentMethodId = subscriptionPaymentMethodId
-
-      sub.defaultAddress = rest?.platform_customer?.addresses.find(
-         address => address.id === subscriptionAddressId
-      )
-
-      sub.defaultPaymentMethod = rest?.platform_customer?.paymentMethods.find(
-         method => method.stripePaymentMethodId === subscriptionPaymentMethodId
-      )
-   }
-   return { ...rest, ...sub }
 }
 
 const Main = styled.main`
