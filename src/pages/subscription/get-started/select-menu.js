@@ -22,7 +22,7 @@ const SelectMenu = () => {
          console.log('navigate called')
          navigate('/subscription/get-started/select-plan')
       }
-   }, [user])
+   }, [isAuthenticated])
 
    const { configOf } = useConfig('Select-Menu')
    const config = configOf('select-menu-header')

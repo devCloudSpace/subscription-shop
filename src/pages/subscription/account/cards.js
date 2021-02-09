@@ -33,7 +33,7 @@ const ManageCards = () => {
       if (!isAuthenticated) {
          navigate('/subscription')
       }
-   }, [user])
+   }, [isAuthenticated])
 
    return (
       <Layout>

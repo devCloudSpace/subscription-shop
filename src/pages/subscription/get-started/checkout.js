@@ -34,7 +34,7 @@ const Checkout = () => {
       if (!isAuthenticated) {
          navigate('/subscription/get-started/select-plan')
       }
-   }, [user])
+   }, [isAuthenticated])
 
    return (
       <Layout noHeader>

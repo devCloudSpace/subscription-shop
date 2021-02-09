@@ -21,7 +21,7 @@ const Orders = () => {
       if (!isAuthenticated) {
          navigate('/subscription')
       }
-   }, [user])
+   }, [isAuthenticated])
 
    return (
       <Layout>

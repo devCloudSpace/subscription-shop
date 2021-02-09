@@ -13,7 +13,7 @@ const Profile = () => {
       if (!isAuthenticated) {
          navigate('/subscription')
       }
-   }, [user])
+   }, [isAuthenticated])
 
    return (
       <Layout>
