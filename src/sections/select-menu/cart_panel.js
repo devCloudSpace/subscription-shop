@@ -35,7 +35,6 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
    const location = useLocation()
    const { addToast } = useToasts()
    const { state, dispatch } = useMenu()
-   console.log(state, user)
    const { configOf } = useConfig()
    const [skipCarts] = useMutation(INSERT_SUBSCRIPTION_OCCURENCE_CUSTOMERS)
    const [upsertCart] = useMutation(CREATE_CART, {
@@ -92,7 +91,6 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
          zipcode: user?.defaultAddress?.zipcode,
       },
    })
-   console.log(zipcode)
    const submitSelection = () => {
       upsertCart({
          variables: {
@@ -198,32 +196,26 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
    const theme = configOf('theme-color', 'Visual')
    return (
       <div>
-         {showSummaryBar &&
-            (['ORDER_PLACED', 'PROCESS'].includes(week?.orderCartStatus) ? (
-               <HelperBar type="success">
-                  <HelperBar.SubTitle>
-                     Your order has been placed for this week.
-                  </HelperBar.SubTitle>
-               </HelperBar>
-            ) : (
-               <SummaryBar>
-                  <div>
-                     <h4 tw="text-base text-gray-700">
-                        Cart{' '}
-                        {
-                           week?.cart.products.filter(
-                              node => Object.keys(node).length !== 0
-                           ).length
-                        }
-                        /{user?.subscription?.recipes?.count}
-                     </h4>
-                     <h4
-                        tw="text-blue-700 pt-2"
-                        onClick={() => setShowSummaryBar(false)}
-                     >
-                        View full summary <span>&#8657;</span>
-                     </h4>
-                  </div>
+         {isClient && window.innerWidth < 768 && (
+            <SummaryBar>
+               <div>
+                  <h4 tw="text-base text-gray-700">
+                     Cart{' '}
+                     {
+                        week?.cart.products.filter(
+                           node => Object.keys(node).length !== 0
+                        ).length
+                     }
+                     /{user?.subscription?.recipes?.count}
+                  </h4>
+                  <h4
+                     tw="text-blue-700 pt-2"
+                     onClick={() => setShowSummaryBar(false)}
+                  >
+                     View full summary <span>&#8657;</span>
+                  </h4>
+               </div>
+               {week?.orderCartStatus !== 'ORDER_PLACED' && (
                   <SaveButton
                      bg={theme?.accent}
                      disabled={!state?.week?.isValid || isCartValid()}
@@ -231,8 +223,9 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
                   >
                      {isCheckout ? 'Save and Proceed to Checkout' : 'Save '}
                   </SaveButton>
-               </SummaryBar>
-            ))}
+               )}
+            </SummaryBar>
+         )}
          <Overlay
             showOverlay={!showSummaryBar}
             onClick={() => setShowSummaryBar(true)}
