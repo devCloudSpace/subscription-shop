@@ -197,7 +197,7 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
 
    const theme = configOf('theme-color', 'Visual')
    return (
-      <>
+      <div>
          {showSummaryBar &&
             (['ORDER_PLACED', 'PROCESS'].includes(week?.orderCartStatus) ? (
                <HelperBar type="success">
@@ -342,20 +342,20 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
                </SaveButton>
             )}
             <div tw="mt-4 text-gray-500">
-              * Your box will be delivered on{' '}
-              <span>
-               {formatDate(state.week.fulfillmentDate, {
-                  month: 'short',
-                  day: 'numeric',
-               })}
-               &nbsp;between {zipcode.from}
-               &nbsp;-&nbsp;
-               {zipcode.to}
-              </span>{' '}
-              at <span>{normalizeAddress(user.defaultAddress)}</span>
-           </div>
+               * Your box will be delivered on{' '}
+               <span>
+                  {formatDate(state.week.fulfillmentDate, {
+                     month: 'short',
+                     day: 'numeric',
+                  })}
+                  &nbsp;between {zipcode.from}
+                  &nbsp;-&nbsp;
+                  {zipcode.to}
+               </span>{' '}
+               at <span>{normalizeAddress(user.defaultAddress)}</span>
+            </div>
          </CartWrapper>
-      </>
+      </div>
    )
 }
 
@@ -470,9 +470,8 @@ const SaveButton = styled.button(
       bg-green-500
    `}
       ${bg && `background-color: ${bg};`}
-      ${
-         disabled &&
-         tw`
+      ${disabled &&
+      tw`
          h-10
          w-full
          rounded
@@ -480,8 +479,7 @@ const SaveButton = styled.button(
          text-center
          bg-gray-200
          cursor-not-allowed 
-      `
-      }
+      `}
       ${small && ` width: max-content; padding: 0 2rem`}
    `
 )
