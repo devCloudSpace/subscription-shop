@@ -59,11 +59,11 @@ export const Menu = () => {
    const isAdded = (id, optionId) => {
       const week = state?.weeks[state.week.id]
       const products = week?.cart?.products.filter(node => !isEmpty(node)) || []
-      return products?.findIndex(
+
+      const index = products?.findIndex(
          node => node?.id === id && node?.option?.id === optionId
-      ) === -1
-         ? false
-         : true
+      )
+      return index === -1 ? false : true
    }
    const theme = configOf('theme-color', 'Visual')
 
@@ -97,8 +97,8 @@ export const Menu = () => {
                   ).map((node, index) => (
                      <Product
                         node={node}
-                        isAdded={isAdded}
                         theme={theme}
+                        isAdded={isAdded}
                         selectRecipe={selectRecipe}
                         key={`${index}-${node?.id}`}
                      />
@@ -119,12 +119,16 @@ const Product = ({ node, isAdded, theme, selectRecipe }) => {
          : node.inventoryProductOption
 
    const canAdd = () => {
+      const conditions = [
+         !node.isSingleSelect,
+         state?.week?.isValid,
+         !isAdded(node?.cartItem?.id, node?.cartItem?.option?.id),
+      ]
       return (
+         conditions.every(node => node) ||
          ['PENDING', undefined].includes(
             state?.weeks[state?.week?.id]?.orderCartStatus
-         ) &&
-         state?.week?.isValid &&
-         !isAdded(node?.cartItem?.id, node?.cartItem?.option?.id)
+         )
       )
    }
    return (
@@ -178,7 +182,7 @@ const Product = ({ node, isAdded, theme, selectRecipe }) => {
                   {node?.cartItem?.name}
                </Link>
             </section>
-            {(canAdd() || !node.isSingleSelect) && (
+            {canAdd() && (
                <button
                   onClick={() => selectRecipe(node.cartItem, node.addonPrice)}
                   tw="text-sm uppercase font-medium tracking-wider border border-gray-300 rounded px-1 text-gray-500"
