@@ -51,6 +51,7 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
                      isSkipped: true,
                      keycloakId: user.keycloakId,
                      subscriptionOccurenceId: id,
+                     brand_customerId: user.brandCustomerId,
                   })),
                },
             })
@@ -163,9 +164,12 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
       })
       updateCartSkipStatus({
          variables: {
-            isSkipped: e.target.checked,
-            keycloakId: user.keycloakId,
-            subscriptionOccurenceId: state.week.id,
+            object: {
+               isSkipped: e.target.checked,
+               keycloakId: user.keycloakId,
+               brand_customerId: user.brandCustomerId,
+               subscriptionOccurenceId: state.week.id,
+            },
          },
       })
    }
