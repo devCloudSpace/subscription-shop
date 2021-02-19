@@ -7,10 +7,10 @@ import { useLazyQuery } from '@apollo/react-hooks'
 import { useToasts } from 'react-toast-notifications'
 
 import { useDelivery } from './state'
-import { isClient } from '../../utils'
+import { formatCurrency, isClient } from '../../utils'
 import { useUser } from '../../context'
 import { ITEM_COUNT } from '../../graphql'
-import { CheckIcon } from '../../assets/icons'
+import { CheckIcon, TickIcon, CrossIcon } from '../../assets/icons'
 import { Loader, HelperBar } from '../../components'
 
 export const DeliverySection = () => {
@@ -103,16 +103,60 @@ export const DeliverySection = () => {
                   >
                      <CheckIcon size={20} tw="stroke-current text-gray-400" />
                   </DeliveryDayLeft>
-                  <label css={tw`w-full cursor-pointer`}>
-                     {rrulestr(day.rrule).toText()}
-                  </label>
+                  <section css={tw`py-2 flex flex-col space-y-2`}>
+                     <label css={tw`w-full cursor-pointer`}>
+                        {rrulestr(day.rrule).toText()}
+                     </label>
+                     {day.zipcodes.length > 0 && (
+                        <section css={tw`flex space-x-2 items-center`}>
+                           <Fulfillment>
+                              <span>
+                                 {day.zipcodes[0].isDeliveryActive ? (
+                                    <TickIcon
+                                       size={16}
+                                       tw="stroke-current text-green-600"
+                                    />
+                                 ) : (
+                                    <CrossIcon
+                                       size={16}
+                                       tw="stroke-current text-red-600"
+                                    />
+                                 )}
+                              </span>
+                              <p>
+                                 {day.zipcodes[0].deliveryPrice === 0
+                                    ? 'Free Delivery'
+                                    : `Delivery at ${formatCurrency(
+                                         day.zipcodes[0].deliveryPrice
+                                      )}`}
+                              </p>
+                           </Fulfillment>
+                           <Fulfillment>
+                              <span>
+                                 {day.zipcodes[0].isPickupActive ? (
+                                    <TickIcon
+                                       size={16}
+                                       tw="stroke-current text-green-600"
+                                    />
+                                 ) : (
+                                    <CrossIcon
+                                       size={16}
+                                       tw="stroke-current text-red-600"
+                                    />
+                                 )}
+                              </span>
+                              <p>Pickup</p>
+                           </Fulfillment>
+                        </section>
+                     )}
+                  </section>
                </DeliveryDay>
             ))}
             {itemCount?.invalid?.map(day => (
                <DeliveryDay
                   key={day.id}
                   className="invalid"
-                  title="Not available on this address"
+                  title="Not available on this zipcode"
                >
                   <DeliveryDayLeft
                      className={`${
@@ -121,7 +165,53 @@ export const DeliverySection = () => {
                   >
                      <CheckIcon size={20} tw="stroke-current text-gray-400" />
                   </DeliveryDayLeft>
-                  <label css={tw`w-full`}>{rrulestr(day.rrule).toText()}</label>
+                  <section css={tw`py-2 flex flex-col space-y-2`}>
+                     <label css={tw`w-full cursor-pointer`}>
+                        {rrulestr(day.rrule).toText()}
+                     </label>
+                     {day.zipcodes.length > 0 && (
+                        <section css={tw`flex space-x-2 items-center`}>
+                           <Fulfillment>
+                              <span>
+                                 {day.zipcodes[0].isDeliveryActive ? (
+                                    <TickIcon
+                                       size={16}
+                                       tw="stroke-current text-green-600"
+                                    />
+                                 ) : (
+                                    <CrossIcon
+                                       size={16}
+                                       tw="stroke-current text-red-600"
+                                    />
+                                 )}
+                              </span>
+                              <p>
+                                 {day.zipcodes[0].deliveryPrice === 0
+                                    ? 'Free Delivery'
+                                    : `Delivery at ${formatCurrency(
+                                         day.zipcodes[0].deliveryPrice
+                                      )}`}
+                              </p>
+                           </Fulfillment>
+                           <Fulfillment>
+                              <span>
+                                 {day.zipcodes[0].isPickupActive ? (
+                                    <TickIcon
+                                       size={16}
+                                       tw="stroke-current text-green-600"
+                                    />
+                                 ) : (
+                                    <CrossIcon
+                                       size={16}
+                                       tw="stroke-current text-red-600"
+                                    />
+                                 )}
+                              </span>
+                              <p>Pickup</p>
+                           </Fulfillment>
+                        </section>
+                     )}
+                  </section>
                </DeliveryDay>
             ))}
          </DeliveryDays>
@@ -138,6 +228,16 @@ const DeliveryDays = styled.ul`
    `}
 `
 
+const Fulfillment = styled.section`
+   ${tw`flex items-center space-x-1`}
+   span {
+      ${tw`h-5 w-5 flex items-center justify-center`}
+   }
+   p {
+      ${tw`text-gray-500`}
+   }
+`
+
 const DeliveryDayLeft = styled.aside(
    () => css`
       width: 48px;
@@ -152,7 +252,8 @@ const DeliveryDayLeft = styled.aside(
 )
 
 const DeliveryDay = styled.li`
-   height: 48px;
+   height: auto;
+   min-height: 48px;
    ${tw`cursor-pointer flex items-center border capitalize text-gray-700`}
    &.invalid {
       opacity: 0.6;

@@ -10,6 +10,11 @@ export const ITEM_COUNT = gql`
             id
             rrule
             leadTime
+            zipcodes: availableZipcodes(where: { zipcode: { _eq: $zipcode } }) {
+               deliveryPrice
+               isDeliveryActive
+               isPickupActive
+            }
          }
          invalid: subscriptions(
             where: {
@@ -19,6 +24,11 @@ export const ITEM_COUNT = gql`
             id
             rrule
             leadTime
+            zipcodes: availableZipcodes(where: { zipcode: { _eq: $zipcode } }) {
+               deliveryPrice
+               isDeliveryActive
+               isPickupActive
+            }
          }
       }
    }
