@@ -2,7 +2,6 @@ import React from 'react'
 import { isEmpty } from 'lodash'
 import { navigate } from 'gatsby'
 import tw, { styled } from 'twin.macro'
-import { useKeycloak } from '@react-keycloak/web'
 
 import { SEO, Layout, HelperBar, Loader } from '../../components'
 import {

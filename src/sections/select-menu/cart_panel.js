@@ -35,7 +35,6 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
    const location = useLocation()
    const { addToast } = useToasts()
    const { state, dispatch } = useMenu()
-   console.log(state, user)
    const { configOf } = useConfig()
    const [skipCarts] = useMutation(INSERT_SUBSCRIPTION_OCCURENCE_CUSTOMERS)
    const [upsertCart] = useMutation(CREATE_CART, {
@@ -52,6 +51,7 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
                      isSkipped: true,
                      keycloakId: user.keycloakId,
                      subscriptionOccurenceId: id,
+                     brand_customerId: user.brandCustomerId,
                   })),
                },
             })
@@ -92,7 +92,6 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
          zipcode: user?.defaultAddress?.zipcode,
       },
    })
-   console.log(zipcode)
    const submitSelection = () => {
       upsertCart({
          variables: {
@@ -165,9 +164,12 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
       })
       updateCartSkipStatus({
          variables: {
-            isSkipped: e.target.checked,
-            keycloakId: user.keycloakId,
-            subscriptionOccurenceId: state.week.id,
+            object: {
+               isSkipped: e.target.checked,
+               keycloakId: user.keycloakId,
+               brand_customerId: user.brandCustomerId,
+               subscriptionOccurenceId: state.week.id,
+            },
          },
       })
    }
@@ -197,33 +199,27 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
 
    const theme = configOf('theme-color', 'Visual')
    return (
-      <>
-         {showSummaryBar &&
-            (['ORDER_PLACED', 'PROCESS'].includes(week?.orderCartStatus) ? (
-               <HelperBar type="success">
-                  <HelperBar.SubTitle>
-                     Your order has been placed for this week.
-                  </HelperBar.SubTitle>
-               </HelperBar>
-            ) : (
-               <SummaryBar>
-                  <div>
-                     <h4 tw="text-base text-gray-700">
-                        Cart{' '}
-                        {
-                           week?.cart.products.filter(
-                              node => Object.keys(node).length !== 0
-                           ).length
-                        }
-                        /{user?.subscription?.recipes?.count}
-                     </h4>
-                     <h4
-                        tw="text-blue-700 pt-2"
-                        onClick={() => setShowSummaryBar(false)}
-                     >
-                        View full summary <span>&#8657;</span>
-                     </h4>
-                  </div>
+      <div>
+         {isClient && window.innerWidth < 768 && (
+            <SummaryBar>
+               <div>
+                  <h4 tw="text-base text-gray-700">
+                     Cart{' '}
+                     {
+                        week?.cart.products.filter(
+                           node => Object.keys(node).length !== 0
+                        ).length
+                     }
+                     /{user?.subscription?.recipes?.count}
+                  </h4>
+                  <h4
+                     tw="text-blue-700 pt-2"
+                     onClick={() => setShowSummaryBar(false)}
+                  >
+                     View full summary <span>&#8657;</span>
+                  </h4>
+               </div>
+               {week?.orderCartStatus !== 'ORDER_PLACED' && (
                   <SaveButton
                      bg={theme?.accent}
                      disabled={!state?.week?.isValid || isCartValid()}
@@ -231,8 +227,9 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
                   >
                      {isCheckout ? 'Save and Proceed to Checkout' : 'Save '}
                   </SaveButton>
-               </SummaryBar>
-            ))}
+               )}
+            </SummaryBar>
+         )}
          <Overlay
             showOverlay={!showSummaryBar}
             onClick={() => setShowSummaryBar(true)}
@@ -342,20 +339,20 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
                </SaveButton>
             )}
             <div tw="mt-4 text-gray-500">
-              * Your box will be delivered on{' '}
-              <span>
-               {formatDate(state.week.fulfillmentDate, {
-                  month: 'short',
-                  day: 'numeric',
-               })}
-               &nbsp;between {zipcode.from}
-               &nbsp;-&nbsp;
-               {zipcode.to}
-              </span>{' '}
-              at <span>{normalizeAddress(user.defaultAddress)}</span>
-           </div>
+               * Your box will be delivered on{' '}
+               <span>
+                  {formatDate(state.week.fulfillmentDate, {
+                     month: 'short',
+                     day: 'numeric',
+                  })}
+                  &nbsp;between {zipcode.from}
+                  &nbsp;-&nbsp;
+                  {zipcode.to}
+               </span>{' '}
+               at <span>{normalizeAddress(user.defaultAddress)}</span>
+            </div>
          </CartWrapper>
-      </>
+      </div>
    )
 }
 
@@ -470,9 +467,8 @@ const SaveButton = styled.button(
       bg-green-500
    `}
       ${bg && `background-color: ${bg};`}
-      ${
-         disabled &&
-         tw`
+      ${disabled &&
+      tw`
          h-10
          w-full
          rounded
@@ -480,8 +476,7 @@ const SaveButton = styled.button(
          text-center
          bg-gray-200
          cursor-not-allowed 
-      `
-      }
+      `}
       ${small && ` width: max-content; padding: 0 2rem`}
    `
 )

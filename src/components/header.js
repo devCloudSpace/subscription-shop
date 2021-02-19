@@ -1,30 +1,20 @@
 import React from 'react'
 import { Link, navigate } from 'gatsby'
 import tw, { styled, css } from 'twin.macro'
-import { useKeycloak } from '@react-keycloak/web'
 
 import { useConfig } from '../lib'
 import { useUser } from '../context'
-import { isClient, getInitials, isKeycloakSupported } from '../utils'
+import { isClient, getInitials } from '../utils'
 
 import { ProfileSidebar } from './profile_sidebar'
 
 export const Header = () => {
    const { isAuthenticated, user, dispatch } = useUser()
    const { configOf } = useConfig()
-   const [keycloak, initialized] = useKeycloak()
    const logout = () => {
-      if (isKeycloakSupported()) {
-         dispatch({ type: 'CLEAR_USER' })
-         keycloak.logout({
-            redirectUri: isClient
-               ? `${window.location.origin}/subscription`
-               : '',
-         })
-      } else {
-         isClient && localStorage.removeItem('token')
-         dispatch({ type: 'CLEAR_USER' })
-         navigate('/subscription')
+      isClient && localStorage.removeItem('token')
+      if (isClient) {
+         window.location.href = window.location.origin + '/subscription'
       }
    }
 
@@ -70,46 +60,44 @@ export const Header = () => {
                   )}
                </ul>
             </section>
-            {(isKeycloakSupported() ? initialized : true) && (
-               <section tw="px-4 ml-auto">
-                  {isAuthenticated ? (
-                     <>
-                        {user?.platform_customer?.firstName &&
-                           (isClient && window.innerWidth > 786 ? (
-                              <Link
-                                 to="/subscription/account/profile/"
-                                 tw="mr-3 inline-flex items-center justify-center rounded-full h-10 w-10 bg-gray-200"
-                              >
-                                 {getInitials(
-                                    `${user.platform_customer.firstName} ${user.platform_customer.lastName}`
-                                 )}
-                              </Link>
-                           ) : (
-                              <Link
-                                 to="#"
-                                 tw="mr-3 inline-flex items-center justify-center rounded-full h-10 w-10 bg-gray-200"
-                                 onClick={() => setToggle(!toggle)}
-                              >
-                                 {getInitials(
-                                    `${user.platform_customer.firstName} ${user.platform_customer.lastName}`
-                                 )}
-                              </Link>
-                           ))}
+            <section tw="px-4 ml-auto">
+               {isAuthenticated ? (
+                  <>
+                     {user?.platform_customer?.firstName &&
+                        (isClient && window.innerWidth > 786 ? (
+                           <Link
+                              to="/subscription/account/profile/"
+                              tw="mr-3 inline-flex items-center justify-center rounded-full h-10 w-10 bg-gray-200"
+                           >
+                              {getInitials(
+                                 `${user.platform_customer.firstName} ${user.platform_customer.lastName}`
+                              )}
+                           </Link>
+                        ) : (
+                           <Link
+                              to="#"
+                              tw="mr-3 inline-flex items-center justify-center rounded-full h-10 w-10 bg-gray-200"
+                              onClick={() => setToggle(!toggle)}
+                           >
+                              {getInitials(
+                                 `${user.platform_customer.firstName} ${user.platform_customer.lastName}`
+                              )}
+                           </Link>
+                        ))}
 
-                        <button
-                           css={tw`text-red-600 rounded px-2 py-1 hidden md:inline-block `}
-                           onClick={logout}
-                        >
-                           Logout
-                        </button>
-                     </>
-                  ) : (
-                     <Login to="/subscription/login" bg={theme?.accent}>
-                        Log In
-                     </Login>
-                  )}
-               </section>
-            )}
+                     <button
+                        css={tw`text-red-600 rounded px-2 py-1 hidden md:inline-block `}
+                        onClick={logout}
+                     >
+                        Logout
+                     </button>
+                  </>
+               ) : (
+                  <Login to="/subscription/login" bg={theme?.accent}>
+                     Log In
+                  </Login>
+               )}
+            </section>
          </Wrapper>
          {isClient && window.innerWidth < 786 && (
             <ProfileSidebar toggle={toggle} logout={logout} />

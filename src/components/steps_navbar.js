@@ -2,16 +2,14 @@ import React from 'react'
 import { Link, navigate } from 'gatsby'
 import { useLocation } from '@reach/router'
 import tw, { styled, css } from 'twin.macro'
-import { useKeycloak } from '@react-keycloak/web'
 
 import { useConfig } from '../lib'
 import { useUser } from '../context'
-import { isClient, isKeycloakSupported } from '../utils'
+import { isClient } from '../utils'
 
 export const StepsNavbar = () => {
    const { isAuthenticated, dispatch } = useUser()
    const { hasConfig, configOf } = useConfig()
-   const [keycloak, initialized] = useKeycloak()
    const [steps, setSteps] = React.useState({
       register: 'Register',
       selectDelivery: 'Select Delivery',
@@ -38,17 +36,9 @@ export const StepsNavbar = () => {
    const theme = configOf('theme-color', 'Visual')
 
    const logout = () => {
-      if (isKeycloakSupported()) {
-         dispatch({ type: 'CLEAR_USER' })
-         keycloak.logout({
-            redirectUri: isClient
-               ? `${window.location.origin}/subscription`
-               : '',
-         })
-      } else {
-         isClient && localStorage.removeItem('token')
-         dispatch({ type: 'CLEAR_USER' })
-         navigate('/subscription')
+      isClient && localStorage.removeItem('token')
+      if (isClient) {
+         window.location.href = window.location.origin + '/subscription'
       }
    }
 
@@ -74,20 +64,18 @@ export const StepsNavbar = () => {
                <Step>{steps.checkout}</Step>
             </Steps>
          </Progress>
-         {(isKeycloakSupported() ? initialized : true) && (
-            <section tw="px-4 ml-auto">
-               {isAuthenticated ? (
-                  <button
-                     onClick={logout}
-                     css={tw`text-red-600 rounded px-2 py-1`}
-                  >
-                     Logout
-                  </button>
-               ) : (
-                  <span />
-               )}
-            </section>
-         )}
+         <section tw="px-4 ml-auto">
+            {isAuthenticated ? (
+               <button
+                  onClick={logout}
+                  css={tw`text-red-600 rounded px-2 py-1`}
+               >
+                  Logout
+               </button>
+            ) : (
+               <span />
+            )}
+         </section>
       </Navbar>
    )
 }

@@ -1,6 +1,5 @@
 import React from 'react'
 import tw, { styled } from 'twin.macro'
-import { useKeycloak } from '@react-keycloak/web'
 import { useMutation } from '@apollo/react-hooks'
 import { useToasts } from 'react-toast-notifications'
 import GooglePlacesAutocomplete from 'react-google-places-autocomplete'

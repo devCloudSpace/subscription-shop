@@ -7,13 +7,13 @@ import { useUser } from '../../../context'
 import { SEO, Layout, ProfileSidebar, Form } from '../../../components'
 
 const Profile = () => {
-   const { user } = useUser()
+   const { isAuthenticated } = useUser()
 
    React.useEffect(() => {
-      if (!user?.keycloakId) {
+      if (!isAuthenticated) {
          navigate('/subscription')
       }
-   }, [user])
+   }, [isAuthenticated])
 
    return (
       <Layout>

@@ -1,7 +1,6 @@
 import React from 'react'
 import { navigate } from 'gatsby'
 import tw, { styled, css } from 'twin.macro'
-import { useKeycloak } from '@react-keycloak/web'
 import { useToasts } from 'react-toast-notifications'
 import { useMutation, useQuery } from '@apollo/react-hooks'
 
@@ -29,13 +28,13 @@ import {
 } from '../../../graphql'
 
 const Checkout = () => {
-   const { user } = useUser()
+   const { isAuthenticated } = useUser()
 
    React.useEffect(() => {
-      if (!user?.keycloakId) {
+      if (!isAuthenticated) {
          navigate('/subscription/get-started/select-plan')
       }
-   }, [user])
+   }, [isAuthenticated])
 
    return (
       <Layout noHeader>

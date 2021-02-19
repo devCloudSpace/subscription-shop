@@ -133,10 +133,16 @@ export const OCCURENCE_PRODUCTS_BY_CATEGORIES = gql`
                simpleRecipeProductOption {
                   id
                   simpleRecipeYieldId
+                  simpleRecipeProduct {
+                     additionalText
+                  }
                }
                inventoryProductOption {
                   id
                   quantity
+                  inventoryProduct {
+                     additionalText
+                  }
                }
             }
          }

@@ -46,20 +46,14 @@ export const CREATE_CUSTOMER_ADDRESS = gql`
 
 export const UPSERT_OCCURENCE_CUSTOMER_CART_SKIP = gql`
    mutation upsertOccurenceCustomerCart(
-      $isSkipped: Boolean!
-      $keycloakId: String!
-      $subscriptionOccurenceId: Int!
+      $object: subscription_subscriptionOccurence_customer_insert_input!
    ) {
       upsertOccurenceCustomerCart: insert_subscription_subscriptionOccurence_customer_one(
-         object: {
-            isSkipped: $isSkipped
-            keycloakId: $keycloakId
-            subscriptionOccurenceId: $subscriptionOccurenceId
-         }
          on_conflict: {
             constraint: subscriptionOccurence_customer_pkey
             update_columns: [isSkipped]
          }
+         object: $object
       ) {
          isSkipped
       }

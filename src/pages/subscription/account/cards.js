@@ -27,13 +27,13 @@ import { CloseIcon } from '../../../assets/icons'
 import { BRAND, CREATE_STRIPE_PAYMENT_METHOD } from '../../../graphql'
 
 const ManageCards = () => {
-   const { user } = useUser()
+   const { isAuthenticated } = useUser()
 
    React.useEffect(() => {
-      if (!user?.keycloakId) {
+      if (!isAuthenticated) {
          navigate('/subscription')
       }
-   }, [user])
+   }, [isAuthenticated])
 
    return (
       <Layout>

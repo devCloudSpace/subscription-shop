@@ -19,14 +19,18 @@ const PlacingOrder = () => {
 
    React.useEffect(() => {
       if (!cart) {
-         navigate('/subscription/menu')
+         if (isClient) {
+            window.location.href = window.location.origin + '/subscription/menu'
+         }
       }
    }, [cart])
 
    const gotoMenu = () => {
       isClient && window.localStorage.removeItem('cartId')
       isClient && window.localStorage.removeItem('plan')
-      navigate('/subscription/menu')
+      if (isClient) {
+         window.location.href = window.location.origin + '/subscription/menu'
+      }
    }
    const theme = configOf('theme-color', 'Visual')
 
