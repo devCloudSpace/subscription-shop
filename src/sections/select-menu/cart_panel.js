@@ -11,7 +11,7 @@ import { useMenu } from './state'
 import { useConfig } from '../../lib'
 import { useUser } from '../../context'
 import { HelperBar } from '../../components'
-import { CloseIcon } from '../../assets/icons'
+import { CloseIcon, PlusIcon } from '../../assets/icons'
 import {
    isClient,
    formatCurrency,
@@ -32,45 +32,13 @@ const evalTime = (date, time) => {
 
 export const CartPanel = ({ noSkip, isCheckout }) => {
    const { user } = useUser()
-   const location = useLocation()
+   const { state } = useMenu()
    const { addToast } = useToasts()
-   const { state, dispatch } = useMenu()
    const { configOf } = useConfig()
-   const [skipCarts] = useMutation(INSERT_SUBSCRIPTION_OCCURENCE_CUSTOMERS)
-   const [upsertCart] = useMutation(CREATE_CART, {
-      refetchQueries: () => ['cart'],
-      onCompleted: ({ createCart }) => {
-         isClient && window.localStorage.setItem('cartId', createCart.id)
-
-         const skipList = new URL(location.href).searchParams.get('previous')
-
-         if (skipList && skipList.split(',').length > 0) {
-            skipCarts({
-               variables: {
-                  objects: skipList.split(',').map(id => ({
-                     isSkipped: true,
-                     keycloakId: user.keycloakId,
-                     subscriptionOccurenceId: id,
-                     brand_customerId: user.brandCustomerId,
-                  })),
-               },
-            })
-         }
-         addToast('Selected menu has been saved.', {
-            appearance: 'success',
-         })
-         isCheckout && navigate('/subscription/get-started/checkout')
-      },
-      onError: error => {
-         addToast(error.message, {
-            appearance: 'error',
-         })
-      },
-   })
    const [updateCartSkipStatus] = useMutation(
       UPSERT_OCCURENCE_CUSTOMER_CART_SKIP,
       {
-         refetchQueries: ['cart'],
+         refetchQueries: ['subscriptionOccurenceCustomer'],
          onCompleted: () => {
             if (week.isSkipped) {
                return addToast('Skipped this week', { appearance: 'warning' })
@@ -92,112 +60,21 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
          zipcode: user?.defaultAddress?.zipcode,
       },
    })
-   const submitSelection = () => {
-      upsertCart({
-         variables: {
-            object: {
-               status: 'PENDING',
-               customerId: user.id,
-               paymentStatus: 'PENDING',
-               cartInfo: {
-                  tax,
-                  products: week.cart.products,
-                  total: isTaxIncluded
-                     ? weekTotal - (addOnTotal + zipcode.price)
-                     : basePrice,
-               },
-               ...(user?.subscriptionPaymentMethodId && {
-                  paymentMethodId: user?.subscriptionPaymentMethodId,
-               }),
-               cartSource: 'subscription',
-               address: user.defaultAddress,
-               customerKeycloakId: user.keycloakId,
-               subscriptionOccurenceId: state.week.id,
-               stripeCustomerId: user?.platform_customer?.stripeCustomerId,
-               ...(week.orderCartId && { id: week.orderCartId }),
-               customerInfo: {
-                  customerEmail: user?.platform_customer?.email || '',
-                  customerPhone: user?.platform_customer?.phoneNumber || '',
-                  customerLastName: user?.platform_customer?.lastName || '',
-                  customerFirstName: user?.platform_customer?.firstName || '',
-               },
-               fulfillmentInfo: {
-                  type: 'PREORDER_DELIVERY',
-                  slot: {
-                     from: evalTime(state.week.fulfillmentDate, zipcode?.from),
-                     to: evalTime(state.week.fulfillmentDate, zipcode?.to),
-                  },
-               },
-
-               subscriptionOccurenceCustomers: {
-                  data: [
-                     {
-                        isSkipped: week.isSkipped,
-                        keycloakId: user.keycloakId,
-                        subscriptionOccurenceId: state.week.id,
-                        brand_customerId: user.brandCustomerId,
-                     },
-                  ],
-                  on_conflict: {
-                     constraint: 'subscriptionOccurence_customer_pkey',
-                     update_columns: ['isSkipped', 'orderCartId'],
-                  },
-               },
-            },
-            on_conflict: {
-               constraint: 'orderCart_pkey',
-               update_columns: [
-                  'amount',
-                  'address',
-                  'cartInfo',
-                  'fulfillmentInfo',
-               ],
-            },
-         },
-      })
-   }
 
    const skipWeek = e => {
-      dispatch({
-         type: 'SKIP_WEEK',
-         payload: { weekId: state.week.id, checked: e.target.checked },
-      })
       updateCartSkipStatus({
          variables: {
             object: {
-               isSkipped: e.target.checked,
                keycloakId: user.keycloakId,
                brand_customerId: user.brandCustomerId,
                subscriptionOccurenceId: state.week.id,
+               isSkipped: Boolean(!occurenceCustomer?.isSkipped),
             },
          },
       })
    }
 
-   const isCartValid = () => {
-      return (
-         week?.cart.products.filter(node => Object.keys(node).length !== 0)
-            .length !== user?.subscription?.recipes?.count
-      )
-   }
-
    const [showSummaryBar, setShowSummaryBar] = React.useState(true)
-
-   const basePrice = user?.subscription?.recipes?.price
-   const itemCountTax = user?.subscription?.recipes?.tax
-   const isTaxIncluded = user?.subscription?.recipes?.isTaxIncluded
-   const week = state?.weeks[state.week.id]
-   const addOnTotal = week?.cart?.products
-      .filter(node => Object.keys(node).length > 0)
-      .reduce((a, b) => a + b.addOnPrice || 0, 0)
-   const chargesTotal = basePrice + addOnTotal + zipcode.price
-   const weekTotal = isTaxIncluded
-      ? chargesTotal -
-        (chargesTotal - (chargesTotal * 100) / (100 + itemCountTax))
-      : chargesTotal
-   const tax = weekTotal * (itemCountTax / 100)
-
-   const theme = configOf('theme-color', 'Visual')
    return (
       <div>
          {isClient && window.innerWidth < 768 && (
@@ -205,11 +82,7 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
                <div>
                   <h4 tw="text-base text-gray-700">
                      Cart{' '}
-                     {
-                        week?.cart.products.filter(
-                           node => Object.keys(node).length !== 0
-                        ).length
-                     }
+                     {state?.occurenceCustomer?.validStatus?.addedProductsCount}
                      /{user?.subscription?.recipes?.count}
                   </h4>
                   <h4
@@ -219,15 +92,6 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
                      View full summary <span>&#8657;</span>
                   </h4>
                </div>
-               {week?.orderCartStatus !== 'ORDER_PLACED' && (
-                  <SaveButton
-                     bg={theme?.accent}
-                     disabled={!state?.week?.isValid || isCartValid()}
-                     small={true}
-                  >
-                     {isCheckout ? 'Save and Proceed to Checkout' : 'Save '}
-                  </SaveButton>
-               )}
             </SummaryBar>
          )}
          <Overlay
@@ -238,14 +102,12 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
             <header tw="my-3 pb-1 border-b flex items-center justify-between">
                <h4 tw="text-lg text-gray-700">
                   Cart{' '}
-                  {
-                     week?.cart.products.filter(
-                        node => Object.keys(node).length !== 0
-                     ).length
-                  }
-                  /{user?.subscription?.recipes?.count}
+                  {state?.occurenceCustomer?.validStatus?.addedProductsCount}/
+                  {user?.subscription?.recipes?.count}
                </h4>
-               {['PENDING', undefined].includes(week?.orderCartStatus) &&
+               {['PENDING', undefined].includes(
+                  state?.occurenceCustomer?.cart?.status
+               ) &&
                   state?.week?.isValid &&
                   !noSkip && (
                      <SkipWeek>
@@ -257,7 +119,7 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
                            type="checkbox"
                            className="toggle"
                            onChange={skipWeek}
-                           checked={week?.isSkipped}
+                           checked={state?.occurenceCustomer?.isSkipped}
                            tw="cursor-pointer appearance-none"
                         />
                      </SkipWeek>
@@ -270,73 +132,67 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
                </button>
             </header>
             <CartProducts>
-               {week?.cart.products.map((product, index) =>
-                  isEmpty(product) ? (
+               {state?.occurenceCustomer?.cart?.cartInfo?.products?.map(
+                  (product, index) =>
+                     !product.isAddOn && (
+                        <CartProduct
+                           index={index}
+                           product={product}
+                           key={product.cartItemId}
+                        />
+                     )
+               )}
+               {Array.from(
+                  {
+                     length:
+                        state?.occurenceCustomer?.validStatus
+                           ?.pendingProductsCount,
+                  },
+                  (_, index) => (
                      <SkeletonCartProduct key={index} />
-                  ) : (
-                     <CartProduct
-                        index={index}
-                        product={product}
-                        key={`product-${product.cartItemId}-${index}`}
-                     />
                   )
                )}
             </CartProducts>
-            <h4 tw="text-lg text-gray-700 my-3 pb-1 border-b">Charges</h4>
-            <table tw="my-3 w-full table-auto">
-               <tbody>
-                  <tr>
-                     <td tw="border px-2 py-1">Base Price</td>
-                     <td tw="text-right border px-2 py-1">
-                        {formatCurrency(
-                           isTaxIncluded
-                              ? weekTotal - (addOnTotal + zipcode.price)
-                              : basePrice
-                        )}
-                     </td>
-                  </tr>
-                  <tr tw="bg-gray-100">
-                     <td tw="border px-2 py-1">Add on Total</td>
-                     <td tw="text-right border px-2 py-1">
-                        {formatCurrency(addOnTotal)}
-                     </td>
-                  </tr>
-                  <tr>
-                     <td tw="border px-2 py-1">Delivery</td>
-                     <td tw="text-right border px-2 py-1">
-                        {formatCurrency(zipcode.price)}
-                     </td>
-                  </tr>
-                  <tr tw="bg-gray-100">
-                     <td tw="border px-2 py-1">Tax</td>
-                     <td tw="text-right border px-2 py-1">
-                        {formatCurrency(tax || 0)}
-                     </td>
-                  </tr>
-                  <tr>
-                     <td tw="border px-2 py-1">Total</td>
-                     <td tw="text-right border px-2 py-1">
-                        {formatCurrency(weekTotal + tax || 0)}
-                     </td>
-                  </tr>
-               </tbody>
-            </table>
-            {['ORDER_PLACED', 'PROCESS'].includes(week?.orderCartStatus) ? (
+            <header tw="my-3 pb-1 border-b flex items-center justify-between">
+               <h4 tw="text-lg text-gray-700">Add Ons</h4>
+               <button tw="text-green-800 uppercase px-3 py-1 rounded-full border text-sm font-medium border-green-400 flex items-center ">
+                  Explore
+                  <span tw="pl-2">
+                     <PlusIcon size={16} tw="stroke-current text-green-400" />
+                  </span>
+               </button>
+            </header>
+            <CartProducts>
+               {state?.occurenceCustomer?.cart?.cartInfo?.products?.map(
+                  (product, index) =>
+                     product.isAddOn && (
+                        <CartProduct
+                           index={index}
+                           product={product}
+                           key={product.cartItemId}
+                        />
+                     )
+               )}
+            </CartProducts>
+            <h4 tw="text-lg text-gray-700 my-3 pb-1">
+               Your Weekly Total:{' '}
+               {state?.occurenceCustomer?.validStatus?.itemCountValid
+                  ? state?.occurenceCustomer?.billingDetails?.totalPrice?.value
+                  : 'N/A'}
+            </h4>
+            {state?.occurenceCustomer?.validStatus?.itemCountValid ? (
+               <BillingDetails />
+            ) : (
+               <p></p>
+            )}
+            {['ORDER_PLACED', 'PROCESS'].includes(
+               state?.occurenceCustomer?.cart?.status
+            ) && (
                <HelperBar type="success">
                   <HelperBar.SubTitle>
                      Your order has been placed for this week.
                   </HelperBar.SubTitle>
                </HelperBar>
-            ) : (
-               <SaveButton
-                  bg={theme?.accent}
-                  onClick={submitSelection}
-                  disabled={!state?.week?.isValid || isCartValid()}
-               >
-                  {isCheckout
-                     ? 'Save and Proceed to Checkout'
-                     : 'Save Selection'}
-               </SaveButton>
             )}
             <div tw="mt-4 text-gray-500">
                * Your box will be delivered on{' '}
@@ -356,6 +212,139 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
    )
 }
 
+const BillingDetails = () => {
+   const {
+      state: {
+         occurenceCustomer: {
+            cart: { billingDetails: billing = {} } = {},
+         } = {},
+      } = {},
+   } = useMenu()
+
+   return (
+      <table tw="my-3 w-full table-auto">
+         <tbody>
+            <tr>
+               <td
+                  tw="border px-2 py-1"
+                  title={billing?.itemTotal?.description}
+               >
+                  {billing?.itemTotal?.label}
+                  <p tw="text-sm text-gray-600">
+                     {billing?.itemTotal?.comment.replace(
+                        /\{\{([^}]+)\}\}/g,
+                        () => {
+                           return formatCurrency(
+                              billing?.itemTotal?.comment
+                                 .match(/\{\{([^}]+)\}\}/g)[0]
+                                 .slice(2, -2)
+                           )
+                        }
+                     )}
+                  </p>
+               </td>
+               <td tw="text-right border px-2 py-1">
+                  {formatCurrency(billing?.itemTotal?.value)}
+               </td>
+            </tr>
+            <tr>
+               <td
+                  tw="border px-2 py-1"
+                  title={billing?.deliveryPrice?.description}
+               >
+                  {billing?.deliveryPrice?.label}
+                  <p tw="text-sm text-gray-600">
+                     {billing?.deliveryPrice?.comment.replace(
+                        /\{\{([^}]+)\}\}/g,
+                        () => {
+                           return formatCurrency(
+                              billing?.deliveryPrice?.comment
+                                 .match(/\{\{([^}]+)\}\}/g)[0]
+                                 .slice(2, -2)
+                           )
+                        }
+                     )}
+                  </p>
+               </td>
+               <td tw="text-right border px-2 py-1">
+                  {formatCurrency(billing?.deliveryPrice?.value)}
+               </td>
+            </tr>
+            {!billing?.isTaxIncluded && (
+               <tr>
+                  <td
+                     tw="border px-2 py-1"
+                     title={billing?.subTotal?.description}
+                  >
+                     {billing?.subTotal?.label}
+                     <p tw="text-sm text-gray-600">
+                        {billing?.subTotal?.comment.replace(
+                           /\{\{([^}]+)\}\}/g,
+                           () => {
+                              return formatCurrency(
+                                 billing?.subTotal?.comment
+                                    .match(/\{\{([^}]+)\}\}/g)[0]
+                                    .slice(2, -2)
+                              )
+                           }
+                        )}
+                     </p>
+                  </td>
+                  <td tw="text-right border px-2 py-1">
+                     {formatCurrency(billing?.subTotal?.value)}
+                  </td>
+               </tr>
+            )}
+            {!billing?.isTaxIncluded && (
+               <tr>
+                  <td tw="border px-2 py-1" title={billing?.tax?.description}>
+                     {billing?.tax?.label}
+                     <p tw="text-sm text-gray-600">
+                        {billing?.tax?.comment.replace(
+                           /\{\{([^}]+)\}\}/g,
+                           () => {
+                              return formatCurrency(
+                                 billing?.tax?.comment
+                                    .match(/\{\{([^}]+)\}\}/g)[0]
+                                    .slice(2, -2)
+                              )
+                           }
+                        )}
+                     </p>
+                  </td>
+                  <td tw="text-right border px-2 py-1">
+                     {formatCurrency(billing?.tax?.value)}
+                  </td>
+               </tr>
+            )}
+            <tr>
+               <td
+                  tw="border px-2 py-1"
+                  title={billing?.totalPrice?.description}
+               >
+                  {billing?.totalPrice?.label}
+                  <p tw="text-sm text-gray-600">
+                     {billing?.totalPrice?.comment.replace(
+                        /\{\{([^}]+)\}\}/g,
+                        () => {
+                           return formatCurrency(
+                              billing?.totalPrice?.comment
+                                 .match(/\{\{([^}]+)\}\}/g)[0]
+                                 .slice(2, -2)
+                           )
+                        }
+                     )}
+                  </p>
+               </td>
+               <td tw="text-right border px-2 py-1">
+                  {formatCurrency(billing?.totalPrice?.value)}
+               </td>
+            </tr>
+         </tbody>
+      </table>
+   )
+}
+
 const SkeletonCartProduct = () => {
    return (
       <SkeletonCartProductContainer>
@@ -369,17 +358,7 @@ const SkeletonCartProduct = () => {
 }
 
 const CartProduct = ({ product, index }) => {
-   const { addToast } = useToasts()
-   const { state, dispatch } = useMenu()
-   const removeRecipe = () => {
-      dispatch({
-         type: 'REMOVE_RECIPE',
-         payload: { weekId: state.week.id, index },
-      })
-      addToast(`You've removed the recipe ${product.name}.`, {
-         appearance: 'warning',
-      })
-   }
+   const { state, methods } = useMenu()
    return (
       <CartProductContainer>
          <aside tw="flex-shrink-0 relative">
@@ -396,11 +375,13 @@ const CartProduct = ({ product, index }) => {
                </span>
             )}
             {!['ORDER_PLACED', 'PROCESS'].includes(
-               state?.weeks[state?.week?.id]?.orderCartStatus
+               state?.occurenceCustomer?.cart?.status
             ) &&
                state?.week?.isValid && (
                   <span className="remove_product">
-                     <button onClick={() => removeRecipe()}>
+                     <button
+                        onClick={() => methods.products.delete(product, index)}
+                     >
                         <CloseIcon
                            size={16}
                            tw="stroke-current text-green-400"

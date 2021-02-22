@@ -1,164 +1,37 @@
 import React from 'react'
 import moment from 'moment'
-import { useLocation } from '@reach/router'
 import tw, { styled, css } from 'twin.macro'
-import { useToasts } from 'react-toast-notifications'
-import { useQuery, useLazyQuery } from '@apollo/react-hooks'
 
 import { useMenu } from './state'
-import { useUser } from '../../context'
 import { Loader } from '../../components'
 import { formatDate } from '../../utils'
 import { ArrowLeftIcon, ArrowRightIcon } from '../../assets/icons'
-import { CART_BY_WEEK, OCCURENCES_BY_SUBSCRIPTION } from '../../graphql'
 
 export const WeekPicker = ({ isFixed }) => {
-   const { user } = useUser()
-   const location = useLocation()
-   const { addToast } = useToasts()
    const { state, dispatch } = useMenu()
-   const [current, setCurrent] = React.useState(0)
-   const [fetchCart, { data: { cart } = {} }] = useLazyQuery(CART_BY_WEEK, {
-      onCompleted: ({ cart }) => {
-         let products = Array.from(
-            { length: user.subscription.recipes.count },
-            () => ({})
-         )
-
-         const isSelectionEmpty = state.weeks[
-            state.week.id
-         ].cart.products.every(node => Object.keys(node).length === 0)
-
-         if (cart && isSelectionEmpty) {
-            return dispatch({
-               type: 'PREFILL_CART',
-               payload: {
-                  cartExists: true,
-                  weekId: state.week.id,
-                  isSkipped: cart.isSkipped,
-                  orderCartId: cart.orderCartId,
-                  orderCartStatus: cart?.orderCart?.status,
-                  products: cart?.orderCart?.cartInfo?.products || products,
-               },
-            })
-         }
-
-         const week = state?.weeks[state?.week?.id]
-         dispatch({
-            type: 'PREFILL_CART',
-            payload: {
-               weekId: state.week.id,
-               cartExists: week.cartExists || false,
-               isSkipped: week.isSkipped || false,
-               orderCartId: week.orderCartId || null,
-               orderCartStatus: week.orderCartStatus || undefined,
-               products: isSelectionEmpty ? products : week.cart.products,
-            },
-         })
-      },
-      onError: error => {
-         addToast(error.message, {
-            appearance: 'error',
-         })
-      },
-   })
-
-   React.useEffect(() => {
-      if (cart?.orderCartId) {
-         dispatch({
-            type: 'SET_ORDER_CART_ID',
-            payload: {
-               weekId: state.week.id,
-               orderCartId: cart.orderCartId,
-            },
-         })
-      }
-   }, [cart, state.week, dispatch])
-
-   const { loading } = useQuery(OCCURENCES_BY_SUBSCRIPTION, {
-      skip: !user?.subscriptionId,
-      variables: {
-         id: user?.subscriptionId,
-         where: {
-            fulfillmentDate: {
-               _eq: new URL(location.href).searchParams.get('date'),
-            },
-         },
-      },
-      onCompleted: ({ subscription = {} } = {}) => {
-         if (subscription?.occurences?.length > 0) {
-            const visibleOccurences = subscription.occurences.filter(
-               occurence => occurence.isVisible
-            )
-            if (state.occurences.length === 0) {
-               const validWeekIndex = visibleOccurences.findIndex(
-                  node => node.isValid
-               )
-               if (validWeekIndex === -1) return
-               setCurrent(validWeekIndex)
-               dispatch({ type: 'SET_OCCURENCES', payload: visibleOccurences })
-               dispatch({
-                  type: 'SET_WEEK',
-                  payload: visibleOccurences[validWeekIndex],
-               })
-               fetchCart({
-                  variables: {
-                     keycloakId: user?.keycloakId,
-                     brand_customerId: user?.brandCustomerId,
-                     weekId: visibleOccurences[validWeekIndex].id,
-                  },
-               })
-            }
-         } else if (
-            subscription?.occurences?.length === 0 &&
-            user?.subscriptionId
-         ) {
-            addToast('No weeks are available for menu selection.', {
-               appearance: 'error',
-            })
-         }
-      },
-      onError: error => {
-         addToast(error.message, {
-            appearance: 'error',
-         })
-      },
-   })
 
    const next = () => {
       const nextOne =
-         (current + 1 + state.occurences.length) % state.occurences.length
-      setCurrent(nextOne)
+         (state.currentWeekIndex + 1 + state.occurences.length) %
+         state.occurences.length
+      dispatch({
+         type: 'SET_CURRENT_WEEK_INDEX',
+         payload: nextOne,
+      })
       dispatch({ type: 'SET_WEEK', payload: state.occurences[nextOne] })
-      fetchCart({
-         variables: {
-            keycloakId: user?.keycloakId,
-            weekId: state.occurences[nextOne].id,
-            brand_customerId: user?.brandCustomerId,
-         },
-      })
-      addToast("Showing next week's menu.", {
-         appearance: 'info',
-      })
    }
    const previous = () => {
       const previousOne =
-         (current - 1 + state.occurences.length) % state.occurences.length
-      setCurrent(previousOne)
+         (state.currentWeekIndex - 1 + state.occurences.length) %
+         state.occurences.length
+      dispatch({
+         type: 'SET_CURRENT_WEEK_INDEX',
+         payload: previousOne,
+      })
       dispatch({ type: 'SET_WEEK', payload: state.occurences[previousOne] })
-      fetchCart({
-         variables: {
-            keycloakId: user?.keycloakId,
-            weekId: state.occurences[previousOne].id,
-            brand_customerId: user?.brandCustomerId,
-         },
-      })
-      addToast("Showing previous week's menu.", {
-         appearance: 'info',
-      })
    }
 
-   if (loading) return <Loader inline />
+   if (state.isOccurencesLoading) return <Loader inline />
    if (!state?.week?.id) return null
    return (
       <Occurence isFixed={isFixed}>

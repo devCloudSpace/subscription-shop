@@ -203,18 +203,24 @@ export const INVENTORY_DETAILS = gql`
 `
 
 export const CART_BY_WEEK = gql`
-   query cart($keycloakId: String!, $weekId: Int!, $brand_customerId: Int!) {
-      cart: subscription_subscriptionOccurence_customer_by_pk(
+   subscription subscriptionOccurenceCustomer(
+      $keycloakId: String!
+      $weekId: Int!
+      $brand_customerId: Int!
+   ) {
+      subscriptionOccurenceCustomer: subscription_subscriptionOccurence_customer_by_pk(
          keycloakId: $keycloakId
          subscriptionOccurenceId: $weekId
          brand_customerId: $brand_customerId
       ) {
          isAuto
          isSkipped
-         orderCartId
-         orderCart {
+         validStatus
+         cart: orderCart {
+            id
             status
             cartInfo
+            billingDetails
          }
       }
    }
@@ -226,9 +232,19 @@ export const ZIPCODE = gql`
          subscriptionId: $subscriptionId
          zipcode: $zipcode
       ) {
-         price: deliveryPrice
-         from: deliveryTime(path: "from")
-         to: deliveryTime(path: "to")
+         deliveryTime
+         deliveryPrice
+         isDeliveryActive
+         deliveryTime
+         deliveryPrice
+         isPickupActive
+         defaultAutoSelectFulfillmentMode
+         pickupOptionId: subscriptionPickupOptionId
+         pickupOption: subscriptionPickupOption {
+            id
+            time
+            address
+         }
       }
    }
 `

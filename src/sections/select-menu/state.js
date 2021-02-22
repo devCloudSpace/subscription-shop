@@ -1,125 +1,323 @@
 import React from 'react'
+import moment from 'moment'
 import { isEmpty } from 'lodash'
+import { useLocation } from '@reach/router'
+import { useToasts } from 'react-toast-notifications'
+import { useMutation, useQuery, useSubscription } from '@apollo/react-hooks'
+
+import { useUser } from '../../context'
+import { isClient } from '../../utils'
+import {
+   ZIPCODE,
+   CREATE_CART,
+   CART_BY_WEEK,
+   OCCURENCES_BY_SUBSCRIPTION,
+   INSERT_SUBSCRIPTION_OCCURENCE_CUSTOMERS,
+} from '../../graphql'
 
 export const MenuContext = React.createContext()
 
 const initialState = {
    week: {},
+   isOccurencesLoading: true,
+   currentWeekIndex: 0,
    occurences: [],
-   weeks: {},
 }
 
 const reducers = (state, { type, payload }) => {
    switch (type) {
       case 'SET_WEEK': {
-         const weeks = state.weeks
-         if (!weeks.hasOwnProperty(payload.id)) {
-            weeks[payload.id] = {
-               cart: {
-                  total: 0,
-                  products: [],
-               },
-            }
-         }
          return {
             ...state,
-            weeks,
             week: payload,
          }
       }
+      case 'SET_IS_OCCURENCES_LOADING':
+         return { ...state, isOccurencesLoading: payload }
+      case 'SET_CURRENT_WEEK_INDEX':
+         return { ...state, currentWeekIndex: payload }
       case 'SET_OCCURENCES':
          return {
             ...state,
             occurences: payload,
          }
-      case 'SELECT_RECIPE': {
-         const weeks = state.weeks
-         const products = weeks[payload.weekId].cart.products
-         const index = products.findIndex(node => isEmpty(node))
-         products[index] = payload.cart
-
-         weeks[payload.weekId] = {
-            ...weeks[payload.weekId],
-            isSkipped: false,
-            cart: {
-               ...weeks[payload.weekId].cart,
-               products,
-            },
-         }
-
-         return {
-            ...state,
-            weeks,
-         }
-      }
-      case 'REMOVE_RECIPE': {
-         const weeks = state.weeks
-         const products = weeks[payload.weekId].cart.products
-         products[payload.index] = {}
-
-         weeks[payload.weekId] = {
-            ...weeks[payload.weekId],
-            cart: {
-               ...weeks[payload.weekId].cart,
-               products,
-            },
-         }
-
-         return {
-            ...state,
-            weeks,
-         }
-      }
-      case 'PREFILL_CART': {
-         const weeks = state.weeks
-         weeks[payload.weekId] = {
-            ...weeks[payload.weekId],
-            isSkipped: payload.isSkipped,
-            cartExists: payload.cartExists,
-            orderCartId: payload.orderCartId,
-            orderCartStatus: payload.orderCartStatus,
-            cart: {
-               ...state.weeks[payload.weekId].cart,
-               products: payload.products,
-            },
-         }
-         return {
-            ...state,
-            weeks,
-         }
-      }
-      case 'SKIP_WEEK': {
-         const weeks = state.weeks
-         weeks[payload.weekId] = {
-            ...weeks[payload.weekId],
-            isSkipped: payload.checked,
-         }
-
-         return {
-            ...state,
-            weeks,
-         }
-      }
-      case 'SET_ORDER_CART_ID': {
-         const weeks = state.weeks
-         weeks[payload.weekId] = {
-            ...weeks[payload.weekId],
-            orderCartId: payload.orderCartId,
-         }
-         return {
-            ...state,
-            weeks,
-         }
-      }
       default:
          return 'No such type!'
    }
 }
 
+const evalTime = (date, time) => {
+   const [hour, minute] = time.split(':')
+   return moment(date).hour(hour).minute(minute).second(0).toISOString()
+}
+
 export const MenuProvider = ({ children }) => {
+   const { user } = useUser()
+   const location = useLocation()
+   const { addToast } = useToasts()
+   const [cart, setCart] = React.useState({})
    const [state, dispatch] = React.useReducer(reducers, initialState)
+   const { data: { zipcode = {} } = {} } = useQuery(ZIPCODE, {
+      skip: !user?.subscriptionId || !user?.defaultAddress?.zipcode,
+      variables: {
+         subscriptionId: user?.subscriptionId,
+         zipcode: user?.defaultAddress?.zipcode,
+      },
+   })
+   const [insertOccurenceCustomer] = useMutation(
+      INSERT_SUBSCRIPTION_OCCURENCE_CUSTOMERS,
+      {
+         onError: error => console.log(error),
+      }
+   )
+   const [upsertCart] = useMutation(CREATE_CART, {
+      refetchQueries: () => ['subscriptionOccurenceCustomer'],
+      onCompleted: ({ createCart }) => {
+         isClient && window.localStorage.setItem('cartId', createCart.id)
+
+         const skipList = new URL(location.href).searchParams.get('previous')
+
+         if (skipList && skipList.split(',').length > 0) {
+            insertOccurenceCustomer({
+               variables: {
+                  objects: skipList.split(',').map(id => ({
+                     isSkipped: true,
+                     keycloakId: user.keycloakId,
+                     subscriptionOccurenceId: id,
+                     brand_customerId: user.brandCustomerId,
+                  })),
+               },
+            })
+         }
+         addToast('Selected menu has been saved.', {
+            appearance: 'success',
+         })
+      },
+      onError: error => {
+         addToast(error.message, {
+            appearance: 'error',
+         })
+      },
+   })
+   useQuery(OCCURENCES_BY_SUBSCRIPTION, {
+      skip: !user?.subscriptionId,
+      variables: {
+         id: user?.subscriptionId,
+         ...(Boolean(new URL(location.href).searchParams.get('date')) && {
+            where: {
+               fulfillmentDate: {
+                  _eq: new URL(location.href).searchParams.get('date'),
+               },
+            },
+         }),
+      },
+      onCompleted: ({ subscription = {} } = {}) => {
+         if (subscription?.occurences?.length > 0) {
+            const visibleOccurences = subscription.occurences.filter(
+               occurence => occurence.isVisible
+            )
+            if (state.occurences.length === 0) {
+               const validWeekIndex = visibleOccurences.findIndex(
+                  node => node.isValid
+               )
+               if (validWeekIndex === -1) return
+               dispatch({
+                  type: 'SET_CURRENT_WEEK_INDEX',
+                  payload: validWeekIndex,
+               })
+               dispatch({ type: 'SET_IS_OCCURENCES_LOADING', payload: false })
+               dispatch({ type: 'SET_OCCURENCES', payload: visibleOccurences })
+               dispatch({
+                  type: 'SET_WEEK',
+                  payload: visibleOccurences[validWeekIndex],
+               })
+            }
+         } else if (
+            subscription?.occurences?.length === 0 &&
+            user?.subscriptionId
+         ) {
+            addToast('No weeks are available for menu selection.', {
+               appearance: 'error',
+            })
+         }
+      },
+      onError: error => {
+         addToast(error.message, {
+            appearance: 'error',
+         })
+      },
+   })
+   const {
+      loading: occurenceCustomerLoading,
+      data: { subscriptionOccurenceCustomer: occurenceCustomer = {} } = {},
+   } = useSubscription(CART_BY_WEEK, {
+      variables: {
+         weekId: state.week.id,
+         keycloakId: user?.keycloakId,
+         brand_customerId: user?.brandCustomerId,
+      },
+      onCompleted: () => {},
+      onError: error => {
+         addToast(error.message, {
+            appearance: 'error',
+         })
+      },
+   })
+
+   React.useEffect(() => {
+      if (state.week?.id && !occurenceCustomerLoading) {
+         if (isEmpty(occurenceCustomer)) {
+            insertOccurenceCustomer({
+               variables: {
+                  objects: [
+                     {
+                        isAuto: false,
+                        keycloakId: user.keycloakId,
+                        subscriptionOccurenceId: state.week.id,
+                        brand_customerId: user.brandCustomerId,
+                     },
+                  ],
+               },
+            })
+         } else {
+            setCart(occurenceCustomer)
+         }
+      }
+   }, [state.week, occurenceCustomerLoading, occurenceCustomer])
+
+   const removeProduct = (item, index) => {
+      const products = occurenceCustomer?.cart?.cartInfo?.products.filter(
+         (_, i) => i !== index
+      )
+      upsertCart({
+         variables: {
+            object: {
+               id: occurenceCustomer?.cart?.id,
+               cartInfo: { products },
+            },
+            on_conflict: {
+               constraint: 'orderCart_pkey',
+               update_columns: ['cartInfo'],
+            },
+         },
+      }).then(() =>
+         addToast(`You've removed the product - ${item.name}.`, {
+            appearance: 'info',
+         })
+      )
+   }
+
+   const addProduct = item => {
+      if (occurenceCustomer?.validStatus?.itemCountValid) {
+         addToast("Your're cart is already full!", {
+            appearance: 'warning',
+         })
+         return
+      }
+      if (occurenceCustomer?.validStatus?.hasCart) {
+         upsertCart({
+            variables: {
+               object: {
+                  id: occurenceCustomer?.cart?.id,
+                  cartInfo: {
+                     products: [
+                        ...occurenceCustomer?.cart?.cartInfo?.products,
+                        item,
+                     ],
+                  },
+               },
+               on_conflict: {
+                  constraint: 'orderCart_pkey',
+                  update_columns: ['cartInfo'],
+               },
+            },
+         }).then(() =>
+            addToast(`You've added the product - ${item.name}.`, {
+               appearance: 'info',
+            })
+         )
+      } else {
+         const fulfillmentInfo = {
+            type: 'PREORDER_DELIVERY',
+            slot: {
+               from: evalTime(
+                  state.week.fulfillmentDate,
+                  zipcode?.deliveryTime?.from
+               ),
+               to: evalTime(
+                  state.week.fulfillmentDate,
+                  zipcode?.deliveryTime?.to
+               ),
+            },
+         }
+         const customerInfo = {
+            customerEmail: user?.platform_customer?.email || '',
+            customerPhone: user?.platform_customer?.phoneNumber || '',
+            customerLastName: user?.platform_customer?.lastName || '',
+            customerFirstName: user?.platform_customer?.firstName || '',
+         }
+         const subscriptionOccurenceCustomers = {
+            data: [
+               {
+                  isSkipped: false,
+                  keycloakId: user.keycloakId,
+                  subscriptionOccurenceId: state.week.id,
+                  brand_customerId: user.brandCustomerId,
+               },
+            ],
+            on_conflict: {
+               constraint: 'subscriptionOccurence_customer_pkey',
+               update_columns: ['isSkipped', 'orderCartId'],
+            },
+         }
+         upsertCart({
+            variables: {
+               object: {
+                  customerInfo,
+                  fulfillmentInfo,
+                  status: 'PENDING',
+                  customerId: user.id,
+                  paymentStatus: 'PENDING',
+                  cartSource: 'subscription',
+                  address: user.defaultAddress,
+                  cartInfo: { products: [item] },
+                  subscriptionOccurenceCustomers,
+                  customerKeycloakId: user.keycloakId,
+                  subscriptionOccurenceId: state.week.id,
+                  ...(user?.subscriptionPaymentMethodId && {
+                     paymentMethodId: user?.subscriptionPaymentMethodId,
+                  }),
+                  stripeCustomerId: user?.platform_customer?.stripeCustomerId,
+                  ...(state?.occurenceCustomer?.cart?.id && {
+                     id: state?.occurenceCustomer?.cart?.id,
+                  }),
+               },
+               on_conflict: {
+                  constraint: 'orderCart_pkey',
+                  update_columns: [
+                     'amount',
+                     'address',
+                     'cartInfo',
+                     'fulfillmentInfo',
+                  ],
+               },
+            },
+         }).then(() =>
+            addToast(`You've added the product - ${item.name}.`, {
+               appearance: 'info',
+            })
+         )
+      }
+   }
+
    return (
-      <MenuContext.Provider value={{ state, dispatch }}>
+      <MenuContext.Provider
+         value={{
+            state: { ...state, occurenceCustomer: cart },
+            methods: { products: { add: addProduct, delete: removeProduct } },
+            dispatch,
+         }}
+      >
          {children}
       </MenuContext.Provider>
    )
