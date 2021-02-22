@@ -19,6 +19,11 @@ import {
    OCCURENCE_ADDON_PRODUCTS_BY_CATEGORIES,
 } from '../../graphql'
 
+const evalTime = (date, time) => {
+   const [hour, minute] = time.split(':')
+   return moment(date).hour(hour).minute(minute).second(0).toISOString()
+}
+
 export const CartPanel = ({ noSkip }) => {
    const { user } = useUser()
    const { state } = useMenu()
@@ -31,6 +36,53 @@ export const CartPanel = ({ noSkip }) => {
          zipcode: user?.defaultAddress?.zipcode,
       },
    })
+
+   const setFulfillment = mode => {
+      if (mode === 'DELIVERY') {
+         updateCart({
+            variables: {
+               id: state.occurenceCustomer?.cart?.id,
+               _set: {
+                  fulfillmentInfo: {
+                     type: 'PREORDER_DELIVERY',
+                     slot: {
+                        from: evalTime(
+                           state.week.fulfillmentDate,
+                           zipcode?.deliveryTime?.from
+                        ),
+                        to: evalTime(
+                           state.week.fulfillmentDate,
+                           zipcode?.deliveryTime?.to
+                        ),
+                     },
+                  },
+               },
+            },
+         })
+         return
+      }
+      updateCart({
+         variables: {
+            id: state.occurenceCustomer?.cart?.id,
+            _set: {
+               fulfillmentInfo: {
+                  type: 'PREORDER_PICKUP',
+                  slot: {
+                     from: evalTime(
+                        state.week.fulfillmentDate,
+                        zipcode?.pickupOption?.time?.from
+                     ),
+                     to: evalTime(
+                        state.week.fulfillmentDate,
+                        zipcode?.pickupOption?.time?.to
+                     ),
+                  },
+                  address: zipcode?.pickupOption?.address,
+               },
+            },
+         },
+      })
+   }
 
    return (
       <div>
@@ -68,6 +120,9 @@ export const CartPanel = ({ noSkip }) => {
                      {zipcode.isDeliveryActive && (
                         <FulfillmentOption
                            onClick={() => setFulfillment('DELIVERY')}
+                           isActive={state.occurenceCustomer?.cart?.fulfillmentInfo?.type.includes(
+                              'DELIVERY'
+                           )}
                         >
                            <aside>
                               <CheckIcon
@@ -107,6 +162,9 @@ export const CartPanel = ({ noSkip }) => {
                      {zipcode.isPickupActive && zipcode?.pickupOptionId && (
                         <FulfillmentOption
                            onClick={() => setFulfillment('PICKUP')}
+                           isActive={state.occurenceCustomer?.cart?.fulfillmentInfo?.type.includes(
+                              'PICKUP'
+                           )}
                         >
                            <aside>
                               <CheckIcon
@@ -388,7 +446,7 @@ const BillingDetails = () => {
    } = useMenu()
 
    return (
-      <Table tw="my-3 w-full table-auto">
+      <Table tw="mt-3 w-full table-auto">
          <tbody>
             <tr>
                <td
@@ -554,10 +612,18 @@ const CartProduct = ({ product, index }) => {
                   </span>
                )}
          </aside>
-         <main tw="h-16 pl-3">
+         <main tw="pl-3">
             <p tw="text-gray-800" title={product.name}>
                {product.name}
             </p>
+            {product.isAddOn && (
+               <p tw="text-green-600">{formatCurrency(product.unitPrice)}</p>
+            )}
+            {!product.isAddOn && product.isAutoAdded && (
+               <span tw="text-sm px-1 rounded bg-gray-200 text-gray-600 border border-gray-200">
+                  Auto Selected
+               </span>
+            )}
          </main>
       </CartProductContainer>
    )
@@ -680,9 +746,9 @@ const SkeletonCartProductContainer = styled.li`
 `
 
 const CartProductContainer = styled.li`
-   ${tw`h-20 bg-white border flex items-center px-2 rounded`}
+   ${tw`h-auto py-2 bg-white border flex items-start px-2 rounded`}
    aside {
-      ${tw`w-24 h-16 bg-gray-300 rounded flex items-center justify-center`}
+      ${tw`w-24 h-16 bg-gray-300 rounded flex items-start justify-center`}
       span.remove_product {
          display: none;
          background: rgba(0, 0, 0, 0.3);
@@ -780,5 +846,17 @@ const FulfillmentOption = styled.section`
    ${tw`py-2 pr-2 rounded cursor-pointer flex items-center border text-gray-700`}
    aside {
       ${tw`flex-shrink-0 h-10 w-10 flex items-center justify-center`}
+      ${({ isActive }) =>
+         isActive &&
+         css`
+            svg {
+               ${tw`text-green-700`}
+            }
+         `}
    }
+   ${({ isActive }) =>
+      isActive &&
+      css`
+         ${tw`border-2 border-green-600`}
+      `}
 `
