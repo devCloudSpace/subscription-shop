@@ -219,8 +219,10 @@ export const CART_BY_WEEK = gql`
          cart: orderCart {
             id
             status
+            address
             cartInfo
             billingDetails
+            fulfillmentInfo
          }
       }
    }

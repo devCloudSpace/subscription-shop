@@ -1,8 +1,5 @@
 import React from 'react'
 import moment from 'moment'
-import { isEmpty } from 'lodash'
-import { navigate } from 'gatsby'
-import { useLocation } from '@reach/router'
 import tw, { styled, css } from 'twin.macro'
 import { useToasts } from 'react-toast-notifications'
 import { useQuery, useMutation } from '@apollo/react-hooks'
@@ -18,23 +15,17 @@ import {
    formatDate,
    normalizeAddress,
 } from '../../utils'
-import {
-   ZIPCODE,
-   CREATE_CART,
-   UPSERT_OCCURENCE_CUSTOMER_CART_SKIP,
-   INSERT_SUBSCRIPTION_OCCURENCE_CUSTOMERS,
-} from '../../graphql'
+import { ZIPCODE, UPSERT_OCCURENCE_CUSTOMER_CART_SKIP } from '../../graphql'
 
 const evalTime = (date, time) => {
    const [hour, minute] = time.split(':')
    return moment(date).hour(hour).minute(minute).second(0).toISOString()
 }
 
-export const CartPanel = ({ noSkip, isCheckout }) => {
+export const CartPanel = ({ noSkip }) => {
    const { user } = useUser()
    const { state } = useMenu()
    const { addToast } = useToasts()
-   const { configOf } = useConfig()
    const [updateCartSkipStatus] = useMutation(
       UPSERT_OCCURENCE_CUSTOMER_CART_SKIP,
       {
@@ -54,12 +45,6 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
          },
       }
    )
-   const { data: { zipcode = {} } = {} } = useQuery(ZIPCODE, {
-      variables: {
-         subscriptionId: user?.subscriptionId,
-         zipcode: user?.defaultAddress?.zipcode,
-      },
-   })
 
    const skipWeek = e => {
       updateCartSkipStatus({
@@ -174,16 +159,18 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
                      )
                )}
             </CartProducts>
-            <h4 tw="text-lg text-gray-700 my-3 pb-1">
-               Your Weekly Total:{' '}
-               {state?.occurenceCustomer?.validStatus?.itemCountValid
-                  ? state?.occurenceCustomer?.billingDetails?.totalPrice?.value
-                  : 'N/A'}
-            </h4>
-            {state?.occurenceCustomer?.validStatus?.itemCountValid ? (
+            <header>
+               <h4 tw="text-lg text-gray-700 my-3 pb-1">
+                  Your Weekly Total:{' '}
+                  {state?.occurenceCustomer?.validStatus?.itemCountValid
+                     ? state?.occurenceCustomer?.billingDetails?.totalPrice
+                          ?.value
+                     : 'N/A'}
+               </h4>
+               <button></button>
+            </header>
+            {state?.occurenceCustomer?.validStatus?.itemCountValid && (
                <BillingDetails />
-            ) : (
-               <p></p>
             )}
             {['ORDER_PLACED', 'PROCESS'].includes(
                state?.occurenceCustomer?.cart?.status
@@ -197,15 +184,20 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
             <div tw="mt-4 text-gray-500">
                * Your box will be delivered on{' '}
                <span>
-                  {formatDate(state.week.fulfillmentDate, {
-                     month: 'short',
-                     day: 'numeric',
-                  })}
-                  &nbsp;between {zipcode.from}
+                  {moment(state?.week?.fulfillmentDate).format('MMM D')}
+                  &nbsp;between{' '}
+                  {moment(
+                     state?.occurenceCustomer?.cart?.fulfillmentInfo?.slot?.from
+                  ).format('hh:mm A')}
                   &nbsp;-&nbsp;
-                  {zipcode.to}
+                  {moment(
+                     state?.occurenceCustomer?.cart?.fulfillmentInfo?.slot?.to
+                  ).format('hh:mm A')}
                </span>{' '}
-               at <span>{normalizeAddress(user.defaultAddress)}</span>
+               at{' '}
+               <span>
+                  {normalizeAddress(state?.occurenceCustomer?.cart?.address)}
+               </span>
             </div>
          </CartWrapper>
       </div>
