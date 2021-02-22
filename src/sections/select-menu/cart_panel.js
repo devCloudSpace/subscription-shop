@@ -14,46 +14,8 @@ import { UPSERT_OCCURENCE_CUSTOMER_CART_SKIP } from '../../graphql'
 export const CartPanel = ({ noSkip }) => {
    const { user } = useUser()
    const { state } = useMenu()
-   const { addToast } = useToasts()
    const [open, toggle] = React.useState(false)
    const [showSummaryBar, setShowSummaryBar] = React.useState(true)
-   const [updateCartSkipStatus] = useMutation(
-      UPSERT_OCCURENCE_CUSTOMER_CART_SKIP,
-      {
-         onCompleted: ({ upsertOccurenceCustomerCart = {} }) => {
-            if (upsertOccurenceCustomerCart.isSkipped) {
-               return addToast('Skipped this week', { appearance: 'warning' })
-            }
-            addToast('This week is now available for menu selection', {
-               appearance: 'success',
-            })
-         },
-         onError: error => {
-            addToast(error.message, {
-               appearance: 'error',
-            })
-         },
-      }
-   )
-
-   const skipWeek = () => {
-      updateCartSkipStatus({
-         variables: {
-            object: {
-               keycloakId: user.keycloakId,
-               brand_customerId: user.brandCustomerId,
-               subscriptionOccurenceId: state.week.id,
-               isSkipped: Boolean(!state.occurenceCustomer?.isSkipped),
-            },
-         },
-      })
-   }
-
-   const isSkippable =
-      ['PENDING', undefined].includes(state?.occurenceCustomer?.cart?.status) &&
-      state?.week?.isValid &&
-      !noSkip
-
    return (
       <div>
          {isClient && window.innerWidth < 768 && (
@@ -78,77 +40,7 @@ export const CartPanel = ({ noSkip }) => {
             onClick={() => setShowSummaryBar(true)}
          />
          <CartWrapper showSummaryBar={showSummaryBar}>
-            <header tw="my-3 pb-1 border-b flex items-center justify-between">
-               <h4 tw="text-lg text-gray-700">
-                  Cart{' '}
-                  {state?.occurenceCustomer?.validStatus?.addedProductsCount}/
-                  {user?.subscription?.recipes?.count}
-               </h4>
-               {isSkippable && (
-                  <SkipWeek>
-                     <label htmlFor="skip" tw="mr-2 text-gray-600">
-                        Skip
-                     </label>
-                     <input
-                        name="skip"
-                        type="checkbox"
-                        className="toggle"
-                        onChange={skipWeek}
-                        checked={state?.occurenceCustomer?.isSkipped}
-                        tw="cursor-pointer appearance-none"
-                     />
-                  </SkipWeek>
-               )}
-               <button
-                  tw="md:hidden rounded-full border-2 border-green-400 h-6 w-6 "
-                  onClick={() => setShowSummaryBar(true)}
-               >
-                  <CloseIcon size={16} tw="stroke-current text-green-400" />
-               </button>
-            </header>
-            <CartProducts>
-               {state?.occurenceCustomer?.cart?.cartInfo?.products?.map(
-                  (product, index) =>
-                     !product.isAddOn && (
-                        <CartProduct
-                           index={index}
-                           product={product}
-                           key={product.cartItemId}
-                        />
-                     )
-               )}
-               {Array.from(
-                  {
-                     length:
-                        state?.occurenceCustomer?.validStatus
-                           ?.pendingProductsCount,
-                  },
-                  (_, index) => (
-                     <SkeletonCartProduct key={index} />
-                  )
-               )}
-            </CartProducts>
-            <header tw="my-3 pb-1 border-b flex items-center justify-between">
-               <h4 tw="text-lg text-gray-700">Add Ons</h4>
-               <button tw="text-green-800 uppercase px-3 py-1 rounded-full border text-sm font-medium border-green-400 flex items-center ">
-                  Explore
-                  <span tw="pl-2">
-                     <PlusIcon size={16} tw="stroke-current text-green-400" />
-                  </span>
-               </button>
-            </header>
-            <CartProducts>
-               {state?.occurenceCustomer?.cart?.cartInfo?.products?.map(
-                  (product, index) =>
-                     product.isAddOn && (
-                        <CartProduct
-                           index={index}
-                           product={product}
-                           key={product.cartItemId}
-                        />
-                     )
-               )}
-            </CartProducts>
+            <Products noSkip={noSkip} setShowSummaryBar={setShowSummaryBar} />
             <header tw="mb-3 h-10 flex items-center justify-between">
                <h4 tw="text-lg text-gray-700">
                   Your Weekly Total:{' '}
@@ -202,6 +94,123 @@ export const CartPanel = ({ noSkip }) => {
             </div>
          </CartWrapper>
       </div>
+   )
+}
+
+const Products = ({ noSkip, setShowSummaryBar }) => {
+   const { user } = useUser()
+   const { state } = useMenu()
+   const { addToast } = useToasts()
+   const [updateCartSkipStatus] = useMutation(
+      UPSERT_OCCURENCE_CUSTOMER_CART_SKIP,
+      {
+         onCompleted: ({ upsertOccurenceCustomerCart = {} }) => {
+            if (upsertOccurenceCustomerCart.isSkipped) {
+               return addToast('Skipped this week', { appearance: 'warning' })
+            }
+            addToast('This week is now available for menu selection', {
+               appearance: 'success',
+            })
+         },
+         onError: error => {
+            addToast(error.message, {
+               appearance: 'error',
+            })
+         },
+      }
+   )
+
+   const skipWeek = () => {
+      updateCartSkipStatus({
+         variables: {
+            object: {
+               keycloakId: user.keycloakId,
+               brand_customerId: user.brandCustomerId,
+               subscriptionOccurenceId: state.week.id,
+               isSkipped: Boolean(!state.occurenceCustomer?.isSkipped),
+            },
+         },
+      })
+   }
+
+   const isSkippable =
+      ['PENDING', undefined].includes(state?.occurenceCustomer?.cart?.status) &&
+      state?.week?.isValid &&
+      !noSkip
+
+   return (
+      <>
+         <header tw="my-3 pb-1 border-b flex items-center justify-between">
+            <h4 tw="text-lg text-gray-700">
+               Cart {state?.occurenceCustomer?.validStatus?.addedProductsCount}/
+               {user?.subscription?.recipes?.count}
+            </h4>
+            {isSkippable && (
+               <SkipWeek>
+                  <label htmlFor="skip" tw="mr-2 text-gray-600">
+                     Skip
+                  </label>
+                  <input
+                     name="skip"
+                     type="checkbox"
+                     className="toggle"
+                     onChange={skipWeek}
+                     checked={state?.occurenceCustomer?.isSkipped}
+                     tw="cursor-pointer appearance-none"
+                  />
+               </SkipWeek>
+            )}
+            <button
+               tw="md:hidden rounded-full border-2 border-green-400 h-6 w-6 "
+               onClick={() => setShowSummaryBar(true)}
+            >
+               <CloseIcon size={16} tw="stroke-current text-green-400" />
+            </button>
+         </header>
+         <CartProducts>
+            {state?.occurenceCustomer?.cart?.cartInfo?.products?.map(
+               (product, index) =>
+                  !product.isAddOn && (
+                     <CartProduct
+                        index={index}
+                        product={product}
+                        key={product.cartItemId}
+                     />
+                  )
+            )}
+            {Array.from(
+               {
+                  length:
+                     state?.occurenceCustomer?.validStatus
+                        ?.pendingProductsCount,
+               },
+               (_, index) => (
+                  <SkeletonCartProduct key={index} />
+               )
+            )}
+         </CartProducts>
+         <header tw="my-3 pb-1 border-b flex items-center justify-between">
+            <h4 tw="text-lg text-gray-700">Add Ons</h4>
+            <button tw="text-green-800 uppercase px-3 py-1 rounded-full border text-sm font-medium border-green-400 flex items-center ">
+               Explore
+               <span tw="pl-2">
+                  <PlusIcon size={16} tw="stroke-current text-green-400" />
+               </span>
+            </button>
+         </header>
+         <CartProducts>
+            {state?.occurenceCustomer?.cart?.cartInfo?.products?.map(
+               (product, index) =>
+                  product.isAddOn && (
+                     <CartProduct
+                        index={index}
+                        product={product}
+                        key={product.cartItemId}
+                     />
+                  )
+            )}
+         </CartProducts>
+      </>
    )
 }
 
