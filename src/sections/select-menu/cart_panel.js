@@ -16,11 +16,12 @@ export const CartPanel = ({ noSkip }) => {
    const { state } = useMenu()
    const { addToast } = useToasts()
    const [open, toggle] = React.useState(false)
+   const [showSummaryBar, setShowSummaryBar] = React.useState(true)
    const [updateCartSkipStatus] = useMutation(
       UPSERT_OCCURENCE_CUSTOMER_CART_SKIP,
       {
-         onCompleted: () => {
-            if (week.isSkipped) {
+         onCompleted: ({ upsertOccurenceCustomerCart = {} }) => {
+            if (upsertOccurenceCustomerCart.isSkipped) {
                return addToast('Skipped this week', { appearance: 'warning' })
             }
             addToast('This week is now available for menu selection', {
@@ -35,20 +36,24 @@ export const CartPanel = ({ noSkip }) => {
       }
    )
 
-   const skipWeek = e => {
+   const skipWeek = () => {
       updateCartSkipStatus({
          variables: {
             object: {
                keycloakId: user.keycloakId,
                brand_customerId: user.brandCustomerId,
                subscriptionOccurenceId: state.week.id,
-               isSkipped: Boolean(!occurenceCustomer?.isSkipped),
+               isSkipped: Boolean(!state.occurenceCustomer?.isSkipped),
             },
          },
       })
    }
 
-   const [showSummaryBar, setShowSummaryBar] = React.useState(true)
+   const isSkippable =
+      ['PENDING', undefined].includes(state?.occurenceCustomer?.cart?.status) &&
+      state?.week?.isValid &&
+      !noSkip
+
    return (
       <div>
          {isClient && window.innerWidth < 768 && (
@@ -79,25 +84,21 @@ export const CartPanel = ({ noSkip }) => {
                   {state?.occurenceCustomer?.validStatus?.addedProductsCount}/
                   {user?.subscription?.recipes?.count}
                </h4>
-               {['PENDING', undefined].includes(
-                  state?.occurenceCustomer?.cart?.status
-               ) &&
-                  state?.week?.isValid &&
-                  !noSkip && (
-                     <SkipWeek>
-                        <label htmlFor="skip" tw="mr-2 text-gray-600">
-                           Skip
-                        </label>
-                        <input
-                           name="skip"
-                           type="checkbox"
-                           className="toggle"
-                           onChange={skipWeek}
-                           checked={state?.occurenceCustomer?.isSkipped}
-                           tw="cursor-pointer appearance-none"
-                        />
-                     </SkipWeek>
-                  )}
+               {isSkippable && (
+                  <SkipWeek>
+                     <label htmlFor="skip" tw="mr-2 text-gray-600">
+                        Skip
+                     </label>
+                     <input
+                        name="skip"
+                        type="checkbox"
+                        className="toggle"
+                        onChange={skipWeek}
+                        checked={state?.occurenceCustomer?.isSkipped}
+                        tw="cursor-pointer appearance-none"
+                     />
+                  </SkipWeek>
+               )}
                <button
                   tw="md:hidden rounded-full border-2 border-green-400 h-6 w-6 "
                   onClick={() => setShowSummaryBar(true)}
