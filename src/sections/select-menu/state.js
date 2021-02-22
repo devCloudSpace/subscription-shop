@@ -1,6 +1,7 @@
 import React from 'react'
 import moment from 'moment'
 import { isEmpty } from 'lodash'
+import { v4 as uuidv4 } from 'uuid'
 import { useLocation } from '@reach/router'
 import { useToasts } from 'react-toast-notifications'
 import { useMutation, useQuery, useSubscription } from '@apollo/react-hooks'
@@ -57,7 +58,7 @@ export const MenuProvider = ({ children }) => {
    const { addToast } = useToasts()
    const [cart, setCart] = React.useState({})
    const [state, dispatch] = React.useReducer(reducers, initialState)
-   const { data: { zipcode = {} } = {} } = useQuery(ZIPCODE, {
+   const { data: { zipcode = {} } = {} } = useSubscription(ZIPCODE, {
       skip: !user?.subscriptionId || !user?.defaultAddress?.zipcode,
       variables: {
          subscriptionId: user?.subscriptionId,
@@ -185,9 +186,9 @@ export const MenuProvider = ({ children }) => {
       }
    }, [state.week, occurenceCustomerLoading, occurenceCustomer])
 
-   const removeProduct = (item, index) => {
+   const removeProduct = item => {
       const products = occurenceCustomer?.cart?.cartInfo?.products.filter(
-         (_, i) => i !== index
+         node => node.cartItemId !== item.cartItemId
       )
       upsertCart({
          variables: {
@@ -208,12 +209,6 @@ export const MenuProvider = ({ children }) => {
    }
 
    const addProduct = item => {
-      if (occurenceCustomer?.validStatus?.itemCountValid) {
-         addToast("Your're cart is already full!", {
-            appearance: 'warning',
-         })
-         return
-      }
       if (occurenceCustomer?.validStatus?.hasCart) {
          upsertCart({
             variables: {
@@ -222,7 +217,7 @@ export const MenuProvider = ({ children }) => {
                   cartInfo: {
                      products: [
                         ...occurenceCustomer?.cart?.cartInfo?.products,
-                        item,
+                        { ...item, cartItemId: uuidv4() },
                      ],
                   },
                },

@@ -105,6 +105,59 @@ export const OCCURENCES_BY_SUBSCRIPTION = gql`
    }
 `
 
+export const OCCURENCE_ADDON_PRODUCTS_BY_CATEGORIES = gql`
+   query categories(
+      $subscriptionId: Int_comparison_exp
+      $occurenceId: Int_comparison_exp
+   ) {
+      categories: productCategories(
+         where: {
+            subscriptionOccurenceAddOnProducts: {
+               _or: [
+                  { subscriptionId: $subscriptionId }
+                  { subscriptionOccurenceId: $occurenceId }
+               ]
+               isAvailable: { _eq: true }
+               isVisible: { _eq: true }
+            }
+         }
+      ) {
+         name
+         productsAggregate: subscriptionOccurenceAddOnProducts_aggregate(
+            where: {
+               _or: [
+                  { subscriptionId: $subscriptionId }
+                  { subscriptionOccurenceId: $occurenceId }
+               ]
+            }
+         ) {
+            aggregate {
+               count
+            }
+            nodes {
+               id
+               cartItem
+               isSingleSelect
+               simpleRecipeProductOption {
+                  id
+                  simpleRecipeYieldId
+                  simpleRecipeProduct {
+                     additionalText
+                  }
+               }
+               inventoryProductOption {
+                  id
+                  quantity
+                  inventoryProduct {
+                     additionalText
+                  }
+               }
+            }
+         }
+      }
+   }
+`
+
 export const OCCURENCE_PRODUCTS_BY_CATEGORIES = gql`
    query categories(
       $subscriptionId: Int_comparison_exp
@@ -229,17 +282,15 @@ export const CART_BY_WEEK = gql`
 `
 
 export const ZIPCODE = gql`
-   query zipcode($subscriptionId: Int!, $zipcode: String!) {
+   subscription zipcode($subscriptionId: Int!, $zipcode: String!) {
       zipcode: subscription_subscription_zipcode_by_pk(
          subscriptionId: $subscriptionId
          zipcode: $zipcode
       ) {
          deliveryTime
          deliveryPrice
-         isDeliveryActive
-         deliveryTime
-         deliveryPrice
          isPickupActive
+         isDeliveryActive
          defaultAutoSelectFulfillmentMode
          pickupOptionId: subscriptionPickupOptionId
          pickupOption: subscriptionPickupOption {

@@ -1,21 +1,37 @@
 import React from 'react'
 import moment from 'moment'
+import { Link } from 'gatsby'
+import { uniqBy } from 'lodash'
 import tw, { styled, css } from 'twin.macro'
 import { useToasts } from 'react-toast-notifications'
-import { useMutation } from '@apollo/react-hooks'
+import { useQuery, useMutation, useSubscription } from '@apollo/react-hooks'
 
 import { useMenu } from './state'
+import { useConfig } from '../../lib'
 import { useUser } from '../../context'
-import { HelperBar } from '../../components'
-import { CloseIcon, MinusIcon, PlusIcon } from '../../assets/icons'
+import { HelperBar, Tunnel, Button, Loader } from '../../components'
+import { CheckIcon, CloseIcon, MinusIcon, PlusIcon } from '../../assets/icons'
 import { isClient, formatCurrency, normalizeAddress } from '../../utils'
-import { UPSERT_OCCURENCE_CUSTOMER_CART_SKIP } from '../../graphql'
+import {
+   ZIPCODE,
+   UPDATE_CART,
+   UPSERT_OCCURENCE_CUSTOMER_CART_SKIP,
+   OCCURENCE_ADDON_PRODUCTS_BY_CATEGORIES,
+} from '../../graphql'
 
 export const CartPanel = ({ noSkip }) => {
    const { user } = useUser()
    const { state } = useMenu()
    const [open, toggle] = React.useState(false)
    const [showSummaryBar, setShowSummaryBar] = React.useState(true)
+   const [updateCart] = useMutation(UPDATE_CART)
+   const { loading, data: { zipcode = {} } = {} } = useSubscription(ZIPCODE, {
+      variables: {
+         subscriptionId: user?.subscriptionId,
+         zipcode: user?.defaultAddress?.zipcode,
+      },
+   })
+
    return (
       <div>
          {isClient && window.innerWidth < 768 && (
@@ -41,6 +57,82 @@ export const CartPanel = ({ noSkip }) => {
          />
          <CartWrapper showSummaryBar={showSummaryBar}>
             <Products noSkip={noSkip} setShowSummaryBar={setShowSummaryBar} />
+            <section tw="mt-3">
+               <h4 tw="text-lg text-gray-700 border-b mb-2">
+                  Fulfillment Mode
+               </h4>
+               {loading ? (
+                  <Loader inline />
+               ) : (
+                  <section tw="space-y-2">
+                     {zipcode.isDeliveryActive && (
+                        <FulfillmentOption
+                           onClick={() => setFulfillment('DELIVERY')}
+                        >
+                           <aside>
+                              <CheckIcon
+                                 size={18}
+                                 tw="stroke-2 stroke-current text-gray-400"
+                              />
+                           </aside>
+                           <main>
+                              {zipcode.deliveryPrice === 0 ? (
+                                 <h3>Free Delivery</h3>
+                              ) : (
+                                 <h3>
+                                    Delivery at{' '}
+                                    {formatCurrency(zipcode.deliveryPrice)}
+                                 </h3>
+                              )}
+                              <p tw="text-gray-500 text-sm">
+                                 Your box will be delivered on{' '}
+                                 <span>
+                                    {moment(
+                                       state?.week?.fulfillmentDate
+                                    ).format('MMM D')}
+                                    &nbsp;between {zipcode?.deliveryTime?.from}
+                                    &nbsp;-&nbsp;
+                                    {zipcode?.deliveryTime?.to}
+                                 </span>{' '}
+                                 at{' '}
+                                 <span>
+                                    {normalizeAddress(
+                                       state?.occurenceCustomer?.cart?.address
+                                    )}
+                                 </span>
+                              </p>
+                           </main>
+                        </FulfillmentOption>
+                     )}
+                     {zipcode.isPickupActive && zipcode?.pickupOptionId && (
+                        <FulfillmentOption
+                           onClick={() => setFulfillment('PICKUP')}
+                        >
+                           <aside>
+                              <CheckIcon
+                                 size={18}
+                                 tw="stroke-2 stroke-current text-gray-400"
+                              />
+                           </aside>
+                           <main>
+                              <h3>Pick Up</h3>
+                              <p tw="text-gray-500 text-sm">
+                                 Pickup your box in between{' '}
+                                 {moment(state?.week?.fulfillmentDate).format(
+                                    'MMM D'
+                                 )}
+                                 , {zipcode?.pickupOption?.time?.from} -{' '}
+                                 {zipcode?.pickupOption?.time?.to} from{' '}
+                                 {normalizeAddress(
+                                    zipcode?.pickupOption?.address
+                                 )}
+                              </p>
+                           </main>
+                        </FulfillmentOption>
+                     )}
+                  </section>
+               )}
+            </section>
             <header tw="mb-3 h-10 flex items-center justify-between">
                <h4 tw="text-lg text-gray-700">
                   Your Weekly Total:{' '}
@@ -51,16 +143,24 @@ export const CartPanel = ({ noSkip }) => {
                        )
                      : 'N/A'}
                </h4>
-               <button
-                  onClick={() => toggle(!open)}
-                  tw="border w-8 h-6 rounded-full flex items-center justify-center border-green-500"
-               >
-                  {open ? (
-                     <MinusIcon tw="stroke-current text-green-700" size={18} />
-                  ) : (
-                     <PlusIcon tw="stroke-current text-green-700" size={18} />
-                  )}
-               </button>
+               {state?.occurenceCustomer?.validStatus?.itemCountValid && (
+                  <button
+                     onClick={() => toggle(!open)}
+                     tw="focus:outline-none border w-8 h-6 rounded-full flex items-center justify-center border-green-500"
+                  >
+                     {open ? (
+                        <MinusIcon
+                           tw="stroke-current text-green-700"
+                           size={18}
+                        />
+                     ) : (
+                        <PlusIcon
+                           tw="stroke-current text-green-700"
+                           size={18}
+                        />
+                     )}
+                  </button>
+               )}
             </header>
             {state?.occurenceCustomer?.validStatus?.itemCountValid && open && (
                <BillingDetails />
@@ -74,24 +174,6 @@ export const CartPanel = ({ noSkip }) => {
                   </HelperBar.SubTitle>
                </HelperBar>
             )}
-            <div tw="mt-4 text-gray-500">
-               * Your box will be delivered on{' '}
-               <span>
-                  {moment(state?.week?.fulfillmentDate).format('MMM D')}
-                  &nbsp;between{' '}
-                  {moment(
-                     state?.occurenceCustomer?.cart?.fulfillmentInfo?.slot?.from
-                  ).format('hh:mm A')}
-                  &nbsp;-&nbsp;
-                  {moment(
-                     state?.occurenceCustomer?.cart?.fulfillmentInfo?.slot?.to
-                  ).format('hh:mm A')}
-               </span>{' '}
-               at{' '}
-               <span>
-                  {normalizeAddress(state?.occurenceCustomer?.cart?.address)}
-               </span>
-            </div>
          </CartWrapper>
       </div>
    )
@@ -101,6 +183,7 @@ const Products = ({ noSkip, setShowSummaryBar }) => {
    const { user } = useUser()
    const { state } = useMenu()
    const { addToast } = useToasts()
+   const [tunnel, toggleTunnel] = React.useState(false)
    const [updateCartSkipStatus] = useMutation(
       UPSERT_OCCURENCE_CUSTOMER_CART_SKIP,
       {
@@ -191,7 +274,10 @@ const Products = ({ noSkip, setShowSummaryBar }) => {
          </CartProducts>
          <header tw="my-3 pb-1 border-b flex items-center justify-between">
             <h4 tw="text-lg text-gray-700">Add Ons</h4>
-            <button tw="text-green-800 uppercase px-3 py-1 rounded-full border text-sm font-medium border-green-400 flex items-center ">
+            <button
+               onClick={() => toggleTunnel(true)}
+               tw="text-green-800 uppercase px-3 py-1 rounded-full border text-sm font-medium border-green-400 flex items-center"
+            >
                Explore
                <span tw="pl-2">
                   <PlusIcon size={16} tw="stroke-current text-green-400" />
@@ -210,7 +296,85 @@ const Products = ({ noSkip, setShowSummaryBar }) => {
                   )
             )}
          </CartProducts>
+         {tunnel && (
+            <Tunnel
+               size="md"
+               isOpen={tunnel}
+               toggleTunnel={() => toggleTunnel(false)}
+            >
+               <Tunnel.Header title="Add Ons">
+                  <Button size="sm" onClick={() => toggleTunnel(false)}>
+                     <CloseIcon size={20} tw="stroke-current" />
+                  </Button>
+               </Tunnel.Header>
+               <Tunnel.Body>
+                  <AddOns />
+               </Tunnel.Body>
+            </Tunnel>
+         )}
       </>
+   )
+}
+
+const AddOns = () => {
+   const { user } = useUser()
+   const { state } = useMenu()
+   const { configOf } = useConfig()
+
+   const { loading, data: { categories = [] } = {} } = useQuery(
+      OCCURENCE_ADDON_PRODUCTS_BY_CATEGORIES,
+      {
+         variables: {
+            occurenceId: { _eq: state?.week?.id },
+            subscriptionId: { _eq: user?.subscriptionId },
+         },
+         onError: error => {
+            addToast(error.message, {
+               appearance: 'error',
+            })
+         },
+      }
+   )
+
+   const isAdded = id => {
+      const products = state.occurenceCustomer?.cart?.cartInfo?.products || []
+
+      const index = products?.findIndex(
+         node => node.subscriptionOccurenceProductId === id
+      )
+      return index === -1 ? false : true
+   }
+
+   const theme = configOf('theme-color', 'Visual')
+   if (loading) return <Loader inline />
+   return (
+      <div>
+         {categories.map(category => (
+            <section key={category.name} css={tw`mb-8`}>
+               <h4 css={tw`text-lg text-gray-700 my-3 pb-1 border-b`}>
+                  {category.name} (
+                  {
+                     uniqBy(category.productsAggregate.nodes, v =>
+                        [v?.cartItem?.id, v?.cartItem?.option?.id].join()
+                     ).length
+                  }
+                  )
+               </h4>
+               <AddOnProducts>
+                  {uniqBy(category.productsAggregate.nodes, v =>
+                     [v?.cartItem?.id, v?.cartItem?.option?.id].join()
+                  ).map((node, index) => (
+                     <AddOnProduct
+                        node={node}
+                        theme={theme}
+                        key={node.id}
+                        isAdded={isAdded}
+                     />
+                  ))}
+               </AddOnProducts>
+            </section>
+         ))}
+      </div>
    )
 }
 
@@ -381,9 +545,7 @@ const CartProduct = ({ product, index }) => {
             ) &&
                state?.week?.isValid && (
                   <span className="remove_product">
-                     <button
-                        onClick={() => methods.products.delete(product, index)}
-                     >
+                     <button onClick={() => methods.products.delete(product)}>
                         <CloseIcon
                            size={16}
                            tw="stroke-current text-green-400"
@@ -400,6 +562,104 @@ const CartProduct = ({ product, index }) => {
       </CartProductContainer>
    )
 }
+
+const AddOnProduct = ({ node, isAdded, theme }) => {
+   const { state, methods } = useMenu()
+   const type = node?.simpleRecipeProductOption?.id ? 'SRP' : 'IP'
+   const option =
+      type === 'SRP'
+         ? node.simpleRecipeProductOption
+         : node.inventoryProductOption
+
+   const canAdd = () => {
+      const conditions = [!node.isSingleSelect, state?.week?.isValid]
+      return (
+         conditions.every(node => node) ||
+         ['PENDING', undefined].includes(state.occurenceCustomer?.cart?.status)
+      )
+   }
+   return (
+      <Styles.Product
+         theme={theme}
+         className={`${isAdded(node?.id) ? 'active' : ''}`}
+      >
+         <div
+            css={tw`flex items-center justify-center h-48 bg-gray-200 mb-2 rounded overflow-hidden`}
+         >
+            {node?.cartItem?.image ? (
+               <img
+                  alt={node?.cartItem?.name}
+                  title={node?.cartItem?.name}
+                  src={node?.cartItem?.image}
+                  css={tw`h-full w-full object-cover select-none`}
+               />
+            ) : (
+               <span>No Photos</span>
+            )}
+         </div>
+         <div css={tw`flex items-center justify-between`}>
+            <section tw="flex items-center">
+               <Check
+                  size={16}
+                  tw="flex-shrink-0"
+                  className={`${isAdded(node?.id) ? 'active' : ''}`}
+               />
+               <Link
+                  tw="text-gray-700"
+                  to={`/subscription/${
+                     type === 'SRP' ? 'recipes' : 'inventory'
+                  }?id=${node?.cartItem?.id}${
+                     type === 'SRP'
+                        ? `&serving=${option?.simpleRecipeYieldId}`
+                        : `&option=${option?.id}`
+                  }`}
+               >
+                  {node?.cartItem?.name}
+               </Link>
+            </section>
+            {canAdd() && (
+               <button
+                  onClick={() => methods.products.add(node.cartItem)}
+                  tw="text-sm uppercase font-medium tracking-wider border border-gray-300 rounded px-1 text-gray-500"
+               >
+                  {isAdded(node?.id) ? 'Add Again' : 'Add'}
+               </button>
+            )}
+         </div>
+         <p>
+            {type === 'SRP'
+               ? option?.simpleRecipeProduct?.additionalText
+               : option?.inventoryProduct?.additionalText}
+         </p>
+      </Styles.Product>
+   )
+}
+
+const Styles = {
+   Product: styled.li(
+      ({ theme }) => css`
+         ${tw`relative border flex flex-col bg-white p-2 rounded overflow-hidden`}
+         &.active {
+            ${tw`border border-2 border-red-400`}
+            border-color: ${theme?.highlight ? theme.highlight : '#38a169'}
+         }
+      `
+   ),
+}
+
+const Check = styled(CheckIcon)(
+   () => css`
+      ${tw`mr-2 stroke-current text-gray-300`}
+      &.active {
+         ${tw`text-green-700`}
+      }
+   `
+)
+
+const AddOnProducts = styled.ul`
+   ${tw`grid gap-3`}
+   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+`
 
 const CartProducts = styled.ul`
    ${tw`space-y-2`}
@@ -513,5 +773,12 @@ const Overlay = styled.div(
 const Table = styled.table`
    tr:nth-child(even) {
       ${tw`bg-gray-100`}
+   }
+`
+
+const FulfillmentOption = styled.section`
+   ${tw`py-2 pr-2 rounded cursor-pointer flex items-center border text-gray-700`}
+   aside {
+      ${tw`flex-shrink-0 h-10 w-10 flex items-center justify-center`}
    }
 `

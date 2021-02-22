@@ -94,6 +94,16 @@ const Product = ({ node, isAdded, theme }) => {
          ? node.simpleRecipeProductOption
          : node.inventoryProductOption
 
+   const add = item => {
+      if (state.occurenceCustomer?.validStatus?.itemCountValid) {
+         addToast("Your're cart is already full!", {
+            appearance: 'warning',
+         })
+         return
+      }
+      methods.products.add(item)
+   }
+
    const canAdd = () => {
       const conditions = [
          !node.isSingleSelect,
@@ -151,7 +161,7 @@ const Product = ({ node, isAdded, theme }) => {
             </section>
             {canAdd() && (
                <button
-                  onClick={() => methods.products.add(node.cartItem)}
+                  onClick={() => add(node.cartItem)}
                   tw="text-sm uppercase font-medium tracking-wider border border-gray-300 rounded px-1 text-gray-500"
                >
                   {isAdded(node?.id) ? 'Add Again' : 'Add'}
