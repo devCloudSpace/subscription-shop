@@ -2,34 +2,23 @@ import React from 'react'
 import moment from 'moment'
 import tw, { styled, css } from 'twin.macro'
 import { useToasts } from 'react-toast-notifications'
-import { useQuery, useMutation } from '@apollo/react-hooks'
+import { useMutation } from '@apollo/react-hooks'
 
 import { useMenu } from './state'
-import { useConfig } from '../../lib'
 import { useUser } from '../../context'
 import { HelperBar } from '../../components'
-import { CloseIcon, PlusIcon } from '../../assets/icons'
-import {
-   isClient,
-   formatCurrency,
-   formatDate,
-   normalizeAddress,
-} from '../../utils'
-import { ZIPCODE, UPSERT_OCCURENCE_CUSTOMER_CART_SKIP } from '../../graphql'
-
-const evalTime = (date, time) => {
-   const [hour, minute] = time.split(':')
-   return moment(date).hour(hour).minute(minute).second(0).toISOString()
-}
+import { CloseIcon, MinusIcon, PlusIcon } from '../../assets/icons'
+import { isClient, formatCurrency, normalizeAddress } from '../../utils'
+import { UPSERT_OCCURENCE_CUSTOMER_CART_SKIP } from '../../graphql'
 
 export const CartPanel = ({ noSkip }) => {
    const { user } = useUser()
    const { state } = useMenu()
    const { addToast } = useToasts()
+   const [open, toggle] = React.useState(false)
    const [updateCartSkipStatus] = useMutation(
       UPSERT_OCCURENCE_CUSTOMER_CART_SKIP,
       {
-         refetchQueries: ['subscriptionOccurenceCustomer'],
          onCompleted: () => {
             if (week.isSkipped) {
                return addToast('Skipped this week', { appearance: 'warning' })
@@ -159,17 +148,28 @@ export const CartPanel = ({ noSkip }) => {
                      )
                )}
             </CartProducts>
-            <header>
-               <h4 tw="text-lg text-gray-700 my-3 pb-1">
+            <header tw="mb-3 h-10 flex items-center justify-between">
+               <h4 tw="text-lg text-gray-700">
                   Your Weekly Total:{' '}
                   {state?.occurenceCustomer?.validStatus?.itemCountValid
-                     ? state?.occurenceCustomer?.billingDetails?.totalPrice
-                          ?.value
+                     ? formatCurrency(
+                          state?.occurenceCustomer?.cart?.billingDetails
+                             ?.totalPrice?.value
+                       )
                      : 'N/A'}
                </h4>
-               <button></button>
+               <button
+                  onClick={() => toggle(!open)}
+                  tw="border w-8 h-6 rounded-full flex items-center justify-center border-green-500"
+               >
+                  {open ? (
+                     <MinusIcon tw="stroke-current text-green-700" size={18} />
+                  ) : (
+                     <PlusIcon tw="stroke-current text-green-700" size={18} />
+                  )}
+               </button>
             </header>
-            {state?.occurenceCustomer?.validStatus?.itemCountValid && (
+            {state?.occurenceCustomer?.validStatus?.itemCountValid && open && (
                <BillingDetails />
             )}
             {['ORDER_PLACED', 'PROCESS'].includes(
@@ -214,7 +214,7 @@ const BillingDetails = () => {
    } = useMenu()
 
    return (
-      <table tw="my-3 w-full table-auto">
+      <Table tw="my-3 w-full table-auto">
          <tbody>
             <tr>
                <td
@@ -333,7 +333,7 @@ const BillingDetails = () => {
                </td>
             </tr>
          </tbody>
-      </table>
+      </Table>
    )
 }
 
@@ -429,31 +429,6 @@ const CartProductContainer = styled.li`
    }
 `
 
-const SaveButton = styled.button(
-   ({ disabled, bg, small }) => css`
-      ${tw`
-      h-10
-      w-full
-      rounded
-      text-white
-      text-center
-      bg-green-500
-   `}
-      ${bg && `background-color: ${bg};`}
-      ${disabled &&
-      tw`
-         h-10
-         w-full
-         rounded
-         text-gray-600
-         text-center
-         bg-gray-200
-         cursor-not-allowed 
-      `}
-      ${small && ` width: max-content; padding: 0 2rem`}
-   `
-)
-
 const SkipWeek = styled.span(
    () => css`
       ${tw`flex items-center`}
@@ -524,3 +499,9 @@ const Overlay = styled.div(
       }
    `
 )
+
+const Table = styled.table`
+   tr:nth-child(even) {
+      ${tw`bg-gray-100`}
+   }
+`
