@@ -1,4 +1,5 @@
 import React from 'react'
+import moment from 'moment'
 import { navigate } from 'gatsby'
 import tw, { styled, css } from 'twin.macro'
 import { useToasts } from 'react-toast-notifications'
@@ -6,12 +7,7 @@ import { useMutation, useQuery } from '@apollo/react-hooks'
 
 import { useConfig } from '../../../lib'
 import { SEO, Layout, StepsNavbar } from '../../../components'
-import {
-   isClient,
-   formatDate,
-   formatCurrency,
-   normalizeAddress,
-} from '../../../utils'
+import { isClient, formatCurrency, normalizeAddress } from '../../../utils'
 import {
    usePayment,
    ProfileSection,
@@ -19,6 +15,7 @@ import {
    PaymentSection,
 } from '../../../sections/checkout'
 import { useUser } from '../../../context'
+import { CheckIcon } from '../../../assets/icons'
 import {
    CART,
    BRAND,
@@ -26,6 +23,7 @@ import {
    UPDATE_CUSTOMER,
    UPDATE_DAILYKEY_CUSTOMER,
 } from '../../../graphql'
+import { BillingDetails } from '../../../sections/select-menu/cart_panel'
 
 const Checkout = () => {
    const { isAuthenticated } = useUser()
@@ -158,45 +156,84 @@ const PaymentContent = ({ isCheckout }) => {
          </section>
          {cart?.cartInfo && (
             <section>
-               <header tw="my-3 pb-1 border-b flex items-center justify-between">
-                  <SectionTitle theme={theme}>
-                     Order Summary ({cart.cartInfo.products.length})
-                  </SectionTitle>
-               </header>
-               <CartProducts>
-                  {cart.cartInfo.products.map(product => (
-                     <CartProduct
-                        product={product}
-                        key={`product-${product.cartItemId}`}
-                     />
-                  ))}
-               </CartProducts>
+               <section>
+                  <header tw="my-3 pb-1 border-b flex items-center justify-between">
+                     <h4 tw="text-lg text-gray-700">
+                        Your Box ({user?.subscription?.recipes?.count})
+                     </h4>
+                  </header>
+                  <CartProducts>
+                     {cart?.cartInfo?.products?.map(
+                        product =>
+                           !product.isAddOn && (
+                              <CartProduct
+                                 product={product}
+                                 key={product.cartItemId}
+                              />
+                           )
+                     )}
+                  </CartProducts>
+               </section>
+               <section tw="mb-3">
+                  <header tw="my-3 pb-1 border-b flex items-center justify-between">
+                     <h4 tw="text-lg text-gray-700">Your Add Ons</h4>
+                  </header>
+                  <CartProducts>
+                     {cart?.cartInfo?.products?.map(
+                        product =>
+                           product.isAddOn && (
+                              <CartProduct
+                                 product={product}
+                                 key={product.cartItemId}
+                              />
+                           )
+                     )}
+                  </CartProducts>
+               </section>
+               <BillingDetails billing={cart?.billingDetails} />
                <Button
-                  onClick={handleSubmit}
                   bg={theme?.accent}
+                  onClick={handleSubmit}
                   disabled={!Boolean(isValid())}
                >
                   Confirm & Pay {formatCurrency(cart.totalPrice)}
                </Button>
-               <section tw="my-4 text-gray-700">
-                  * Your box will be delivered on{' '}
-                  <span>
-                     {formatDate(cart.fulfillmentInfo.slot.from, {
-                        month: 'short',
-                        day: 'numeric',
-                     })}
-                     &nbsp;between{' '}
-                     {formatDate(cart.fulfillmentInfo.slot.from, {
-                        minute: 'numeric',
-                        hour: 'numeric',
-                     })}
-                     &nbsp;-&nbsp;
-                     {formatDate(cart.fulfillmentInfo.slot.to, {
-                        minute: 'numeric',
-                        hour: 'numeric',
-                     })}
-                  </span>{' '}
-                  at <span>{normalizeAddress(user.defaultAddress)}</span>
+               <section tw="my-3">
+                  {cart?.fulfillmentInfo?.type.includes('DELIVERY') ? (
+                     <p tw="text-gray-500 text-sm">
+                        Your box will be delivered on{' '}
+                        <span>
+                           {moment(cart?.fulfillmentInfo?.slot?.from).format(
+                              'MMM D'
+                           )}
+                           &nbsp;between{' '}
+                           {moment(cart?.fulfillmentInfo?.slot?.from).format(
+                              'hh:mm A'
+                           )}
+                           &nbsp;-&nbsp;
+                           {moment(cart?.fulfillmentInfo?.slot?.to).format(
+                              'hh:mm A'
+                           )}
+                        </span>{' '}
+                        at <span>{normalizeAddress(cart?.address)}</span>
+                     </p>
+                  ) : (
+                     <p tw="text-gray-500 text-sm">
+                        Pickup your box in between{' '}
+                        {moment(
+                           cart?.billingDetails?.deliveryPrice?.value
+                        ).format('MMM D')}
+                        ,{' '}
+                        {moment(cart?.fulfillmentInfo?.slot?.from).format(
+                           'hh:mm A'
+                        )}{' '}
+                        -{' '}
+                        {moment(cart?.fulfillmentInfo?.slot?.to).format(
+                           'hh:mm A'
+                        )}{' '}
+                        from {normalizeAddress(cart?.fulfillmentInfo?.address)}
+                     </p>
+                  )}
                </section>
             </section>
          )}
@@ -223,10 +260,18 @@ const CartProduct = ({ product }) => {
                </span>
             )}
          </aside>
-         <main tw="h-16 pl-3">
-            <p tw="truncate text-gray-800" title={product.name}>
+         <main tw="pl-3">
+            <p tw="text-gray-800" title={product.name}>
                {product.name}
             </p>
+            {product.isAddOn && (
+               <p tw="text-green-600">{formatCurrency(product.unitPrice)}</p>
+            )}
+            {!product.isAddOn && product.isAutoAdded && (
+               <span tw="text-sm px-1 rounded bg-gray-200 text-gray-600 border border-gray-200">
+                  Auto Selected
+               </span>
+            )}
          </main>
       </CartProductContainer>
    )
@@ -238,19 +283,6 @@ const SectionTitle = styled.h3(
       ${theme?.accent && `color: ${theme.accent}`}
    `
 )
-
-const CartProducts = styled.ul`
-   ${tw`space-y-2 mb-3`}
-   overflow-y: auto;
-   max-height: 257px;
-`
-
-const CartProductContainer = styled.li`
-   ${tw`h-20 bg-white border flex items-center px-2 rounded`}
-   aside {
-      ${tw`w-24 h-16 bg-gray-300 rounded flex items-center justify-center`}
-   }
-`
 
 const Main = styled.main`
    margin: auto;
@@ -267,7 +299,33 @@ const Main = styled.main`
 const Button = styled.button(
    ({ disabled, bg }) => css`
       ${tw`w-full h-10 rounded px-3 text-white bg-green-600`}
-      ${disabled && tw`cursor-not-allowed bg-green-300`}
       ${bg && `background-color: ${bg};`}
+      ${disabled && tw`cursor-not-allowed bg-gray-400`}
    `
 )
+
+const CartProducts = styled.ul`
+   ${tw`space-y-2`}
+   overflow-y: auto;
+   max-height: 257px;
+`
+
+const CartProductContainer = styled.li`
+   ${tw`h-auto py-2 bg-white border flex items-start px-2 rounded`}
+   aside {
+      ${tw`w-24 h-16 bg-gray-300 rounded flex items-start justify-center`}
+      span.remove_product {
+         display: none;
+         background: rgba(0, 0, 0, 0.3);
+         ${tw`absolute h-full w-full items-center justify-center`}
+         button {
+            ${tw`bg-white h-6 w-6 rounded-full flex items-center justify-center`}
+         }
+      }
+      :hover {
+         span.remove_product {
+            display: flex;
+         }
+      }
+   }
+`

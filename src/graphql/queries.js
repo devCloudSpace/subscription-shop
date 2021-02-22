@@ -313,6 +313,7 @@ export const CART = gql`
          cartInfo
          totalPrice
          deliveryPrice
+         billingDetails
          fulfillmentInfo
       }
    }

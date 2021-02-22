@@ -1,6 +1,6 @@
 import React from 'react'
 import moment from 'moment'
-import { Link } from 'gatsby'
+import { Link, navigate } from 'gatsby'
 import { uniqBy } from 'lodash'
 import tw, { styled, css } from 'twin.macro'
 import { useToasts } from 'react-toast-notifications'
@@ -24,12 +24,13 @@ const evalTime = (date, time) => {
    return moment(date).hour(hour).minute(minute).second(0).toISOString()
 }
 
-export const CartPanel = ({ noSkip }) => {
+export const CartPanel = ({ noSkip, isCheckout }) => {
    const { user } = useUser()
    const { state } = useMenu()
+   const { configOf } = useConfig()
+   const [updateCart] = useMutation(UPDATE_CART)
    const [open, toggle] = React.useState(false)
    const [showSummaryBar, setShowSummaryBar] = React.useState(true)
-   const [updateCart] = useMutation(UPDATE_CART)
    const { loading, data: { zipcode = {} } = {} } = useSubscription(ZIPCODE, {
       variables: {
          subscriptionId: user?.subscriptionId,
@@ -83,6 +84,8 @@ export const CartPanel = ({ noSkip }) => {
          },
       })
    }
+
+   const theme = configOf('theme-color', 'Visual')
 
    return (
       <div>
@@ -221,7 +224,9 @@ export const CartPanel = ({ noSkip }) => {
                )}
             </header>
             {state?.occurenceCustomer?.validStatus?.itemCountValid && open && (
-               <BillingDetails />
+               <BillingDetails
+                  billing={state.occurenceCustomer?.cart?.billingDetails}
+               />
             )}
             {['ORDER_PLACED', 'PROCESS'].includes(
                state?.occurenceCustomer?.cart?.status
@@ -233,6 +238,18 @@ export const CartPanel = ({ noSkip }) => {
                </HelperBar>
             )}
          </CartWrapper>
+         {isCheckout && (
+            <SaveButton
+               bg={theme?.accent}
+               onClick={() => navigate('/subscription/get-started/checkout/')}
+               disabled={
+                  !state?.week?.isValid ||
+                  !state.occurenceCustomer?.validStatus?.itemCountValid
+               }
+            >
+               Proceed to Checkout
+            </SaveButton>
+         )}
       </div>
    )
 }
@@ -283,7 +300,8 @@ const Products = ({ noSkip, setShowSummaryBar }) => {
       <>
          <header tw="my-3 pb-1 border-b flex items-center justify-between">
             <h4 tw="text-lg text-gray-700">
-               Cart {state?.occurenceCustomer?.validStatus?.addedProductsCount}/
+               Your Box{' '}
+               {state?.occurenceCustomer?.validStatus?.addedProductsCount}/
                {user?.subscription?.recipes?.count}
             </h4>
             {isSkippable && (
@@ -310,13 +328,9 @@ const Products = ({ noSkip, setShowSummaryBar }) => {
          </header>
          <CartProducts>
             {state?.occurenceCustomer?.cart?.cartInfo?.products?.map(
-               (product, index) =>
+               product =>
                   !product.isAddOn && (
-                     <CartProduct
-                        index={index}
-                        product={product}
-                        key={product.cartItemId}
-                     />
+                     <CartProduct product={product} key={product.cartItemId} />
                   )
             )}
             {Array.from(
@@ -331,7 +345,7 @@ const Products = ({ noSkip, setShowSummaryBar }) => {
             )}
          </CartProducts>
          <header tw="my-3 pb-1 border-b flex items-center justify-between">
-            <h4 tw="text-lg text-gray-700">Add Ons</h4>
+            <h4 tw="text-lg text-gray-700">Your Add Ons</h4>
             <button
                onClick={() => toggleTunnel(true)}
                tw="text-green-800 uppercase px-3 py-1 rounded-full border text-sm font-medium border-green-400 flex items-center"
@@ -344,13 +358,9 @@ const Products = ({ noSkip, setShowSummaryBar }) => {
          </header>
          <CartProducts>
             {state?.occurenceCustomer?.cart?.cartInfo?.products?.map(
-               (product, index) =>
+               product =>
                   product.isAddOn && (
-                     <CartProduct
-                        index={index}
-                        product={product}
-                        key={product.cartItemId}
-                     />
+                     <CartProduct product={product} key={product.cartItemId} />
                   )
             )}
          </CartProducts>
@@ -436,17 +446,9 @@ const AddOns = () => {
    )
 }
 
-const BillingDetails = () => {
-   const {
-      state: {
-         occurenceCustomer: {
-            cart: { billingDetails: billing = {} } = {},
-         } = {},
-      } = {},
-   } = useMenu()
-
+export const BillingDetails = ({ billing }) => {
    return (
-      <Table tw="mt-3 w-full table-auto">
+      <Table tw="my-3 w-full table-auto">
          <tbody>
             <tr>
                <td
@@ -581,7 +583,7 @@ const SkeletonCartProduct = () => {
    )
 }
 
-const CartProduct = ({ product, index }) => {
+const CartProduct = ({ product }) => {
    const { state, methods } = useMenu()
    return (
       <CartProductContainer>
@@ -796,6 +798,7 @@ const SkipWeek = styled.span(
 const SummaryBar = styled.div`
    ${tw`md:hidden fixed left-0 right-0 bottom-0 z-10 bg-white flex p-3 border-2 justify-between items-center`}
 `
+
 const CartWrapper = styled.section(
    ({ showSummaryBar }) => css`
       @media (max-width: 786px) {
@@ -860,3 +863,27 @@ const FulfillmentOption = styled.section`
          ${tw`border-2 border-green-600`}
       `}
 `
+
+const SaveButton = styled.button(
+   ({ disabled, bg }) => css`
+      ${tw`
+      h-10
+      w-full
+      rounded
+      text-white
+      text-center
+      bg-green-500
+   `}
+      ${bg && `background-color: ${bg};`}
+      ${disabled &&
+      tw`
+         h-10
+         w-full
+         rounded
+         text-gray-600
+         text-center
+         bg-gray-200
+         cursor-not-allowed 
+      `}
+   `
+)

@@ -1,11 +1,11 @@
 import React from 'react'
-import { navigate } from 'gatsby'
+import moment from 'moment'
 import tw, { styled, css } from 'twin.macro'
 import { useSubscription } from '@apollo/react-hooks'
 
 import { useConfig } from '../../../lib'
 import { CART_STATUS } from '../../../graphql'
-import { isClient, formatDate } from '../../../utils'
+import { isClient, normalizeAddress } from '../../../utils'
 import { Layout, SEO, Loader, HelperBar } from '../../../components'
 import { PlacedOrderIllo, CartIllo, PaymentIllo } from '../../../assets/icons'
 
@@ -60,39 +60,51 @@ const PlacingOrder = () => {
                                     />
                                  ))}
                               </CartProducts>
-                              <section tw="my-4 text-gray-700">
-                                 * Your box will be delivered on{' '}
-                                 <span>
-                                    {formatDate(
-                                       cart.fulfillmentInfo.slot.from,
-                                       {
-                                          month: 'short',
-                                          day: 'numeric',
-                                       }
-                                    )}
-                                    &nbsp;between{' '}
-                                    {formatDate(
-                                       cart.fulfillmentInfo.slot.from,
-                                       {
-                                          minute: 'numeric',
-                                          hour: 'numeric',
-                                       }
-                                    )}
-                                    &nbsp;-&nbsp;
-                                    {formatDate(cart.fulfillmentInfo.slot.to, {
-                                       minute: 'numeric',
-                                       hour: 'numeric',
-                                    })}
-                                 </span>{' '}
-                                 at{' '}
-                                 <span>
-                                    {cart.address?.line1},&nbsp;
-                                    {cart.address?.line2 &&
-                                       `, ${cart.address?.line2}`}
-                                    {cart.address?.city}, {cart.address?.state}
-                                    ,&nbsp;
-                                    {cart.address?.zipcode}
-                                 </span>
+                              <section tw="my-3">
+                                 {cart?.fulfillmentInfo?.type.includes(
+                                    'DELIVERY'
+                                 ) ? (
+                                    <p tw="text-gray-500 text-sm">
+                                       Your box will be delivered on{' '}
+                                       <span>
+                                          {moment(
+                                             cart?.fulfillmentInfo?.slot?.from
+                                          ).format('MMM D')}
+                                          &nbsp;between{' '}
+                                          {moment(
+                                             cart?.fulfillmentInfo?.slot?.from
+                                          ).format('hh:mm A')}
+                                          &nbsp;-&nbsp;
+                                          {moment(
+                                             cart?.fulfillmentInfo?.slot?.to
+                                          ).format('hh:mm A')}
+                                       </span>{' '}
+                                       at{' '}
+                                       <span>
+                                          {normalizeAddress(cart?.address)}
+                                       </span>
+                                    </p>
+                                 ) : (
+                                    <p tw="text-gray-500 text-sm">
+                                       Pickup your box in between{' '}
+                                       {moment(
+                                          cart?.billingDetails?.deliveryPrice
+                                             ?.value
+                                       ).format('MMM D')}
+                                       ,{' '}
+                                       {moment(
+                                          cart?.fulfillmentInfo?.slot?.from
+                                       ).format('hh:mm A')}{' '}
+                                       -{' '}
+                                       {moment(
+                                          cart?.fulfillmentInfo?.slot?.to
+                                       ).format('hh:mm A')}{' '}
+                                       from{' '}
+                                       {normalizeAddress(
+                                          cart?.fulfillmentInfo?.address
+                                       )}
+                                    </p>
+                                 )}
                               </section>
                            </section>
                            <Steps>
