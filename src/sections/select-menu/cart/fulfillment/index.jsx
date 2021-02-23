@@ -23,7 +23,7 @@ const evalTime = (date, time) => {
    return moment(date).hour(hour).minute(minute).second(0).toISOString()
 }
 
-export const Fulfillment = () => {
+const Fulfillment = () => {
    const { state } = useMenu()
    const { user } = useUser()
    const { addToast } = useToasts()
@@ -232,6 +232,8 @@ export const Fulfillment = () => {
       </div>
    )
 }
+
+export default Fulfillment
 
 const Option = styled.section`
    ${tw`py-2 pr-2 rounded cursor-pointer flex items-center border text-gray-700`}

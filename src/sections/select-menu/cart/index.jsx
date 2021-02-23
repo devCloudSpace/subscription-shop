@@ -2,10 +2,11 @@ import React from 'react'
 import tw from 'twin.macro'
 import { navigate } from 'gatsby'
 
+import Billing from './billing'
 import Products from './products'
 import { useMenu } from '../state'
+import Fulfillment from './fulfillment'
 import { HelperBar } from '../../../components'
-import { Fulfillment } from './fulfillment'
 
 export const CartPanel = ({ noSkip, isCheckout }) => {
    const { state } = useMenu()
@@ -36,6 +37,7 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
          {/* Fulfilment Mode */}
          <Fulfillment />
          {/* Billing Details */}
+         <Billing />
       </div>
    )
 }

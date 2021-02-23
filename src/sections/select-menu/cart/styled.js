@@ -50,31 +50,6 @@ export const Overlay = styled.div(
    `
 )
 
-export const Table = styled.table`
-   tr:nth-child(even) {
-      ${tw`bg-gray-100`}
-   }
-`
-
-export const FulfillmentOption = styled.section`
-   ${tw`py-2 pr-2 rounded cursor-pointer flex items-center border text-gray-700`}
-   aside {
-      ${tw`flex-shrink-0 h-10 w-10 flex items-center justify-center`}
-      ${({ isActive }) =>
-         isActive &&
-         css`
-            svg {
-               ${tw`text-green-700`}
-            }
-         `}
-   }
-   ${({ isActive }) =>
-      isActive &&
-      css`
-         ${tw`border-2 border-green-600`}
-      `}
-`
-
 export const SaveButton = styled.button(
    ({ disabled, bg }) => css`
       ${tw`
