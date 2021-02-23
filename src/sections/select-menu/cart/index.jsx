@@ -5,6 +5,7 @@ import { navigate } from 'gatsby'
 import Products from './products'
 import { useMenu } from '../state'
 import { HelperBar } from '../../../components'
+import { Fulfillment } from './fulfillment'
 
 export const CartPanel = ({ noSkip, isCheckout }) => {
    const { state } = useMenu()
@@ -33,6 +34,7 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
          {/* Products */}
          <Products noSkip={noSkip} isCheckout={isCheckout} />
          {/* Fulfilment Mode */}
+         <Fulfillment />
          {/* Billing Details */}
       </div>
    )

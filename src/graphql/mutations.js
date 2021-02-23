@@ -44,6 +44,21 @@ export const CREATE_CUSTOMER_ADDRESS = gql`
    }
 `
 
+export const UPDATE_OCCURENCE_CUSTOMER = gql`
+   mutation updateOccurenceCustomerCart(
+      $pk_columns: subscription_subscriptionOccurence_customer_pk_columns_input!
+      $_set: subscription_subscriptionOccurence_customer_set_input!
+   ) {
+      updateOccurenceCustomerCart: update_subscription_subscriptionOccurence_customer_by_pk(
+         pk_columns: $pk_columns
+         _set: $_set
+      ) {
+         isAuto
+         isSkipped
+      }
+   }
+`
+
 export const UPSERT_OCCURENCE_CUSTOMER_CART_SKIP = gql`
    mutation upsertOccurenceCustomerCart(
       $object: subscription_subscriptionOccurence_customer_insert_input!
@@ -76,11 +91,19 @@ export const INSERT_SUBSCRIPTION_OCCURENCE_CUSTOMERS = gql`
 `
 
 export const CREATE_CART = gql`
-   mutation createCart(
+   mutation createCart($object: crm_orderCart_insert_input!) {
+      createCart(object: $object) {
+         id
+      }
+   }
+`
+
+export const UPSERT_CART = gql`
+   mutation upsertCart(
       $object: crm_orderCart_insert_input!
       $on_conflict: crm_orderCart_on_conflict!
    ) {
-      createCart(object: $object, on_conflict: $on_conflict) {
+      upsertCart: createCart(object: $object, on_conflict: $on_conflict) {
          id
       }
    }
