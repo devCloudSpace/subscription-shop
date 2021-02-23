@@ -140,6 +140,10 @@ export const MenuProvider = ({ children }) => {
       variables: {
          id: user?.subscriptionId,
          where: {
+            subscriptionOccurenceView: {
+               isValid: { _eq: true },
+               isVisible: { _eq: true },
+            },
             ...(Boolean(new URL(location.href).searchParams.get('date')) && {
                fulfillmentDate: {
                   _eq: new URL(location.href).searchParams.get('date'),
@@ -149,11 +153,8 @@ export const MenuProvider = ({ children }) => {
       },
       onCompleted: ({ subscription = {} } = {}) => {
          if (subscription?.occurences?.length > 0) {
-            const visibleOccurences = subscription.occurences.filter(
-               occurence => occurence.isVisible && occurence.isValid
-            )
             if (state.occurences.length === 0) {
-               const validWeekIndex = visibleOccurences.findIndex(
+               const validWeekIndex = subscription?.occurences.findIndex(
                   node => node.isValid
                )
                if (validWeekIndex === -1) return
@@ -162,10 +163,13 @@ export const MenuProvider = ({ children }) => {
                   payload: validWeekIndex,
                })
                dispatch({ type: 'SET_IS_OCCURENCES_LOADING', payload: false })
-               dispatch({ type: 'SET_OCCURENCES', payload: visibleOccurences })
+               dispatch({
+                  type: 'SET_OCCURENCES',
+                  payload: subscription?.occurences,
+               })
                dispatch({
                   type: 'SET_WEEK',
-                  payload: visibleOccurences[validWeekIndex],
+                  payload: subscription?.occurences[validWeekIndex],
                })
             }
          } else if (
