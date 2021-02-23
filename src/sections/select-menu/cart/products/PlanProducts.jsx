@@ -7,17 +7,17 @@ import { useMenu } from '../../state'
 import CartProduct from './CartProduct'
 import { CartProducts } from '../styled'
 import { useUser } from '../../../../context'
+import { MUTATIONS } from '../../../../graphql'
 import { CloseIcon } from '../../../../assets/icons'
 import { ProductSkeleton } from '../../../../components'
-import { UPSERT_OCCURENCE_CUSTOMER_CART_SKIP } from '../../../../graphql'
 
 const PlanProducts = ({ noSkip, setShowSummaryBar }) => {
    const { user } = useUser()
    const { state } = useMenu()
    const { addToast } = useToasts()
 
-   const [updateCartSkipStatus] = useMutation(
-      UPSERT_OCCURENCE_CUSTOMER_CART_SKIP,
+   const [upsertOccurenceCustomer] = useMutation(
+      MUTATIONS.OCCURENCE.CUSTOMER.UPSERT,
       {
          onCompleted: ({ upsertOccurenceCustomerCart = {} }) => {
             if (upsertOccurenceCustomerCart.isSkipped) {
@@ -36,7 +36,7 @@ const PlanProducts = ({ noSkip, setShowSummaryBar }) => {
    )
 
    const skipWeek = () => {
-      updateCartSkipStatus({
+      upsertOccurenceCustomer({
          variables: {
             object: {
                keycloakId: user.keycloakId,

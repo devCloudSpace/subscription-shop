@@ -6,9 +6,9 @@ import GooglePlacesAutocomplete from 'react-google-places-autocomplete'
 
 import { useDelivery } from './state'
 import { useUser } from '../../context'
+import { MUTATIONS } from '../../graphql'
 import { CloseIcon } from '../../assets/icons'
 import { useScript, isClient } from '../../utils'
-import { CREATE_CUSTOMER_ADDRESS } from '../../graphql'
 import { Tunnel, Button, Form, Spacer } from '../../components'
 
 export const AddressTunnel = () => {
@@ -17,7 +17,7 @@ export const AddressTunnel = () => {
    const { state, dispatch } = useDelivery()
    const [formStatus, setFormStatus] = React.useState('PENDING')
    const [address, setAddress] = React.useState(null)
-   const [createAddress] = useMutation(CREATE_CUSTOMER_ADDRESS, {
+   const [createAddress] = useMutation(MUTATIONS.CUSTOMER.ADDRESS.CREATE, {
       refetchQueries: () => ['customer'],
       onCompleted: () => {
          toggleTunnel(false)

@@ -10,10 +10,9 @@ import { useUser } from '../../context'
 import { isClient } from '../../utils'
 import {
    ZIPCODE,
-   UPSERT_CART,
+   MUTATIONS,
    CART_BY_WEEK,
    OCCURENCES_BY_SUBSCRIPTION,
-   INSERT_SUBSCRIPTION_OCCURENCE_CUSTOMERS,
 } from '../../graphql'
 
 export const MenuContext = React.createContext()
@@ -100,13 +99,13 @@ export const MenuProvider = ({ children }) => {
          }
       },
    })
-   const [insertOccurenceCustomer] = useMutation(
-      INSERT_SUBSCRIPTION_OCCURENCE_CUSTOMERS,
+   const [insertOccurenceCustomers] = useMutation(
+      MUTATIONS.OCCURENCE.CUSTOMER.CREATE.MULTIPLE,
       {
          onError: error => console.log(error),
       }
    )
-   const [upsertCart] = useMutation(UPSERT_CART, {
+   const [upsertCart] = useMutation(MUTATIONS.CART.UPSERT, {
       refetchQueries: () => ['subscriptionOccurenceCustomer'],
       onCompleted: ({ upsertCart }) => {
          isClient && window.localStorage.setItem('cartId', upsertCart.id)
@@ -114,7 +113,7 @@ export const MenuProvider = ({ children }) => {
          const skipList = new URL(location.href).searchParams.get('previous')
 
          if (skipList && skipList.split(',').length > 0) {
-            insertOccurenceCustomer({
+            insertOccurenceCustomers({
                variables: {
                   objects: skipList.split(',').map(id => ({
                      isSkipped: true,
@@ -207,12 +206,13 @@ export const MenuProvider = ({ children }) => {
    React.useEffect(() => {
       if (state.week?.id && !occurenceCustomerLoading) {
          if (isEmpty(occurenceCustomer)) {
-            insertOccurenceCustomer({
+            insertOccurenceCustomers({
                variables: {
                   objects: [
                      {
                         isAuto: false,
                         keycloakId: user.keycloakId,
+                        isSkipped: !state.week.isValid,
                         subscriptionOccurenceId: state.week.id,
                         brand_customerId: user.brandCustomerId,
                      },

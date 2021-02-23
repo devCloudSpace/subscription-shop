@@ -9,13 +9,7 @@ import { useMenu } from '../../state'
 import { useUser } from '../../../../context'
 import { Loader } from '../../../../components'
 import { CheckIcon } from '../../../../assets/icons'
-import {
-   ZIPCODE,
-   UPDATE_CART,
-   CREATE_CART,
-   UPDATE_OCCURENCE_CUSTOMER,
-   INSERT_SUBSCRIPTION_OCCURENCE_CUSTOMERS,
-} from '../../../../graphql'
+import { ZIPCODE, MUTATIONS, UPDATE_CART } from '../../../../graphql'
 import { formatCurrency, normalizeAddress } from '../../../../utils'
 
 const evalTime = (date, time) => {
@@ -27,16 +21,11 @@ const Fulfillment = () => {
    const { state } = useMenu()
    const { user } = useUser()
    const { addToast } = useToasts()
-   const [createOccurenceCustomer] = useMutation(
-      INSERT_SUBSCRIPTION_OCCURENCE_CUSTOMERS,
-      {
-         onError: error => console.log(error),
-      }
+   const [updateOccurenceCustomer] = useMutation(
+      MUTATIONS.OCCURENCE.CUSTOMER.UPDATE,
+      { onError: error => console.log(error) }
    )
-   const [updateOccurenceCustomer] = useMutation(UPDATE_OCCURENCE_CUSTOMER, {
-      onError: error => console.log(error),
-   })
-   const [createCart] = useMutation(CREATE_CART, {
+   const [createCart] = useMutation(MUTATIONS.CART.CREATE, {
       onCompleted: ({ createCart: { id = '' } = {} }) => {
          updateOccurenceCustomer({
             variables: {

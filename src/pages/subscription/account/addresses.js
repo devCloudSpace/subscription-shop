@@ -10,11 +10,7 @@ import { useUser } from '../../../context'
 import { CloseIcon } from '../../../assets/icons'
 import { useScript, isClient } from '../../../utils'
 import GooglePlacesAutocomplete from 'react-google-places-autocomplete'
-import {
-   BRAND,
-   ZIPCODE_AVAILABILITY,
-   CREATE_CUSTOMER_ADDRESS,
-} from '../../../graphql'
+import { BRAND, MUTATIONS, ZIPCODE_AVAILABILITY } from '../../../graphql'
 import {
    SEO,
    Form,
@@ -169,7 +165,7 @@ export const AddressTunnel = ({ tunnel, toggleTunnel }) => {
    const { addToast } = useToasts()
    const [formStatus, setFormStatus] = React.useState('PENDING')
    const [address, setAddress] = React.useState(null)
-   const [createAddress] = useMutation(CREATE_CUSTOMER_ADDRESS, {
+   const [createAddress] = useMutation(MUTATIONS.CUSTOMER.ADDRESS.CREATE, {
       refetchQueries: () => ['customer'],
       onCompleted: () => {
          toggleTunnel(false)

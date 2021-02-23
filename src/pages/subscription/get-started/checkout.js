@@ -20,8 +20,8 @@ import {
    CART,
    BRAND,
    UPDATE_CART,
-   UPDATE_CUSTOMER,
    UPDATE_DAILYKEY_CUSTOMER,
+   MUTATIONS,
 } from '../../../graphql'
 import { BillingDetails } from '../../../sections/select-menu/cart_panel'
 
@@ -66,7 +66,7 @@ const PaymentContent = ({ isCheckout }) => {
          navigate(`/subscription/get-started/placing-order`)
       },
    })
-   const [updateCustomer] = useMutation(UPDATE_CUSTOMER, {
+   const [updateCustomer] = useMutation(MUTATIONS.CUSTOMER.UPDATE, {
       refetchQueries: ['customer'],
       onCompleted: () => {
          updateBrandCustomer({

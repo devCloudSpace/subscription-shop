@@ -14,8 +14,7 @@ import { CheckIcon, CloseIcon, MinusIcon, PlusIcon } from '../../assets/icons'
 import { isClient, formatCurrency, normalizeAddress } from '../../utils'
 import {
    ZIPCODE,
-   UPSERT_CART,
-   UPSERT_OCCURENCE_CUSTOMER_CART_SKIP,
+   MUTATIONS,
    OCCURENCE_ADDON_PRODUCTS_BY_CATEGORIES,
 } from '../../graphql'
 
@@ -28,8 +27,10 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
    const { user } = useUser()
    const { state } = useMenu()
    const { configOf } = useConfig()
-   const [updateCart] = useMutation(UPSERT_CART)
    const [open, toggle] = React.useState(false)
+   const [updateCart] = useMutation(MUTATIONS.CART.UPSERT, {
+      onError: error => console.log(error),
+   })
    const [showSummaryBar, setShowSummaryBar] = React.useState(true)
    const { loading, data: { zipcode = {} } = {} } = useSubscription(ZIPCODE, {
       variables: {
@@ -284,8 +285,8 @@ const Products = ({ noSkip, setShowSummaryBar }) => {
    const { state } = useMenu()
    const { addToast } = useToasts()
    const [tunnel, toggleTunnel] = React.useState(false)
-   const [updateCartSkipStatus] = useMutation(
-      UPSERT_OCCURENCE_CUSTOMER_CART_SKIP,
+   const [upsertOccurenceCustomer] = useMutation(
+      MUTATIONS.OCCURENCE.CUSTOMER.UPSERT,
       {
          onCompleted: ({ upsertOccurenceCustomerCart = {} }) => {
             if (upsertOccurenceCustomerCart.isSkipped) {
@@ -304,7 +305,7 @@ const Products = ({ noSkip, setShowSummaryBar }) => {
    )
 
    const skipWeek = () => {
-      updateCartSkipStatus({
+      upsertOccurenceCustomer({
          variables: {
             object: {
                keycloakId: user.keycloakId,

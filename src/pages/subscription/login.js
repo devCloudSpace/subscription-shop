@@ -10,7 +10,7 @@ import { useUser } from '../../context'
 import { useConfig, auth } from '../../lib'
 import { SEO, Layout } from '../../components'
 import { isClient, processUser } from '../../utils'
-import { BRAND, CREATE_CUSTOMER, CUSTOMER } from '../../graphql'
+import { BRAND, CUSTOMER, MUTATIONS } from '../../graphql'
 
 const Login = () => {
    const { brand } = useConfig()
@@ -32,7 +32,7 @@ const Login = () => {
       },
    })
    const [create, { loading: creatingCustomer }] = useMutation(
-      CREATE_CUSTOMER,
+      MUTATIONS.CUSTOMER.CREATE,
       {
          refetchQueries: ['customer'],
          onCompleted: () => {
