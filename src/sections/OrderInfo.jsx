@@ -1,12 +1,13 @@
 import React from 'react'
 import moment from 'moment'
+import { navigate } from 'gatsby'
 import { styled } from 'twin.macro'
 
 import { useUser } from '../context'
 import { normalizeAddress } from '../utils'
 import { Billing, CartProduct } from '../components'
 
-const OrderInfo = ({ cart }) => {
+const OrderInfo = ({ cart, showViewOrderButton = false }) => {
    const { user } = useUser()
 
    const planProducts =
@@ -81,6 +82,14 @@ const OrderInfo = ({ cart }) => {
                </p>
             )}
          </section>
+         {showViewOrderButton && (
+            <button
+               tw="h-10 w-full rounded text-white text-center bg-green-500"
+               onClick={() => navigate('/subscription/account/orders')}
+            >
+               Go to Order
+            </button>
+         )}
       </div>
    )
 }
