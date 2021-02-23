@@ -335,7 +335,10 @@ export const CART_STATUS = gql`
 export const ORDER_HISTORY = gql`
    subscription orders($keycloakId: String_comparison_exp!) {
       orders: subscription_subscriptionOccurence_customer_aggregate(
-         where: { keycloakId: $keycloakId }
+         where: {
+            keycloakId: $keycloakId
+            orderCart: { status: { _eq: "ORDER_PLACED" } }
+         }
          order_by: { subscriptionOccurence: { fulfillmentDate: desc } }
       ) {
          aggregate {
@@ -363,14 +366,20 @@ export const ORDER = gql`
          subscriptionOccurenceId: $subscriptionOccurenceId
       ) {
          isSkipped
+         validStatus
          occurrence: subscriptionOccurence {
+            id
             subscription {
+               id
                item: subscriptionItemCount {
+                  id
                   price
                }
             }
          }
          cart: orderCart {
+            id
+            status
             amount
             address
             cartInfo
@@ -381,6 +390,7 @@ export const ORDER = gql`
             billingDetails
             fulfillmentInfo
             order {
+               id
                status: orderStatus
             }
          }
