@@ -9,12 +9,12 @@ import { useQuery, useMutation, useSubscription } from '@apollo/react-hooks'
 import { useMenu } from './state'
 import { useConfig } from '../../lib'
 import { useUser } from '../../context'
-import { HelperBar, Tunnel, Button, Loader } from '../../components'
+import { Tunnel, Button, Loader } from '../../components'
 import { CheckIcon, CloseIcon, MinusIcon, PlusIcon } from '../../assets/icons'
 import { isClient, formatCurrency, normalizeAddress } from '../../utils'
 import {
    ZIPCODE,
-   UPDATE_CART,
+   CREATE_CART,
    UPSERT_OCCURENCE_CUSTOMER_CART_SKIP,
    OCCURENCE_ADDON_PRODUCTS_BY_CATEGORIES,
 } from '../../graphql'
@@ -28,7 +28,7 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
    const { user } = useUser()
    const { state } = useMenu()
    const { configOf } = useConfig()
-   const [updateCart] = useMutation(UPDATE_CART)
+   const [updateCart] = useMutation(CREATE_CART)
    const [open, toggle] = React.useState(false)
    const [showSummaryBar, setShowSummaryBar] = React.useState(true)
    const { loading, data: { zipcode = {} } = {} } = useSubscription(ZIPCODE, {
@@ -39,11 +39,27 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
    })
 
    const setFulfillment = mode => {
+      const subscriptionOccurenceCustomers = {
+         data: [
+            {
+               isSkipped: false,
+               keycloakId: user.keycloakId,
+               subscriptionOccurenceId: state.week.id,
+               brand_customerId: user.brandCustomerId,
+            },
+         ],
+         on_conflict: {
+            constraint: 'subscriptionOccurence_customer_pkey',
+            update_columns: ['isSkipped', 'orderCartId'],
+         },
+      }
       if (mode === 'DELIVERY') {
          updateCart({
             variables: {
-               id: state.occurenceCustomer?.cart?.id,
-               _set: {
+               object: {
+                  address: user.defaultAddress,
+                  subscriptionOccurenceCustomers,
+                  id: state.occurenceCustomer?.cart?.id,
                   fulfillmentInfo: {
                      type: 'PREORDER_DELIVERY',
                      slot: {
@@ -58,14 +74,20 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
                      },
                   },
                },
+               on_conflict: {
+                  constraint: 'orderCart_pkey',
+                  update_columns: ['cartInfo', 'address', 'fulfillmentInfo'],
+               },
             },
          })
          return
       }
       updateCart({
          variables: {
-            id: state.occurenceCustomer?.cart?.id,
-            _set: {
+            object: {
+               address: user.defaultAddress,
+               subscriptionOccurenceCustomers,
+               id: state.occurenceCustomer?.cart?.id,
                fulfillmentInfo: {
                   type: 'PREORDER_PICKUP',
                   slot: {
@@ -80,6 +102,10 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
                   },
                   address: zipcode?.pickupOption?.address,
                },
+            },
+            on_conflict: {
+               constraint: 'orderCart_pkey',
+               update_columns: ['cartInfo', 'address', 'fulfillmentInfo'],
             },
          },
       })
@@ -123,9 +149,13 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
                      {zipcode.isDeliveryActive && (
                         <FulfillmentOption
                            onClick={() => setFulfillment('DELIVERY')}
-                           isActive={state.occurenceCustomer?.cart?.fulfillmentInfo?.type.includes(
-                              'DELIVERY'
-                           )}
+                           isActive={
+                              state.occurenceCustomer?.validStatus?.hasCart
+                                 ? state.occurenceCustomer?.cart?.fulfillmentInfo?.type.includes(
+                                      'DELIVERY'
+                                   )
+                                 : state.fulfillment.type.includes('DELIVERY')
+                           }
                         >
                            <aside>
                               <CheckIcon
@@ -165,9 +195,13 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
                      {zipcode.isPickupActive && zipcode?.pickupOptionId && (
                         <FulfillmentOption
                            onClick={() => setFulfillment('PICKUP')}
-                           isActive={state.occurenceCustomer?.cart?.fulfillmentInfo?.type.includes(
-                              'PICKUP'
-                           )}
+                           isActive={
+                              state.occurenceCustomer?.validStatus?.hasCart
+                                 ? state.occurenceCustomer?.cart?.fulfillmentInfo?.type.includes(
+                                      'PICKUP'
+                                   )
+                                 : state.fulfillment.type.includes('PICKUP')
+                           }
                         >
                            <aside>
                               <CheckIcon
@@ -227,15 +261,6 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
                <BillingDetails
                   billing={state.occurenceCustomer?.cart?.billingDetails}
                />
-            )}
-            {['ORDER_PLACED', 'PROCESS'].includes(
-               state?.occurenceCustomer?.cart?.status
-            ) && (
-               <HelperBar type="success">
-                  <HelperBar.SubTitle>
-                     Your order has been placed for this week.
-                  </HelperBar.SubTitle>
-               </HelperBar>
             )}
          </CartWrapper>
          {isCheckout && (
@@ -415,6 +440,7 @@ const AddOns = () => {
 
    const theme = configOf('theme-color', 'Visual')
    if (loading) return <Loader inline />
+   if (categories.length === 0) return <div>No Add Ons Available</div>
    return (
       <div>
          {categories.map(category => (

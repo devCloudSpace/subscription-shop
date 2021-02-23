@@ -57,12 +57,47 @@ export const MenuProvider = ({ children }) => {
    const location = useLocation()
    const { addToast } = useToasts()
    const [cart, setCart] = React.useState({})
+   const [fulfillment, setFulfillment] = React.useState({})
    const [state, dispatch] = React.useReducer(reducers, initialState)
-   const { data: { zipcode = {} } = {} } = useSubscription(ZIPCODE, {
+   useSubscription(ZIPCODE, {
       skip: !user?.subscriptionId || !user?.defaultAddress?.zipcode,
       variables: {
          subscriptionId: user?.subscriptionId,
          zipcode: user?.defaultAddress?.zipcode,
+      },
+      onSubscriptionData: ({
+         subscriptionData: { data: { zipcode = {} } = {} } = {},
+      }) => {
+         if (zipcode.isDeliveryActive) {
+            setFulfillment({
+               type: 'PREORDER_DELIVERY',
+               slot: {
+                  from: evalTime(
+                     state.week.fulfillmentDate,
+                     zipcode?.deliveryTime?.from
+                  ),
+                  to: evalTime(
+                     state.week.fulfillmentDate,
+                     zipcode?.deliveryTime?.to
+                  ),
+               },
+            })
+         } else if (zipcode.isPickupActive && zipcode.pickupOptionId) {
+            setFulfillment({
+               type: 'PREORDER_PICKUP',
+               slot: {
+                  from: evalTime(
+                     state.week.fulfillmentDate,
+                     zipcode?.pickupOption?.time?.from
+                  ),
+                  to: evalTime(
+                     state.week.fulfillmentDate,
+                     zipcode?.pickupOption?.time?.to
+                  ),
+               },
+               address: zipcode?.pickupOption?.address,
+            })
+         }
       },
    })
    const [insertOccurenceCustomer] = useMutation(
@@ -104,18 +139,18 @@ export const MenuProvider = ({ children }) => {
       skip: !user?.subscriptionId,
       variables: {
          id: user?.subscriptionId,
-         ...(Boolean(new URL(location.href).searchParams.get('date')) && {
-            where: {
+         where: {
+            ...(Boolean(new URL(location.href).searchParams.get('date')) && {
                fulfillmentDate: {
                   _eq: new URL(location.href).searchParams.get('date'),
                },
-            },
-         }),
+            }),
+         },
       },
       onCompleted: ({ subscription = {} } = {}) => {
          if (subscription?.occurences?.length > 0) {
             const visibleOccurences = subscription.occurences.filter(
-               occurence => occurence.isVisible
+               occurence => occurence.isVisible && occurence.isValid
             )
             if (state.occurences.length === 0) {
                const validWeekIndex = visibleOccurences.findIndex(
@@ -209,11 +244,26 @@ export const MenuProvider = ({ children }) => {
    }
 
    const addProduct = item => {
+      const subscriptionOccurenceCustomers = {
+         data: [
+            {
+               isSkipped: false,
+               keycloakId: user.keycloakId,
+               subscriptionOccurenceId: state.week.id,
+               brand_customerId: user.brandCustomerId,
+            },
+         ],
+         on_conflict: {
+            constraint: 'subscriptionOccurence_customer_pkey',
+            update_columns: ['isSkipped', 'orderCartId'],
+         },
+      }
       if (occurenceCustomer?.validStatus?.hasCart) {
          upsertCart({
             variables: {
                object: {
                   id: occurenceCustomer?.cart?.id,
+                  subscriptionOccurenceCustomers,
                   cartInfo: {
                      products: [
                         ...occurenceCustomer?.cart?.cartInfo?.products,
@@ -232,48 +282,22 @@ export const MenuProvider = ({ children }) => {
             })
          )
       } else {
-         const fulfillmentInfo = {
-            type: 'PREORDER_DELIVERY',
-            slot: {
-               from: evalTime(
-                  state.week.fulfillmentDate,
-                  zipcode?.deliveryTime?.from
-               ),
-               to: evalTime(
-                  state.week.fulfillmentDate,
-                  zipcode?.deliveryTime?.to
-               ),
-            },
-         }
          const customerInfo = {
             customerEmail: user?.platform_customer?.email || '',
             customerPhone: user?.platform_customer?.phoneNumber || '',
             customerLastName: user?.platform_customer?.lastName || '',
             customerFirstName: user?.platform_customer?.firstName || '',
          }
-         const subscriptionOccurenceCustomers = {
-            data: [
-               {
-                  isSkipped: false,
-                  keycloakId: user.keycloakId,
-                  subscriptionOccurenceId: state.week.id,
-                  brand_customerId: user.brandCustomerId,
-               },
-            ],
-            on_conflict: {
-               constraint: 'subscriptionOccurence_customer_pkey',
-               update_columns: ['isSkipped', 'orderCartId'],
-            },
-         }
+
          upsertCart({
             variables: {
                object: {
                   customerInfo,
-                  fulfillmentInfo,
                   status: 'PENDING',
                   customerId: user.id,
                   paymentStatus: 'PENDING',
                   cartSource: 'subscription',
+                  fulfillmentInfo: fulfillment,
                   address: user.defaultAddress,
                   cartInfo: { products: [item] },
                   subscriptionOccurenceCustomers,
@@ -308,7 +332,7 @@ export const MenuProvider = ({ children }) => {
    return (
       <MenuContext.Provider
          value={{
-            state: { ...state, occurenceCustomer: cart },
+            state: { ...state, occurenceCustomer: cart, fulfillment },
             methods: { products: { add: addProduct, delete: removeProduct } },
             dispatch,
          }}
