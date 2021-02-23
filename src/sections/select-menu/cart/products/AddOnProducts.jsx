@@ -17,6 +17,12 @@ const AddOnProducts = () => {
    const { state, methods } = useMenu()
    const [tunnel, toggleTunnel] = React.useState(false)
 
+   React.useEffect(() => {
+      if (state.isCartFull) {
+         toggleTunnel(state.isCartFull)
+      }
+   }, [state.isCartFull])
+
    const isRemovable =
       ['PENDING', undefined].includes(state?.occurenceCustomer?.cart?.status) &&
       state?.week?.isValid

@@ -22,6 +22,7 @@ const initialState = {
    isOccurencesLoading: true,
    currentWeekIndex: 0,
    occurences: [],
+   isCartFull: false,
 }
 
 const reducers = (state, { type, payload }) => {
@@ -36,6 +37,8 @@ const reducers = (state, { type, payload }) => {
          return { ...state, isOccurencesLoading: payload }
       case 'SET_CURRENT_WEEK_INDEX':
          return { ...state, currentWeekIndex: payload }
+      case 'IS_CART_FULL':
+         return { ...state, isCartFull: payload }
       case 'SET_OCCURENCES':
          return {
             ...state,
@@ -195,7 +198,9 @@ export const MenuProvider = ({ children }) => {
          keycloakId: user?.keycloakId,
          brand_customerId: user?.brandCustomerId,
       },
-      onCompleted: () => {},
+      onSubscriptionData: () => {
+         dispatch({ type: 'IS_CART_FULL', payload: false })
+      },
       onError: error => {
          addToast(error.message, {
             appearance: 'error',
@@ -280,11 +285,19 @@ export const MenuProvider = ({ children }) => {
                   update_columns: ['cartInfo'],
                },
             },
-         }).then(() =>
+         }).then(({ data: { upsertCart = {} } = {} }) => {
+            if (!item?.isAddOn) {
+               dispatch({
+                  type: 'IS_CART_FULL',
+                  payload:
+                     upsertCart?.subscriptionOccurenceCustomer?.validStatus
+                        ?.itemCountValid,
+               })
+            }
             addToast(`You've added the product - ${item.name}.`, {
                appearance: 'info',
             })
-         )
+         })
       } else {
          const customerInfo = {
             customerEmail: user?.platform_customer?.email || '',
@@ -325,11 +338,11 @@ export const MenuProvider = ({ children }) => {
                   ],
                },
             },
-         }).then(() =>
+         }).then(() => {
             addToast(`You've added the product - ${item.name}.`, {
                appearance: 'info',
             })
-         )
+         })
       }
    }
 

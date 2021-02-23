@@ -101,6 +101,9 @@ export const MUTATIONS = {
          ) {
             upsertCart: createCart(object: $object, on_conflict: $on_conflict) {
                id
+               subscriptionOccurenceCustomer {
+                  validStatus
+               }
             }
          }
       `,
