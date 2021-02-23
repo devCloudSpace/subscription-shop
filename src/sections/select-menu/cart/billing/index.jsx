@@ -1,4 +1,5 @@
 import React from 'react'
+import tw from 'twin.macro'
 
 import { useMenu } from '../../state'
 import { formatCurrency } from '../../../../utils'
@@ -11,9 +12,10 @@ const BillingDetails = () => {
    const { billingDetails: billing = {} } = state?.occurenceCustomer?.cart || {}
    const { itemCountValid = false } =
       state?.occurenceCustomer?.validStatus || {}
+
    return (
       <div>
-         <header tw="mb-3 h-10 flex items-center justify-between">
+         <header tw="mt-3 mb-3 h-10 flex items-center justify-between">
             <h4 tw="text-lg text-gray-700">
                Your Weekly Total:{' '}
                {itemCountValid
