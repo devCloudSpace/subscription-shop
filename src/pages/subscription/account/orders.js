@@ -1,4 +1,5 @@
 import React from 'react'
+import moment from 'moment'
 import { navigate } from 'gatsby'
 import tw, { styled, css } from 'twin.macro'
 import { useSubscription } from '@apollo/react-hooks'
@@ -13,6 +14,7 @@ import {
    normalizeAddress,
 } from '../../../utils'
 import { SEO, Layout, HelperBar, ProfileSidebar } from '../../../components'
+import { BillingDetails } from '../../../sections/select-menu/cart_panel'
 
 const Orders = () => {
    const { isAuthenticated } = useUser()
@@ -176,38 +178,45 @@ const Details = ({ current }) => {
             ))}
          </ProductCards>
          <h4 tw="text-lg text-gray-700 my-3 pb-1 border-b">Charges</h4>
-         <table tw="my-3 w-full table-auto">
-            <tbody>
-               <tr>
-                  <td tw="border px-2 py-1">Base Price</td>
-                  <td tw="text-right border px-2 py-1">
-                     {formatCurrency(Number(order?.cart?.itemTotal) || 0)}
-                  </td>
-               </tr>
-               <tr tw="bg-gray-100">
-                  <td tw="border px-2 py-1">Add on Total</td>
-                  <td tw="text-right border px-2 py-1">
-                     {formatCurrency(Number(order?.cart?.addOnTotal) || 0)}
-                  </td>
-               </tr>
-               <tr>
-                  <td tw="border px-2 py-1">Delivery</td>
-                  <td tw="text-right border px-2 py-1">
-                     {formatCurrency(Number(order?.cart?.deliveryPrice) || 0)}
-                  </td>
-               </tr>
-               <tr tw="bg-gray-100">
-                  <td tw="border px-2 py-1">Total</td>
-                  <td tw="text-right border px-2 py-1">
-                     {formatCurrency(order?.cart?.amount || 0)}
-                  </td>
-               </tr>
-            </tbody>
-         </table>
-         <h4 tw="text-lg text-gray-700 my-4 pb-1 border-b">Address</h4>
-         <div>
-            <span>{normalizeAddress(order?.cart?.address || {})}</span>
-         </div>
+         <BillingDetails billing={order?.cart?.billingDetails} />
+         <h4 tw="text-lg text-gray-700 mt-4 pb-1 border-b">Fulfillment</h4>
+         <section tw="mt-2 mb-3">
+            {order?.cart?.fulfillmentInfo?.type.includes('DELIVERY') ? (
+               <p tw="text-gray-500">
+                  Your box will be delivered on{' '}
+                  <span>
+                     {moment(order?.cart?.fulfillmentInfo?.slot?.from).format(
+                        'MMM D'
+                     )}
+                     &nbsp;between{' '}
+                     {moment(order?.cart?.fulfillmentInfo?.slot?.from).format(
+                        'hh:mm A'
+                     )}
+                     &nbsp;-&nbsp;
+                     {moment(order?.cart?.fulfillmentInfo?.slot?.to).format(
+                        'hh:mm A'
+                     )}
+                  </span>{' '}
+                  at <span>{normalizeAddress(order?.cart?.address)}</span>
+               </p>
+            ) : (
+               <p tw="text-gray-500">
+                  Pickup your box in between{' '}
+                  {moment(
+                     order?.cart?.billingDetails?.deliveryPrice?.value
+                  ).format('MMM D')}
+                  ,{' '}
+                  {moment(order?.cart?.fulfillmentInfo?.slot?.from).format(
+                     'hh:mm A'
+                  )}{' '}
+                  -{' '}
+                  {moment(order?.cart?.fulfillmentInfo?.slot?.to).format(
+                     'hh:mm A'
+                  )}{' '}
+                  from {normalizeAddress(order?.cart?.fulfillmentInfo?.address)}
+               </p>
+            )}
+         </section>
          <h4 tw="text-lg text-gray-700 my-4 pb-1 border-b">Payment</h4>
          <section tw="mb-3 p-2 border w-full">
             <div tw="rounded flex items-center justify-between">
@@ -243,31 +252,25 @@ const CartProduct = ({ product }) => {
                </span>
             )}
          </aside>
-         <main tw="h-20 pl-3">
+         <main tw="pl-3">
             <h3 tw="text-lg text-gray-800" title={product.name}>
                {product.name}
             </h3>
-            {(Boolean(product.addOnPrice) || product.addOnLabel) && (
-               <h4 tw="mt-2 uppercase tracking-wider text-sm font-medium text-gray-600">
-                  Add On
-               </h4>
+            {product.isAddOn && (
+               <p tw="text-green-600">{formatCurrency(product.unitPrice)}</p>
             )}
-            {Boolean(product.addOnPrice) && (
-               <span
-                  tw="mr-2 text-gray-600 truncate"
-                  title={product.addOnPrice}
-               >
-                  Price:{' '}
-                  <span tw="text-gray-800">
-                     {formatCurrency(Number(product.addOnPrice) || 0)}
+            <section tw="space-x-2">
+               {!product.isAddOn && product.addOnLabel && (
+                  <span tw="text-sm px-1 rounded bg-gray-200 text-gray-600 border border-gray-200">
+                     {product.addOnLabel} +{formatCurrency(product.addOnPrice)}
                   </span>
-               </span>
-            )}
-            {product.addOnLabel && (
-               <span tw="text-gray-600 truncate" title={product.addOnLabel}>
-                  Label: <span tw="text-gray-800">{product.addOnLabel}</span>
-               </span>
-            )}
+               )}
+               {!product.isAddOn && product.isAutoAdded && (
+                  <span tw="text-sm px-1 rounded bg-gray-200 text-gray-600 border border-gray-200">
+                     Auto Selected
+                  </span>
+               )}
+            </section>
          </main>
       </CartProductContainer>
    )
@@ -338,13 +341,6 @@ const ProductCards = styled.ul`
    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
 `
 
-const CartProductContainer = styled.li`
-   ${tw`h-24 bg-white border flex items-center px-2 rounded`}
-   aside {
-      ${tw`w-24 h-20 border bg-gray-300 rounded flex items-center justify-center`}
-   }
-`
-
 const SkeletonCartProductContainer = styled.li`
    ${tw`h-20 border flex items-center px-2 rounded`}
    main {
@@ -354,6 +350,13 @@ const SkeletonCartProductContainer = styled.li`
             ${tw`w-24`}
          }
       }
+   }
+`
+
+const CartProductContainer = styled.li`
+   ${tw`h-auto py-2 bg-white border flex items-start px-2 rounded`}
+   aside {
+      ${tw`w-24 h-16 bg-gray-300 rounded flex items-start justify-center`}
    }
 `
 

@@ -378,6 +378,8 @@ export const ORDER = gql`
             addOnTotal
             deliveryPrice
             paymentMethodId
+            billingDetails
+            fulfillmentInfo
             order {
                status: orderStatus
             }
