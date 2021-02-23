@@ -6,17 +6,20 @@ import { useQuery } from '@apollo/react-hooks'
 import { useToasts } from 'react-toast-notifications'
 
 import { useMenu } from '../../state'
-import CartProduct from './CartProduct'
 import { CartProducts } from '../styled'
 import { useConfig } from '../../../../lib'
 import { useUser } from '../../../../context'
-import { Tunnel, Loader, Button } from '../../../../components'
 import { PlusIcon, CloseIcon, CheckIcon } from '../../../../assets/icons'
+import { Tunnel, Loader, Button, CartProduct } from '../../../../components'
 import { OCCURENCE_ADDON_PRODUCTS_BY_CATEGORIES } from '../../../../graphql'
 
 const AddOnProducts = () => {
-   const { state } = useMenu()
+   const { state, methods } = useMenu()
    const [tunnel, toggleTunnel] = React.useState(false)
+
+   const isRemovable =
+      ['PENDING', undefined].includes(state?.occurenceCustomer?.cart?.status) &&
+      state?.week?.isValid
    return (
       <div>
          <header tw="my-3 pb-1 border-b flex items-center justify-between">
@@ -35,7 +38,12 @@ const AddOnProducts = () => {
             {state?.occurenceCustomer?.cart?.cartInfo?.products?.map(
                product =>
                   product.isAddOn && (
-                     <CartProduct product={product} key={product.cartItemId} />
+                     <CartProduct
+                        product={product}
+                        key={product.cartItemId}
+                        isRemovable={isRemovable}
+                        onDelete={methods.products.delete}
+                     />
                   )
             )}
          </CartProducts>

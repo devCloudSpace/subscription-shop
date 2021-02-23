@@ -1,11 +1,11 @@
 import React from 'react'
-import tw, { styled } from 'twin.macro'
 
 import { useMenu } from '../../state'
 import { formatCurrency } from '../../../../utils'
+import { Billing } from '../../../../components'
 import { PlusIcon, MinusIcon } from '../../../../assets/icons'
 
-const Billing = () => {
+const BillingDetails = () => {
    const { state } = useMenu()
    const [open, toggle] = React.useState(false)
    const { billingDetails: billing = {} } = state?.occurenceCustomer?.cart || {}
@@ -22,12 +22,12 @@ const Billing = () => {
             </h4>
             {itemCountValid && <Toggle open={open} toggle={toggle} />}
          </header>
-         {itemCountValid && open && <Table billing={billing} />}
+         {itemCountValid && open && <Billing billing={billing} />}
       </div>
    )
 }
 
-export default Billing
+export default BillingDetails
 
 const Toggle = ({ open, toggle }) => {
    return (
@@ -42,97 +42,4 @@ const Toggle = ({ open, toggle }) => {
          )}
       </button>
    )
-}
-
-const parseText = text =>
-   text.replace(/\{\{([^}]+)\}\}/g, () => {
-      return formatCurrency(text.match(/\{\{([^}]+)\}\}/g)[0].slice(2, -2))
-   })
-
-const Table = ({ billing }) => {
-   return (
-      <Styles.Table>
-         <tbody>
-            <tr>
-               <Styles.Cell title={billing?.itemTotal?.description}>
-                  {billing?.itemTotal?.label}
-                  <Styles.Comment>
-                     {parseText(billing?.itemTotal?.comment)}
-                  </Styles.Comment>
-               </Styles.Cell>
-               <Styles.Cell>
-                  {formatCurrency(billing?.itemTotal?.value)}
-               </Styles.Cell>
-            </tr>
-            <tr>
-               <Styles.Cell title={billing?.deliveryPrice?.description}>
-                  {billing?.deliveryPrice?.label}
-                  <Styles.Comment>
-                     {parseText(billing?.deliveryPrice?.comment)}
-                  </Styles.Comment>
-               </Styles.Cell>
-               <Styles.Cell>
-                  {formatCurrency(billing?.deliveryPrice?.value)}
-               </Styles.Cell>
-            </tr>
-            {!billing?.isTaxIncluded && (
-               <tr>
-                  <Styles.Cell title={billing?.subTotal?.description}>
-                     {billing?.subTotal?.label}
-                     <Styles.Comment>
-                        {parseText(billing?.subTotal?.comment)}
-                     </Styles.Comment>
-                  </Styles.Cell>
-                  <Styles.Cell>
-                     {formatCurrency(billing?.subTotal?.value)}
-                  </Styles.Cell>
-               </tr>
-            )}
-            {!billing?.isTaxIncluded && (
-               <tr>
-                  <Styles.Cell title={billing?.tax?.description}>
-                     {billing?.tax?.label}
-                     <Styles.Comment>
-                        {parseText(billing?.tax?.comment)}
-                     </Styles.Comment>
-                  </Styles.Cell>
-                  <Styles.Cell>
-                     {formatCurrency(billing?.tax?.value)}
-                  </Styles.Cell>
-               </tr>
-            )}
-            <tr>
-               <Styles.Cell title={billing?.totalPrice?.description}>
-                  {billing?.totalPrice?.label}
-                  <Styles.Comment>
-                     {parseText(billing?.totalPrice?.comment)}
-                  </Styles.Comment>
-               </Styles.Cell>
-               <Styles.Cell>
-                  {formatCurrency(billing?.totalPrice?.value)}
-               </Styles.Cell>
-            </tr>
-         </tbody>
-      </Styles.Table>
-   )
-}
-
-const Styles = {
-   Table: styled.table`
-      ${tw`my-2 w-full table-auto`}
-      tr:nth-child(even) {
-         ${tw`bg-gray-100`}
-      }
-      tr {
-         td:last-child {
-            text-align: right;
-         }
-      }
-   `,
-   Cell: styled.td`
-      ${tw`border px-2 py-1`}
-   `,
-   Comment: styled.p`
-      ${tw`text-sm text-gray-600`}
-   `,
 }

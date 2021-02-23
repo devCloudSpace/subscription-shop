@@ -1,20 +1,19 @@
 import React from 'react'
-import moment from 'moment'
 import { navigate } from 'gatsby'
 import tw, { styled, css } from 'twin.macro'
 import { useSubscription } from '@apollo/react-hooks'
 
 import { useConfig } from '../../../lib'
 import { useUser } from '../../../context'
+import { formatDate, isClient } from '../../../utils'
 import { ORDER_HISTORY, ORDER } from '../../../graphql'
 import {
-   formatDate,
-   formatCurrency,
-   isClient,
-   normalizeAddress,
-} from '../../../utils'
-import { SEO, Layout, HelperBar, ProfileSidebar } from '../../../components'
-import { BillingDetails } from '../../../sections/select-menu/cart_panel'
+   SEO,
+   Layout,
+   ProfileSidebar,
+   ProductSkeleton,
+} from '../../../components'
+import OrderInfo from '../../../sections/OrderInfo'
 
 const Orders = () => {
    const { isAuthenticated } = useUser()
@@ -132,6 +131,9 @@ const Details = ({ current }) => {
          },
       }
    )
+   if (!loading && error) {
+      console.log(error)
+   }
 
    const paymentMethod = user?.platform_customer?.paymentMethods.find(
       node => node.stripePaymentMethodId === order?.cart?.paymentMethodId
@@ -143,22 +145,12 @@ const Details = ({ current }) => {
          <main tw="mx-3">
             <h2 tw="pt-3 pb-1 mb-2 text-green-600 text-2xl">Order Details</h2>
             <ProductCards>
-               <SkeletonCartProduct />
-               <SkeletonCartProduct />
+               <ProductSkeleton />
+               <ProductSkeleton />
             </ProductCards>
          </main>
       )
-   if (order.isSkipped)
-      return (
-         <main tw="mx-3">
-            <h2 tw="pt-3 pb-1 mb-2 text-green-600 text-2xl">Order Details</h2>
-            <HelperBar type="info">
-               <HelperBar.SubTitle>
-                  This week has been skipped!
-               </HelperBar.SubTitle>
-            </HelperBar>
-         </main>
-      )
+
    return (
       <main tw="mx-3">
          <header tw="flex items-center justify-between">
@@ -169,54 +161,7 @@ const Details = ({ current }) => {
                </Status>
             )}
          </header>
-         <ProductCards>
-            {order?.cart?.cartInfo?.products.map(product => (
-               <CartProduct
-                  product={product}
-                  key={`product-${product.cartItemId}`}
-               />
-            ))}
-         </ProductCards>
-         <h4 tw="text-lg text-gray-700 my-3 pb-1 border-b">Charges</h4>
-         <BillingDetails billing={order?.cart?.billingDetails} />
-         <h4 tw="text-lg text-gray-700 mt-4 pb-1 border-b">Fulfillment</h4>
-         <section tw="mt-2 mb-3">
-            {order?.cart?.fulfillmentInfo?.type.includes('DELIVERY') ? (
-               <p tw="text-gray-500">
-                  Your box will be delivered on{' '}
-                  <span>
-                     {moment(order?.cart?.fulfillmentInfo?.slot?.from).format(
-                        'MMM D'
-                     )}
-                     &nbsp;between{' '}
-                     {moment(order?.cart?.fulfillmentInfo?.slot?.from).format(
-                        'hh:mm A'
-                     )}
-                     &nbsp;-&nbsp;
-                     {moment(order?.cart?.fulfillmentInfo?.slot?.to).format(
-                        'hh:mm A'
-                     )}
-                  </span>{' '}
-                  at <span>{normalizeAddress(order?.cart?.address)}</span>
-               </p>
-            ) : (
-               <p tw="text-gray-500">
-                  Pickup your box in between{' '}
-                  {moment(
-                     order?.cart?.billingDetails?.deliveryPrice?.value
-                  ).format('MMM D')}
-                  ,{' '}
-                  {moment(order?.cart?.fulfillmentInfo?.slot?.from).format(
-                     'hh:mm A'
-                  )}{' '}
-                  -{' '}
-                  {moment(order?.cart?.fulfillmentInfo?.slot?.to).format(
-                     'hh:mm A'
-                  )}{' '}
-                  from {normalizeAddress(order?.cart?.fulfillmentInfo?.address)}
-               </p>
-            )}
-         </section>
+         <OrderInfo cart={order?.cart} />
          <h4 tw="text-lg text-gray-700 my-4 pb-1 border-b">Payment</h4>
          <section tw="mb-3 p-2 border w-full">
             <div tw="rounded flex items-center justify-between">
@@ -235,59 +180,6 @@ const Details = ({ current }) => {
    )
 }
 
-const CartProduct = ({ product }) => {
-   return (
-      <CartProductContainer>
-         <aside tw="flex-shrink-0 relative">
-            {product.image ? (
-               <img
-                  src={product.image}
-                  alt={product.name}
-                  title={product.name}
-                  tw="object-cover rounded w-full h-full"
-               />
-            ) : (
-               <span tw="text-teal-500" title={product.name}>
-                  N/A
-               </span>
-            )}
-         </aside>
-         <main tw="pl-3">
-            <h3 tw="text-lg text-gray-800" title={product.name}>
-               {product.name}
-            </h3>
-            {product.isAddOn && (
-               <p tw="text-green-600">{formatCurrency(product.unitPrice)}</p>
-            )}
-            <section tw="space-x-2">
-               {!product.isAddOn && product.addOnLabel && (
-                  <span tw="text-sm px-1 rounded bg-gray-200 text-gray-600 border border-gray-200">
-                     {product.addOnLabel} +{formatCurrency(product.addOnPrice)}
-                  </span>
-               )}
-               {!product.isAddOn && product.isAutoAdded && (
-                  <span tw="text-sm px-1 rounded bg-gray-200 text-gray-600 border border-gray-200">
-                     Auto Selected
-                  </span>
-               )}
-            </section>
-         </main>
-      </CartProductContainer>
-   )
-}
-
-const SkeletonCartProduct = () => {
-   return (
-      <SkeletonCartProductContainer>
-         <aside tw="w-32 h-16 bg-gray-300 rounded" />
-         <main tw="w-full h-16 pl-3">
-            <span />
-            <span />
-         </main>
-      </SkeletonCartProductContainer>
-   )
-}
-
 const Main = styled.main`
    display: grid;
    grid-template-rows: 1fr;
@@ -295,6 +187,12 @@ const Main = styled.main`
    @media (max-width: 768px) {
       display: block;
    }
+`
+
+const ProductCards = styled.ul`
+   display: grid;
+   grid-gap: 16px;
+   grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
 `
 
 const Title = styled.h2(
@@ -334,31 +232,6 @@ const Date = styled.li(
       }
    `
 )
-
-const ProductCards = styled.ul`
-   display: grid;
-   grid-gap: 16px;
-   grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-`
-
-const SkeletonCartProductContainer = styled.li`
-   ${tw`h-20 border flex items-center px-2 rounded`}
-   main {
-      span {
-         ${tw`block h-4 w-40 mb-1 bg-gray-200 rounded-full`}
-         :last-child {
-            ${tw`w-24`}
-         }
-      }
-   }
-`
-
-const CartProductContainer = styled.li`
-   ${tw`h-auto py-2 bg-white border flex items-start px-2 rounded`}
-   aside {
-      ${tw`w-24 h-16 bg-gray-300 rounded flex items-start justify-center`}
-   }
-`
 
 const selectColor = variant => {
    switch (variant) {

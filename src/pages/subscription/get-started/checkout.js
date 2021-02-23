@@ -6,8 +6,14 @@ import { useToasts } from 'react-toast-notifications'
 import { useMutation, useQuery } from '@apollo/react-hooks'
 
 import { useConfig } from '../../../lib'
-import { SEO, Layout, StepsNavbar } from '../../../components'
 import { isClient, formatCurrency, normalizeAddress } from '../../../utils'
+import {
+   SEO,
+   Layout,
+   Billing,
+   StepsNavbar,
+   CartProduct,
+} from '../../../components'
 import {
    usePayment,
    ProfileSection,
@@ -15,15 +21,14 @@ import {
    PaymentSection,
 } from '../../../sections/checkout'
 import { useUser } from '../../../context'
-import { CheckIcon } from '../../../assets/icons'
 import {
    CART,
    BRAND,
+   MUTATIONS,
    UPDATE_CART,
    UPDATE_DAILYKEY_CUSTOMER,
-   MUTATIONS,
 } from '../../../graphql'
-import { BillingDetails } from '../../../sections/select-menu/cart_panel'
+import OrderInfo from '../../../sections/OrderInfo'
 
 const Checkout = () => {
    const { isAuthenticated } = useUser()
@@ -156,41 +161,7 @@ const PaymentContent = ({ isCheckout }) => {
          </section>
          {cart?.cartInfo && (
             <section>
-               <section>
-                  <header tw="my-3 pb-1 border-b flex items-center justify-between">
-                     <h4 tw="text-lg text-gray-700">
-                        Your Box ({user?.subscription?.recipes?.count})
-                     </h4>
-                  </header>
-                  <CartProducts>
-                     {cart?.cartInfo?.products?.map(
-                        product =>
-                           !product.isAddOn && (
-                              <CartProduct
-                                 product={product}
-                                 key={product.cartItemId}
-                              />
-                           )
-                     )}
-                  </CartProducts>
-               </section>
-               <section tw="mb-3">
-                  <header tw="my-3 pb-1 border-b flex items-center justify-between">
-                     <h4 tw="text-lg text-gray-700">Your Add Ons</h4>
-                  </header>
-                  <CartProducts>
-                     {cart?.cartInfo?.products?.map(
-                        product =>
-                           product.isAddOn && (
-                              <CartProduct
-                                 product={product}
-                                 key={product.cartItemId}
-                              />
-                           )
-                     )}
-                  </CartProducts>
-               </section>
-               <BillingDetails billing={cart?.billingDetails} />
+               <OrderInfo cart={cart} />
                <Button
                   bg={theme?.accent}
                   onClick={handleSubmit}
@@ -198,43 +169,6 @@ const PaymentContent = ({ isCheckout }) => {
                >
                   Confirm & Pay {formatCurrency(cart.totalPrice)}
                </Button>
-               <section tw="my-3">
-                  {cart?.fulfillmentInfo?.type.includes('DELIVERY') ? (
-                     <p tw="text-gray-500 text-sm">
-                        Your box will be delivered on{' '}
-                        <span>
-                           {moment(cart?.fulfillmentInfo?.slot?.from).format(
-                              'MMM D'
-                           )}
-                           &nbsp;between{' '}
-                           {moment(cart?.fulfillmentInfo?.slot?.from).format(
-                              'hh:mm A'
-                           )}
-                           &nbsp;-&nbsp;
-                           {moment(cart?.fulfillmentInfo?.slot?.to).format(
-                              'hh:mm A'
-                           )}
-                        </span>{' '}
-                        at <span>{normalizeAddress(cart?.address)}</span>
-                     </p>
-                  ) : (
-                     <p tw="text-gray-500 text-sm">
-                        Pickup your box in between{' '}
-                        {moment(
-                           cart?.billingDetails?.deliveryPrice?.value
-                        ).format('MMM D')}
-                        ,{' '}
-                        {moment(cart?.fulfillmentInfo?.slot?.from).format(
-                           'hh:mm A'
-                        )}{' '}
-                        -{' '}
-                        {moment(cart?.fulfillmentInfo?.slot?.to).format(
-                           'hh:mm A'
-                        )}{' '}
-                        from {normalizeAddress(cart?.fulfillmentInfo?.address)}
-                     </p>
-                  )}
-               </section>
             </section>
          )}
       </Main>
@@ -242,40 +176,6 @@ const PaymentContent = ({ isCheckout }) => {
 }
 
 export default Checkout
-
-const CartProduct = ({ product }) => {
-   return (
-      <CartProductContainer>
-         <aside tw="flex-shrink-0 relative">
-            {product.image ? (
-               <img
-                  src={product.image}
-                  alt={product.name}
-                  title={product.name}
-                  tw="object-cover rounded w-full h-full"
-               />
-            ) : (
-               <span tw="text-teal-500" title={product.name}>
-                  N/A
-               </span>
-            )}
-         </aside>
-         <main tw="pl-3">
-            <p tw="text-gray-800" title={product.name}>
-               {product.name}
-            </p>
-            {product.isAddOn && (
-               <p tw="text-green-600">{formatCurrency(product.unitPrice)}</p>
-            )}
-            {!product.isAddOn && product.isAutoAdded && (
-               <span tw="text-sm px-1 rounded bg-gray-200 text-gray-600 border border-gray-200">
-                  Auto Selected
-               </span>
-            )}
-         </main>
-      </CartProductContainer>
-   )
-}
 
 const SectionTitle = styled.h3(
    ({ theme }) => css`
@@ -308,24 +208,4 @@ const CartProducts = styled.ul`
    ${tw`space-y-2`}
    overflow-y: auto;
    max-height: 257px;
-`
-
-const CartProductContainer = styled.li`
-   ${tw`h-auto py-2 bg-white border flex items-start px-2 rounded`}
-   aside {
-      ${tw`w-24 h-16 bg-gray-300 rounded flex items-start justify-center`}
-      span.remove_product {
-         display: none;
-         background: rgba(0, 0, 0, 0.3);
-         ${tw`absolute h-full w-full items-center justify-center`}
-         button {
-            ${tw`bg-white h-6 w-6 rounded-full flex items-center justify-center`}
-         }
-      }
-      :hover {
-         span.remove_product {
-            display: flex;
-         }
-      }
-   }
 `

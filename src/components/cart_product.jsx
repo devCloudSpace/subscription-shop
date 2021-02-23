@@ -1,17 +1,10 @@
 import React from 'react'
 import tw, { styled } from 'twin.macro'
 
-import { useMenu } from '../../state'
-import { formatCurrency } from '../../../../utils'
-import { CloseIcon } from '../../../../assets/icons'
+import { formatCurrency } from '../utils'
+import { CloseIcon } from '../assets/icons'
 
-const CartProduct = ({ product }) => {
-   const { state, methods } = useMenu()
-
-   const canRemove =
-      ['PENDING', undefined].includes(state?.occurenceCustomer?.cart?.status) &&
-      state?.week?.isValid
-
+export const CartProduct = ({ product, isRemovable, onDelete }) => {
    return (
       <Wrapper>
          <aside tw="flex-shrink-0 relative">
@@ -27,9 +20,9 @@ const CartProduct = ({ product }) => {
                   N/A
                </span>
             )}
-            {canRemove && (
+            {isRemovable && (
                <span className="remove_product">
-                  <button onClick={() => methods.products.delete(product)}>
+                  <button onClick={() => onDelete(product)}>
                      <CloseIcon size={16} tw="stroke-current text-green-400" />
                   </button>
                </span>
@@ -47,12 +40,16 @@ const CartProduct = ({ product }) => {
                   Auto Selected
                </span>
             )}
+            {Boolean(product.addOnPrice) && (
+               <span tw="text-sm px-1 rounded bg-gray-200 text-gray-600 border border-gray-200">
+                  {product.addOnLabel}&nbsp;
+                  {formatCurrency(product.addOnPrice)}
+               </span>
+            )}
          </main>
       </Wrapper>
    )
 }
-
-export default CartProduct
 
 const Wrapper = styled.li`
    ${tw`h-auto py-2 bg-white border flex items-start px-2 rounded`}

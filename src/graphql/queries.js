@@ -328,6 +328,7 @@ export const CART_STATUS = gql`
          address
          paymentStatus
          fulfillmentInfo
+         billingDetails
       }
    }
 `
