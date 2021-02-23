@@ -5,15 +5,19 @@ import { navigate } from 'gatsby'
 import Billing from './billing'
 import Products from './products'
 import { useMenu } from '../state'
+import { SaveButton } from './styled'
 import Fulfillment from './fulfillment'
+import { useConfig } from '../../../lib'
 import { HelperBar } from '../../../components'
 
 export const CartPanel = ({ noSkip, isCheckout }) => {
    const { state } = useMenu()
+   const { configOf } = useConfig()
 
+   const theme = configOf('theme-color', 'Visual')
    if (
       ['ORDER_PLACED', 'PROCESS'].includes(
-         state.occurenceCustomer?.cart?.status
+         state?.occurenceCustomer?.cart?.status
       )
    )
       return (
@@ -38,6 +42,19 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
          <Fulfillment />
          {/* Billing Details */}
          <Billing />
+         {/* Checkout */}
+         {isCheckout && (
+            <SaveButton
+               bg={theme?.accent}
+               onClick={() => navigate('/subscription/get-started/checkout/')}
+               disabled={
+                  !state?.week?.isValid ||
+                  !state?.occurenceCustomer?.validStatus?.itemCountValid
+               }
+            >
+               Proceed to Checkout
+            </SaveButton>
+         )}
       </div>
    )
 }
