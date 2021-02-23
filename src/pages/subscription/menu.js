@@ -9,6 +9,7 @@ import {
    CartPanel,
    WeekPicker,
    MenuProvider,
+   useMenu,
 } from '../../sections/select-menu'
 import { useUser } from '../../context'
 import { useConfig } from '../../lib'
@@ -36,10 +37,11 @@ export default MenuPage
 
 const MenuContent = () => {
    const { user } = useUser()
+   const { state } = useMenu()
    const { configOf } = useConfig('Select-Menu')
    const config = configOf('select-menu-header')
 
-   if (isEmpty(user))
+   if (state?.isOccurencesLoading)
       return (
          <Main>
             <Loader inline />

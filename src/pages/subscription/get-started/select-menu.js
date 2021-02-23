@@ -12,7 +12,13 @@ import {
 } from '../../../sections/select-menu'
 import { useConfig } from '../../../lib'
 import { useUser } from '../../../context'
-import { SEO, Layout, StepsNavbar, HelperBar } from '../../../components'
+import {
+   SEO,
+   Layout,
+   StepsNavbar,
+   HelperBar,
+   Loader,
+} from '../../../components'
 
 const SelectMenu = () => {
    const { isAuthenticated } = useUser()
@@ -66,6 +72,11 @@ export default SelectMenu
 const MenuContent = () => {
    const { state } = useMenu()
 
+   if (state?.isOccurencesLoading) {
+      ;<section tw="p-3">
+         <Loader inline />
+      </section>
+   }
    if (!state?.week?.id)
       return (
          <section tw="p-3">
