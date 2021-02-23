@@ -14,7 +14,7 @@ import { CheckIcon, CloseIcon, MinusIcon, PlusIcon } from '../../assets/icons'
 import { isClient, formatCurrency, normalizeAddress } from '../../utils'
 import {
    ZIPCODE,
-   CREATE_CART,
+   UPSERT_CART,
    UPSERT_OCCURENCE_CUSTOMER_CART_SKIP,
    OCCURENCE_ADDON_PRODUCTS_BY_CATEGORIES,
 } from '../../graphql'
@@ -28,7 +28,7 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
    const { user } = useUser()
    const { state } = useMenu()
    const { configOf } = useConfig()
-   const [updateCart] = useMutation(CREATE_CART)
+   const [updateCart] = useMutation(UPSERT_CART)
    const [open, toggle] = React.useState(false)
    const [showSummaryBar, setShowSummaryBar] = React.useState(true)
    const { loading, data: { zipcode = {} } = {} } = useSubscription(ZIPCODE, {

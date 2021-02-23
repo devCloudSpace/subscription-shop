@@ -10,7 +10,7 @@ import { useUser } from '../../context'
 import { isClient } from '../../utils'
 import {
    ZIPCODE,
-   CREATE_CART,
+   UPSERT_CART,
    CART_BY_WEEK,
    OCCURENCES_BY_SUBSCRIPTION,
    INSERT_SUBSCRIPTION_OCCURENCE_CUSTOMERS,
@@ -106,10 +106,10 @@ export const MenuProvider = ({ children }) => {
          onError: error => console.log(error),
       }
    )
-   const [upsertCart] = useMutation(CREATE_CART, {
+   const [upsertCart] = useMutation(UPSERT_CART, {
       refetchQueries: () => ['subscriptionOccurenceCustomer'],
-      onCompleted: ({ createCart }) => {
-         isClient && window.localStorage.setItem('cartId', createCart.id)
+      onCompleted: ({ upsertCart }) => {
+         isClient && window.localStorage.setItem('cartId', upsertCart.id)
 
          const skipList = new URL(location.href).searchParams.get('previous')
 
@@ -337,7 +337,12 @@ export const MenuProvider = ({ children }) => {
       <MenuContext.Provider
          value={{
             state: { ...state, occurenceCustomer: cart, fulfillment },
-            methods: { products: { add: addProduct, delete: removeProduct } },
+            methods: {
+               products: {
+                  add: addProduct,
+                  delete: removeProduct,
+               },
+            },
             dispatch,
          }}
       >
