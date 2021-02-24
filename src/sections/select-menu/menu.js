@@ -87,6 +87,7 @@ export const Menu = () => {
 }
 
 const Product = ({ node, isAdded, theme }) => {
+   const { addToast } = useToasts()
    const { state, methods } = useMenu()
    const type = node?.simpleRecipeProductOption?.id ? 'SRP' : 'IP'
    const option =
