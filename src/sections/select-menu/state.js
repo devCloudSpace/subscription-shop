@@ -278,6 +278,27 @@ export const MenuProvider = ({ children }) => {
             update_columns: ['isSkipped', 'orderCartId'],
          },
       }
+
+      const products = occurenceCustomer?.cart?.cartInfo?.products
+
+      if (item.isAddOn) {
+         const index = products?.findIndex(
+            node =>
+               node.subscriptionOccurenceProductId ===
+               item.subscriptionOccurenceProductId
+         )
+         if (index !== -1) {
+            products[index] = {
+               ...products[index],
+               quantity: products[index].quantity + 1,
+            }
+         } else {
+            products.push({ ...item, cartItemId: uuidv4() })
+         }
+      } else {
+         products.push({ ...item, cartItemId: uuidv4() })
+      }
+
       const isSkipped = occurenceCustomer?.isSkipped
       if (occurenceCustomer?.validStatus?.hasCart) {
          upsertCart({
@@ -285,12 +306,7 @@ export const MenuProvider = ({ children }) => {
                object: {
                   id: occurenceCustomer?.cart?.id,
                   subscriptionOccurenceCustomers,
-                  cartInfo: {
-                     products: [
-                        ...occurenceCustomer?.cart?.cartInfo?.products,
-                        { ...item, cartItemId: uuidv4() },
-                     ],
-                  },
+                  cartInfo: { products },
                },
                on_conflict: {
                   constraint: 'orderCart_pkey',

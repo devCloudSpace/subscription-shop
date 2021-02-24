@@ -90,7 +90,7 @@ const CartBar = ({ setIsCartPanelOpen }) => {
    return (
       <Styles.CartBar>
          <h4 tw="text-base text-gray-700">
-            Cart {state.occurenceCustomer?.validStatus?.pendingProductsCount}/
+            Cart {state?.occurenceCustomer?.validStatus?.addedProductsCount}/
             {user?.subscription?.recipes?.count}
          </h4>
          <h4 tw="text-blue-700 pt-2" onClick={() => setIsCartPanelOpen(true)}>

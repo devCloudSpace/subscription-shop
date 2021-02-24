@@ -32,9 +32,10 @@ export const CartProduct = ({ product, isRemovable, onDelete }) => {
             <p tw="text-gray-800" title={product.name}>
                {product.name}
             </p>
-            {product.isAddOn && (
-               <p tw="text-green-600">{formatCurrency(product.unitPrice)}</p>
-            )}
+            <p tw="text-green-600">
+               {product.isAddOn && formatCurrency(product.unitPrice)} x
+               {product.quantity}
+            </p>
             {!product.isAddOn && product.isAutoAdded && (
                <span tw="text-sm px-1 rounded bg-gray-200 text-gray-600 border border-gray-200">
                   Auto Selected
