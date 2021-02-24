@@ -56,11 +56,11 @@ export const MUTATIONS = {
             `,
          },
          UPDATE: gql`
-            mutation updateOccurenceCustomerCart(
+            mutation updateOccurenceCustomer(
                $pk_columns: subscription_subscriptionOccurence_customer_pk_columns_input!
                $_set: subscription_subscriptionOccurence_customer_set_input!
             ) {
-               updateOccurenceCustomerCart: update_subscription_subscriptionOccurence_customer_by_pk(
+               updateOccurenceCustomer: update_subscription_subscriptionOccurence_customer_by_pk(
                   pk_columns: $pk_columns
                   _set: $_set
                ) {
@@ -103,6 +103,7 @@ export const MUTATIONS = {
                id
                subscriptionOccurenceCustomer {
                   validStatus
+                  isSkipped
                }
             }
          }

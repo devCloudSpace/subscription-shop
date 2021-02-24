@@ -277,6 +277,7 @@ export const MenuProvider = ({ children }) => {
             update_columns: ['isSkipped', 'orderCartId'],
          },
       }
+      const isSkipped = occurenceCustomer?.isSkipped
       if (occurenceCustomer?.validStatus?.hasCart) {
          upsertCart({
             variables: {
@@ -296,10 +297,6 @@ export const MenuProvider = ({ children }) => {
                },
             },
          }).then(({ data: { upsertCart = {} } = {} }) => {
-            console.log(
-               '🚀 ~ file: state.js ~ line 300 ~ MenuProvider ~ upsertCart',
-               upsertCart
-            )
             if (!item?.isAddOn) {
                dispatch({
                   type: 'IS_CART_FULL',
@@ -307,6 +304,16 @@ export const MenuProvider = ({ children }) => {
                      upsertCart?.subscriptionOccurenceCustomer?.validStatus
                         ?.itemCountValid,
                })
+            }
+            if (
+               upsertCart?.subscriptionOccurenceCustomer?.isSkipped !==
+               isSkipped
+            ) {
+               if (!upsertCart?.subscriptionOccurenceCustomer?.isSkipped) {
+                  addToast('This week has been unskipped.', {
+                     appearance: 'info',
+                  })
+               }
             }
             addToast(`You've added the product - ${item.name}.`, {
                appearance: 'info',

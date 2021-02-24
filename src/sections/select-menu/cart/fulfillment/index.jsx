@@ -27,6 +27,7 @@ const Fulfillment = () => {
    )
    const [createCart] = useMutation(MUTATIONS.CART.CREATE, {
       onCompleted: ({ createCart: { id = '' } = {} }) => {
+         const isSkipped = state.occurenceCustomer?.isSkipped
          updateOccurenceCustomer({
             variables: {
                pk_columns: {
@@ -36,12 +37,17 @@ const Fulfillment = () => {
                },
                _set: { isSkipped: false, orderCartId: id },
             },
+         }).then(({ data: { updateOccurenceCustomerCart = {} } = {} }) => {
+            if (isSkipped !== updateOccurenceCustomerCart?.isSkipped) {
+               addToast('This week has been unskipped', { appearance: 'info' })
+            }
          })
       },
       onError: error => console.log(error),
    })
    const [updateCart] = useMutation(UPDATE_CART, {
       onCompleted: ({ updateCart: { id = '' } = {} }) => {
+         const isSkipped = state.occurenceCustomer?.isSkipped
          updateOccurenceCustomer({
             variables: {
                pk_columns: {
@@ -51,6 +57,10 @@ const Fulfillment = () => {
                },
                _set: { isSkipped: false, orderCartId: id },
             },
+         }).then(({ data: { updateOccurenceCustomerCart = {} } = {} }) => {
+            if (isSkipped !== updateOccurenceCustomerCart?.isSkipped) {
+               addToast('This week has been unskipped', { appearance: 'info' })
+            }
          })
       },
       onError: error => console.log(error),
@@ -146,7 +156,7 @@ const Fulfillment = () => {
                               ? state.occurenceCustomer?.cart?.fulfillmentInfo?.type.includes(
                                    'DELIVERY'
                                 )
-                              : state.fulfillment.type.includes('DELIVERY')
+                              : state?.fulfillment?.type?.includes('DELIVERY')
                         }
                      >
                         <aside>
@@ -192,7 +202,7 @@ const Fulfillment = () => {
                               ? state.occurenceCustomer?.cart?.fulfillmentInfo?.type.includes(
                                    'PICKUP'
                                 )
-                              : state.fulfillment.type.includes('PICKUP')
+                              : state?.fulfillment?.type?.includes('PICKUP')
                         }
                      >
                         <aside>
