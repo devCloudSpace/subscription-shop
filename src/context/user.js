@@ -64,11 +64,14 @@ export const UserProvider = ({ children }) => {
    }, [])
 
    React.useEffect(() => {
-      if (!loading && customer?.id) {
-         const user = processUser(customer)
-         dispatch({ type: 'SET_USER', payload: user })
+      if (!loading) {
+         if (customer?.id) {
+            const user = processUser(customer)
+            dispatch({ type: 'SET_USER', payload: user })
+         }
+      } else {
+         setIsLoading(false)
       }
-      setIsLoading(false)
    }, [loading, customer])
 
    if (isLoading) return <PageLoader />

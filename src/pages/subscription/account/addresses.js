@@ -20,6 +20,7 @@ import {
    Tunnel,
    HelperBar,
    ProfileSidebar,
+   Loader,
 } from '../../../components'
 
 const Addresses = () => {
@@ -93,7 +94,7 @@ const Content = () => {
 
    const makeDefault = async address => {
       setSelected(address.id)
-      await checkZipcodeValidity({
+      checkZipcodeValidity({
          variables: {
             subscriptionId: {
                _eq: user?.subscriptionId,
@@ -116,43 +117,50 @@ const Content = () => {
                </Button>
             )}
          </header>
-         {user?.platform_customer?.addresses.length > 0 ? (
-            <AddressList>
-               {user?.platform_customer?.addresses.map(address => (
-                  <li
-                     key={address.id}
-                     tw="p-2 flex flex-col items-start border text-gray-700"
-                  >
-                     {address.id === user?.subscriptionAddressId ? (
-                        <span tw="mb-2 rounded border bg-teal-200 border-teal-300 px-2 text-teal-700">
-                           Default
-                        </span>
-                     ) : (
-                        <button
-                           tw="mb-2 rounded border border-orange-300 px-2 text-teal-700 cursor-pointer hover:(bg-orange-300 text-orange-900)"
-                           onClick={() => makeDefault(address)}
-                        >
-                           Make Default
-                        </button>
-                     )}
-                     <span>{address?.line1}</span>
-                     <span>{address?.line2}</span>
-                     <span>{address?.city}</span>
-                     <span>{address?.state}</span>
-                     <span>{address?.country}</span>
-                     <span>{address?.zipcode}</span>
-                  </li>
-               ))}
-            </AddressList>
+         {isEmpty(user?.platform_customer) ? (
+            <Loader inline />
          ) : (
-            <HelperBar type="info">
-               <HelperBar.SubTitle>
-                  Let's start with adding an address
-               </HelperBar.SubTitle>
-               <HelperBar.Button onClick={() => toggleTunnel(true)}>
-                  Add Address
-               </HelperBar.Button>
-            </HelperBar>
+            <>
+               {user?.platform_customer?.addresses.length > 0 ? (
+                  <AddressList>
+                     {user?.platform_customer?.addresses.map(address => (
+                        <li
+                           key={address.id}
+                           tw="p-2 flex flex-col items-start border text-gray-700"
+                        >
+                           {address.id === user?.subscriptionAddressId ? (
+                              <span tw="mb-2 rounded border bg-teal-200 border-teal-300 px-2 text-teal-700">
+                                 Default
+                              </span>
+                           ) : (
+                              <button
+                                 tw="mb-2 rounded border border-orange-300 px-2 text-teal-700 cursor-pointer hover:(bg-orange-300 text-orange-900)"
+                                 onClick={() => makeDefault(address)}
+                              >
+                                 Make Default
+                              </button>
+                           )}
+                           <span>{address?.line1}</span>
+                           <span>{address?.line2}</span>
+                           <span>{address?.city}</span>
+                           <span>{address?.state}</span>
+                           <span>{address?.country}</span>
+                           <span>{address?.zipcode}</span>
+                        </li>
+                     ))}
+                  </AddressList>
+               ) : (
+                  <HelperBar type="info">
+                     {console.log('called')}
+                     <HelperBar.SubTitle>
+                        Let's start with adding an address
+                     </HelperBar.SubTitle>
+                     <HelperBar.Button onClick={() => toggleTunnel(true)}>
+                        Add Address
+                     </HelperBar.Button>
+                  </HelperBar>
+               )}
+            </>
          )}
          {tunnel && (
             <AddressTunnel tunnel={tunnel} toggleTunnel={toggleTunnel} />
