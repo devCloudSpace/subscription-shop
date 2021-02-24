@@ -60,7 +60,8 @@ const Content = () => {
       },
    })
 
-   const [validate] = useLazyQuery(ZIPCODE_AVAILABILITY, {
+   const [checkZipcodeValidity] = useLazyQuery(ZIPCODE_AVAILABILITY, {
+      fetchPolicy: 'network-only',
       onCompleted: ({ subscription_zipcode = [] }) => {
          if (isEmpty(subscription_zipcode)) {
             addToast('Sorry, this address is not deliverable on your plan.', {
@@ -86,13 +87,13 @@ const Content = () => {
       },
       onError: error => {
          addToast('Something went wrong', { appearance: 'error' })
-         console.log('validate -> zipcode -> error', error)
+         console.log('checkZipcodeValidity -> zipcode -> error', error)
       },
    })
 
-   const makeDefault = address => {
+   const makeDefault = async address => {
       setSelected(address.id)
-      validate({
+      await checkZipcodeValidity({
          variables: {
             subscriptionId: {
                _eq: user?.subscriptionId,
