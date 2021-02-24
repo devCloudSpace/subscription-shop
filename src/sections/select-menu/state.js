@@ -194,7 +194,7 @@ export const MenuProvider = ({ children }) => {
       loading: occurenceCustomerLoading,
       data: { subscriptionOccurenceCustomer: occurenceCustomer = {} } = {},
    } = useSubscription(CART_BY_WEEK, {
-      skip: !state.week.id && !user.keycloakId && !user.brandCustomerId,
+      skip: !state.week.id || !user.keycloakId || !user.brandCustomerId,
       variables: {
          weekId: state.week.id,
          keycloakId: user?.keycloakId,

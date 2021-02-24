@@ -38,7 +38,7 @@ export const UserProvider = ({ children }) => {
    const { loading, data: { customer = {} } = {} } = useQuery(
       CUSTOMER.DETAILS,
       {
-         skip: !keycloakId && !brand.id,
+         skip: !keycloakId || !brand.id,
          fetchPolicy: 'network-only',
          variables: {
             keycloakId,
@@ -69,9 +69,8 @@ export const UserProvider = ({ children }) => {
             const user = processUser(customer)
             dispatch({ type: 'SET_USER', payload: user })
          }
-      } else {
-         setIsLoading(false)
       }
+      setIsLoading(false)
    }, [loading, customer])
 
    if (isLoading) return <PageLoader />
