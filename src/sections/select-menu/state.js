@@ -21,7 +21,6 @@ export const MenuContext = React.createContext()
 const initialState = {
    week: {},
    isOccurencesLoading: true,
-   currentWeekIndex: 0,
    occurences: [],
    isCartFull: false,
 }
@@ -36,8 +35,6 @@ const reducers = (state, { type, payload }) => {
       }
       case 'SET_IS_OCCURENCES_LOADING':
          return { ...state, isOccurencesLoading: payload }
-      case 'SET_CURRENT_WEEK_INDEX':
-         return { ...state, currentWeekIndex: payload }
       case 'IS_CART_FULL':
          return { ...state, isCartFull: payload }
       case 'SET_OCCURENCES':

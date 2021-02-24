@@ -8,27 +8,6 @@ import { Loader } from '../../components'
 export const WeekPicker = ({ isFixed }) => {
    const { state, dispatch } = useMenu()
 
-   const next = () => {
-      const nextOne =
-         (state.currentWeekIndex + 1 + state.occurences.length) %
-         state.occurences.length
-      dispatch({
-         type: 'SET_CURRENT_WEEK_INDEX',
-         payload: nextOne,
-      })
-      dispatch({ type: 'SET_WEEK', payload: state.occurences[nextOne] })
-   }
-   const previous = () => {
-      const previousOne =
-         (state.currentWeekIndex - 1 + state.occurences.length) %
-         state.occurences.length
-      dispatch({
-         type: 'SET_CURRENT_WEEK_INDEX',
-         payload: previousOne,
-      })
-      dispatch({ type: 'SET_WEEK', payload: state.occurences[previousOne] })
-   }
-
    if (state.isOccurencesLoading) return <Loader inline />
    if (!state?.week?.id) return null
    if (isFixed)
