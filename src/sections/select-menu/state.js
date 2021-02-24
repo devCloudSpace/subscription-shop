@@ -8,6 +8,7 @@ import { useMutation, useQuery, useSubscription } from '@apollo/react-hooks'
 
 import { useUser } from '../../context'
 import { isClient } from '../../utils'
+import { Loader } from '../../components'
 import {
    ZIPCODE,
    MUTATIONS,
@@ -209,7 +210,11 @@ export const MenuProvider = ({ children }) => {
    })
 
    React.useEffect(() => {
-      if (state.week?.id && !occurenceCustomerLoading) {
+      if (
+         !state.isOccurencesLoading &&
+         state.week?.id &&
+         !occurenceCustomerLoading
+      ) {
          if (isEmpty(occurenceCustomer)) {
             insertOccurenceCustomers({
                variables: {
@@ -228,7 +233,12 @@ export const MenuProvider = ({ children }) => {
             setCart(occurenceCustomer)
          }
       }
-   }, [state.week, occurenceCustomerLoading, occurenceCustomer])
+   }, [
+      state.isOccurencesLoading,
+      state.week,
+      occurenceCustomerLoading,
+      occurenceCustomer,
+   ])
 
    const removeProduct = item => {
       const products = occurenceCustomer?.cart?.cartInfo?.products.filter(
@@ -286,6 +296,10 @@ export const MenuProvider = ({ children }) => {
                },
             },
          }).then(({ data: { upsertCart = {} } = {} }) => {
+            console.log(
+               '🚀 ~ file: state.js ~ line 300 ~ MenuProvider ~ upsertCart',
+               upsertCart
+            )
             if (!item?.isAddOn) {
                dispatch({
                   type: 'IS_CART_FULL',
@@ -346,6 +360,7 @@ export const MenuProvider = ({ children }) => {
       }
    }
 
+   if (state.isOccurencesLoading && state.week.id) return <Loader inline />
    return (
       <MenuContext.Provider
          value={{
