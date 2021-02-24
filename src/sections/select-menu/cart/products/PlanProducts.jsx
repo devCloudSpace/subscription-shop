@@ -7,10 +7,9 @@ import { useMenu } from '../../state'
 import { CartProducts } from '../styled'
 import { useUser } from '../../../../context'
 import { MUTATIONS } from '../../../../graphql'
-import { CloseIcon } from '../../../../assets/icons'
 import { ProductSkeleton, CartProduct } from '../../../../components'
 
-const PlanProducts = ({ noSkip, setShowSummaryBar }) => {
+const PlanProducts = ({ noSkip }) => {
    const { user } = useUser()
    const { addToast } = useToasts()
    const { state, methods } = useMenu()
@@ -79,12 +78,6 @@ const PlanProducts = ({ noSkip, setShowSummaryBar }) => {
                   />
                </SkipWeek>
             )}
-            <button
-               tw="md:hidden rounded-full border-2 border-green-400 h-6 w-6 "
-               onClick={() => setShowSummaryBar(true)}
-            >
-               <CloseIcon size={16} tw="stroke-current text-green-400" />
-            </button>
          </header>
          <CartProducts>
             {state?.occurenceCustomer?.cart?.cartInfo?.products?.map(
