@@ -52,11 +52,14 @@ export const WeekPicker = ({ isFixed }) => {
 const Occurences = styled.ul`
    height: 64px;
    max-width: 980px;
-   ${tw`w-full mx-auto overflow-x-auto flex items-center justify-center space-x-4`}
+   ${tw`px-2 w-full mx-auto overflow-x-auto flex items-center justify-between space-x-4`}
+   &::after, &::before {
+      content: '';
+   }
 `
 
 const Occurence = styled.li`
-   ${tw`flex-shrink-0 px-3 rounded-full border`}
+   ${tw`flex-shrink-0 px-3 rounded-full border cursor-pointer`}
    &.active {
       ${tw`bg-green-200 text-green-700`}
    }
