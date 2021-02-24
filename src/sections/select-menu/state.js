@@ -194,6 +194,7 @@ export const MenuProvider = ({ children }) => {
       loading: occurenceCustomerLoading,
       data: { subscriptionOccurenceCustomer: occurenceCustomer = {} } = {},
    } = useSubscription(CART_BY_WEEK, {
+      skip: !state.week.id && !user.keycloakId && !user.brandCustomerId,
       variables: {
          weekId: state.week.id,
          keycloakId: user?.keycloakId,
@@ -359,7 +360,25 @@ export const MenuProvider = ({ children }) => {
                   ],
                },
             },
-         }).then(() => {
+         }).then(({ data: { upsertCart = {} } = {} }) => {
+            if (!item?.isAddOn) {
+               dispatch({
+                  type: 'IS_CART_FULL',
+                  payload:
+                     upsertCart?.subscriptionOccurenceCustomer?.validStatus
+                        ?.itemCountValid,
+               })
+            }
+            if (
+               upsertCart?.subscriptionOccurenceCustomer?.isSkipped !==
+               isSkipped
+            ) {
+               if (!upsertCart?.subscriptionOccurenceCustomer?.isSkipped) {
+                  addToast('This week has been unskipped.', {
+                     appearance: 'info',
+                  })
+               }
+            }
             addToast(`You've added the product - ${item.name}.`, {
                appearance: 'info',
             })
