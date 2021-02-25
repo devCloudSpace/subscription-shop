@@ -79,7 +79,7 @@ export const Billing = ({ billing }) => {
 const Styles = {
    Table: styled.table`
       ${tw`my-2 w-full table-auto`}
-      tr:nth-child(even) {
+      tr:nth-of-type(even) {
          ${tw`bg-gray-100`}
       }
       tr {

@@ -1,5 +1,6 @@
 import React from 'react'
 import { navigate } from 'gatsby'
+import { useLocation } from '@reach/router'
 import tw, { styled, css } from 'twin.macro'
 import { useSubscription } from '@apollo/react-hooks'
 
@@ -10,6 +11,7 @@ import { ORDER_HISTORY, ORDER } from '../../../graphql'
 import {
    SEO,
    Layout,
+   HelperBar,
    ProfileSidebar,
    ProductSkeleton,
 } from '../../../components'
@@ -38,20 +40,19 @@ const Orders = () => {
 export default Orders
 
 const OrderHistory = () => {
-   const [current, setCurrent] = React.useState()
-
    return (
       <Wrapper>
-         <Listing current={current} setCurrent={setCurrent} />
-         <Details current={current} />
+         <Listing />
+         <Details />
       </Wrapper>
    )
 }
 
-const Listing = ({ current, setCurrent }) => {
-   const [orderWindow, setOrderWindow] = React.useState(1)
+const Listing = () => {
    const { user } = useUser()
+   const location = useLocation()
    const { configOf } = useConfig()
+   const [orderWindow, setOrderWindow] = React.useState(1)
    const { loading, data: { orders = {} } = {} } = useSubscription(
       ORDER_HISTORY,
       {
@@ -62,12 +63,17 @@ const Listing = ({ current, setCurrent }) => {
             subscriptionData: { data: { orders = {} } = {} } = {},
          }) => {
             if (orders.aggregate.count > 0) {
-               setCurrent(orders.nodes[0].occurrenceId)
+               const [node] = orders.nodes
+               navigate(`/subscription/account/orders?id=${node.occurenceId}`)
             }
          },
       }
    )
    const theme = configOf('theme-color', 'Visual')
+
+   const selectOrder = id => {
+      navigate(`/subscription/account/orders?id=${id}`)
+   }
 
    if (loading)
       return (
@@ -91,12 +97,17 @@ const Listing = ({ current, setCurrent }) => {
                      <Date
                         theme={theme}
                         key={node.occurrenceId}
-                        onClick={() => setCurrent(node.occurrenceId)}
+                        onClick={() => selectOrder(node.occurenceId)}
                         className={`${
-                           node.occurrenceId === current ? 'active' : ''
+                           node.occurenceId ===
+                           Number(
+                              new URLSearchParams(location.search).get('id')
+                           )
+                              ? 'active'
+                              : ''
                         }`}
                      >
-                        {formatDate(node.occurrence.date, {
+                        {formatDate(node.occurence.date, {
                            month: 'short',
                            day: 'numeric',
                            year: 'numeric',
@@ -117,16 +128,22 @@ const Listing = ({ current, setCurrent }) => {
    )
 }
 
-const Details = ({ current }) => {
+const Details = () => {
    const { user } = useUser()
+   const location = useLocation()
    const { configOf } = useConfig()
    const { error, loading, data: { order = {} } = {} } = useSubscription(
       ORDER,
       {
-         skip: !user?.keycloakId && !current && !user?.brandCustomerId,
+         skip:
+            !user?.keycloakId ||
+            !user?.brandCustomerId ||
+            !new URLSearchParams(location.search).get('id'),
          variables: {
             keycloakId: user?.keycloakId,
-            subscriptionOccurenceId: current,
+            subscriptionOccurenceId: new URLSearchParams(location.search).get(
+               'id'
+            ),
             brand_customerId: user?.brandCustomerId,
          },
       }
@@ -150,7 +167,16 @@ const Details = ({ current }) => {
             </ProductCards>
          </main>
       )
-
+   if (!new URLSearchParams(location.search).get('id'))
+      return (
+         <div tw="m-3">
+            <HelperBar type="warning">
+               <HelperBar.SubTitle>
+                  Select a date to view an order details
+               </HelperBar.SubTitle>
+            </HelperBar>
+         </div>
+      )
    return (
       <main tw="mx-3">
          <header tw="flex items-center justify-between">

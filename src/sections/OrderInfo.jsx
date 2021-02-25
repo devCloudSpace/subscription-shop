@@ -85,7 +85,11 @@ const OrderInfo = ({ cart, showViewOrderButton = false }) => {
          {showViewOrderButton && (
             <button
                tw="h-10 w-full rounded text-white text-center bg-green-500"
-               onClick={() => navigate('/subscription/account/orders')}
+               onClick={() =>
+                  navigate(
+                     `/subscription/account/orders?id=${cart?.subscriptionOccurenceId}`
+                  )
+               }
             >
                Go to Order
             </button>

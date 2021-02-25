@@ -346,8 +346,8 @@ export const ORDER_HISTORY = gql`
             count
          }
          nodes {
-            occurrenceId: subscriptionOccurenceId
-            occurrence: subscriptionOccurence {
+            occurenceId: subscriptionOccurenceId
+            occurence: subscriptionOccurence {
                date: fulfillmentDate
             }
          }
