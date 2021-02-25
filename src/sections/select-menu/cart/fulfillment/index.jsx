@@ -18,7 +18,7 @@ const evalTime = (date, time) => {
 }
 
 const Fulfillment = () => {
-   const { state } = useMenu()
+   const { state, dispatch } = useMenu()
    const { user } = useUser()
    const { addToast } = useToasts()
    const [updateOccurenceCustomer] = useMutation(
@@ -42,8 +42,12 @@ const Fulfillment = () => {
                addToast('This week has been unskipped', { appearance: 'info' })
             }
          })
+         dispatch({ type: 'CART_STATE', payload: 'SAVED' })
       },
-      onError: error => console.log(error),
+      onError: error => {
+         dispatch({ type: 'CART_STATE', payload: 'SAVED' })
+         console.log(error)
+      },
    })
    const [updateCart] = useMutation(UPDATE_CART, {
       onCompleted: ({ updateCart: { id = '' } = {} }) => {
@@ -62,8 +66,13 @@ const Fulfillment = () => {
                addToast('This week has been unskipped', { appearance: 'info' })
             }
          })
+
+         dispatch({ type: 'CART_STATE', payload: 'SAVED' })
       },
-      onError: error => console.log(error),
+      onError: error => {
+         dispatch({ type: 'CART_STATE', payload: 'SAVED' })
+         console.log(error)
+      },
    })
    const { loading, data: { zipcode = {} } = {} } = useSubscription(ZIPCODE, {
       variables: {
@@ -75,6 +84,7 @@ const Fulfillment = () => {
    const setFulfillment = mode => {
       let fulfillmentInfo = {}
       const fulfillmentDate = state.week.fulfillmentDate
+      dispatch({ type: 'CART_STATE', payload: 'SAVING' })
 
       if (mode === 'DELIVERY') {
          const { from = '', to = '' } = zipcode?.deliveryTime

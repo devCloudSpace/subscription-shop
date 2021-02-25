@@ -63,6 +63,18 @@ const PlanProducts = ({ noSkip }) => {
                {state?.occurenceCustomer?.validStatus?.addedProductsCount}/
                {user?.subscription?.recipes?.count}
             </h4>
+            <section tw="sm:hidden md:block">
+               {state.cartState === 'SAVING' && (
+                  <span tw="text-sm bg-blue-200 text-blue-700  rounded-full px-3 font-medium">
+                     SAVING
+                  </span>
+               )}
+               {state.cartState === 'SAVED' && (
+                  <span tw="text-sm bg-green-200 text-green-700 rounded-full px-3 font-medium">
+                     SAVED
+                  </span>
+               )}
+            </section>
             {isSkippable && (
                <SkipWeek>
                   <label htmlFor="skip" tw="mr-2 text-gray-600">

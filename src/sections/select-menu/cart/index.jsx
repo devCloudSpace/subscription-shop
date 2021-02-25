@@ -89,13 +89,30 @@ const CartBar = ({ setIsCartPanelOpen }) => {
    const { user } = useUser()
    return (
       <Styles.CartBar>
-         <h4 tw="text-base text-gray-700">
-            Cart {state?.occurenceCustomer?.validStatus?.addedProductsCount}/
-            {user?.subscription?.recipes?.count}
-         </h4>
-         <h4 tw="text-blue-700 pt-2" onClick={() => setIsCartPanelOpen(true)}>
-            View full summary <span>&#8657;</span>
-         </h4>
+         <section>
+            <h4 tw="text-base text-gray-700">
+               Cart {state?.occurenceCustomer?.validStatus?.addedProductsCount}/
+               {user?.subscription?.recipes?.count}
+            </h4>
+            <h4
+               tw="text-blue-700 pt-2"
+               onClick={() => setIsCartPanelOpen(true)}
+            >
+               View full summary <span>&#8657;</span>
+            </h4>
+         </section>
+         <section tw="sm:hidden md:block">
+            {state.cartState === 'SAVING' && (
+               <span tw="text-sm bg-blue-200 text-blue-700  rounded-full px-3 font-medium">
+                  SAVING
+               </span>
+            )}
+            {state.cartState === 'SAVED' && (
+               <span tw="text-sm bg-green-200 text-green-700 rounded-full px-3 font-medium">
+                  SAVED
+               </span>
+            )}
+         </section>
       </Styles.CartBar>
    )
 }
@@ -131,6 +148,6 @@ const Styles = {
    `,
    CartBar: styled.section`
       box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.3);
-      ${tw`z-10 p-2 md:hidden h-20 fixed bottom-0 right-0 left-0 bg-white border-t`}
+      ${tw`flex items-center justify-between z-10 p-2 md:hidden h-20 fixed bottom-0 right-0 left-0 bg-white border-t`}
    `,
 }

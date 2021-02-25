@@ -23,6 +23,7 @@ const initialState = {
    isOccurencesLoading: true,
    occurences: [],
    isCartFull: false,
+   cartState: 'IDLE',
 }
 
 const reducers = (state, { type, payload }) => {
@@ -37,6 +38,11 @@ const reducers = (state, { type, payload }) => {
          return { ...state, isOccurencesLoading: payload }
       case 'IS_CART_FULL':
          return { ...state, isCartFull: payload }
+      case 'CART_STATE':
+         return {
+            ...state,
+            cartState: payload,
+         }
       case 'SET_OCCURENCES':
          return {
             ...state,
@@ -128,11 +134,13 @@ export const MenuProvider = ({ children }) => {
          addToast('Selected menu has been saved.', {
             appearance: 'success',
          })
+         dispatch({ type: 'CART_STATE', payload: 'SAVED' })
       },
       onError: error => {
          addToast(error.message, {
             appearance: 'error',
          })
+         dispatch({ type: 'CART_STATE', payload: 'SAVED' })
       },
    })
    useQuery(OCCURENCES_BY_SUBSCRIPTION, {
@@ -239,6 +247,7 @@ export const MenuProvider = ({ children }) => {
    ])
 
    const removeProduct = item => {
+      dispatch({ type: 'CART_STATE', payload: 'SAVING' })
       const products = occurenceCustomer?.cart?.cartInfo?.products.filter(
          node => node.cartItemId !== item.cartItemId
       )
@@ -261,6 +270,7 @@ export const MenuProvider = ({ children }) => {
    }
 
    const addProduct = item => {
+      dispatch({ type: 'CART_STATE', payload: 'SAVING' })
       const subscriptionOccurenceCustomers = {
          data: [
             {
