@@ -24,7 +24,7 @@ export const Layout = ({ children, noHeader }) => {
          {!noHeader && <Header />}
          {children}
          {store?.isStoreLive === false && (
-            <div tw="bg-gray-200 text-gray-700 w-full h-10 flex items-center justify-center">
+            <div tw="p-2 bg-gray-200 text-gray-700 w-full flex items-center justify-center">
                Store running in test mode so payments will be bypassed
             </div>
          )}

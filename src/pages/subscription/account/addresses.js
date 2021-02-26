@@ -10,11 +10,7 @@ import { useUser } from '../../../context'
 import { CloseIcon } from '../../../assets/icons'
 import { useScript, isClient } from '../../../utils'
 import GooglePlacesAutocomplete from 'react-google-places-autocomplete'
-import {
-   BRAND,
-   ZIPCODE_AVAILABILITY,
-   CREATE_CUSTOMER_ADDRESS,
-} from '../../../graphql'
+import { BRAND, MUTATIONS, ZIPCODE_AVAILABILITY } from '../../../graphql'
 import {
    SEO,
    Form,
@@ -24,6 +20,7 @@ import {
    Tunnel,
    HelperBar,
    ProfileSidebar,
+   Loader,
 } from '../../../components'
 
 const Addresses = () => {
@@ -64,7 +61,8 @@ const Content = () => {
       },
    })
 
-   const [validate] = useLazyQuery(ZIPCODE_AVAILABILITY, {
+   const [checkZipcodeValidity] = useLazyQuery(ZIPCODE_AVAILABILITY, {
+      fetchPolicy: 'network-only',
       onCompleted: ({ subscription_zipcode = [] }) => {
          if (isEmpty(subscription_zipcode)) {
             addToast('Sorry, this address is not deliverable on your plan.', {
@@ -90,13 +88,13 @@ const Content = () => {
       },
       onError: error => {
          addToast('Something went wrong', { appearance: 'error' })
-         console.log('validate -> zipcode -> error', error)
+         console.log('checkZipcodeValidity -> zipcode -> error', error)
       },
    })
 
-   const makeDefault = address => {
+   const makeDefault = async address => {
       setSelected(address.id)
-      validate({
+      checkZipcodeValidity({
          variables: {
             subscriptionId: {
                _eq: user?.subscriptionId,
@@ -119,43 +117,50 @@ const Content = () => {
                </Button>
             )}
          </header>
-         {user?.platform_customer?.addresses.length > 0 ? (
-            <AddressList>
-               {user?.platform_customer?.addresses.map(address => (
-                  <li
-                     key={address.id}
-                     tw="p-2 flex flex-col items-start border text-gray-700"
-                  >
-                     {address.id === user?.subscriptionAddressId ? (
-                        <span tw="mb-2 rounded border bg-teal-200 border-teal-300 px-2 text-teal-700">
-                           Default
-                        </span>
-                     ) : (
-                        <button
-                           tw="mb-2 rounded border border-orange-300 px-2 text-teal-700 cursor-pointer hover:(bg-orange-300 text-orange-900)"
-                           onClick={() => makeDefault(address)}
-                        >
-                           Make Default
-                        </button>
-                     )}
-                     <span>{address?.line1}</span>
-                     <span>{address?.line2}</span>
-                     <span>{address?.city}</span>
-                     <span>{address?.state}</span>
-                     <span>{address?.country}</span>
-                     <span>{address?.zipcode}</span>
-                  </li>
-               ))}
-            </AddressList>
+         {isEmpty(user?.platform_customer) ? (
+            <Loader inline />
          ) : (
-            <HelperBar type="info">
-               <HelperBar.SubTitle>
-                  Let's start with adding an address
-               </HelperBar.SubTitle>
-               <HelperBar.Button onClick={() => toggleTunnel(true)}>
-                  Add Address
-               </HelperBar.Button>
-            </HelperBar>
+            <>
+               {user?.platform_customer?.addresses.length > 0 ? (
+                  <AddressList>
+                     {user?.platform_customer?.addresses.map(address => (
+                        <li
+                           key={address.id}
+                           tw="p-2 flex flex-col items-start border text-gray-700"
+                        >
+                           {address.id === user?.subscriptionAddressId ? (
+                              <span tw="mb-2 rounded border bg-teal-200 border-teal-300 px-2 text-teal-700">
+                                 Default
+                              </span>
+                           ) : (
+                              <button
+                                 tw="mb-2 rounded border border-orange-300 px-2 text-teal-700 cursor-pointer hover:(bg-orange-300 text-orange-900)"
+                                 onClick={() => makeDefault(address)}
+                              >
+                                 Make Default
+                              </button>
+                           )}
+                           <span>{address?.line1}</span>
+                           <span>{address?.line2}</span>
+                           <span>{address?.city}</span>
+                           <span>{address?.state}</span>
+                           <span>{address?.country}</span>
+                           <span>{address?.zipcode}</span>
+                        </li>
+                     ))}
+                  </AddressList>
+               ) : (
+                  <HelperBar type="info">
+                     {console.log('called')}
+                     <HelperBar.SubTitle>
+                        Let's start with adding an address
+                     </HelperBar.SubTitle>
+                     <HelperBar.Button onClick={() => toggleTunnel(true)}>
+                        Add Address
+                     </HelperBar.Button>
+                  </HelperBar>
+               )}
+            </>
          )}
          {tunnel && (
             <AddressTunnel tunnel={tunnel} toggleTunnel={toggleTunnel} />
@@ -169,7 +174,7 @@ export const AddressTunnel = ({ tunnel, toggleTunnel }) => {
    const { addToast } = useToasts()
    const [formStatus, setFormStatus] = React.useState('PENDING')
    const [address, setAddress] = React.useState(null)
-   const [createAddress] = useMutation(CREATE_CUSTOMER_ADDRESS, {
+   const [createAddress] = useMutation(MUTATIONS.CUSTOMER.ADDRESS.CREATE, {
       refetchQueries: () => ['customer'],
       onCompleted: () => {
          toggleTunnel(false)

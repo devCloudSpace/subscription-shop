@@ -1,18 +1,21 @@
 import React from 'react'
 import { navigate } from 'gatsby'
+import { useLocation } from '@reach/router'
 import tw, { styled, css } from 'twin.macro'
 import { useSubscription } from '@apollo/react-hooks'
 
 import { useConfig } from '../../../lib'
 import { useUser } from '../../../context'
+import { formatDate, isClient } from '../../../utils'
 import { ORDER_HISTORY, ORDER } from '../../../graphql'
 import {
-   formatDate,
-   formatCurrency,
-   isClient,
-   normalizeAddress,
-} from '../../../utils'
-import { SEO, Layout, HelperBar, ProfileSidebar } from '../../../components'
+   SEO,
+   Layout,
+   HelperBar,
+   ProfileSidebar,
+   ProductSkeleton,
+} from '../../../components'
+import OrderInfo from '../../../sections/OrderInfo'
 
 const Orders = () => {
    const { isAuthenticated } = useUser()
@@ -37,20 +40,19 @@ const Orders = () => {
 export default Orders
 
 const OrderHistory = () => {
-   const [current, setCurrent] = React.useState()
-
    return (
       <Wrapper>
-         <Listing current={current} setCurrent={setCurrent} />
-         <Details current={current} />
+         <Listing />
+         <Details />
       </Wrapper>
    )
 }
 
-const Listing = ({ current, setCurrent }) => {
-   const [orderWindow, setOrderWindow] = React.useState(1)
+const Listing = () => {
    const { user } = useUser()
+   const location = useLocation()
    const { configOf } = useConfig()
+   const [orderWindow, setOrderWindow] = React.useState(1)
    const { loading, data: { orders = {} } = {} } = useSubscription(
       ORDER_HISTORY,
       {
@@ -61,12 +63,17 @@ const Listing = ({ current, setCurrent }) => {
             subscriptionData: { data: { orders = {} } = {} } = {},
          }) => {
             if (orders.aggregate.count > 0) {
-               setCurrent(orders.nodes[0].occurrenceId)
+               const [node] = orders.nodes
+               navigate(`/subscription/account/orders?id=${node.occurenceId}`)
             }
          },
       }
    )
    const theme = configOf('theme-color', 'Visual')
+
+   const selectOrder = id => {
+      navigate(`/subscription/account/orders?id=${id}`)
+   }
 
    if (loading)
       return (
@@ -90,12 +97,17 @@ const Listing = ({ current, setCurrent }) => {
                      <Date
                         theme={theme}
                         key={node.occurrenceId}
-                        onClick={() => setCurrent(node.occurrenceId)}
+                        onClick={() => selectOrder(node.occurenceId)}
                         className={`${
-                           node.occurrenceId === current ? 'active' : ''
+                           node.occurenceId ===
+                           Number(
+                              new URLSearchParams(location.search).get('id')
+                           )
+                              ? 'active'
+                              : ''
                         }`}
                      >
-                        {formatDate(node.occurrence.date, {
+                        {formatDate(node.occurence.date, {
                            month: 'short',
                            day: 'numeric',
                            year: 'numeric',
@@ -116,20 +128,29 @@ const Listing = ({ current, setCurrent }) => {
    )
 }
 
-const Details = ({ current }) => {
+const Details = () => {
    const { user } = useUser()
+   const location = useLocation()
    const { configOf } = useConfig()
    const { error, loading, data: { order = {} } = {} } = useSubscription(
       ORDER,
       {
-         skip: !user?.keycloakId && !current && !user?.brandCustomerId,
+         skip:
+            !user?.keycloakId ||
+            !user?.brandCustomerId ||
+            !new URLSearchParams(location.search).get('id'),
          variables: {
             keycloakId: user?.keycloakId,
-            subscriptionOccurenceId: current,
+            subscriptionOccurenceId: new URLSearchParams(location.search).get(
+               'id'
+            ),
             brand_customerId: user?.brandCustomerId,
          },
       }
    )
+   if (!loading && error) {
+      console.log(error)
+   }
 
    const paymentMethod = user?.platform_customer?.paymentMethods.find(
       node => node.stripePaymentMethodId === order?.cart?.paymentMethodId
@@ -141,21 +162,20 @@ const Details = ({ current }) => {
          <main tw="mx-3">
             <h2 tw="pt-3 pb-1 mb-2 text-green-600 text-2xl">Order Details</h2>
             <ProductCards>
-               <SkeletonCartProduct />
-               <SkeletonCartProduct />
+               <ProductSkeleton />
+               <ProductSkeleton />
             </ProductCards>
          </main>
       )
-   if (order.isSkipped)
+   if (!new URLSearchParams(location.search).get('id'))
       return (
-         <main tw="mx-3">
-            <h2 tw="pt-3 pb-1 mb-2 text-green-600 text-2xl">Order Details</h2>
-            <HelperBar type="info">
+         <div tw="m-3">
+            <HelperBar type="warning">
                <HelperBar.SubTitle>
-                  This week has been skipped!
+                  Select a date to view an order details
                </HelperBar.SubTitle>
             </HelperBar>
-         </main>
+         </div>
       )
    return (
       <main tw="mx-3">
@@ -167,47 +187,7 @@ const Details = ({ current }) => {
                </Status>
             )}
          </header>
-         <ProductCards>
-            {order?.cart?.cartInfo?.products.map(product => (
-               <CartProduct
-                  product={product}
-                  key={`product-${product.cartItemId}`}
-               />
-            ))}
-         </ProductCards>
-         <h4 tw="text-lg text-gray-700 my-3 pb-1 border-b">Charges</h4>
-         <table tw="my-3 w-full table-auto">
-            <tbody>
-               <tr>
-                  <td tw="border px-2 py-1">Base Price</td>
-                  <td tw="text-right border px-2 py-1">
-                     {formatCurrency(Number(order?.cart?.itemTotal) || 0)}
-                  </td>
-               </tr>
-               <tr tw="bg-gray-100">
-                  <td tw="border px-2 py-1">Add on Total</td>
-                  <td tw="text-right border px-2 py-1">
-                     {formatCurrency(Number(order?.cart?.addOnTotal) || 0)}
-                  </td>
-               </tr>
-               <tr>
-                  <td tw="border px-2 py-1">Delivery</td>
-                  <td tw="text-right border px-2 py-1">
-                     {formatCurrency(Number(order?.cart?.deliveryPrice) || 0)}
-                  </td>
-               </tr>
-               <tr tw="bg-gray-100">
-                  <td tw="border px-2 py-1">Total</td>
-                  <td tw="text-right border px-2 py-1">
-                     {formatCurrency(order?.cart?.amount || 0)}
-                  </td>
-               </tr>
-            </tbody>
-         </table>
-         <h4 tw="text-lg text-gray-700 my-4 pb-1 border-b">Address</h4>
-         <div>
-            <span>{normalizeAddress(order?.cart?.address || {})}</span>
-         </div>
+         <OrderInfo cart={order?.cart} />
          <h4 tw="text-lg text-gray-700 my-4 pb-1 border-b">Payment</h4>
          <section tw="mb-3 p-2 border w-full">
             <div tw="rounded flex items-center justify-between">
@@ -226,65 +206,6 @@ const Details = ({ current }) => {
    )
 }
 
-const CartProduct = ({ product }) => {
-   return (
-      <CartProductContainer>
-         <aside tw="flex-shrink-0 relative">
-            {product.image ? (
-               <img
-                  src={product.image}
-                  alt={product.name}
-                  title={product.name}
-                  tw="object-cover rounded w-full h-full"
-               />
-            ) : (
-               <span tw="text-teal-500" title={product.name}>
-                  N/A
-               </span>
-            )}
-         </aside>
-         <main tw="h-20 pl-3">
-            <h3 tw="text-lg text-gray-800" title={product.name}>
-               {product.name}
-            </h3>
-            {(Boolean(product.addOnPrice) || product.addOnLabel) && (
-               <h4 tw="mt-2 uppercase tracking-wider text-sm font-medium text-gray-600">
-                  Add On
-               </h4>
-            )}
-            {Boolean(product.addOnPrice) && (
-               <span
-                  tw="mr-2 text-gray-600 truncate"
-                  title={product.addOnPrice}
-               >
-                  Price:{' '}
-                  <span tw="text-gray-800">
-                     {formatCurrency(Number(product.addOnPrice) || 0)}
-                  </span>
-               </span>
-            )}
-            {product.addOnLabel && (
-               <span tw="text-gray-600 truncate" title={product.addOnLabel}>
-                  Label: <span tw="text-gray-800">{product.addOnLabel}</span>
-               </span>
-            )}
-         </main>
-      </CartProductContainer>
-   )
-}
-
-const SkeletonCartProduct = () => {
-   return (
-      <SkeletonCartProductContainer>
-         <aside tw="w-32 h-16 bg-gray-300 rounded" />
-         <main tw="w-full h-16 pl-3">
-            <span />
-            <span />
-         </main>
-      </SkeletonCartProductContainer>
-   )
-}
-
 const Main = styled.main`
    display: grid;
    grid-template-rows: 1fr;
@@ -292,6 +213,12 @@ const Main = styled.main`
    @media (max-width: 768px) {
       display: block;
    }
+`
+
+const ProductCards = styled.ul`
+   display: grid;
+   grid-gap: 16px;
+   grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
 `
 
 const Title = styled.h2(
@@ -331,31 +258,6 @@ const Date = styled.li(
       }
    `
 )
-
-const ProductCards = styled.ul`
-   display: grid;
-   grid-gap: 16px;
-   grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-`
-
-const CartProductContainer = styled.li`
-   ${tw`h-24 bg-white border flex items-center px-2 rounded`}
-   aside {
-      ${tw`w-24 h-20 border bg-gray-300 rounded flex items-center justify-center`}
-   }
-`
-
-const SkeletonCartProductContainer = styled.li`
-   ${tw`h-20 border flex items-center px-2 rounded`}
-   main {
-      span {
-         ${tw`block h-4 w-40 mb-1 bg-gray-200 rounded-full`}
-         :last-child {
-            ${tw`w-24`}
-         }
-      }
-   }
-`
 
 const selectColor = variant => {
    switch (variant) {

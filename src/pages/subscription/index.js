@@ -8,8 +8,8 @@ import { SEO, Layout } from '../../components'
 import { FaqSection, InfoSection } from '../../sections'
 
 export default () => {
-   const { isAuthenticated } = useUser()
    const { configOf } = useConfig()
+   const { user, isAuthenticated } = useUser()
 
    const theme = configOf('theme-color', 'Visual')
    return (
@@ -19,7 +19,7 @@ export default () => {
             <Header>
                <div>
                   <Tagline>Your next great meal is at your fingertips.</Tagline>
-                  {isAuthenticated ? (
+                  {isAuthenticated && user?.isSubscriber ? (
                      <CTA theme={theme} to="/subscription/menu">
                         Select Menu
                      </CTA>

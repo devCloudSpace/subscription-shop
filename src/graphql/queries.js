@@ -10,6 +10,11 @@ export const ITEM_COUNT = gql`
             id
             rrule
             leadTime
+            zipcodes: availableZipcodes(where: { zipcode: { _eq: $zipcode } }) {
+               deliveryPrice
+               isDeliveryActive
+               isPickupActive
+            }
          }
          invalid: subscriptions(
             where: {
@@ -19,6 +24,11 @@ export const ITEM_COUNT = gql`
             id
             rrule
             leadTime
+            zipcodes: availableZipcodes(where: { zipcode: { _eq: $zipcode } }) {
+               deliveryPrice
+               isDeliveryActive
+               isPickupActive
+            }
          }
       }
    }
@@ -90,6 +100,59 @@ export const OCCURENCES_BY_SUBSCRIPTION = gql`
             isValid
             isVisible
             fulfillmentDate
+         }
+      }
+   }
+`
+
+export const OCCURENCE_ADDON_PRODUCTS_BY_CATEGORIES = gql`
+   query categories(
+      $subscriptionId: Int_comparison_exp
+      $occurenceId: Int_comparison_exp
+   ) {
+      categories: productCategories(
+         where: {
+            subscriptionOccurenceAddOnProducts: {
+               _or: [
+                  { subscriptionId: $subscriptionId }
+                  { subscriptionOccurenceId: $occurenceId }
+               ]
+               isAvailable: { _eq: true }
+               isVisible: { _eq: true }
+            }
+         }
+      ) {
+         name
+         productsAggregate: subscriptionOccurenceAddOnProducts_aggregate(
+            where: {
+               _or: [
+                  { subscriptionId: $subscriptionId }
+                  { subscriptionOccurenceId: $occurenceId }
+               ]
+            }
+         ) {
+            aggregate {
+               count
+            }
+            nodes {
+               id
+               cartItem
+               isSingleSelect
+               simpleRecipeProductOption {
+                  id
+                  simpleRecipeYieldId
+                  simpleRecipeProduct {
+                     additionalText
+                  }
+               }
+               inventoryProductOption {
+                  id
+                  quantity
+                  inventoryProduct {
+                     additionalText
+                  }
+               }
+            }
          }
       }
    }
@@ -193,32 +256,48 @@ export const INVENTORY_DETAILS = gql`
 `
 
 export const CART_BY_WEEK = gql`
-   query cart($keycloakId: String!, $weekId: Int!, $brand_customerId: Int!) {
-      cart: subscription_subscriptionOccurence_customer_by_pk(
+   subscription subscriptionOccurenceCustomer(
+      $keycloakId: String!
+      $weekId: Int!
+      $brand_customerId: Int!
+   ) {
+      subscriptionOccurenceCustomer: subscription_subscriptionOccurence_customer_by_pk(
          keycloakId: $keycloakId
          subscriptionOccurenceId: $weekId
          brand_customerId: $brand_customerId
       ) {
          isAuto
          isSkipped
-         orderCartId
-         orderCart {
+         validStatus
+         cart: orderCart {
+            id
             status
+            address
             cartInfo
+            billingDetails
+            fulfillmentInfo
          }
       }
    }
 `
 
 export const ZIPCODE = gql`
-   query zipcode($subscriptionId: Int!, $zipcode: String!) {
+   subscription zipcode($subscriptionId: Int!, $zipcode: String!) {
       zipcode: subscription_subscription_zipcode_by_pk(
          subscriptionId: $subscriptionId
          zipcode: $zipcode
       ) {
-         price: deliveryPrice
-         from: deliveryTime(path: "from")
-         to: deliveryTime(path: "to")
+         deliveryTime
+         deliveryPrice
+         isPickupActive
+         isDeliveryActive
+         defaultAutoSelectFulfillmentMode
+         pickupOptionId: subscriptionPickupOptionId
+         pickupOption: subscriptionPickupOption {
+            id
+            time
+            address
+         }
       }
    }
 `
@@ -234,6 +313,7 @@ export const CART = gql`
          cartInfo
          totalPrice
          deliveryPrice
+         billingDetails
          fulfillmentInfo
       }
    }
@@ -248,6 +328,7 @@ export const CART_STATUS = gql`
          address
          paymentStatus
          fulfillmentInfo
+         billingDetails
       }
    }
 `
@@ -255,15 +336,18 @@ export const CART_STATUS = gql`
 export const ORDER_HISTORY = gql`
    subscription orders($keycloakId: String_comparison_exp!) {
       orders: subscription_subscriptionOccurence_customer_aggregate(
-         where: { keycloakId: $keycloakId }
+         where: {
+            keycloakId: $keycloakId
+            orderCart: { status: { _eq: "ORDER_PLACED" } }
+         }
          order_by: { subscriptionOccurence: { fulfillmentDate: desc } }
       ) {
          aggregate {
             count
          }
          nodes {
-            occurrenceId: subscriptionOccurenceId
-            occurrence: subscriptionOccurence {
+            occurenceId: subscriptionOccurenceId
+            occurence: subscriptionOccurence {
                date: fulfillmentDate
             }
          }
@@ -283,14 +367,20 @@ export const ORDER = gql`
          subscriptionOccurenceId: $subscriptionOccurenceId
       ) {
          isSkipped
+         validStatus
          occurrence: subscriptionOccurence {
+            id
             subscription {
+               id
                item: subscriptionItemCount {
+                  id
                   price
                }
             }
          }
          cart: orderCart {
+            id
+            status
             amount
             address
             cartInfo
@@ -298,7 +388,10 @@ export const ORDER = gql`
             addOnTotal
             deliveryPrice
             paymentMethodId
+            billingDetails
+            fulfillmentInfo
             order {
+               id
                status: orderStatus
             }
          }

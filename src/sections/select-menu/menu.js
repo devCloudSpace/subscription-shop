@@ -17,18 +17,14 @@ import { OCCURENCE_PRODUCTS_BY_CATEGORIES } from '../../graphql'
 export const Menu = () => {
    const { user } = useUser()
    const { addToast } = useToasts()
-   const { state, dispatch } = useMenu()
+   const { state } = useMenu()
    const { configOf } = useConfig()
    const { loading, data: { categories = [] } = {} } = useQuery(
       OCCURENCE_PRODUCTS_BY_CATEGORIES,
       {
          variables: {
-            occurenceId: {
-               _eq: state?.week?.id,
-            },
-            subscriptionId: {
-               _eq: user?.subscriptionId,
-            },
+            occurenceId: { _eq: state?.week?.id },
+            subscriptionId: { _eq: user?.subscriptionId },
          },
          onError: error => {
             addToast(error.message, {
@@ -38,30 +34,11 @@ export const Menu = () => {
       }
    )
 
-   const selectRecipe = (cart, addOnPrice) => {
-      const isFull = state.weeks[state.week.id].cart.products.every(
-         node => Object.keys(node).length !== 0
-      )
-      if (isFull) {
-         return addToast("Your're cart is already full!", {
-            appearance: 'warning',
-         })
-      }
-      dispatch({
-         type: 'SELECT_RECIPE',
-         payload: { weekId: state.week.id, cart: { ...cart, addOnPrice } },
-      })
-      addToast(`You've selected the recipe ${cart.name}.`, {
-         appearance: 'info',
-      })
-   }
-
-   const isAdded = (id, optionId) => {
-      const week = state?.weeks[state.week.id]
-      const products = week?.cart?.products.filter(node => !isEmpty(node)) || []
+   const isAdded = id => {
+      const products = state.occurenceCustomer?.cart?.cartInfo?.products || []
 
       const index = products?.findIndex(
-         node => node?.id === id && node?.option?.id === optionId
+         node => node.subscriptionOccurenceProductId === id
       )
       return index === -1 ? false : true
    }
@@ -98,9 +75,8 @@ export const Menu = () => {
                      <Product
                         node={node}
                         theme={theme}
+                        key={node.id}
                         isAdded={isAdded}
-                        selectRecipe={selectRecipe}
-                        key={`${index}-${node?.id}`}
                      />
                   ))}
                </Products>
@@ -110,35 +86,40 @@ export const Menu = () => {
    )
 }
 
-const Product = ({ node, isAdded, theme, selectRecipe }) => {
-   const { state } = useMenu()
+const Product = ({ node, isAdded, theme }) => {
+   const { addToast } = useToasts()
+   const { state, methods } = useMenu()
    const type = node?.simpleRecipeProductOption?.id ? 'SRP' : 'IP'
    const option =
       type === 'SRP'
          ? node.simpleRecipeProductOption
          : node.inventoryProductOption
 
+   const add = item => {
+      if (state.occurenceCustomer?.validStatus?.itemCountValid) {
+         addToast("Your're cart is already full!", {
+            appearance: 'warning',
+         })
+         return
+      }
+      methods.products.add(item)
+   }
+
    const canAdd = () => {
       const conditions = [
          !node.isSingleSelect,
          state?.week?.isValid,
-         !isAdded(node?.cartItem?.id, node?.cartItem?.option?.id),
+         !isAdded(node?.cartItem?.cartItemId),
       ]
       return (
          conditions.every(node => node) ||
-         ['PENDING', undefined].includes(
-            state?.weeks[state?.week?.id]?.orderCartStatus
-         )
+         ['PENDING', undefined].includes(state.occurenceCustomer?.cart?.status)
       )
    }
    return (
       <Styles.Product
          theme={theme}
-         className={`${
-            isAdded(node?.cartItem?.id, node?.cartItem?.option?.id)
-               ? 'active'
-               : ''
-         }`}
+         className={`${isAdded(node?.id) ? 'active' : ''}`}
       >
          <div
             css={tw`flex items-center justify-center h-48 bg-gray-200 mb-2 rounded overflow-hidden`}
@@ -163,11 +144,8 @@ const Product = ({ node, isAdded, theme, selectRecipe }) => {
             <section tw="flex items-center">
                <Check
                   size={16}
-                  className={`${
-                     isAdded(node?.cartItem?.id, node?.cartItem?.option?.id)
-                        ? 'active'
-                        : ''
-                  }`}
+                  tw="flex-shrink-0"
+                  className={`${isAdded(node?.id) ? 'active' : ''}`}
                />
                <Link
                   tw="text-gray-700"
@@ -184,12 +162,10 @@ const Product = ({ node, isAdded, theme, selectRecipe }) => {
             </section>
             {canAdd() && (
                <button
-                  onClick={() => selectRecipe(node.cartItem, node.addonPrice)}
+                  onClick={() => add(node.cartItem)}
                   tw="text-sm uppercase font-medium tracking-wider border border-gray-300 rounded px-1 text-gray-500"
                >
-                  {isAdded(node?.cartItem?.id, node?.cartItem?.option?.id)
-                     ? 'Add Again'
-                     : 'Add'}
+                  {isAdded(node?.id) ? 'Add Again' : 'Add'}
                </button>
             )}
          </div>

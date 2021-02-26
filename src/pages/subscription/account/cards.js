@@ -8,6 +8,7 @@ import {
    useElements,
    CardElement,
 } from '@stripe/react-stripe-js'
+import { isEmpty } from 'lodash'
 import { navigate } from 'gatsby'
 import tw, { styled, css } from 'twin.macro'
 import { useToasts } from 'react-toast-notifications'
@@ -91,54 +92,64 @@ const Content = () => {
                </Button>
             )}
          </header>
-         {user?.platform_customer?.paymentMethods.length > 0 ? (
-            <PaymentMethods>
-               {user?.platform_customer?.paymentMethods.map(method => (
-                  <li
-                     key={method.stripePaymentMethodId}
-                     tw="flex border text-gray-700"
-                  >
-                     <section tw="p-2 w-full">
-                        {user.subscriptionPaymentMethodId ===
-                        method.stripePaymentMethodId ? (
-                           <span tw="rounded border bg-teal-200 border-teal-300 px-2 text-teal-700">
-                              Default
-                           </span>
-                        ) : (
-                           <button
-                              tw="mb-2 rounded border border-orange-300 px-2 text-teal-700 cursor-pointer hover:(bg-orange-300 text-orange-900)"
-                              onClick={() => makeDefault(method)}
-                           >
-                              Make Default
-                           </button>
-                        )}
-                        <div tw="flex items-center justify-between">
-                           <span tw="text-xl my-2">
-                              {method.cardHolderName}
-                           </span>
-                           <div tw="flex items-center">
-                              <span tw="font-medium">{method.expMonth}</span>
-                              &nbsp;/&nbsp;
-                              <span tw="font-medium">{method.expYear}</span>
-                           </div>
-                        </div>
-                        <span>
-                           <span tw="text-gray-500">Last 4:</span>{' '}
-                           {method.last4}
-                        </span>
-                     </section>
-                  </li>
-               ))}
-            </PaymentMethods>
+         {isEmpty(user?.platform_customer) ? (
+            <Loader inline />
          ) : (
-            <HelperBar type="info">
-               <HelperBar.SubTitle>
-                  Let's start with adding a card
-               </HelperBar.SubTitle>
-               <HelperBar.Button onClick={() => toggleTunnel(true)}>
-                  Add Card
-               </HelperBar.Button>
-            </HelperBar>
+            <>
+               {user?.platform_customer?.paymentMethods.length > 0 ? (
+                  <PaymentMethods>
+                     {user?.platform_customer?.paymentMethods.map(method => (
+                        <li
+                           key={method.stripePaymentMethodId}
+                           tw="flex border text-gray-700"
+                        >
+                           <section tw="p-2 w-full">
+                              {user.subscriptionPaymentMethodId ===
+                              method.stripePaymentMethodId ? (
+                                 <span tw="rounded border bg-teal-200 border-teal-300 px-2 text-teal-700">
+                                    Default
+                                 </span>
+                              ) : (
+                                 <button
+                                    tw="mb-2 rounded border border-orange-300 px-2 text-teal-700 cursor-pointer hover:(bg-orange-300 text-orange-900)"
+                                    onClick={() => makeDefault(method)}
+                                 >
+                                    Make Default
+                                 </button>
+                              )}
+                              <div tw="flex items-center justify-between">
+                                 <span tw="text-xl my-2">
+                                    {method.cardHolderName}
+                                 </span>
+                                 <div tw="flex items-center">
+                                    <span tw="font-medium">
+                                       {method.expMonth}
+                                    </span>
+                                    &nbsp;/&nbsp;
+                                    <span tw="font-medium">
+                                       {method.expYear}
+                                    </span>
+                                 </div>
+                              </div>
+                              <span>
+                                 <span tw="text-gray-500">Last 4:</span>{' '}
+                                 {method.last4}
+                              </span>
+                           </section>
+                        </li>
+                     ))}
+                  </PaymentMethods>
+               ) : (
+                  <HelperBar type="info">
+                     <HelperBar.SubTitle>
+                        Let's start with adding a card
+                     </HelperBar.SubTitle>
+                     <HelperBar.Button onClick={() => toggleTunnel(true)}>
+                        Add Card
+                     </HelperBar.Button>
+                  </HelperBar>
+               )}
+            </>
          )}
          {tunnel && (
             <PaymentTunnel tunnel={tunnel} toggleTunnel={toggleTunnel} />

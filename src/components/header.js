@@ -9,7 +9,7 @@ import { isClient, getInitials } from '../utils'
 import { ProfileSidebar } from './profile_sidebar'
 
 export const Header = () => {
-   const { isAuthenticated, user, dispatch } = useUser()
+   const { isAuthenticated, user } = useUser()
    const { configOf } = useConfig()
    const logout = () => {
       isClient && localStorage.removeItem('token')
@@ -42,7 +42,7 @@ export const Header = () => {
             <section tw="flex items-center justify-between">
                <ul />
                <ul tw="px-4 flex space-x-4">
-                  {isAuthenticated ? (
+                  {isAuthenticated && user?.isSubscriber ? (
                      <li tw="text-gray-800">
                         <Link to="/subscription/menu">Select Menu</Link>
                      </li>

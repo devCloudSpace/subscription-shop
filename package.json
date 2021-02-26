@@ -46,6 +46,7 @@
       "react-toast-notifications": "^2.4.0",
       "rrule": "^2.6.6",
       "subscriptions-transport-ws": "^0.9.18",
+      "uuid": "^8.3.2",
       "ws": "^7.4.2"
    },
    "devDependencies": {
