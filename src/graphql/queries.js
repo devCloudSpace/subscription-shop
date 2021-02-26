@@ -612,3 +612,24 @@ export const CUSTOMER = {
       }
    `,
 }
+
+export const GET_FILEID = gql`
+   query GET_FILEID($divId: [String!]!) {
+      content_subscriptionDivIds(where: { id: { _in: $divId } }) {
+         fileId
+         id
+         subscriptionDivFileId {
+            linkedCssFiles {
+               cssFile {
+                  path
+               }
+            }
+            linkedJsFiles {
+               jsFile {
+                  path
+               }
+            }
+         }
+      }
+   }
+`
