@@ -15,14 +15,14 @@ const SelectPlan = () => {
    // const [file, setFile] = useState([])
    const { loading } = useQuery(GET_FILEID, {
       variables: {
-         divId: ['select-plan-top-01'],
+         divId: ['select-plan-top-01', 'select-plan-bottom-01'],
       },
       onCompleted: ({ content_subscriptionDivIds: fileData }) => {
          const fileIdForTop = fileData.filter(
             f => f?.id === 'select-plan-top-01'
          )[0]
          const fileIdForBottom = fileData.filter(
-            f => f?.id === 'select-plan-top-01'
+            f => f?.id === 'select-plan-bottom-01'
          )[0]
          const cssPathForTop = fileIdForTop.subscriptionDivFileId.linkedCssFiles.map(
             file => {
@@ -44,6 +44,14 @@ const SelectPlan = () => {
                return file?.jsFile?.path
             }
          )
+         console.log(
+            fileIdForTop.fileId,
+            fileIdForBottom.fileId,
+            cssPathForTop,
+            cssPathForBottom,
+            jsPathForTop,
+            jsPathForBottom
+         )
          webRenderer({
             type: 'file',
             config: {
@@ -53,13 +61,13 @@ const SelectPlan = () => {
             fileDetails: [
                {
                   elementId: 'select-plan-top-01',
-                  fileId: fileIdForTop.fileId,
+                  fileId: [fileIdForTop.fileId],
                   cssPath: cssPathForTop,
                   jsPath: jsPathForTop,
                },
                {
                   elementId: 'select-plan-bottom-01',
-                  fileId: fileIdForBottom.fileId,
+                  fileId: [fileIdForBottom.fileId],
                   cssPath: cssPathForBottom,
                   jsPath: jsPathForBottom,
                },
@@ -103,12 +111,11 @@ const SelectPlan = () => {
    //    })
    // }, [fileId])
 
-   if (loading || fileIdLoading) return <Loader />
+   if (loading) return <Loader />
    return (
       <Layout noHeader>
          <SEO title="Plans" />
          <StepsNavbar />
-         <div id="select-plan-top-01"></div>
          <Main>
             <Header
                url={
@@ -128,6 +135,7 @@ const SelectPlan = () => {
                   </h3>
                )}
             </Header>
+            <div id="select-plan-top-01"></div>
             <Plans />
             <InfoSection page="select-plan" identifier="bottom-01" />
          </Main>

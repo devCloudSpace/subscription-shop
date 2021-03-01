@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Link } from 'gatsby'
 import tw, { styled, css } from 'twin.macro'
+import 'regenerator-runtime'
 import { useQuery } from '@apollo/react-hooks'
 import { useConfig } from '../../lib'
 import { GET_FILEID } from '../../graphql'
