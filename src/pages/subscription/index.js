@@ -36,6 +36,7 @@ export default () => {
             config: {
                uri: process.env.GATSBY_DATA_HUB_HTTPS,
                adminSecret: process.env.GATSBY_ADMIN_SECRET,
+               expressUrl: process.env.GATSBY_EXPRESS_URL
             },
             fileDetails: [
                {

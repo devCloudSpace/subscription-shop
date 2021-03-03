@@ -44,19 +44,13 @@ const SelectPlan = () => {
                return file?.jsFile?.path
             }
          )
-         console.log(
-            fileIdForTop.fileId,
-            fileIdForBottom.fileId,
-            cssPathForTop,
-            cssPathForBottom,
-            jsPathForTop,
-            jsPathForBottom
-         )
+
          webRenderer({
             type: 'file',
             config: {
                uri: process.env.GATSBY_DATA_HUB_HTTPS,
                adminSecret: process.env.GATSBY_ADMIN_SECRET,
+               expressUrl: process.env.GATSBY_EXPRESS_URL
             },
             fileDetails: [
                {

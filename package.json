@@ -10,7 +10,7 @@
    },
    "dependencies": {
       "@apollo/react-hooks": "^3.1.5",
-      "@dailykit/web-renderer": "^1.0.5",
+      "@dailykit/web-renderer": "1.0.6",
       "@emotion/core": "^10.0.28",
       "@emotion/react": "^11.1.4",
       "@emotion/styled": "^10.0.27",
