@@ -1,13 +1,13 @@
 import React from 'react'
 import { navigate } from 'gatsby'
 import tw, { styled, css } from 'twin.macro'
-import { useMutation } from '@apollo/react-hooks'
+import { useMutation, useQuery } from '@apollo/react-hooks'
 import { useToasts } from 'react-toast-notifications'
-
+import { webRenderer } from '@dailykit/web-renderer'
 import { useConfig } from '../../../lib'
-import { BRAND } from '../../../graphql'
+import { BRAND, GET_FILEID } from '../../../graphql'
 import { useUser } from '../../../context'
-import { SEO, Layout, StepsNavbar } from '../../../components'
+import { SEO, Layout, StepsNavbar, Loader } from '../../../components'
 
 import {
    useDelivery,
@@ -19,7 +19,6 @@ import {
 
 const SelectDelivery = () => {
    const { isAuthenticated } = useUser()
-
    React.useEffect(() => {
       if (!isAuthenticated) {
          navigate('/subscription/get-started/select-plan')
@@ -44,6 +43,50 @@ const DeliveryContent = () => {
    const { state } = useDelivery()
    const { addToast } = useToasts()
    const { brand, configOf } = useConfig()
+   const { loading } = useQuery(GET_FILEID, {
+      variables: {
+         divId: ['select-delivery-bottom-01'],
+      },
+      onCompleted: ({ content_subscriptionDivIds: fileData }) => {
+         if (fileData.length) {
+            fileData.forEach(data => {
+               if (data?.fileId) {
+                  const fileId = [data?.fileId]
+                  const cssPath = data?.subscriptionDivFileId?.linkedCssFiles.map(
+                     file => {
+                        return file?.cssFile?.path
+                     }
+                  )
+                  const jsPath = data?.subscriptionDivFileId?.linkedJsFiles.map(
+                     file => {
+                        return file?.jsFile?.path
+                     }
+                  )
+                  webRenderer({
+                     type: 'file',
+                     config: {
+                        uri: process.env.GATSBY_DATA_HUB_HTTPS,
+                        adminSecret: process.env.GATSBY_ADMIN_SECRET,
+                        expressUrl: process.env.GATSBY_EXPRESS_URL,
+                     },
+                     fileDetails: [
+                        {
+                           elementId: 'select-delivery-bottom-01',
+                           fileId,
+                           cssPath: cssPath,
+                           jsPath: jsPath,
+                        },
+                     ],
+                  })
+               }
+            })
+         }
+      },
+
+      onError: error => {
+         console.error(error)
+      },
+   })
    const [updateBrandCustomer] = useMutation(BRAND.CUSTOMER.UPDATE, {
       refetchQueries: ['customer'],
       onCompleted: () => {
@@ -91,6 +134,9 @@ const DeliveryContent = () => {
       return true
    }
    const theme = configOf('theme-color', 'Visual')
+   if (loading) {
+      return <Loader />
+   }
    return (
       <Main>
          <header css={tw`flex items-center justify-between border-b`}>
@@ -112,6 +158,7 @@ const DeliveryContent = () => {
                Continue
             </Button>
          </div>
+         <div id="select-delivery-bottom-01"></div>
       </Main>
    )
 }

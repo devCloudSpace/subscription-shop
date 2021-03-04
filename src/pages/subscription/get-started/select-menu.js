@@ -2,7 +2,9 @@ import React from 'react'
 import { isEmpty } from 'lodash'
 import { navigate } from 'gatsby'
 import tw, { styled } from 'twin.macro'
-
+import { useQuery } from '@apollo/react-hooks'
+import { webRenderer } from '@dailykit/web-renderer'
+import { GET_FILEID } from '../../../graphql'
 import {
    Menu,
    CartPanel,
@@ -22,7 +24,6 @@ import {
 
 const SelectMenu = () => {
    const { isAuthenticated } = useUser()
-
    React.useEffect(() => {
       if (!isAuthenticated) {
          console.log('navigate called')
@@ -72,11 +73,57 @@ export default SelectMenu
 
 const MenuContent = () => {
    const { state } = useMenu()
+   const { loading } = useQuery(GET_FILEID, {
+      variables: {
+         divId: ['select-menu-bottom-01'],
+      },
+      onCompleted: ({ content_subscriptionDivIds: fileData }) => {
+         if (fileData.length) {
+            fileData.forEach(data => {
+               if (data?.fileId) {
+                  const fileId = [data?.fileId]
+                  const cssPath = data?.subscriptionDivFileId?.linkedCssFiles.map(
+                     file => {
+                        return file?.cssFile?.path
+                     }
+                  )
+                  const jsPath = data?.subscriptionDivFileId?.linkedJsFiles.map(
+                     file => {
+                        return file?.jsFile?.path
+                     }
+                  )
+                  webRenderer({
+                     type: 'file',
+                     config: {
+                        uri: process.env.GATSBY_DATA_HUB_HTTPS,
+                        adminSecret: process.env.GATSBY_ADMIN_SECRET,
+                        expressUrl: process.env.GATSBY_EXPRESS_URL,
+                     },
+                     fileDetails: [
+                        {
+                           elementId: 'select-menu-bottom-01',
+                           fileId,
+                           cssPath: cssPath,
+                           jsPath: jsPath,
+                        },
+                     ],
+                  })
+               }
+            })
+         }
+      },
 
-   if (state?.isOccurencesLoading) {
-      ;<section tw="p-3">
-         <Loader inline />
-      </section>
+      onError: error => {
+         console.error(error)
+      },
+   })
+
+   if (state?.isOccurencesLoading || loading) {
+      return (
+         <section tw="p-3">
+            <Loader inline />
+         </section>
+      )
    }
    if (!state?.week?.id)
       return (

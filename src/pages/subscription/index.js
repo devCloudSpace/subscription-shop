@@ -13,40 +13,45 @@ import { webRenderer } from '@dailykit/web-renderer'
 export default () => {
    const { configOf } = useConfig()
    const { user, isAuthenticated } = useUser()
-   const [file, setFile] = useState([])
    const theme = configOf('theme-color', 'Visual')
    const { loading } = useQuery(GET_FILEID, {
       variables: {
          divId: ['home-bottom-01'],
       },
       onCompleted: ({ content_subscriptionDivIds: fileData }) => {
-         const fileId = [fileData[0].fileId]
-         const cssPath = fileData[0].subscriptionDivFileId.linkedCssFiles.map(
-            file => {
-               return file?.cssFile?.path
-            }
-         )
-         const jsPath = fileData[0].subscriptionDivFileId.linkedJsFiles.map(
-            file => {
-               return file?.jsFile?.path
-            }
-         )
-         webRenderer({
-            type: 'file',
-            config: {
-               uri: process.env.GATSBY_DATA_HUB_HTTPS,
-               adminSecret: process.env.GATSBY_ADMIN_SECRET,
-               expressUrl: process.env.GATSBY_EXPRESS_URL
-            },
-            fileDetails: [
-               {
-                  elementId: 'home-bottom-01',
-                  fileId,
-                  cssPath: cssPath,
-                  jsPath: jsPath,
-               },
-            ],
-         })
+         if (fileData.length) {
+            fileData.forEach(data => {
+               if (data?.fileId) {
+                  const fileId = [data?.fileId]
+                  const cssPath = data?.subscriptionDivFileId?.linkedCssFiles.map(
+                     file => {
+                        return file?.cssFile?.path
+                     }
+                  )
+                  const jsPath = data?.subscriptionDivFileId?.linkedJsFiles.map(
+                     file => {
+                        return file?.jsFile?.path
+                     }
+                  )
+                  webRenderer({
+                     type: 'file',
+                     config: {
+                        uri: process.env.GATSBY_DATA_HUB_HTTPS,
+                        adminSecret: process.env.GATSBY_ADMIN_SECRET,
+                        expressUrl: process.env.GATSBY_EXPRESS_URL,
+                     },
+                     fileDetails: [
+                        {
+                           elementId: 'home-bottom-01',
+                           fileId,
+                           cssPath: cssPath,
+                           jsPath: jsPath,
+                        },
+                     ],
+                  })
+               }
+            })
+         }
       },
 
       onError: error => {

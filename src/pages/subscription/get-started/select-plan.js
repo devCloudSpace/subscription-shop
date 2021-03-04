@@ -18,55 +18,66 @@ const SelectPlan = () => {
          divId: ['select-plan-top-01', 'select-plan-bottom-01'],
       },
       onCompleted: ({ content_subscriptionDivIds: fileData }) => {
-         const fileIdForTop = fileData.filter(
-            f => f?.id === 'select-plan-top-01'
-         )[0]
-         const fileIdForBottom = fileData.filter(
-            f => f?.id === 'select-plan-bottom-01'
-         )[0]
-         const cssPathForTop = fileIdForTop.subscriptionDivFileId.linkedCssFiles.map(
-            file => {
-               return file?.cssFile?.path
-            }
-         )
-         const cssPathForBottom = fileIdForBottom.subscriptionDivFileId.linkedCssFiles.map(
-            file => {
-               return file?.cssFile?.path
-            }
-         )
-         const jsPathForTop = fileIdForTop.subscriptionDivFileId.linkedJsFiles.map(
-            file => {
-               return file?.jsFile?.path
-            }
-         )
-         const jsPathForBottom = fileIdForBottom.subscriptionDivFileId.linkedJsFiles.map(
-            file => {
-               return file?.jsFile?.path
-            }
-         )
+         if (fileData.length) {
+            fileData.forEach(data => {
+               if (data?.fileId) {
+                  const fileIdsForTop = []
+                  const fileIdsForBottom = []
+                  let cssPathForTop = []
+                  let cssPathForBottom = []
+                  let jsPathForTop = []
+                  let jsPathForBottom = []
+                  if (data?.id === 'select-plan-top-01') {
+                     fileIdsForTop.push(data.fileId)
+                     cssPathForTop = data?.subscriptionDivFileId?.linkedCssFiles.map(
+                        file => {
+                           return file?.cssFile?.path
+                        }
+                     )
+                     jsPathForTop = data?.subscriptionDivFileId?.linkedJsFiles.map(
+                        file => {
+                           return file?.jsFile?.path
+                        }
+                     )
+                  } else if (data?.id === 'select-plan-bottom-01') {
+                     fileIdsForBottom.push(data.fileId)
+                     cssPathForBottom = data?.subscriptionDivFileId?.linkedCssFiles.map(
+                        file => {
+                           return file?.cssFile?.path
+                        }
+                     )
+                     jsPathForBottom = data?.subscriptionDivFileId?.linkedJsFiles.map(
+                        file => {
+                           return file?.jsFile?.path
+                        }
+                     )
+                  }
 
-         webRenderer({
-            type: 'file',
-            config: {
-               uri: process.env.GATSBY_DATA_HUB_HTTPS,
-               adminSecret: process.env.GATSBY_ADMIN_SECRET,
-               expressUrl: process.env.GATSBY_EXPRESS_URL
-            },
-            fileDetails: [
-               {
-                  elementId: 'select-plan-top-01',
-                  fileId: [fileIdForTop.fileId],
-                  cssPath: cssPathForTop,
-                  jsPath: jsPathForTop,
-               },
-               {
-                  elementId: 'select-plan-bottom-01',
-                  fileId: [fileIdForBottom.fileId],
-                  cssPath: cssPathForBottom,
-                  jsPath: jsPathForBottom,
-               },
-            ],
-         })
+                  webRenderer({
+                     type: 'file',
+                     config: {
+                        uri: process.env.GATSBY_DATA_HUB_HTTPS,
+                        adminSecret: process.env.GATSBY_ADMIN_SECRET,
+                        expressUrl: process.env.GATSBY_EXPRESS_URL,
+                     },
+                     fileDetails: [
+                        {
+                           elementId: 'select-plan-top-01',
+                           fileId: fileIdsForTop,
+                           cssPath: cssPathForTop,
+                           jsPath: jsPathForTop,
+                        },
+                        {
+                           elementId: 'select-plan-bottom-01',
+                           fileId: fileIdsForBottom,
+                           cssPath: cssPathForBottom,
+                           jsPath: jsPathForBottom,
+                        },
+                     ],
+                  })
+               }
+            })
+         }
       },
 
       onError: error => {
