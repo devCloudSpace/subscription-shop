@@ -109,6 +109,10 @@ export const MenuProvider = ({ children }) => {
    const [insertOccurenceCustomers] = useMutation(
       MUTATIONS.OCCURENCE.CUSTOMER.CREATE.MULTIPLE,
       {
+         skip:
+            state.isOccurencesLoading ||
+            !state?.week?.id ||
+            occurenceCustomerLoading,
          onError: error => console.log(error),
       }
    )
