@@ -138,17 +138,11 @@ export const OCCURENCE_ADDON_PRODUCTS_BY_CATEGORIES = gql`
                id
                cartItem
                isSingleSelect
-               simpleRecipeProductOption {
+               productOption {
                   id
-                  simpleRecipeYieldId
-                  simpleRecipeProduct {
-                     additionalText
-                  }
-               }
-               inventoryProductOption {
-                  id
-                  quantity
-                  inventoryProduct {
+                  product {
+                     name
+                     assets
                      additionalText
                   }
                }
@@ -190,20 +184,14 @@ export const OCCURENCE_PRODUCTS_BY_CATEGORIES = gql`
             nodes {
                id
                cartItem
-               addonLabel
-               addonPrice
+               addOnLabel
+               addOnPrice
                isSingleSelect
-               simpleRecipeProductOption {
+               productOption {
                   id
-                  simpleRecipeYieldId
-                  simpleRecipeProduct {
-                     additionalText
-                  }
-               }
-               inventoryProductOption {
-                  id
-                  quantity
-                  inventoryProduct {
+                  product {
+                     name
+                     assets
                      additionalText
                   }
                }
@@ -224,7 +212,6 @@ export const RECIPE_DETAILS = gql`
             cookingTime
             cuisine
             description
-            procedures
             image
             assets
             richResult
@@ -269,11 +256,10 @@ export const CART_BY_WEEK = gql`
          isAuto
          isSkipped
          validStatus
-         cart: orderCart {
+         cart {
             id
             status
             address
-            cartInfo
             billingDetails
             fulfillmentInfo
          }
@@ -304,13 +290,11 @@ export const ZIPCODE = gql`
 
 export const CART = gql`
    query cart($id: Int!) {
-      cart: cartByPK(id: $id) {
+      cart(id: $id) {
          id
          tax
          tip
-         amount
          address
-         cartInfo
          totalPrice
          deliveryPrice
          billingDetails
@@ -321,10 +305,9 @@ export const CART = gql`
 
 export const CART_STATUS = gql`
    subscription cart($id: Int!) {
-      cart: cartByPK(id: $id) {
+      cart(id: $id) {
          status
          orderId
-         cartInfo
          address
          paymentStatus
          fulfillmentInfo
@@ -338,7 +321,7 @@ export const ORDER_HISTORY = gql`
       orders: subscription_subscriptionOccurence_customer_aggregate(
          where: {
             keycloakId: $keycloakId
-            orderCart: { status: { _eq: "ORDER_PLACED" } }
+            cart: { status: { _neq: "PENDING" } }
          }
          order_by: { subscriptionOccurence: { fulfillmentDate: desc } }
       ) {
@@ -378,14 +361,13 @@ export const ORDER = gql`
                }
             }
          }
-         cart: orderCart {
+         cart {
             id
             status
-            amount
             address
-            cartInfo
             itemTotal
             addOnTotal
+            totalPrice
             deliveryPrice
             paymentMethodId
             billingDetails
@@ -414,16 +396,9 @@ export const ZIPCODE_AVAILABILITY = gql`
 `
 
 export const INFORMATION_GRID = gql`
-   subscription infoGrid(
-      $page: String_comparison_exp!
-      $identifier: String_comparison_exp!
-   ) {
+   subscription infoGrid($identifier: String_comparison_exp!) {
       infoGrid: content_informationGrid(
-         where: {
-            page: $page
-            isVisible: { _eq: true }
-            identifier: $identifier
-         }
+         where: { isVisible: { _eq: true }, identifier: $identifier }
       ) {
          id
          heading

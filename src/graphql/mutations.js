@@ -88,7 +88,7 @@ export const MUTATIONS = {
    },
    CART: {
       CREATE: gql`
-         mutation createCart($object: crm_orderCart_insert_input!) {
+         mutation createCart($object: order_cart_insert_input!) {
             createCart(object: $object) {
                id
             }
@@ -96,8 +96,8 @@ export const MUTATIONS = {
       `,
       UPSERT: gql`
          mutation upsertCart(
-            $object: crm_orderCart_insert_input!
-            $on_conflict: crm_orderCart_on_conflict!
+            $object: order_cart_insert_input!
+            $on_conflict: order_cart_on_conflict!
          ) {
             upsertCart: createCart(object: $object, on_conflict: $on_conflict) {
                id
@@ -135,8 +135,8 @@ export const CREATE_STRIPE_PAYMENT_METHOD = gql`
 `
 
 export const UPDATE_CART = gql`
-   mutation updateCart($id: Int!, $_set: crm_orderCart_set_input!) {
-      updateCart: updateCartByPK(pk_columns: { id: $id }, _set: $_set) {
+   mutation updateCart($id: Int!, $_set: order_cart_set_input!) {
+      updateCart(pk_columns: { id: $id }, _set: $_set) {
          id
       }
    }
