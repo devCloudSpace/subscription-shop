@@ -262,6 +262,17 @@ export const CART_BY_WEEK = gql`
             address
             billingDetails
             fulfillmentInfo
+            products: cartItemProducts {
+               id
+               name
+               image
+               isAddOn
+               addOnLabel
+               addOnPrice
+               isAutoAdded
+               subscriptionOccurenceProductId
+               subscriptionOccurenceAddOnProductId
+            }
          }
       }
    }
@@ -299,6 +310,17 @@ export const CART = gql`
          deliveryPrice
          billingDetails
          fulfillmentInfo
+         products: cartItemProducts {
+            id
+            name
+            image
+            isAddOn
+            addOnLabel
+            addOnPrice
+            isAutoAdded
+            subscriptionOccurenceProductId
+            subscriptionOccurenceAddOnProductId
+         }
       }
    }
 `
@@ -312,6 +334,17 @@ export const CART_STATUS = gql`
          paymentStatus
          fulfillmentInfo
          billingDetails
+         products: cartItemProducts {
+            id
+            name
+            image
+            isAddOn
+            addOnLabel
+            addOnPrice
+            isAutoAdded
+            subscriptionOccurenceProductId
+            subscriptionOccurenceAddOnProductId
+         }
       }
    }
 `
@@ -321,7 +354,10 @@ export const ORDER_HISTORY = gql`
       orders: subscription_subscriptionOccurence_customer_aggregate(
          where: {
             keycloakId: $keycloakId
-            cart: { status: { _neq: "PENDING" } }
+            cart: {
+               paymentStatus: { _eq: "SUCCEEDED" }
+               status: { _neq: "PENDING" }
+            }
          }
          order_by: { subscriptionOccurence: { fulfillmentDate: desc } }
       ) {
@@ -372,9 +408,16 @@ export const ORDER = gql`
             paymentMethodId
             billingDetails
             fulfillmentInfo
-            order {
+            products: cartItemProducts {
                id
-               status: orderStatus
+               name
+               image
+               isAddOn
+               addOnLabel
+               addOnPrice
+               isAutoAdded
+               subscriptionOccurenceProductId
+               subscriptionOccurenceAddOnProductId
             }
          }
       }

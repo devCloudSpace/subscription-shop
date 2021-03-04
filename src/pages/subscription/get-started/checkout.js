@@ -118,7 +118,6 @@ const PaymentContent = ({ isCheckout }) => {
                   paymentMethodId: state.payment.selected.id,
                   ...(isCheckout && {
                      status: 'PROCESS',
-                     amount: cart.totalPrice,
                   }),
                },
             },
@@ -159,7 +158,7 @@ const PaymentContent = ({ isCheckout }) => {
             <ProfileSection />
             <PaymentSection />
          </section>
-         {cart?.cartInfo && (
+         {cart?.products.length > 0 && (
             <section>
                <OrderInfo cart={cart} />
                <Button

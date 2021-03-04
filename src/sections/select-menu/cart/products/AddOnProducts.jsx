@@ -41,12 +41,12 @@ const AddOnProducts = () => {
             </button>
          </header>
          <CartProducts>
-            {state?.occurenceCustomer?.cart?.cartInfo?.products?.map(
+            {state?.occurenceCustomer?.cart?.products?.map(
                product =>
                   product.isAddOn && (
                      <CartProduct
                         product={product}
-                        key={product.cartItemId}
+                        key={product.id}
                         isRemovable={isRemovable}
                         onDelete={methods.products.delete}
                      />
@@ -97,10 +97,10 @@ const AddOns = () => {
    )
 
    const isAdded = id => {
-      const products = state.occurenceCustomer?.cart?.cartInfo?.products || []
+      const products = state.occurenceCustomer?.cart?.products || []
 
       const index = products?.findIndex(
-         node => node.subscriptionOccurenceProductId === id
+         node => node.subscriptionOccurenceAddOnProductId === id
       )
       return index === -1 ? false : true
    }
@@ -141,11 +141,6 @@ const AddOns = () => {
 
 const AddOnProduct = ({ node, isAdded, theme }) => {
    const { state, methods } = useMenu()
-   const type = node?.simpleRecipeProductOption?.id ? 'SRP' : 'IP'
-   const option =
-      type === 'SRP'
-         ? node.simpleRecipeProductOption
-         : node.inventoryProductOption
 
    const canAdd = () => {
       const conditions = [!node.isSingleSelect, state?.week?.isValid]
@@ -154,19 +149,27 @@ const AddOnProduct = ({ node, isAdded, theme }) => {
          ['PENDING', undefined].includes(state.occurenceCustomer?.cart?.status)
       )
    }
+
+   const isActive = isAdded(node?.cartItem?.subscriptionOccurenceAddOnProductId)
+   const product = {
+      name: node?.productOption?.product?.name || '',
+      image:
+         node?.productOption?.product?.assets?.images?.length > 0
+            ? node?.productOption?.product?.assets?.images[0]
+            : null,
+      additionalText: node?.productOption?.product?.additionalText || '',
+   }
+
    return (
-      <Styles.Product
-         theme={theme}
-         className={`${isAdded(node?.id) ? 'active' : ''}`}
-      >
+      <Styles.Product theme={theme} className={`${isActive ? 'active' : ''}`}>
          <div
             css={tw`flex items-center justify-center h-48 bg-gray-200 mb-2 rounded overflow-hidden`}
          >
-            {node?.cartItem?.image ? (
+            {product.image ? (
                <img
-                  alt={node?.cartItem?.name}
-                  title={node?.cartItem?.name}
-                  src={node?.cartItem?.image}
+                  alt={product.name}
+                  src={product.image}
+                  title={product.name}
                   css={tw`h-full w-full object-cover select-none`}
                />
             ) : (
@@ -178,19 +181,10 @@ const AddOnProduct = ({ node, isAdded, theme }) => {
                <Check
                   size={16}
                   tw="flex-shrink-0"
-                  className={`${isAdded(node?.id) ? 'active' : ''}`}
+                  className={`${isActive ? 'active' : ''}`}
                />
-               <Link
-                  tw="text-gray-700"
-                  to={`/subscription/${
-                     type === 'SRP' ? 'recipes' : 'inventory'
-                  }?id=${node?.cartItem?.id}${
-                     type === 'SRP'
-                        ? `&serving=${option?.simpleRecipeYieldId}`
-                        : `&option=${option?.id}`
-                  }`}
-               >
-                  {node?.cartItem?.name}
+               <Link tw="text-gray-700" to={`#`}>
+                  {product.name}
                </Link>
             </section>
             {canAdd() && (
@@ -198,15 +192,11 @@ const AddOnProduct = ({ node, isAdded, theme }) => {
                   onClick={() => methods.products.add(node.cartItem)}
                   tw="text-sm uppercase font-medium tracking-wider border border-gray-300 rounded px-1 text-gray-500"
                >
-                  {isAdded(node?.id) ? 'Add Again' : 'Add'}
+                  {isActive ? 'Add Again' : 'Add'}
                </button>
             )}
          </div>
-         <p>
-            {type === 'SRP'
-               ? option?.simpleRecipeProduct?.additionalText
-               : option?.inventoryProduct?.additionalText}
-         </p>
+         <p>{product.additionalText}</p>
       </Styles.Product>
    )
 }

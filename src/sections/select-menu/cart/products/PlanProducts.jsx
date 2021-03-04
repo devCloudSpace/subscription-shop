@@ -92,12 +92,12 @@ const PlanProducts = ({ noSkip }) => {
             )}
          </header>
          <CartProducts>
-            {state?.occurenceCustomer?.cart?.cartInfo?.products?.map(
+            {state?.occurenceCustomer?.cart?.products?.map(
                product =>
                   !product.isAddOn && (
                      <CartProduct
                         product={product}
-                        key={product.cartItemId}
+                        key={product.id}
                         isRemovable={isRemovable}
                         onDelete={methods.products.delete}
                      />

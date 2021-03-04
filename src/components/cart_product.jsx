@@ -34,7 +34,7 @@ export const CartProduct = ({ product, isRemovable, onDelete }) => {
             </p>
             <p tw="text-green-600">
                {product.isAddOn && formatCurrency(product.unitPrice)} x
-               {product.quantity}
+               {product?.quantity || 1}
             </p>
             {!product.isAddOn && product.isAutoAdded && (
                <span tw="text-sm px-1 rounded bg-gray-200 text-gray-600 border border-gray-200">

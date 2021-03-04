@@ -10,10 +10,8 @@ import { Billing, CartProduct } from '../components'
 const OrderInfo = ({ cart, showViewOrderButton = false }) => {
    const { user } = useUser()
 
-   const planProducts =
-      cart?.cartInfo?.products.filter(node => !node.isAddOn) || []
-   const addOnProducts =
-      cart?.cartInfo?.products.filter(node => node.isAddOn) || []
+   const planProducts = cart?.products.filter(node => !node.isAddOn) || []
+   const addOnProducts = cart?.products.filter(node => node.isAddOn) || []
    return (
       <div>
          <section>
@@ -27,7 +25,7 @@ const OrderInfo = ({ cart, showViewOrderButton = false }) => {
                   <CartProduct
                      product={product}
                      isRemovable={false}
-                     key={`product-${product.cartItemId}`}
+                     key={`product-${product.id}`}
                   />
                ))}
             </ProductCards>
@@ -42,7 +40,7 @@ const OrderInfo = ({ cart, showViewOrderButton = false }) => {
                      <CartProduct
                         product={product}
                         isRemovable={false}
-                        key={`product-${product.cartItemId}`}
+                        key={`product-${product.id}`}
                      />
                   ))}
                </ProductCards>
