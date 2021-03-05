@@ -267,6 +267,7 @@ export const CART_BY_WEEK = gql`
                name
                image
                isAddOn
+               unitPrice
                addOnLabel
                addOnPrice
                isAutoAdded

@@ -91,6 +91,10 @@ export const MUTATIONS = {
          mutation createCart($object: order_cart_insert_input!) {
             createCart(object: $object) {
                id
+               subscriptionOccurenceCustomer {
+                  isSkipped
+                  validStatus
+               }
             }
          }
       `,
@@ -165,3 +169,31 @@ export const BRAND = {
       `,
    },
 }
+
+export const DELETE_CART_ITEM = gql`
+   mutation deleteCartItem($id: Int!) {
+      deleteCartItem(id: $id) {
+         id
+      }
+   }
+`
+
+export const INSERT_CART_ITEM = gql`
+   mutation createCartItem($object: order_cartItem_insert_input!) {
+      createCartItem(object: $object) {
+         id
+         cart {
+            id
+            subscriptionOccurenceCustomer {
+               isSkipped
+               validStatus
+            }
+         }
+         cartItemProducts {
+            id
+            name
+            image
+         }
+      }
+   }
+`
