@@ -316,6 +316,7 @@ export const CART = gql`
             name
             image
             isAddOn
+            unitPrice
             addOnLabel
             addOnPrice
             isAutoAdded
@@ -340,6 +341,7 @@ export const CART_STATUS = gql`
             name
             image
             isAddOn
+            unitPrice
             addOnLabel
             addOnPrice
             isAutoAdded
@@ -414,6 +416,7 @@ export const ORDER = gql`
                name
                image
                isAddOn
+               unitPrice
                addOnLabel
                addOnPrice
                isAutoAdded
