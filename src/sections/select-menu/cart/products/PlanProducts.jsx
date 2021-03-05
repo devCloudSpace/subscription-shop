@@ -47,13 +47,16 @@ const PlanProducts = ({ noSkip }) => {
    }
 
    const isSkippable =
-      ['PENDING', undefined].includes(state?.occurenceCustomer?.cart?.status) &&
+      ['CART_PENDING', undefined].includes(
+         state?.occurenceCustomer?.cart?.status
+      ) &&
       state?.week?.isValid &&
       !noSkip
 
    const isRemovable =
-      ['PENDING', undefined].includes(state?.occurenceCustomer?.cart?.status) &&
-      state?.week?.isValid
+      ['CART_PENDING', undefined].includes(
+         state?.occurenceCustomer?.cart?.status
+      ) && state?.week?.isValid
 
    return (
       <div>

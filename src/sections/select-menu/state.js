@@ -308,7 +308,7 @@ export const MenuProvider = ({ children }) => {
             variables: {
                object: {
                   customerInfo,
-                  status: 'PENDING',
+                  status: 'CART_PENDING',
                   customerId: user.id,
                   source: 'subscription',
                   paymentStatus: 'PENDING',

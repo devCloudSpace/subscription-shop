@@ -359,7 +359,7 @@ export const ORDER_HISTORY = gql`
             keycloakId: $keycloakId
             cart: {
                paymentStatus: { _eq: "SUCCEEDED" }
-               status: { _neq: "PENDING" }
+               status: { _nin: ["CART_PENDING", "CART_PROCESS"] }
             }
          }
          order_by: { subscriptionOccurence: { fulfillmentDate: desc } }

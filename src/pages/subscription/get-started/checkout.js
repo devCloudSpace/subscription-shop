@@ -112,7 +112,7 @@ const PaymentContent = ({ isCheckout }) => {
                   },
                   paymentMethodId: state.payment.selected.id,
                   ...(isCheckout && {
-                     status: 'PROCESS',
+                     status: 'CART_PROCESS',
                   }),
                },
             },

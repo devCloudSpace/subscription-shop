@@ -24,8 +24,9 @@ const AddOnProducts = () => {
    }, [state.isCartFull])
 
    const isRemovable =
-      ['PENDING', undefined].includes(state?.occurenceCustomer?.cart?.status) &&
-      state?.week?.isValid
+      ['CART_PENDING', undefined].includes(
+         state?.occurenceCustomer?.cart?.status
+      ) && state?.week?.isValid
    return (
       <div>
          <header tw="my-3 pb-1 border-b flex items-center justify-between">
@@ -146,7 +147,9 @@ const AddOnProduct = ({ node, isAdded, theme }) => {
       const conditions = [!node.isSingleSelect, state?.week?.isValid]
       return (
          conditions.every(node => node) ||
-         ['PENDING', undefined].includes(state.occurenceCustomer?.cart?.status)
+         ['CART_PENDING', undefined].includes(
+            state.occurenceCustomer?.cart?.status
+         )
       )
    }
 

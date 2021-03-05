@@ -136,7 +136,7 @@ const Fulfillment = () => {
                object: {
                   customerInfo,
                   fulfillmentInfo,
-                  status: 'PENDING',
+                  status: 'CART_PENDING',
                   customerId: user.id,
                   source: 'subscription',
                   paymentStatus: 'PENDING',

@@ -104,7 +104,9 @@ const Product = ({ node, isAdded, theme }) => {
       const conditions = [!node.isSingleSelect, state?.week?.isValid, !isActive]
       return (
          conditions.every(node => node) ||
-         ['PENDING', undefined].includes(state.occurenceCustomer?.cart?.status)
+         ['CART_PENDING', undefined].includes(
+            state.occurenceCustomer?.cart?.status
+         )
       )
    }
 

@@ -261,18 +261,16 @@ const Date = styled.li(
 
 const selectColor = variant => {
    switch (variant) {
-      case 'PENDING':
+      case 'ORDER_PENDING':
          return '#FF5A52'
-      case 'UNDER_PROCESSING':
+      case 'ORDER_UNDER_PROCESSING':
          return '#FBB13C'
-      case 'READY_TO_DISPATCH':
+      case 'ORDER_READY_TO_DISPATCH':
          return '#3C91E6'
-      case 'OUT_FOR_DELIVERY':
+      case 'ORDER_OUT_FOR_DELIVERY':
          return '#1EA896'
-      case 'DELIVERED':
+      case 'ORDER_DELIVERED':
          return '#53C22B'
-      case 'REJECTED_OR_CANCELLED':
-         return '#C6C9CA'
       default:
          return '#FF5A52'
    }
