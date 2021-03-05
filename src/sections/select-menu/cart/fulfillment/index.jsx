@@ -35,10 +35,10 @@ const Fulfillment = () => {
                   brand_customerId: user.brandCustomerId,
                   subscriptionOccurenceId: state.week.id,
                },
-               _set: { isSkipped: false, orderCartId: id },
+               _set: { isSkipped: false, cartId: id },
             },
-         }).then(({ data: { updateOccurenceCustomerCart = {} } = {} }) => {
-            if (isSkipped !== updateOccurenceCustomerCart?.isSkipped) {
+         }).then(({ data: { updateOccurenceCustomer = {} } = {} }) => {
+            if (isSkipped !== updateOccurenceCustomer?.isSkipped) {
                addToast('This week has been unskipped', { appearance: 'info' })
             }
          })
@@ -59,10 +59,10 @@ const Fulfillment = () => {
                   brand_customerId: user.brandCustomerId,
                   subscriptionOccurenceId: state.week.id,
                },
-               _set: { isSkipped: false, orderCartId: id },
+               _set: { isSkipped: false, cartId: id },
             },
-         }).then(({ data: { updateOccurenceCustomerCart = {} } = {} }) => {
-            if (isSkipped !== updateOccurenceCustomerCart?.isSkipped) {
+         }).then(({ data: { updateOccurenceCustomer = {} } = {} }) => {
+            if (isSkipped !== updateOccurenceCustomer?.isSkipped) {
                addToast('This week has been unskipped', { appearance: 'info' })
             }
          })
@@ -136,11 +136,17 @@ const Fulfillment = () => {
                object: {
                   customerInfo,
                   fulfillmentInfo,
+                  status: 'PENDING',
                   customerId: user.id,
-                  cartSource: 'subscription',
+                  source: 'subscription',
+                  paymentStatus: 'PENDING',
                   address: user.defaultAddress,
                   customerKeycloakId: user.keycloakId,
                   subscriptionOccurenceId: state.week.id,
+                  ...(user?.subscriptionPaymentMethodId && {
+                     paymentMethodId: user?.subscriptionPaymentMethodId,
+                  }),
+                  stripeCustomerId: user?.platform_customer?.stripeCustomerId,
                },
             },
          }).then(() =>
