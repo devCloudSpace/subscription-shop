@@ -19,7 +19,7 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
 
    const theme = configOf('theme-color', 'Visual')
    if (
-      ['ORDER_PLACED', 'PROCESS'].includes(
+      ['ORDER_PENDING', 'CART_PROCESS'].includes(
          state?.occurenceCustomer?.cart?.status
       )
    )

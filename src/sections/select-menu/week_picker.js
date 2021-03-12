@@ -12,18 +12,16 @@ export const WeekPicker = ({ isFixed }) => {
    if (!state?.week?.id) return null
    if (isFixed)
       return (
-         <Occurence isFixed={isFixed}>
-            <span
-               css={tw`flex items-center justify-center text-base text-center md:text-lg text-indigo-800`}
-            >
-               Showing menu of:&nbsp;
-               {moment(state?.week?.fulfillmentDate)
-                  .subtract(7, 'days')
-                  .format('MMM D')}
-               &nbsp;-&nbsp;
-               {moment(state?.week?.fulfillmentDate).format('MMM D')}
-            </span>
-         </Occurence>
+         <span
+            css={tw`h-16 flex items-center justify-center text-base text-center md:text-lg text-indigo-800`}
+         >
+            Showing menu of:&nbsp;
+            {moment(state?.week?.fulfillmentDate)
+               .subtract(7, 'days')
+               .format('MMM D')}
+            &nbsp;-&nbsp;
+            {moment(state?.week?.fulfillmentDate).format('MMM D')}
+         </span>
       )
    return (
       <Occurences>

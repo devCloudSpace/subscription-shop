@@ -47,13 +47,16 @@ const PlanProducts = ({ noSkip }) => {
    }
 
    const isSkippable =
-      ['PENDING', undefined].includes(state?.occurenceCustomer?.cart?.status) &&
+      ['CART_PENDING', undefined].includes(
+         state?.occurenceCustomer?.cart?.status
+      ) &&
       state?.week?.isValid &&
       !noSkip
 
    const isRemovable =
-      ['PENDING', undefined].includes(state?.occurenceCustomer?.cart?.status) &&
-      state?.week?.isValid
+      ['CART_PENDING', undefined].includes(
+         state?.occurenceCustomer?.cart?.status
+      ) && state?.week?.isValid
 
    return (
       <div>
@@ -92,12 +95,12 @@ const PlanProducts = ({ noSkip }) => {
             )}
          </header>
          <CartProducts>
-            {state?.occurenceCustomer?.cart?.cartInfo?.products?.map(
+            {state?.occurenceCustomer?.cart?.products?.map(
                product =>
                   !product.isAddOn && (
                      <CartProduct
                         product={product}
-                        key={product.cartItemId}
+                        key={product.id}
                         isRemovable={isRemovable}
                         onDelete={methods.products.delete}
                      />

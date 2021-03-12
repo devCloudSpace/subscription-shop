@@ -1,18 +1,11 @@
 import React from 'react'
-import moment from 'moment'
 import tw, { styled, css } from 'twin.macro'
 import { useSubscription } from '@apollo/react-hooks'
 
 import { useConfig } from '../../../lib'
 import { isClient } from '../../../utils'
 import { CART_STATUS } from '../../../graphql'
-import {
-   Layout,
-   SEO,
-   Loader,
-   HelperBar,
-   CartProduct,
-} from '../../../components'
+import { Layout, SEO, Loader, HelperBar } from '../../../components'
 import { PlacedOrderIllo, CartIllo, PaymentIllo } from '../../../assets/icons'
 import OrderInfo from '../../../sections/OrderInfo'
 
@@ -61,14 +54,16 @@ const PlacingOrder = () => {
                            <Steps>
                               <Step
                                  className={`${
-                                    cart.status !== 'PENDING' ? 'active' : ''
+                                    cart.status !== 'CART_PENDING'
+                                       ? 'active'
+                                       : ''
                                  }`}
                               >
                                  <span tw="border rounded-full mb-3 shadow-md">
                                     <CartIllo />
                                  </span>
                                  Saving Cart
-                                 {cart.status === 'PENDING' && <Pulse />}
+                                 {cart.status === 'CART_PENDING' && <Pulse />}
                               </Step>
                               <Step
                                  className={`${
@@ -87,7 +82,7 @@ const PlacingOrder = () => {
                               </Step>
                               <Step
                                  className={`${
-                                    cart.status === 'ORDER_PLACED' &&
+                                    cart.status === 'ORDER_PENDING' &&
                                     cart.orderId
                                        ? 'active'
                                        : 'null'
@@ -97,11 +92,11 @@ const PlacingOrder = () => {
                                     <PlacedOrderIllo />
                                  </span>
                                  Order Placed
-                                 {cart.status !== 'ORDER_PLACED' ||
+                                 {cart.status !== 'ORDER_PENDING' ||
                                     (!Boolean(cart.orderId) && <Pulse />)}
                               </Step>
                            </Steps>
-                           {cart.status === 'ORDER_PLACED' && cart.orderId && (
+                           {cart.status === 'ORDER_PENDING' && cart.orderId && (
                               <HelperBar type="success" tw="mt-3">
                                  <HelperBar.Title>
                                     <span role="img" aria-label="celebrate">

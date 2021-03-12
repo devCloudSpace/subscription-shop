@@ -13,6 +13,8 @@ import {
    ZIPCODE,
    MUTATIONS,
    CART_BY_WEEK,
+   INSERT_CART_ITEM,
+   DELETE_CART_ITEM,
    OCCURENCES_BY_SUBSCRIPTION,
 } from '../../graphql'
 
@@ -65,6 +67,28 @@ export const MenuProvider = ({ children }) => {
    const [cart, setCart] = React.useState({})
    const [fulfillment, setFulfillment] = React.useState({})
    const [state, dispatch] = React.useReducer(reducers, initialState)
+   const [updateOccurenceCustomer] = useMutation(
+      MUTATIONS.OCCURENCE.CUSTOMER.UPDATE,
+      {
+         onError: error =>
+            console.log('updateOccurenceCustomer => error =>', error),
+      }
+   )
+   const [createCart] = useMutation(MUTATIONS.CART.CREATE, {
+      onError: error => console.log('createCart => error =>', error),
+   })
+   const [insertCartItem] = useMutation(INSERT_CART_ITEM, {
+      onCompleted: () => {
+         dispatch({ type: 'CART_STATE', payload: 'SAVED' })
+      },
+      onError: error => console.log('insertCartItem => error =>', error),
+   })
+   const [deleteCartItem] = useMutation(DELETE_CART_ITEM, {
+      onCompleted: () => {
+         dispatch({ type: 'CART_STATE', payload: 'SAVED' })
+      },
+      onError: error => console.log('deleteCartItem => error =>', error),
+   })
    useSubscription(ZIPCODE, {
       skip: !user?.subscriptionId || !user?.defaultAddress?.zipcode,
       variables: {
@@ -109,40 +133,13 @@ export const MenuProvider = ({ children }) => {
    const [insertOccurenceCustomers] = useMutation(
       MUTATIONS.OCCURENCE.CUSTOMER.CREATE.MULTIPLE,
       {
+         skip:
+            state.isOccurencesLoading ||
+            !state?.week?.id ||
+            occurenceCustomerLoading,
          onError: error => console.log(error),
       }
    )
-   const [upsertCart] = useMutation(MUTATIONS.CART.UPSERT, {
-      refetchQueries: () => ['subscriptionOccurenceCustomer'],
-      onCompleted: ({ upsertCart }) => {
-         isClient && window.localStorage.setItem('cartId', upsertCart.id)
-
-         const skipList = new URL(location.href).searchParams.get('previous')
-
-         if (skipList && skipList.split(',').length > 0) {
-            insertOccurenceCustomers({
-               variables: {
-                  objects: skipList.split(',').map(id => ({
-                     isSkipped: true,
-                     keycloakId: user.keycloakId,
-                     subscriptionOccurenceId: id,
-                     brand_customerId: user.brandCustomerId,
-                  })),
-               },
-            })
-         }
-         addToast('Selected menu has been saved.', {
-            appearance: 'success',
-         })
-         dispatch({ type: 'CART_STATE', payload: 'SAVED' })
-      },
-      onError: error => {
-         addToast(error.message, {
-            appearance: 'error',
-         })
-         dispatch({ type: 'CART_STATE', payload: 'SAVED' })
-      },
-   })
    useQuery(OCCURENCES_BY_SUBSCRIPTION, {
       skip: !user?.subscriptionId,
       variables: {
@@ -166,10 +163,6 @@ export const MenuProvider = ({ children }) => {
                   node => node.isValid
                )
                if (validWeekIndex === -1) return
-               dispatch({
-                  type: 'SET_CURRENT_WEEK_INDEX',
-                  payload: validWeekIndex,
-               })
                dispatch({ type: 'SET_IS_OCCURENCES_LOADING', payload: false })
                dispatch({
                   type: 'SET_OCCURENCES',
@@ -248,20 +241,8 @@ export const MenuProvider = ({ children }) => {
 
    const removeProduct = item => {
       dispatch({ type: 'CART_STATE', payload: 'SAVING' })
-      const products = occurenceCustomer?.cart?.cartInfo?.products.filter(
-         node => node.cartItemId !== item.cartItemId
-      )
-      upsertCart({
-         variables: {
-            object: {
-               id: occurenceCustomer?.cart?.id,
-               cartInfo: { products },
-            },
-            on_conflict: {
-               constraint: 'orderCart_pkey',
-               update_columns: ['cartInfo'],
-            },
-         },
+      deleteCartItem({
+         variables: { id: item.id },
       }).then(() =>
          addToast(`You've removed the product - ${item.name}.`, {
             appearance: 'info',
@@ -271,76 +252,49 @@ export const MenuProvider = ({ children }) => {
 
    const addProduct = item => {
       dispatch({ type: 'CART_STATE', payload: 'SAVING' })
-      const subscriptionOccurenceCustomers = {
-         data: [
-            {
-               isSkipped: false,
-               keycloakId: user.keycloakId,
-               subscriptionOccurenceId: state.week.id,
-               brand_customerId: user.brandCustomerId,
-            },
-         ],
-         on_conflict: {
-            constraint: 'subscriptionOccurence_customer_pkey',
-            update_columns: ['isSkipped', 'orderCartId'],
-         },
-      }
-
-      const products = occurenceCustomer?.cart?.cartInfo?.products
-
-      if (item.isAddOn) {
-         const index = products?.findIndex(
-            node =>
-               node.subscriptionOccurenceProductId ===
-               item.subscriptionOccurenceProductId
-         )
-         if (index !== -1) {
-            products[index] = {
-               ...products[index],
-               quantity: products[index].quantity + 1,
-            }
-         } else {
-            products.push({ ...item, cartItemId: uuidv4() })
-         }
-      } else {
-         products.push({ ...item, cartItemId: uuidv4() })
-      }
 
       const isSkipped = occurenceCustomer?.isSkipped
       if (occurenceCustomer?.validStatus?.hasCart) {
-         upsertCart({
+         insertCartItem({
             variables: {
-               object: {
-                  id: occurenceCustomer?.cart?.id,
-                  subscriptionOccurenceCustomers,
-                  cartInfo: { products },
-               },
-               on_conflict: {
-                  constraint: 'orderCart_pkey',
-                  update_columns: ['cartInfo'],
-               },
+               object: { ...item, cartId: occurenceCustomer?.cart?.id },
             },
-         }).then(({ data: { upsertCart = {} } = {} }) => {
-            if (!item?.isAddOn) {
-               dispatch({
-                  type: 'IS_CART_FULL',
-                  payload:
-                     upsertCart?.subscriptionOccurenceCustomer?.validStatus
-                        ?.itemCountValid,
+         }).then(({ data: { createCartItem = {} } = {} }) => {
+            const { cartItemProducts = [] } = createCartItem
+            if (!isEmpty(cartItemProducts)) {
+               const [product] = cartItemProducts
+               addToast(`You've added the product - ${product.name}.`, {
+                  appearance: 'info',
                })
             }
-            if (
-               upsertCart?.subscriptionOccurenceCustomer?.isSkipped !==
-               isSkipped
-            ) {
-               if (!upsertCart?.subscriptionOccurenceCustomer?.isSkipped) {
-                  addToast('This week has been unskipped.', {
-                     appearance: 'info',
+
+            updateOccurenceCustomer({
+               variables: {
+                  pk_columns: {
+                     keycloakId: user.keycloakId,
+                     subscriptionOccurenceId: state.week.id,
+                     brand_customerId: user.brandCustomerId,
+                  },
+                  _set: {
+                     isSkipped: false,
+                     cartId: createCartItem?.cart?.id,
+                  },
+               },
+            }).then(({ data: { updateOccurenceCustomer = {} } = {} }) => {
+               if (!item?.isAddOn) {
+                  dispatch({
+                     type: 'IS_CART_FULL',
+                     payload:
+                        updateOccurenceCustomer?.validStatus?.itemCountValid,
                   })
                }
-            }
-            addToast(`You've added the product - ${item.name}.`, {
-               appearance: 'info',
+               if (updateOccurenceCustomer?.isSkipped !== isSkipped) {
+                  if (!updateOccurenceCustomer?.isSkipped) {
+                     addToast('This week has been unskipped.', {
+                        appearance: 'info',
+                     })
+                  }
+               }
             })
          })
       } else {
@@ -350,61 +304,81 @@ export const MenuProvider = ({ children }) => {
             customerLastName: user?.platform_customer?.lastName || '',
             customerFirstName: user?.platform_customer?.firstName || '',
          }
-
-         upsertCart({
+         createCart({
             variables: {
                object: {
                   customerInfo,
-                  status: 'PENDING',
+                  status: 'CART_PENDING',
                   customerId: user.id,
+                  source: 'subscription',
                   paymentStatus: 'PENDING',
-                  cartSource: 'subscription',
-                  fulfillmentInfo: fulfillment,
                   address: user.defaultAddress,
-                  cartInfo: { products: [item] },
-                  subscriptionOccurenceCustomers,
+                  fulfillmentInfo: fulfillment,
                   customerKeycloakId: user.keycloakId,
                   subscriptionOccurenceId: state.week.id,
                   ...(user?.subscriptionPaymentMethodId && {
                      paymentMethodId: user?.subscriptionPaymentMethodId,
                   }),
                   stripeCustomerId: user?.platform_customer?.stripeCustomerId,
-                  ...(state?.occurenceCustomer?.cart?.id && {
-                     id: state?.occurenceCustomer?.cart?.id,
-                  }),
-               },
-               on_conflict: {
-                  constraint: 'orderCart_pkey',
-                  update_columns: [
-                     'amount',
-                     'address',
-                     'cartInfo',
-                     'fulfillmentInfo',
-                  ],
                },
             },
-         }).then(({ data: { upsertCart = {} } = {} }) => {
-            if (!item?.isAddOn) {
-               dispatch({
-                  type: 'IS_CART_FULL',
-                  payload:
-                     upsertCart?.subscriptionOccurenceCustomer?.validStatus
-                        ?.itemCountValid,
-               })
-            }
-            if (
-               upsertCart?.subscriptionOccurenceCustomer?.isSkipped !==
-               isSkipped
-            ) {
-               if (!upsertCart?.subscriptionOccurenceCustomer?.isSkipped) {
-                  addToast('This week has been unskipped.', {
+         }).then(({ data: { createCart = {} } = {} }) => {
+            insertCartItem({
+               variables: { object: { ...item, cartId: createCart.id } },
+            }).then(({ data: { createCartItem = {} } = {} }) => {
+               const { cartItemProducts = [] } = createCartItem
+               if (!isEmpty(cartItemProducts)) {
+                  const [product] = cartItemProducts
+                  addToast(`You've added the product - ${product.name}.`, {
                      appearance: 'info',
                   })
                }
-            }
-            addToast(`You've added the product - ${item.name}.`, {
-               appearance: 'info',
+               updateOccurenceCustomer({
+                  variables: {
+                     pk_columns: {
+                        keycloakId: user.keycloakId,
+                        subscriptionOccurenceId: state.week.id,
+                        brand_customerId: user.brandCustomerId,
+                     },
+                     _set: {
+                        isSkipped: false,
+                        cartId: createCartItem?.cart?.id,
+                     },
+                  },
+               }).then(({ data: { updateOccurenceCustomer = {} } = {} }) => {
+                  if (!item?.isAddOn) {
+                     dispatch({
+                        type: 'IS_CART_FULL',
+                        payload:
+                           updateOccurenceCustomer?.validStatus?.itemCountValid,
+                     })
+                  }
+                  if (updateOccurenceCustomer?.isSkipped !== isSkipped) {
+                     if (!updateOccurenceCustomer?.isSkipped) {
+                        addToast('This week has been unskipped.', {
+                           appearance: 'info',
+                        })
+                     }
+                  }
+               })
             })
+
+            isClient && window.localStorage.setItem('cartId', createCart.id)
+
+            const skipList = new URL(location.href).searchParams.get('previous')
+
+            if (skipList && skipList.split(',').length > 0) {
+               insertOccurenceCustomers({
+                  variables: {
+                     objects: skipList.split(',').map(id => ({
+                        isSkipped: true,
+                        keycloakId: user.keycloakId,
+                        subscriptionOccurenceId: id,
+                        brand_customerId: user.brandCustomerId,
+                     })),
+                  },
+               })
+            }
          })
       }
    }

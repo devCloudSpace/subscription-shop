@@ -6,14 +6,8 @@ import { useToasts } from 'react-toast-notifications'
 import { useMutation, useQuery } from '@apollo/react-hooks'
 
 import { useConfig } from '../../../lib'
-import { isClient, formatCurrency, normalizeAddress } from '../../../utils'
-import {
-   SEO,
-   Layout,
-   Billing,
-   StepsNavbar,
-   CartProduct,
-} from '../../../components'
+import { isClient, formatCurrency } from '../../../utils'
+import { SEO, Loader, Layout, StepsNavbar } from '../../../components'
 import {
    usePayment,
    ProfileSection,
@@ -56,7 +50,7 @@ const PaymentContent = ({ isCheckout }) => {
    const { addToast } = useToasts()
    const { configOf } = useConfig()
 
-   const { data: { cart = {} } = {} } = useQuery(CART, {
+   const { loading, data: { cart = {} } = {} } = useQuery(CART, {
       variables: {
          id: isClient && window.localStorage.getItem('cartId'),
       },
@@ -109,6 +103,7 @@ const PaymentContent = ({ isCheckout }) => {
             variables: {
                id: cart.id,
                _set: {
+                  amount: state?.occurenceCustomer?.cart?.totalPrice,
                   customerInfo: {
                      customerEmail: user?.platform_customer?.email,
                      customerPhone: state?.profile?.phoneNumber,
@@ -117,8 +112,7 @@ const PaymentContent = ({ isCheckout }) => {
                   },
                   paymentMethodId: state.payment.selected.id,
                   ...(isCheckout && {
-                     status: 'PROCESS',
-                     amount: cart.totalPrice,
+                     status: 'CART_PROCESS',
                   }),
                },
             },
@@ -150,6 +144,7 @@ const PaymentContent = ({ isCheckout }) => {
    }
    const theme = configOf('theme-color', 'Visual')
 
+   if (loading) return <Loader inline />
    return (
       <Main>
          <section>
@@ -159,7 +154,7 @@ const PaymentContent = ({ isCheckout }) => {
             <ProfileSection />
             <PaymentSection />
          </section>
-         {cart?.cartInfo && (
+         {cart?.products?.length > 0 && (
             <section>
                <OrderInfo cart={cart} />
                <Button
