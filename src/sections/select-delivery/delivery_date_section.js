@@ -20,10 +20,7 @@ export const DeliveryDateSection = () => {
       {
          onCompleted: ({ subscription = {} }) => {
             if (subscription.occurences.length > 0) {
-               const filtered = subscription.occurences.filter(
-                  occurence => occurence.isValid && occurence.isVisible
-               )
-               setOccurences(filtered)
+               setOccurences(subscription.occurences)
             }
          },
          onError: error => {
@@ -39,6 +36,12 @@ export const DeliveryDateSection = () => {
          fetchOccurences({
             variables: {
                id: state.delivery.selected.id,
+               where: {
+                  subscriptionOccurenceView: {
+                     isValid: { _eq: true },
+                     isVisible: { _eq: true },
+                  },
+               },
             },
          })
       }

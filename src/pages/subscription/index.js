@@ -1,19 +1,83 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'gatsby'
 import tw, { styled, css } from 'twin.macro'
-import { useKeycloak } from '@react-keycloak/web'
-
+import 'regenerator-runtime'
+import { useQuery } from '@apollo/react-hooks'
 import { useConfig } from '../../lib'
+import { GET_FILEID } from '../../graphql'
 import { useUser } from '../../context'
-import { SEO, Layout } from '../../components'
+import { SEO, Layout, Loader } from '../../components'
 import { FaqSection, InfoSection } from '../../sections'
+import { webRenderer } from '@dailykit/web-renderer'
 
 export default () => {
-   const { user } = useUser()
-   const [keycloak] = useKeycloak()
    const { configOf } = useConfig()
-
+   const { user, isAuthenticated } = useUser()
    const theme = configOf('theme-color', 'Visual')
+   const { loading } = useQuery(GET_FILEID, {
+      variables: {
+         divId: ['home-bottom-01'],
+      },
+      onCompleted: ({ content_subscriptionDivIds: fileData }) => {
+         if (fileData.length) {
+            fileData.forEach(data => {
+               if (data?.fileId) {
+                  const fileId = [data?.fileId]
+                  const cssPath = data?.subscriptionDivFileId?.linkedCssFiles.map(
+                     file => {
+                        return file?.cssFile?.path
+                     }
+                  )
+                  const jsPath = data?.subscriptionDivFileId?.linkedJsFiles.map(
+                     file => {
+                        return file?.jsFile?.path
+                     }
+                  )
+                  webRenderer({
+                     type: 'file',
+                     config: {
+                        uri: process.env.GATSBY_DATA_HUB_HTTPS,
+                        adminSecret: process.env.GATSBY_ADMIN_SECRET,
+                        expressUrl: process.env.GATSBY_EXPRESS_URL,
+                     },
+                     fileDetails: [
+                        {
+                           elementId: 'home-bottom-01',
+                           fileId,
+                           cssPath: cssPath,
+                           jsPath: jsPath,
+                        },
+                     ],
+                  })
+               }
+            })
+         }
+      },
+
+      onError: error => {
+         console.error(error)
+      },
+   })
+
+   // useEffect(() => {
+   //    webRenderer({
+   //       type: 'file',
+   //       config: {
+   //          uri: process.env.GATSBY_DATA_HUB_HTTPS,
+   //          adminSecret: process.env.GATSBY_ADMIN_SECRET,
+   //       },
+   //       fileDetails:[
+   //          {
+   //             elementId: 'home-bottom-01',
+   //             fileId: file,
+   //          }
+   //       ]
+
+   //    })
+   // }, [file])
+
+   if (loading) return <Loader />
+
    return (
       <Layout>
          <SEO title="Home" />
@@ -21,7 +85,7 @@ export default () => {
             <Header>
                <div>
                   <Tagline>Your next great meal is at your fingertips.</Tagline>
-                  {user?.keycloakId || keycloak?.authenticated ? (
+                  {isAuthenticated && user?.isSubscriber ? (
                      <CTA theme={theme} to="/subscription/menu">
                         Select Menu
                      </CTA>
@@ -35,6 +99,7 @@ export default () => {
                   )}
                </div>
             </Header>
+            <div id="home-bottom-01"></div>
             <InfoSection page="home" identifier="bottom-01" />
             <FaqSection page="home" identifier="top-01" />
          </Main>
@@ -84,13 +149,13 @@ const Header = styled.header`
 const CTA = styled(Link)(
    ({ theme }) => css`
       ${tw`
-      rounded 
-      px-6 h-12 
+      rounded
+      px-6 h-12
       shadow-xl
       text-white
-      bg-green-700 
-      inline-flex items-center 
-      uppercase tracking-wider font-medium 
+      bg-green-700
+      inline-flex items-center
+      uppercase tracking-wider font-medium
    `}
       ${theme?.accent && `background-color: ${theme.accent}`}
    `

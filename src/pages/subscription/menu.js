@@ -2,7 +2,6 @@ import React from 'react'
 import { isEmpty } from 'lodash'
 import { navigate } from 'gatsby'
 import tw, { styled } from 'twin.macro'
-import { useKeycloak } from '@react-keycloak/web'
 
 import { SEO, Layout, HelperBar, Loader } from '../../components'
 import {
@@ -10,6 +9,7 @@ import {
    CartPanel,
    WeekPicker,
    MenuProvider,
+   useMenu,
 } from '../../sections/select-menu'
 import { useUser } from '../../context'
 import { useConfig } from '../../lib'
@@ -22,6 +22,7 @@ const MenuPage = () => {
          navigate('/subscription/get-started/select-plan')
       }
    }, [isAuthenticated])
+
    return (
       <MenuProvider>
          <Layout>
@@ -36,10 +37,11 @@ export default MenuPage
 
 const MenuContent = () => {
    const { user } = useUser()
+   const { state } = useMenu()
    const { configOf } = useConfig('Select-Menu')
    const config = configOf('select-menu-header')
 
-   if (isEmpty(user))
+   if (state?.isOccurencesLoading)
       return (
          <Main>
             <Loader inline />

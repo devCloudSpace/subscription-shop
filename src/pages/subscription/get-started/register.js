@@ -3,19 +3,17 @@ import { isEmpty } from 'lodash'
 import { navigate } from 'gatsby'
 import jwtDecode from 'jwt-decode'
 import tw, { styled } from 'twin.macro'
-import { useKeycloak } from '@react-keycloak/web'
 import { useToasts } from 'react-toast-notifications'
 import { useLazyQuery, useMutation } from '@apollo/react-hooks'
 
 import { useUser } from '../../../context'
 import { useConfig, auth } from '../../../lib'
-import { isClient, isKeycloakSupported } from '../../../utils'
+import { isClient, processUser } from '../../../utils'
 import { SEO, Layout, StepsNavbar } from '../../../components'
-import { BRAND, CREATE_CUSTOMER, CUSTOMER } from '../../../graphql'
+import { BRAND, CUSTOMER, MUTATIONS } from '../../../graphql'
 
 export default () => {
    const { brand } = useConfig()
-   const [keycloak] = useKeycloak()
    const { addToast } = useToasts()
    const { user, dispatch } = useUser()
    const [current, setCurrent] = React.useState('REGISTER')
@@ -23,174 +21,144 @@ export default () => {
    const [create_brand_customer] = useMutation(BRAND.CUSTOMER.CREATE, {
       refetchQueries: ['customer'],
       onCompleted: () => {
-         navigate('/subscription/get-started/select-delivery')
+         if (isClient) {
+            window.location.href =
+               window.location.origin +
+               '/subscription/get-started/select-delivery'
+         }
       },
       onError: error => {
          console.log(error)
       },
    })
-   const [create] = useMutation(CREATE_CUSTOMER, {
-      refetchQueries: ['customer'],
-      onCompleted: async ({ createCustomer }) => {
-         if (!isEmpty(createCustomer)) {
-            const user = await processUser(createCustomer)
-            dispatch({ type: 'SET_USER', payload: user })
-         }
-         navigate('/subscription/get-started/select-delivery')
-      },
-      onError: () =>
-         addToast('Something went wrong!', {
-            appearance: 'error',
-         }),
-   })
-   const [customer] = useLazyQuery(CUSTOMER.DETAILS, {
-      onCompleted: async ({ customer = {} }) => {
-         if (isEmpty(customer)) {
-            console.log('CUSTOMER DOESNT EXISTS')
-            create({
-               variables: {
-                  object: {
-                     source: 'subscription',
-                     sourceBrandId: brand.id,
-                     email: isKeycloakSupported()
-                        ? keycloak?.tokenParsed?.email
-                        : jwtDecode(localStorage.getItem('token')).email,
-                     clientId: process.env.GATSBY_CLIENTID,
-                     keycloakId: isKeycloakSupported()
-                        ? keycloak?.tokenParsed?.sub
-                        : jwtDecode(localStorage.getItem('token')).sub,
-                     brandCustomers: {
-                        data: {
-                           brandId: brand.id,
-                        },
+   const [create, { loading: creatingCustomer }] = useMutation(
+      MUTATIONS.CUSTOMER.CREATE,
+      {
+         refetchQueries: ['customer'],
+         onCompleted: async ({ createCustomer }) => {
+            if (!isEmpty(createCustomer)) {
+               const user = await processUser(createCustomer)
+               dispatch({ type: 'SET_USER', payload: user })
+            }
+            if (isClient) {
+               window.location.href =
+                  window.location.origin +
+                  '/subscription/get-started/select-delivery'
+            }
+         },
+         onError: () =>
+            addToast('Something went wrong!', {
+               appearance: 'error',
+            }),
+      }
+   )
+   const [customer, { loading: loadingCustomerDetails }] = useLazyQuery(
+      CUSTOMER.DETAILS,
+      {
+         onCompleted: async ({ customer = {} }) => {
+            const { email = '', sub: keycloakId = '' } = jwtDecode(
+               localStorage.getItem('token')
+            )
+            if (isEmpty(customer)) {
+               console.log('CUSTOMER DOESNT EXISTS')
+               create({
+                  variables: {
+                     object: {
+                        email,
+                        keycloakId,
+                        source: 'subscription',
+                        sourceBrandId: brand.id,
+                        clientId: process.env.GATSBY_CLIENTID,
+                        brandCustomers: { data: { brandId: brand.id } },
                      },
                   },
-               },
-            })
-            return
-         }
-         console.log('CUSTOMER EXISTS')
+               })
+               return
+            }
+            console.log('CUSTOMER EXISTS')
 
-         const user = await processUser(customer)
-         dispatch({ type: 'SET_USER', payload: user })
+            const user = await processUser(customer)
+            dispatch({ type: 'SET_USER', payload: user })
 
-         const { brandCustomers = {} } = customer
-         if (isEmpty(brandCustomers)) {
-            console.log('BRAND_CUSTOMER DOESNT EXISTS')
-            create_brand_customer({
-               variables: {
-                  object: {
-                     brandId: brand.id,
-                     keycloakId: isKeycloakSupported()
-                        ? keycloak?.tokenParsed?.sub
-                        : jwtDecode(localStorage.getItem('token')).sub,
+            const { brandCustomers = {} } = customer
+            if (isEmpty(brandCustomers)) {
+               console.log('BRAND_CUSTOMER DOESNT EXISTS')
+               create_brand_customer({
+                  variables: {
+                     object: {
+                        keycloakId,
+                        brandId: brand.id,
+                     },
                   },
-               },
-            })
-         } else if (customer.isSubscriber && brandCustomers[0].isSubscriber) {
-            console.log('BRAND_CUSTOMER EXISTS & CUSTOMER IS SUBSCRIBED')
-            navigate('/subscription/menu')
-            isClient && localStorage.removeItem('plan')
-         } else {
-            console.log('CUSTOMER ISNT SUBSCRIBED')
-            navigate('/subscription/get-started/select-delivery')
-         }
-      },
-   })
+               })
+            } else if (
+               customer.isSubscriber &&
+               brandCustomers[0].isSubscriber
+            ) {
+               console.log('BRAND_CUSTOMER EXISTS & CUSTOMER IS SUBSCRIBED')
+               navigate('/subscription/menu')
+               isClient && localStorage.removeItem('plan')
+            } else {
+               console.log('CUSTOMER ISNT SUBSCRIBED')
+               if (isClient) {
+                  window.location.href =
+                     window.location.origin +
+                     '/subscription/get-started/select-delivery'
+               }
+            }
+         },
+      }
+   )
 
    React.useEffect(() => {
-      if (user?.keycloakId && !user?.isSubscriber) {
-         navigate('/subscription/get-started/select-delivery')
-      } else if (user?.keycloakId && user?.isSubscriber) {
-         navigate('/subscription/menu')
+      if (user?.keycloakId) {
+         if (user?.isSubscriber) navigate('/subscription/menu')
+         else if (isClient) {
+            window.location.href =
+               window.location.origin +
+               '/subscription/get-started/select-delivery'
+         }
       }
    }, [user])
-
-   React.useEffect(() => {
-      if (isKeycloakSupported() && keycloak?.authenticated) {
-         if ('tokenParsed' in keycloak && 'id' in brand) {
-            customer({
-               variables: {
-                  keycloakId: keycloak.tokenParsed?.sub,
-                  brandId: brand.id,
-               },
-            })
-         }
-      }
-   }, [keycloak, customer, brand])
-
-   React.useEffect(() => {
-      if (isClient && isKeycloakSupported()) {
-         let eventMethod = window.addEventListener
-            ? 'addEventListener'
-            : 'attachEvent'
-         let eventer = window[eventMethod]
-         let messageEvent =
-            eventMethod === 'attachEvent' ? 'onmessage' : 'message'
-
-         eventer(messageEvent, e => {
-            if (e.origin !== window.origin) return
-            try {
-               if (JSON.parse(e.data).success) {
-                  window.location.reload()
-               }
-            } catch (error) {}
-         })
-      }
-   }, [])
 
    return (
       <Layout noHeader>
          <SEO title="Register" />
          <StepsNavbar />
          <Main tw="pt-8">
-            {isKeycloakSupported() ? (
-               <>
-                  {!keycloak?.authenticated && (
-                     <iframe
-                        frameBorder="0"
-                        title="Register"
-                        tw="mx-auto w-full md:w-4/12 h-full"
-                        style={{ height: '780px' }}
-                        src={keycloak?.createRegisterUrl({
-                           redirectUri: isClient
-                              ? `${window.location.origin}/subscription/login-success.xhtml`
-                              : '',
-                        })}
-                     ></iframe>
-                  )}
-               </>
-            ) : (
-               <>
-                  <TabList>
-                     <Tab
-                        className={current === 'LOGIN' ? 'active' : ''}
-                        onClick={() => setCurrent('LOGIN')}
-                     >
-                        Login
-                     </Tab>
-                     <Tab
-                        className={current === 'REGISTER' ? 'active' : ''}
-                        onClick={() => setCurrent('REGISTER')}
-                     >
-                        Register
-                     </Tab>
-                  </TabList>
-                  {current === 'LOGIN' && <LoginPanel customer={customer} />}
-                  {current === 'REGISTER' && (
-                     <RegisterPanel
-                        setCurrent={setCurrent}
-                        customer={customer}
-                     />
-                  )}
-               </>
+            <TabList>
+               <Tab
+                  className={current === 'LOGIN' ? 'active' : ''}
+                  onClick={() => setCurrent('LOGIN')}
+               >
+                  Login
+               </Tab>
+               <Tab
+                  className={current === 'REGISTER' ? 'active' : ''}
+                  onClick={() => setCurrent('REGISTER')}
+               >
+                  Register
+               </Tab>
+            </TabList>
+            {current === 'LOGIN' && (
+               <LoginPanel
+                  customer={customer}
+                  loading={loadingCustomerDetails || creatingCustomer}
+               />
+            )}
+            {current === 'REGISTER' && (
+               <RegisterPanel
+                  customer={customer}
+                  setCurrent={setCurrent}
+                  loading={loadingCustomerDetails || creatingCustomer}
+               />
             )}
          </Main>
       </Layout>
    )
 }
 
-const LoginPanel = ({ customer }) => {
+const LoginPanel = ({ loading, customer }) => {
    const { brand } = useConfig()
    const [error, setError] = React.useState('')
    const [form, setForm] = React.useState({
@@ -255,17 +223,17 @@ const LoginPanel = ({ customer }) => {
             />
          </FieldSet>
          <Submit
-            className={!isValid ? 'disabled' : ''}
+            className={!isValid || loading ? 'disabled' : ''}
             onClick={() => isValid && submit()}
          >
-            Login
+            {loading ? 'Logging in...' : 'Login'}
          </Submit>
          {error && <span tw="self-start block text-red-500 mt-2">{error}</span>}
       </Panel>
    )
 }
 
-const RegisterPanel = ({ customer, setCurrent }) => {
+const RegisterPanel = ({ loading, customer, setCurrent }) => {
    const { brand } = useConfig()
    const [error, setError] = React.useState('')
    const [form, setForm] = React.useState({
@@ -335,10 +303,10 @@ const RegisterPanel = ({ customer, setCurrent }) => {
             />
          </FieldSet>
          <Submit
-            className={!isValid ? 'disabled' : ''}
+            className={!isValid || loading ? 'disabled' : ''}
             onClick={() => isValid && submit()}
          >
-            Register
+            {loading ? 'Registering' : 'Register'}
          </Submit>
          <button
             tw="self-start mt-2 text-blue-500"
@@ -349,36 +317,6 @@ const RegisterPanel = ({ customer, setCurrent }) => {
          {error && <span tw="self-start block text-red-500 mt-2">{error}</span>}
       </Panel>
    )
-}
-
-const processUser = customer => {
-   const sub = {}
-   const { brandCustomers = [], ...rest } = customer
-
-   if (!isEmpty(brandCustomers)) {
-      const [brand_customer] = brandCustomers
-
-      const {
-         subscription = null,
-         subscriptionId = null,
-         subscriptionAddressId = null,
-         subscriptionPaymentMethodId = null,
-      } = brand_customer
-
-      rest.subscription = subscription
-      rest.subscriptionId = subscriptionId
-      rest.subscriptionAddressId = subscriptionAddressId
-      rest.subscriptionPaymentMethodId = subscriptionPaymentMethodId
-
-      sub.defaultAddress = rest?.platform_customer?.addresses.find(
-         address => address.id === subscriptionAddressId
-      )
-
-      sub.defaultPaymentMethod = rest?.platform_customer?.paymentMethods.find(
-         method => method.stripePaymentMethodId === subscriptionPaymentMethodId
-      )
-   }
-   return { ...rest, ...sub }
 }
 
 const Main = styled.main`

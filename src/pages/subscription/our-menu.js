@@ -376,7 +376,7 @@ const Product = ({ node }) => {
             </Label>
          )}
          <div tw="flex items-center justify-between">
-            <section tw="flex items-center">
+            <section>
                <Link
                   tw="text-gray-700"
                   to={`/subscription/${
@@ -389,6 +389,11 @@ const Product = ({ node }) => {
                >
                   {node?.cartItem?.name}
                </Link>
+               <p>
+                  {type === 'SRP'
+                     ? option?.simpleRecipeProduct?.additionalText
+                     : option?.inventoryProduct?.additionalText}
+               </p>
             </section>
          </div>
       </Styles.Product>

@@ -1,13 +1,13 @@
 import React from 'react'
-import { navigate } from 'gatsby'
 import tw, { styled, css } from 'twin.macro'
 import { useSubscription } from '@apollo/react-hooks'
 
 import { useConfig } from '../../../lib'
+import { isClient } from '../../../utils'
 import { CART_STATUS } from '../../../graphql'
-import { isClient, formatDate } from '../../../utils'
 import { Layout, SEO, Loader, HelperBar } from '../../../components'
 import { PlacedOrderIllo, CartIllo, PaymentIllo } from '../../../assets/icons'
+import OrderInfo from '../../../sections/OrderInfo'
 
 const PlacingOrder = () => {
    const { configOf } = useConfig()
@@ -19,14 +19,18 @@ const PlacingOrder = () => {
 
    React.useEffect(() => {
       if (!cart) {
-         navigate('/subscription/menu')
+         if (isClient) {
+            window.location.href = window.location.origin + '/subscription/menu'
+         }
       }
    }, [cart])
 
    const gotoMenu = () => {
       isClient && window.localStorage.removeItem('cartId')
       isClient && window.localStorage.removeItem('plan')
-      navigate('/subscription/menu')
+      if (isClient) {
+         window.location.href = window.location.origin + '/subscription/menu'
+      }
    }
    const theme = configOf('theme-color', 'Visual')
 
@@ -41,67 +45,25 @@ const PlacingOrder = () => {
                   <Content>
                      {cart && (
                         <>
-                           <section>
-                              <header tw="my-3 pb-1 border-b flex items-center justify-between">
-                                 <SectionTitle theme={theme}>
-                                    Order Summary (
-                                    {cart.cartInfo.products.length})
-                                 </SectionTitle>
-                              </header>
-                              <CartProducts>
-                                 {cart.cartInfo.products.map(product => (
-                                    <CartProduct
-                                       product={product}
-                                       key={`product-${product.cartItemId}`}
-                                    />
-                                 ))}
-                              </CartProducts>
-                              <section tw="my-4 text-gray-700">
-                                 * Your box will be delivered on{' '}
-                                 <span>
-                                    {formatDate(
-                                       cart.fulfillmentInfo.slot.from,
-                                       {
-                                          month: 'short',
-                                          day: 'numeric',
-                                       }
-                                    )}
-                                    &nbsp;between{' '}
-                                    {formatDate(
-                                       cart.fulfillmentInfo.slot.from,
-                                       {
-                                          minute: 'numeric',
-                                          hour: 'numeric',
-                                       }
-                                    )}
-                                    &nbsp;-&nbsp;
-                                    {formatDate(cart.fulfillmentInfo.slot.to, {
-                                       minute: 'numeric',
-                                       hour: 'numeric',
-                                    })}
-                                 </span>{' '}
-                                 at{' '}
-                                 <span>
-                                    {cart.address?.line1},&nbsp;
-                                    {cart.address?.line2 &&
-                                       `, ${cart.address?.line2}`}
-                                    {cart.address?.city}, {cart.address?.state}
-                                    ,&nbsp;
-                                    {cart.address?.zipcode}
-                                 </span>
-                              </section>
-                           </section>
+                           <header tw="my-3 pb-1 border-b flex items-center justify-between">
+                              <SectionTitle theme={theme}>
+                                 Order Summary
+                              </SectionTitle>
+                           </header>
+                           <OrderInfo cart={cart} />
                            <Steps>
                               <Step
                                  className={`${
-                                    cart.status !== 'PENDING' ? 'active' : ''
+                                    cart.status !== 'CART_PENDING'
+                                       ? 'active'
+                                       : ''
                                  }`}
                               >
                                  <span tw="border rounded-full mb-3 shadow-md">
                                     <CartIllo />
                                  </span>
                                  Saving Cart
-                                 {cart.status === 'PENDING' && <Pulse />}
+                                 {cart.status === 'CART_PENDING' && <Pulse />}
                               </Step>
                               <Step
                                  className={`${
@@ -120,7 +82,7 @@ const PlacingOrder = () => {
                               </Step>
                               <Step
                                  className={`${
-                                    cart.status === 'ORDER_PLACED' &&
+                                    cart.status === 'ORDER_PENDING' &&
                                     cart.orderId
                                        ? 'active'
                                        : 'null'
@@ -130,11 +92,11 @@ const PlacingOrder = () => {
                                     <PlacedOrderIllo />
                                  </span>
                                  Order Placed
-                                 {cart.status !== 'ORDER_PLACED' ||
+                                 {cart.status !== 'ORDER_PENDING' ||
                                     (!Boolean(cart.orderId) && <Pulse />)}
                               </Step>
                            </Steps>
-                           {cart.status === 'ORDER_PLACED' && cart.orderId && (
+                           {cart.status === 'ORDER_PENDING' && cart.orderId && (
                               <HelperBar type="success" tw="mt-3">
                                  <HelperBar.Title>
                                     <span role="img" aria-label="celebrate">
@@ -169,32 +131,6 @@ const Pulse = () => (
       <span tw="relative inline-flex rounded-full h-3 w-3 bg-gray-500"></span>
    </span>
 )
-
-const CartProduct = ({ product }) => {
-   return (
-      <CartProductContainer>
-         <aside tw="flex-shrink-0 relative">
-            {product.image ? (
-               <img
-                  src={product.image}
-                  alt={product.name}
-                  title={product.name}
-                  tw="object-cover rounded w-full h-full"
-               />
-            ) : (
-               <span tw="text-teal-500" title={product.name}>
-                  N/A
-               </span>
-            )}
-         </aside>
-         <main tw="h-16 pl-3">
-            <p tw="truncate text-gray-800" title={product.name}>
-               {product.name}
-            </p>
-         </main>
-      </CartProductContainer>
-   )
-}
 
 const Wrapper = styled.div`
    ${tw`bg-gray-100`}
@@ -238,11 +174,4 @@ const CartProducts = styled.ul`
    ${tw`space-y-2 mb-3`}
    overflow-y: auto;
    max-height: 257px;
-`
-
-const CartProductContainer = styled.li`
-   ${tw`h-20 bg-white border flex items-center px-2 rounded`}
-   aside {
-      ${tw`w-24 h-16 bg-gray-300 rounded flex items-center justify-center`}
-   }
 `

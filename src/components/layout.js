@@ -1,15 +1,15 @@
 import React from 'react'
 import { Link } from 'gatsby'
 import tw, { styled, css } from 'twin.macro'
-import { useKeycloak } from '@react-keycloak/web'
 
 import { Header } from './header'
+import { useUser } from '../context'
 import { normalizeAddress } from '../utils'
 import { useConfig } from '../lib/config'
 import { MailIcon, PhoneIcon } from '../assets/icons'
 
 export const Layout = ({ children, noHeader }) => {
-   const [keycloak] = useKeycloak()
+   const { isAuthenticated } = useUser()
    const { hasConfig, configOf } = useConfig()
 
    const brand = configOf('theme-brand', 'brand')
@@ -24,7 +24,7 @@ export const Layout = ({ children, noHeader }) => {
          {!noHeader && <Header />}
          {children}
          {store?.isStoreLive === false && (
-            <div tw="bg-gray-200 text-gray-700 w-full h-10 flex items-center justify-center">
+            <div tw="p-2 bg-gray-200 text-gray-700 w-full flex items-center justify-center">
                Store running in test mode so payments will be bypassed
             </div>
          )}
@@ -64,7 +64,7 @@ export const Layout = ({ children, noHeader }) => {
                      <li tw="mb-3">
                         <Link to="/subscription">Home</Link>
                      </li>
-                     {keycloak?.authenticated && (
+                     {isAuthenticated && (
                         <li tw="mb-3">
                            <Link to="/subscription/account/profile/">
                               Profile
@@ -76,32 +76,36 @@ export const Layout = ({ children, noHeader }) => {
                      </li>
                   </ul>
                </section>
-               <section>
-                  <h4 tw="text-2xl mb-4 mt-2">Policy</h4>
-                  <ul>
-                     {isTermsAndConditionsAvailable && (
-                        <li tw="mb-3">
-                           <Link to="/subscription/terms-and-conditions/">
-                              Terms and Conditions
-                           </Link>
-                        </li>
-                     )}
-                     {isPrivacyPolicyAvailable && (
-                        <li tw="mb-3">
-                           <Link to="/subscription/privacy-policy/">
-                              Privacy Policy
-                           </Link>
-                        </li>
-                     )}
-                     {isRefundPolicyAvailable && (
-                        <li tw="mb-3">
-                           <Link to="/subscription/refund-policy/">
-                              Refund Policy
-                           </Link>
-                        </li>
-                     )}
-                  </ul>
-               </section>
+               {(isTermsAndConditionsAvailable ||
+                  isPrivacyPolicyAvailable ||
+                  isRefundPolicyAvailable) && (
+                  <section>
+                     <h4 tw="text-2xl mb-4 mt-2">Policy</h4>
+                     <ul>
+                        {isTermsAndConditionsAvailable && (
+                           <li tw="mb-3">
+                              <Link to="/subscription/terms-and-conditions/">
+                                 Terms and Conditions
+                              </Link>
+                           </li>
+                        )}
+                        {isPrivacyPolicyAvailable && (
+                           <li tw="mb-3">
+                              <Link to="/subscription/privacy-policy/">
+                                 Privacy Policy
+                              </Link>
+                           </li>
+                        )}
+                        {isRefundPolicyAvailable && (
+                           <li tw="mb-3">
+                              <Link to="/subscription/refund-policy/">
+                                 Refund Policy
+                              </Link>
+                           </li>
+                        )}
+                     </ul>
+                  </section>
+               )}
             </div>
          </Footer>
       </>
