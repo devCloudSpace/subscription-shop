@@ -262,9 +262,9 @@ export const CART_BY_WEEK = gql`
             address
             billingDetails
             fulfillmentInfo
-            products: cartItemProducts {
+            products: cartItemProducts (where: {level: {_eq: 1}}) {
                id
-               name
+               name: displayName
                image
                isAddOn
                unitPrice
