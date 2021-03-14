@@ -130,8 +130,8 @@ export const MenuProvider = ({ children }) => {
          }
       },
    })
-   const [insertOccurenceCustomers] = useMutation(
-      MUTATIONS.OCCURENCE.CUSTOMER.CREATE.MULTIPLE,
+   const [insertOccurenceCustomer] = useMutation(
+      MUTATIONS.OCCURENCE.CUSTOMER.CREATE.ONE,
       {
          skip:
             state.isOccurencesLoading ||
@@ -215,17 +215,15 @@ export const MenuProvider = ({ children }) => {
          !occurenceCustomerLoading
       ) {
          if (isEmpty(occurenceCustomer)) {
-            insertOccurenceCustomers({
+            insertOccurenceCustomer({
                variables: {
-                  objects: [
-                     {
-                        isAuto: false,
-                        keycloakId: user.keycloakId,
-                        isSkipped: !state.week.isValid,
-                        subscriptionOccurenceId: state.week.id,
-                        brand_customerId: user.brandCustomerId,
-                     },
-                  ],
+                  object: {
+                     isAuto: false,
+                     keycloakId: user.keycloakId,
+                     isSkipped: !state.week.isValid,
+                     subscriptionOccurenceId: state.week.id,
+                     brand_customerId: user.brandCustomerId,
+                  },
                },
             })
          } else {

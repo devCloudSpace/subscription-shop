@@ -40,6 +40,22 @@ export const MUTATIONS = {
    OCCURENCE: {
       CUSTOMER: {
          CREATE: {
+            ONE: gql`
+               mutation insertSubscriptionOccurenceCustomer(
+                  $object: subscription_subscriptionOccurence_customer_insert_input!
+               ) {
+                  insertSubscriptionOccurenceCustomer: insert_subscription_subscriptionOccurence_customer_one(
+                     object: $object
+                     on_conflict: {
+                        constraint: subscriptionOccurence_customer_pkey
+                        update_columns: []
+                     }
+                  ) {
+                     keycloakId
+                     subscriptionOccurenceId
+                  }
+               }
+            `,
             MULTIPLE: gql`
                mutation insertSubscriptionOccurenceCustomers(
                   $objects: [subscription_subscriptionOccurence_customer_insert_input!]!
