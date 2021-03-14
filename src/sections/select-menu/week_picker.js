@@ -27,6 +27,7 @@ export const WeekPicker = ({ isFixed }) => {
       <Occurences>
          {state.occurences.map(occurence => (
             <Occurence
+               key={occurence.id}
                onClick={() =>
                   dispatch({ type: 'SET_WEEK', payload: occurence })
                }
