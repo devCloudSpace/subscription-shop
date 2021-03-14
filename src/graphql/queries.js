@@ -311,15 +311,15 @@ export const CART = gql`
          deliveryPrice
          billingDetails
          fulfillmentInfo
-         products: cartItemProducts {
+         products: cartItemViews(where: { level: { _eq: 1 } }) {
             id
-            name
-            image
             isAddOn
             unitPrice
             addOnLabel
             addOnPrice
             isAutoAdded
+            name: displayName
+            image: displayImage
             subscriptionOccurenceProductId
             subscriptionOccurenceAddOnProductId
          }
@@ -336,10 +336,10 @@ export const CART_STATUS = gql`
          paymentStatus
          fulfillmentInfo
          billingDetails
-         products: cartItemProducts {
+         products: cartItemViews(where: { level: { _eq: 1 } }) {
             id
-            name
-            image
+            name: displayName
+            image: displayImage
             isAddOn
             unitPrice
             addOnLabel
@@ -411,10 +411,10 @@ export const ORDER = gql`
             paymentMethodId
             billingDetails
             fulfillmentInfo
-            products: cartItemProducts {
+            products: cartItemViews(where: { level: { _eq: 1 } }) {
                id
-               name
-               image
+               name: displayName
+               image: displayImage
                isAddOn
                unitPrice
                addOnLabel
