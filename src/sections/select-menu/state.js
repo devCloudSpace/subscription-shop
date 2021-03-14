@@ -60,6 +60,23 @@ const evalTime = (date, time) => {
    return moment(date).hour(hour).minute(minute).second(0).toISOString()
 }
 
+const insertCartId = (node, cartId) => {
+   if (node.childs.data.length > 0) {
+      node.childs.data = node.childs.data.map(item => {
+         if (item.childs.data.length > 0) {
+            item.childs.data = item.childs.data.map(item => ({
+               ...item,
+               cartId,
+            }))
+         }
+         return { ...item, cartId }
+      })
+   }
+   node.cartId = cartId
+
+   return node
+}
+
 export const MenuProvider = ({ children }) => {
    const { user } = useUser()
    const location = useLocation()
@@ -253,14 +270,13 @@ export const MenuProvider = ({ children }) => {
 
       const isSkipped = occurenceCustomer?.isSkipped
       if (occurenceCustomer?.validStatus?.hasCart) {
+         const cart = insertCartId(item, occurenceCustomer?.cart?.id)
          insertCartItem({
-            variables: {
-               object: { ...item, cartId: occurenceCustomer?.cart?.id },
-            },
+            variables: { object: cart },
          }).then(({ data: { createCartItem = {} } = {} }) => {
-            const { cartItemProducts = [] } = createCartItem
-            if (!isEmpty(cartItemProducts)) {
-               const [product] = cartItemProducts
+            const { products = [] } = createCartItem
+            if (!isEmpty(products)) {
+               const [product] = products
                addToast(`You've added the product - ${product.name}.`, {
                   appearance: 'info',
                })
@@ -321,12 +337,13 @@ export const MenuProvider = ({ children }) => {
                },
             },
          }).then(({ data: { createCart = {} } = {} }) => {
+            const cart = insertCartId(item, createCart?.id)
             insertCartItem({
-               variables: { object: { ...item, cartId: createCart.id } },
+               variables: { object: cart },
             }).then(({ data: { createCartItem = {} } = {} }) => {
-               const { cartItemProducts = [] } = createCartItem
-               if (!isEmpty(cartItemProducts)) {
-                  const [product] = cartItemProducts
+               const { products = [] } = createCartItem
+               if (!isEmpty(products)) {
+                  const [product] = products
                   addToast(`You've added the product - ${product.name}.`, {
                      appearance: 'info',
                   })

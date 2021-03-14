@@ -206,10 +206,10 @@ export const INSERT_CART_ITEM = gql`
                validStatus
             }
          }
-         cartItemProducts {
+         products(where: { level: { _eq: 1 } }) {
             id
-            name
-            image
+            name: displayName
+            image: displayImage
          }
       }
    }
