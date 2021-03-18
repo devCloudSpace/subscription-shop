@@ -65,7 +65,7 @@ const Login = () => {
                         keycloakId,
                         source: 'subscription',
                         sourceBrandId: brand.id,
-                        clientId: process.env.GATSBY_CLIENTID,
+                        clientId: isClient && window._env_.GATSBY_CLIENTID,
                         brandCustomers: { data: { brandId: brand.id } },
                      },
                   },

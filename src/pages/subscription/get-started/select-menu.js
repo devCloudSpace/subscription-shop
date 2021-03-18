@@ -21,6 +21,7 @@ import {
    HelperBar,
    Loader,
 } from '../../../components'
+import { isClient } from '../../../utils'
 
 const SelectMenu = () => {
    const { isAuthenticated } = useUser()
@@ -95,9 +96,10 @@ const MenuContent = () => {
                   webRenderer({
                      type: 'file',
                      config: {
-                        uri: process.env.GATSBY_DATA_HUB_HTTPS,
-                        adminSecret: process.env.GATSBY_ADMIN_SECRET,
-                        expressUrl: process.env.GATSBY_EXPRESS_URL,
+                        uri: isClient && window._env_.GATSBY_DATA_HUB_HTTPS,
+                        adminSecret:
+                           isClient && window._env_.GATSBY_ADMIN_SECRET,
+                        expressUrl: isClient && window._env_.GATSBY_EXPRESS_URL,
                      },
                      fileDetails: [
                         {

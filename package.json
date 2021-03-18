@@ -3,8 +3,8 @@
    "description": "A subscription based shop for restaurants.",
    "version": "0.1.0",
    "scripts": {
-      "build": "gatsby build --prefix-paths",
-      "develop": "gatsby develop",
+      "build": "gatsby build --prefix-paths && chmod +x ./script.sh && ./script.sh && cp env-config.js ./public/subscription",
+      "develop": "gatsby develop && chmod +x ./script.sh && ./script.sh && cp env-config.js ./public",
       "serve": "gatsby serve --prefix-paths",
       "lint:graphql": "eslint src/graphql/**/*.js"
    },

@@ -15,8 +15,9 @@ import { useConfig } from '../../lib'
 import { useUser } from '../../context'
 import { Loader } from '../../components'
 import { BRAND, CREATE_STRIPE_PAYMENT_METHOD } from '../../graphql'
+import { isClient } from '../../utils'
 
-const stripePromise = loadStripe(process.env.GATSBY_STRIPE_KEY)
+const stripePromise = loadStripe(isClient ? window._env_.GATSBY_STRIPE_KEY : '')
 
 export const PaymentForm = ({ intent }) => {
    const { user } = useUser()
@@ -33,7 +34,9 @@ export const PaymentForm = ({ intent }) => {
       try {
          if (setupIntent.status === 'succeeded') {
             const { data: { success, data = {} } = {} } = await axios.get(
-               `${process.env.GATSBY_DAILYKEY_URL}/api/payment-method/${setupIntent.payment_method}`
+               isClient
+                  ? `${window._env_.GATSBY_DAILYKEY_URL}/api/payment-method/${setupIntent.payment_method}`
+                  : ''
             )
             if (success) {
                await createPaymentMethod({
