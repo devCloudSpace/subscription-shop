@@ -1,39 +1,39 @@
-FROM mhart/alpine-node:12.18.0 as build
-
-ARG GATSBY_ADMIN_SECRET
-ARG GATSBY_CLIENTID
-ARG GATSBY_KEYCLOAK_URL
-ARG GATSBY_DATA_HUB_WSS
-ARG GATSBY_DATA_HUB_HTTPS
-ARG GATSBY_GOOGLE_API_KEY
-ARG GATSBY_STRIPE_KEY
-ARG GATSBY_DAILYKEY_URL
-ARG GATSBY_CURRENCY
-ARG GATSBY_EXPRESS_URL
-
+# => Build container
+FROM node:alpine as builder
 WORKDIR /usr/src/app
-COPY package.json ./
+COPY package.json .
+COPY yarn.lock .
 RUN yarn
 COPY . .
 
 ENV PATH /app/node_modules/.bin:$PATH
-ENV GATSBY_ADMIN_SECRET $GATSBY_ADMIN_SECRET
-ENV GATSBY_CLIENTID $GATSBY_CLIENTID
-ENV GATSBY_KEYCLOAK_URL $GATSBY_KEYCLOAK_URL
-ENV GATSBY_DATA_HUB_WSS $GATSBY_DATA_HUB_WSS
-ENV GATSBY_DATA_HUB_HTTPS $GATSBY_DATA_HUB_HTTPS
-ENV GATSBY_GOOGLE_API_KEY $GATSBY_GOOGLE_API_KEY
-ENV GATSBY_STRIPE_KEY $GATSBY_STRIPE_KEY
-ENV GATSBY_DAILYKEY_URL $GATSBY_DAILYKEY_URL
-ENV GATSBY_CURRENCY $GATSBY_CURRENCY
-ENV GATSBY_EXPRESS_URL $GATSBY_EXPRESS_URL
+ENV SKIP_PREFLIGHT_CHECK true
 
 RUN yarn build
 
+# => Run container
 FROM nginx:1.15.2-alpine
-COPY --from=build /usr/src/app/public /usr/share/nginx/html
-RUN rm /etc/nginx/conf.d/default.conf
-COPY nginx.conf /etc/nginx/conf.d
 
+# Nginx config
+RUN rm -rf /etc/nginx/conf.d
+COPY conf /etc/nginx
+
+# Static build
+COPY --from=builder /usr/src/app/public /usr/share/nginx/html/
+
+# Default port exposure
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+
+# Copy .env file and shell script to container
+WORKDIR /usr/share/nginx/html
+COPY ./script.sh .
+COPY .env .
+
+# Add bash
+RUN apk add --no-cache bash
+
+# Make our shell script executable
+RUN chmod +x script.sh
+
+# Start Nginx server
+CMD ["/bin/bash", "-c", "/usr/share/nginx/html/script.sh && nginx -g \"daemon off;\""]
