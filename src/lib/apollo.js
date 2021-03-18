@@ -11,23 +11,26 @@ import { WebSocketLink } from 'apollo-link-ws'
 import { getMainDefinition } from 'apollo-utilities'
 import { ApolloProvider as Provider } from '@apollo/react-hooks'
 
+import { isClient } from '../utils'
+
 const authLink = setContext((_, { headers }) => {
    return {
       headers: {
          ...headers,
-         'x-hasura-admin-secret': `${process.env.GATSBY_ADMIN_SECRET}`,
+         'x-hasura-admin-secret':
+            isClient && `${window._env_.GATSBY_ADMIN_SECRET}`,
       },
    }
 })
 
 const wsLink = process.browser
    ? new WebSocketLink({
-        uri: process.env.GATSBY_DATA_HUB_WSS,
+        uri: isClient && window._env_.GATSBY_DATA_HUB_WSS,
         options: {
            reconnect: true,
            connectionParams: {
               headers: {
-                 'x-hasura-admin-secret': `${process.env.GATSBY_ADMIN_SECRET}`,
+                 'x-hasura-admin-secret': `${window._env_.GATSBY_ADMIN_SECRET}`,
               },
            },
         },
@@ -35,7 +38,7 @@ const wsLink = process.browser
    : null
 
 const httpLink = new HttpLink({
-   uri: process.env.GATSBY_DATA_HUB_HTTPS,
+   uri: isClient && window._env_.GATSBY_DATA_HUB_HTTPS,
 })
 
 const link = process.browser

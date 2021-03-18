@@ -9,6 +9,7 @@ import { useUser } from '../../context'
 import { SEO, Layout, Loader } from '../../components'
 import { FaqSection, InfoSection } from '../../sections'
 import { webRenderer } from '@dailykit/web-renderer'
+import { isClient } from '../../utils'
 
 export default () => {
    const { configOf } = useConfig()
@@ -36,9 +37,10 @@ export default () => {
                   webRenderer({
                      type: 'file',
                      config: {
-                        uri: process.env.GATSBY_DATA_HUB_HTTPS,
-                        adminSecret: process.env.GATSBY_ADMIN_SECRET,
-                        expressUrl: process.env.GATSBY_EXPRESS_URL,
+                        uri: isClient && window._env_.GATSBY_DATA_HUB_HTTPS,
+                        adminSecret:
+                           isClient && window._env_.GATSBY_ADMIN_SECRET,
+                        expressUrl: isClient && window._env_.GATSBY_EXPRESS_URL,
                      },
                      fileDetails: [
                         {
@@ -63,8 +65,8 @@ export default () => {
    //    webRenderer({
    //       type: 'file',
    //       config: {
-   //          uri: process.env.GATSBY_DATA_HUB_HTTPS,
-   //          adminSecret: process.env.GATSBY_ADMIN_SECRET,
+   //          uri: window._env_.GATSBY_DATA_HUB_HTTPS,
+   //          adminSecret: window._env_.GATSBY_ADMIN_SECRET,
    //       },
    //       fileDetails:[
    //          {

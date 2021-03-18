@@ -190,7 +190,9 @@ export const AddressTunnel = ({ tunnel, toggleTunnel }) => {
       },
    })
    const [loaded, error] = useScript(
-      `https://maps.googleapis.com/maps/api/js?key=${process.env.GATSBY_GOOGLE_API_KEY}&libraries=places`
+      isClient
+         ? `https://maps.googleapis.com/maps/api/js?key=${window._env_.GATSBY_GOOGLE_API_KEY}&libraries=places`
+         : ''
    )
 
    const formatAddress = async address => {
@@ -198,7 +200,7 @@ export const AddressTunnel = ({ tunnel, toggleTunnel }) => {
 
       const response = await fetch(
          `https://maps.googleapis.com/maps/api/geocode/json?key=${
-            process.env.GATSBY_GOOGLE_API_KEY
+            isClient ? window._env_.GATSBY_GOOGLE_API_KEY : ''
          }&address=${encodeURIComponent(address.description)}`
       )
       const data = await response.json()

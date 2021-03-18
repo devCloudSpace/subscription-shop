@@ -7,6 +7,7 @@ import { useUser } from '../../context'
 import { Tunnel } from '../../components'
 import { PaymentForm } from './payment_form'
 import { CloseIcon } from '../../assets/icons'
+import { isClient } from '../../utils'
 
 export const PaymentTunnel = () => {
    const { user } = useUser()
@@ -56,10 +57,8 @@ export const PaymentTunnel = () => {
 
 const createSetupIntent = async customer => {
    try {
-      const {
-         data,
-      } = await axios.post(
-         `${process.env.GATSBY_DAILYKEY_URL}/api/setup-intent`,
+      const { data } = await axios.post(
+         isClient ? `${window._env_.GATSBY_DAILYKEY_URL}/api/setup-intent` : '',
          { customer, confirm: true }
       )
       return data.data

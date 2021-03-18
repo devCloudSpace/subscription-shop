@@ -26,6 +26,7 @@ import { useConfig } from '../../../lib'
 import { useUser } from '../../../context'
 import { CloseIcon } from '../../../assets/icons'
 import { BRAND, CREATE_STRIPE_PAYMENT_METHOD } from '../../../graphql'
+import { isClient } from '../../../utils'
 
 const ManageCards = () => {
    const { isAuthenticated } = useUser()
@@ -190,7 +191,7 @@ export const PaymentTunnel = ({ tunnel, toggleTunnel }) => {
    )
 }
 
-const stripePromise = loadStripe(process.env.GATSBY_STRIPE_KEY)
+const stripePromise = loadStripe(isClient ? window._env_.GATSBY_STRIPE_KEY : '')
 
 export const PaymentForm = ({ intent, toggleTunnel }) => {
    const { user } = useUser()
@@ -206,7 +207,9 @@ export const PaymentForm = ({ intent, toggleTunnel }) => {
       try {
          if (setupIntent.status === 'succeeded') {
             const { data: { success, data = {} } = {} } = await axios.get(
-               `${process.env.GATSBY_DAILYKEY_URL}/api/payment-method/${setupIntent.payment_method}`
+               isClient
+                  ? `${window._env_.GATSBY_DAILYKEY_URL}/api/payment-method/${setupIntent.payment_method}`
+                  : ''
             )
             if (success) {
                await createPaymentMethod({
@@ -362,7 +365,7 @@ const createSetupIntent = async customer => {
       const {
          data,
       } = await axios.post(
-         `${process.env.GATSBY_DAILYKEY_URL}/api/setup-intent`,
+         `${window._env_.GATSBY_DAILYKEY_URL}/api/setup-intent`,
          { customer, confirm: true }
       )
       return data.data

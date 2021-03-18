@@ -4,7 +4,9 @@ import { isEmpty } from 'lodash'
 
 import { isClient } from '../utils'
 
-const AUTH_SERVER_URL = `${process.env.GATSBY_KEYCLOAK_URL}/realms/consumers/protocol/openid-connect/token`
+const AUTH_SERVER_URL =
+   isClient &&
+   `${window._env_.GATSBY_KEYCLOAK_URL}/realms/consumers/protocol/openid-connect/token`
 
 export const auth = {
    login: async ({ email, password }) => {
@@ -14,7 +16,7 @@ export const auth = {
             grant_type: 'password',
             username: email.trim(),
             password: password.trim(),
-            client_id: process.env.GATSBY_CLIENTID,
+            client_id: isClient && window._env_.GATSBY_CLIENTID,
          }
          const searchParams = Object.keys(params)
             .map(key => {
@@ -52,9 +54,10 @@ export const auth = {
       try {
          const response = await axios({
             method: 'POST',
-            url: process.env.GATSBY_DATA_HUB_HTTPS,
+            url: isClient && window._env_.GATSBY_DATA_HUB_HTTPS,
             headers: {
-               'x-hasura-admin-secret': process.env.GATSBY_ADMIN_SECRET,
+               'x-hasura-admin-secret':
+                  isClient && window._env_.GATSBY_ADMIN_SECRET,
             },
             data: {
                query: REGISTER,

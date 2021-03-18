@@ -8,6 +8,7 @@ import { useConfig } from '../../../lib'
 import { InfoSection } from '../../../sections'
 import { Plans } from '../../../sections/select-plan'
 import { SEO, Layout, StepsNavbar, Loader } from '../../../components'
+import { isClient } from '../../../utils'
 
 const SelectPlan = () => {
    const { configOf } = useConfig('Select-Plan')
@@ -56,9 +57,10 @@ const SelectPlan = () => {
                   webRenderer({
                      type: 'file',
                      config: {
-                        uri: process.env.GATSBY_DATA_HUB_HTTPS,
-                        adminSecret: process.env.GATSBY_ADMIN_SECRET,
-                        expressUrl: process.env.GATSBY_EXPRESS_URL,
+                        uri: isClient && window._env_.GATSBY_DATA_HUB_HTTPS,
+                        adminSecret:
+                           isClient && window._env_.GATSBY_ADMIN_SECRET,
+                        expressUrl: isClient && window._env_.GATSBY_EXPRESS_URL,
                      },
                      fileDetails: [
                         {
@@ -89,8 +91,8 @@ const SelectPlan = () => {
    //    webRenderer({
    //       type: 'file',
    //       config: {
-   //          uri: process.env.GATSBY_DATA_HUB_HTTPS,
-   //          adminSecret: process.env.GATSBY_ADMIN_SECRET,
+   //          uri: window._env_.GATSBY_DATA_HUB_HTTPS,
+   //          adminSecret: window._env_.GATSBY_ADMIN_SECRET,
    //       },
    //       fileDetails:[
    //          {
@@ -108,8 +110,8 @@ const SelectPlan = () => {
    //    webRenderer({
    //       type: 'file',
    //       config: {
-   //          uri: process.env.GATSBY_DATA_HUB_HTTPS,
-   //          adminSecret: process.env.GATSBY_ADMIN_SECRET,
+   //          uri: window._env_.GATSBY_DATA_HUB_HTTPS,
+   //          adminSecret: window._env_.GATSBY_ADMIN_SECRET,
    //       },
    //       elementId: 'select-plan-bottom-01',
    //       fileId: fileId[1],
