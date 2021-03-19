@@ -93,7 +93,10 @@ export const Header = () => {
                      </button>
                   </>
                ) : (
-                  <Login to="/subscription/login" bg={theme?.accent}>
+                  <Login
+                     onClick={() => navigate('/subscription/login')}
+                     bg={theme?.accent}
+                  >
                      Log In
                   </Login>
                )}
@@ -117,7 +120,7 @@ const Brand = styled(Link)`
    ${tw`w-auto h-full px-6 flex items-center border-r`}
 `
 
-const Login = styled(Link)(
+const Login = styled.button(
    ({ bg }) => css`
       ${tw`bg-blue-600 text-white rounded px-2 py-1`}
       ${bg && `background-color: ${bg};`}
