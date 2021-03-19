@@ -140,6 +140,7 @@ export const OCCURENCE_ADDON_PRODUCTS_BY_CATEGORIES = gql`
                isSingleSelect
                productOption {
                   id
+                  label
                   product {
                      name
                      assets

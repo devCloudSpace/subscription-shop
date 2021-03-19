@@ -117,14 +117,20 @@ const AddOns = () => {
                   {category.name} (
                   {
                      uniqBy(category.productsAggregate.nodes, v =>
-                        [v?.cartItem?.id, v?.cartItem?.option?.id].join()
+                        [
+                           v?.cartItem?.productId,
+                           v?.cartItem?.productOptionId,
+                        ].join()
                      ).length
                   }
                   )
                </h4>
                <ProductsWrapper>
                   {uniqBy(category.productsAggregate.nodes, v =>
-                     [v?.cartItem?.id, v?.cartItem?.option?.id].join()
+                     [
+                        v?.cartItem?.productId,
+                        v?.cartItem?.productOptionId,
+                     ].join()
                   ).map(node => (
                      <AddOnProduct
                         node={node}
@@ -156,6 +162,7 @@ const AddOnProduct = ({ node, isAdded, theme }) => {
    const isActive = isAdded(node?.cartItem?.subscriptionOccurenceAddOnProductId)
    const product = {
       name: node?.productOption?.product?.name || '',
+      label: node?.productOption?.label || '',
       image:
          node?.productOption?.product?.assets?.images?.length > 0
             ? node?.productOption?.product?.assets?.images[0]
@@ -187,7 +194,7 @@ const AddOnProduct = ({ node, isAdded, theme }) => {
                   className={`${isActive ? 'active' : ''}`}
                />
                <Link tw="text-gray-700" to={`#`}>
-                  {product.name}
+                  {product.name} - {product.label}
                </Link>
             </section>
             {canAdd() && (
