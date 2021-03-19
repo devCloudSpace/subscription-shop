@@ -160,7 +160,7 @@ const Product = ({ node, isAdded, theme }) => {
                   onClick={() => add(node.cartItem)}
                   tw="text-sm uppercase font-medium tracking-wider border border-gray-300 rounded px-1 text-gray-500"
                >
-                  {isActive ? 'Add Again' : 'Add'}{' '}
+                  {isActive ? 'Add Again' : 'Add'}&nbsp;
                   {formatCurrency(Number(node.addOnPrice) || 0)}
                </button>
             )}
