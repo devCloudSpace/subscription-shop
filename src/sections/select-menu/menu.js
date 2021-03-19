@@ -119,6 +119,7 @@ const Product = ({ node, isAdded, theme }) => {
    const isActive = isAdded(node?.cartItem?.subscriptionOccurenceProductId)
    const product = {
       name: node?.productOption?.product?.name || '',
+      label: node?.productOption?.label || '',
       image:
          node?.productOption?.product?.assets?.images?.length > 0
             ? node?.productOption?.product?.assets?.images[0]
@@ -155,7 +156,7 @@ const Product = ({ node, isAdded, theme }) => {
                   className={`${isActive ? 'active' : ''}`}
                />
                <Link tw="text-gray-700" to={'#'}>
-                  {product.name}
+                  {product.name} = {product.label}
                </Link>
             </section>
             {canAdd() && (
