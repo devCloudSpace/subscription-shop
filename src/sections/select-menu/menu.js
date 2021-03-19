@@ -152,7 +152,7 @@ const Product = ({ node, isAdded, theme }) => {
                   className={`${isActive ? 'active' : ''}`}
                />
                <Link tw="text-gray-700" to={'#'}>
-                  {product.name} = {product.label}
+                  {product.name} - {product.label}
                </Link>
             </section>
             {canAdd() && (
