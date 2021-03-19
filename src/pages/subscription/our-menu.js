@@ -313,8 +313,8 @@ const Content = () => {
                            {
                               uniqBy(category.productsAggregate.nodes, v =>
                                  [
-                                    v?.cartItem?.id,
-                                    v?.cartItem?.option?.id,
+                                    v?.cartItem?.productId,
+                                    v?.cartItem?.option?.productOptionId,
                                  ].join()
                               ).length
                            }
@@ -322,15 +322,12 @@ const Content = () => {
                         </h4>
                         <Products>
                            {uniqBy(category.productsAggregate.nodes, v =>
-                              [v?.cartItem?.id, v?.cartItem?.option?.id].join()
+                              [
+                                 v?.cartItem?.productId,
+                                 v?.cartItem?.option?.productOptionId,
+                              ].join()
                            ).map((node, index) => (
-                              <Product
-                                 node={node}
-                                 key={`${index}-${
-                                    node.simpleRecipeProductOption?.id ||
-                                    node.inventoryProductOption?.id
-                                 }`}
-                              />
+                              <Product node={node} key={node.id} />
                            ))}
                         </Products>
                      </section>
@@ -351,49 +348,36 @@ const Content = () => {
 }
 
 const Product = ({ node }) => {
-   const type = node?.simpleRecipeProductOption?.id ? 'SRP' : 'IP'
-   const option =
-      type === 'SRP'
-         ? node.simpleRecipeProductOption
-         : node.inventoryProductOption
+   const product = {
+      name: node?.productOption?.product?.name || '',
+      label: node?.productOption?.label || '',
+      image:
+         node?.productOption?.product?.assets?.images?.length > 0
+            ? node?.productOption?.product?.assets?.images[0]
+            : null,
+      additionalText: node?.productOption?.product?.additionalText || '',
+   }
    return (
       <Styles.Product>
          <div tw="flex items-center justify-center h-48 bg-gray-200 mb-2 rounded overflow-hidden">
-            {node?.cartItem?.image ? (
+            {product.image ? (
                <img
-                  alt={node?.cartItem?.name}
-                  title={node?.cartItem?.name}
-                  src={node?.cartItem?.image}
+                  alt={product.name}
+                  src={product.image}
+                  title={product?.name}
                   css={tw`h-full w-full object-cover select-none`}
                />
             ) : (
                <span>No Photos</span>
             )}
          </div>
-         {node?.addOnLabel && (
-            <Label>
-               {node?.addOnLabel} {node?.addOnPrice}
-            </Label>
-         )}
+         {node?.addOnLabel && <Label>{node?.addOnLabel}</Label>}
          <div tw="flex items-center justify-between">
             <section>
-               <Link
-                  tw="text-gray-700"
-                  to={`/subscription/${
-                     type === 'SRP' ? 'recipes' : 'inventory'
-                  }?id=${node?.cartItem?.id}${
-                     type === 'SRP'
-                        ? `&serving=${option?.simpleRecipeYieldId}`
-                        : `&option=${option?.id}`
-                  }`}
-               >
-                  {node?.cartItem?.name}
+               <Link tw="text-gray-700" to={'#'}>
+                  {product.name} - {product.label}
                </Link>
-               <p>
-                  {type === 'SRP'
-                     ? option?.simpleRecipeProduct?.additionalText
-                     : option?.inventoryProduct?.additionalText}
-               </p>
+               <p>{product?.additionalText}</p>
             </section>
          </div>
       </Styles.Product>
