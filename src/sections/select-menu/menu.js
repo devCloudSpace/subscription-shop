@@ -63,14 +63,20 @@ export const Menu = () => {
                   {category.name} (
                   {
                      uniqBy(category.productsAggregate.nodes, v =>
-                        [v?.cartItem?.id, v?.cartItem?.option?.id].join()
+                        [
+                           v?.cartItem?.productId,
+                           v?.cartItem?.productOptionId,
+                        ].join()
                      ).length
                   }
                   )
                </h4>
                <Products>
                   {uniqBy(category.productsAggregate.nodes, v =>
-                     [v?.cartItem?.id, v?.cartItem?.option?.id].join()
+                     [
+                        v?.cartItem?.productId,
+                        v?.cartItem?.option?.productOptionId,
+                     ].join()
                   ).map((node, index) => (
                      <Product
                         node={node}
@@ -113,6 +119,7 @@ const Product = ({ node, isAdded, theme }) => {
    const isActive = isAdded(node?.cartItem?.subscriptionOccurenceProductId)
    const product = {
       name: node?.productOption?.product?.name || '',
+      label: node?.productOption?.label || '',
       image:
          node?.productOption?.product?.assets?.images?.length > 0
             ? node?.productOption?.product?.assets?.images[0]
@@ -136,11 +143,7 @@ const Product = ({ node, isAdded, theme }) => {
                <span>No Photos</span>
             )}
          </div>
-         {node.addOnLabel && (
-            <Label>
-               {node.addOnLabel} {formatCurrency(Number(node.addOnPrice) || 0)}
-            </Label>
-         )}
+         {node.addOnLabel && <Label>{node.addOnLabel}</Label>}
          <div css={tw`flex items-center justify-between`}>
             <section tw="flex items-center">
                <Check
@@ -149,7 +152,7 @@ const Product = ({ node, isAdded, theme }) => {
                   className={`${isActive ? 'active' : ''}`}
                />
                <Link tw="text-gray-700" to={'#'}>
-                  {product.name}
+                  {product.name} = {product.label}
                </Link>
             </section>
             {canAdd() && (
@@ -157,7 +160,8 @@ const Product = ({ node, isAdded, theme }) => {
                   onClick={() => add(node.cartItem)}
                   tw="text-sm uppercase font-medium tracking-wider border border-gray-300 rounded px-1 text-gray-500"
                >
-                  {isActive ? 'Add Again' : 'Add'}
+                  {isActive ? 'Add Again' : 'Add'}{' '}
+                  {formatCurrency(Number(node.addOnPrice) || 0)}
                </button>
             )}
          </div>
