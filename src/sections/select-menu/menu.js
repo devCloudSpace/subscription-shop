@@ -63,14 +63,20 @@ export const Menu = () => {
                   {category.name} (
                   {
                      uniqBy(category.productsAggregate.nodes, v =>
-                        [v?.cartItem?.id, v?.cartItem?.option?.id].join()
+                        [
+                           v?.cartItem?.productId,
+                           v?.cartItem?.productOptionId,
+                        ].join()
                      ).length
                   }
                   )
                </h4>
                <Products>
                   {uniqBy(category.productsAggregate.nodes, v =>
-                     [v?.cartItem?.id, v?.cartItem?.option?.id].join()
+                     [
+                        v?.cartItem?.productId,
+                        v?.cartItem?.option?.productOptionId,
+                     ].join()
                   ).map((node, index) => (
                      <Product
                         node={node}
