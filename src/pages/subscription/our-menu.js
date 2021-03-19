@@ -6,13 +6,18 @@ import { Link } from 'gatsby'
 import { rrulestr } from 'rrule'
 import tw, { styled } from 'twin.macro'
 import { isEmpty, uniqBy } from 'lodash'
-import { useLazyQuery } from '@apollo/react-hooks'
+import { useLazyQuery, useQuery } from '@apollo/react-hooks'
+import { webRenderer } from '@dailykit/web-renderer'
 
 import { useConfig } from '../../lib'
-import { formatDate } from '../../utils'
-import { Layout, SEO, Form, HelperBar, Loader, Spacer } from '../../components'
+import { formatDate, isClient } from '../../utils'
 import { ArrowLeftIcon, ArrowRightIcon } from '../../assets/icons'
-import { OCCURENCE_PRODUCTS_BY_CATEGORIES, OUR_MENU } from '../../graphql'
+import { Layout, SEO, Form, HelperBar, Loader, Spacer } from '../../components'
+import {
+   OUR_MENU,
+   GET_FILEID,
+   OCCURENCE_PRODUCTS_BY_CATEGORIES,
+} from '../../graphql'
 
 const OurMenu = () => {
    return (
@@ -143,6 +148,53 @@ const Content = () => {
          },
       })
    }
+
+   const { loading: contentLoading } = useQuery(GET_FILEID, {
+      variables: {
+         divId: ['our-menu-bottom-01'],
+      },
+      onCompleted: ({ content_subscriptionDivIds: fileData }) => {
+         if (fileData.length) {
+            fileData.forEach(data => {
+               if (data?.fileId) {
+                  const fileId = [data?.fileId]
+                  const cssPath = data?.subscriptionDivFileId?.linkedCssFiles.map(
+                     file => {
+                        return file?.cssFile?.path
+                     }
+                  )
+                  const jsPath = data?.subscriptionDivFileId?.linkedJsFiles.map(
+                     file => {
+                        return file?.jsFile?.path
+                     }
+                  )
+                  webRenderer({
+                     type: 'file',
+                     config: {
+                        uri: isClient && window._env_.GATSBY_DATA_HUB_HTTPS,
+                        adminSecret:
+                           isClient && window._env_.GATSBY_ADMIN_SECRET,
+                        expressUrl: isClient && window._env_.GATSBY_EXPRESS_URL,
+                     },
+                     fileDetails: [
+                        {
+                           elementId: 'our-menu-bottom-01',
+                           fileId,
+                           cssPath: cssPath,
+                           jsPath: jsPath,
+                        },
+                     ],
+                  })
+               }
+            })
+         }
+      },
+
+      onError: error => {
+         console.error(error)
+      },
+   })
+
    const config = configOf('primary-labels')
    const yieldLabel = {
       singular: config?.yieldLabel?.singular || 'serving',
@@ -342,6 +394,11 @@ const Content = () => {
             </main>
          ) : (
             <Loader inline />
+         )}
+         {contentLoading ? (
+            <Loader inline />
+         ) : (
+            <div id="our-menu-bottom-01"></div>
          )}
       </Main>
    )
