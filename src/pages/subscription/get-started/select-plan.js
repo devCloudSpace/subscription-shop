@@ -124,27 +124,8 @@ const SelectPlan = () => {
          <SEO title="Plans" />
          <StepsNavbar />
          <Main>
-            <Header
-               url={
-                  !isEmpty(config?.header?.images)
-                     ? config?.header?.images[0]?.url
-                     : ''
-               }
-            >
-               {config?.header?.heading && (
-                  <h1 css={tw`text-4xl text-white z-10`}>
-                     {config?.header?.heading}
-                  </h1>
-               )}
-               {config?.header?.subHeading && (
-                  <h3 css={tw`text-xl text-gray-100 z-10`}>
-                     {config?.header?.subHeading}
-                  </h3>
-               )}
-            </Header>
             <div id="select-plan-top-01"></div>
             <Plans />
-            <InfoSection page="select-plan" identifier="bottom-01" />
          </Main>
          <div id="select-plan-bottom-01"></div>
       </Layout>

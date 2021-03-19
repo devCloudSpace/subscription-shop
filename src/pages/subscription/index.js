@@ -84,26 +84,7 @@ export default () => {
       <Layout>
          <SEO title="Home" />
          <Main>
-            <Header>
-               <div>
-                  <Tagline>Your next great meal is at your fingertips.</Tagline>
-                  {isAuthenticated && user?.isSubscriber ? (
-                     <CTA theme={theme} to="/subscription/menu">
-                        Select Menu
-                     </CTA>
-                  ) : (
-                     <CTA
-                        theme={theme}
-                        to="/subscription/get-started/select-plan"
-                     >
-                        Get Started
-                     </CTA>
-                  )}
-               </div>
-            </Header>
             <div id="home-bottom-01"></div>
-            <InfoSection page="home" identifier="bottom-01" />
-            <FaqSection page="home" identifier="top-01" />
          </Main>
       </Layout>
    )
