@@ -665,6 +665,7 @@ export const ORGANIZATION = gql`
    query organizations {
       organizations {
          id
+         stripeAccountId
          stripeAccountType
       }
    }

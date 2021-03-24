@@ -12,17 +12,22 @@ import {
 
 import { usePayment } from './state'
 import { useConfig } from '../../lib'
+import { isClient } from '../../utils'
 import { useUser } from '../../context'
 import { Loader } from '../../components'
 import { BRAND, CREATE_STRIPE_PAYMENT_METHOD } from '../../graphql'
-import { isClient } from '../../utils'
 
-const stripePromise = loadStripe(isClient ? window._env_.GATSBY_STRIPE_KEY : '')
+const stripePromise = accountId =>
+   accountId
+      ? loadStripe(isClient ? window._env_.GATSBY_STRIPE_KEY : '', {
+           stripeAccount: accountId,
+        })
+      : loadStripe(isClient ? window._env_.GATSBY_STRIPE_KEY : '')
 
 export const PaymentForm = ({ intent }) => {
    const { user } = useUser()
-   const { brand } = useConfig()
    const { dispatch } = usePayment()
+   const { brand, organization } = useConfig()
    const [updateBrandCustomer] = useMutation(BRAND.CUSTOMER.UPDATE, {
       refetchQueries: ['customer'],
    })
@@ -35,7 +40,7 @@ export const PaymentForm = ({ intent }) => {
          if (setupIntent.status === 'succeeded') {
             const { data: { success, data = {} } = {} } = await axios.get(
                isClient
-                  ? `${window._env_.GATSBY_DAILYKEY_URL}/api/payment-method/${setupIntent.payment_method}`
+                  ? `${window._env_.GATSBY_DAILYKEY_URL}/api/payment-method/${setupIntent.payment_method}?accountId=${organization.stripeAccountId}`
                   : ''
             )
             if (success) {
@@ -52,6 +57,8 @@ export const PaymentForm = ({ intent }) => {
                         expMonth: data.card.exp_month,
                         stripePaymentMethodId: data.id,
                         cardHolderName: data.billing_details.name,
+                        organizationStripeCustomerId:
+                           organization.platform_customer?.stripeCustomerId,
                      },
                   },
                })
@@ -80,10 +87,18 @@ export const PaymentForm = ({ intent }) => {
       } catch (error) {}
    }
 
+   const stripe = React.useCallback(() => {
+      if (organization.stripeAccountType === 'standard') {
+         return stripePromise(organization.stripeAccountId)
+      } else {
+         return stripePromise()
+      }
+   }, [organization])
+
    if (!intent) return <Loader inline />
    return (
       <div>
-         <Elements stripe={stripePromise}>
+         <Elements stripe={stripe}>
             <CardSetupForm intent={intent} handleResult={handleResult} />
          </Elements>
       </div>

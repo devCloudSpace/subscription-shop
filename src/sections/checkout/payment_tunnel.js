@@ -8,9 +8,11 @@ import { Tunnel } from '../../components'
 import { PaymentForm } from './payment_form'
 import { CloseIcon } from '../../assets/icons'
 import { isClient } from '../../utils'
+import { useConfig } from '../../lib'
 
 export const PaymentTunnel = () => {
    const { user } = useUser()
+   const { organization } = useConfig()
    const { state, dispatch } = usePayment()
    const [intent, setIntent] = React.useState(null)
 
@@ -27,12 +29,14 @@ export const PaymentTunnel = () => {
       if (user?.platform_customer?.stripeCustomerId) {
          ;(async () => {
             const intent = await createSetupIntent(
-               user?.platform_customer?.stripeCustomerId
+               user?.platform_customer?.stripeCustomerId,
+               organization
             )
+
             setIntent(intent)
          })()
       }
-   }, [user])
+   }, [user, organization])
 
    return (
       <Tunnel
@@ -55,11 +59,15 @@ export const PaymentTunnel = () => {
    )
 }
 
-const createSetupIntent = async customer => {
+const createSetupIntent = async (customer, organization = {}) => {
    try {
+      const stripeAccountId =
+         organization?.stripeAccountType === 'standard'
+            ? organization?.stripeAccountId
+            : null
       const { data } = await axios.post(
          isClient ? `${window._env_.GATSBY_DAILYKEY_URL}/api/setup-intent` : '',
-         { customer, confirm: true }
+         { customer, stripeAccountId }
       )
       return data.data
    } catch (error) {
