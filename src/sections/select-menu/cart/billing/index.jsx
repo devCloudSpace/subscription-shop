@@ -3,7 +3,12 @@ import tw from 'twin.macro'
 
 import { useMenu } from '../../state'
 import { formatCurrency } from '../../../../utils'
-import { Billing, LoyaltyPoints, WalletAmount } from '../../../../components'
+import {
+   Billing,
+   Coupon,
+   LoyaltyPoints,
+   WalletAmount,
+} from '../../../../components'
 import { PlusIcon, MinusIcon } from '../../../../assets/icons'
 
 const BillingDetails = () => {
@@ -26,6 +31,7 @@ const BillingDetails = () => {
          </header>
          {itemCountValid && open && <Billing billing={billing} />}
          {/* {itemCountValid && ( */}
+         <Coupon cart={state?.occurenceCustomer?.cart} />
          <WalletAmount cart={state?.occurenceCustomer?.cart} />
          <LoyaltyPoints cart={state?.occurenceCustomer?.cart} />
          {/* )} */}
