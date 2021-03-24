@@ -1,8 +1,8 @@
 import { isEmpty } from 'lodash'
 
-export const processUser = customer => {
+export const processUser = (customer, stripeAccountType = '') => {
    const sub = {}
-   const { brandCustomers = [], ...rest } = customer
+   const { brandCustomers = [], customerByClients, ...rest } = customer
 
    if (!isEmpty(brandCustomers)) {
       const [brand_customer] = brandCustomers
@@ -28,6 +28,11 @@ export const processUser = customer => {
       sub.defaultPaymentMethod = rest?.platform_customer?.paymentMethods.find(
          method => method.stripePaymentMethodId === subscriptionPaymentMethodId
       )
+   }
+   if (stripeAccountType === 'standard' && !isEmpty(customerByClients)) {
+      const [customerbyClient] = customerByClients
+      rest.platform_customer.stripeCustomerId =
+         customerbyClient?.stripeCustomerId
    }
    return { ...rest, ...sub }
 }

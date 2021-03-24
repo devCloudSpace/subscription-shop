@@ -579,6 +579,9 @@ export const CUSTOMER = {
             id
             keycloakId
             isSubscriber
+            customerByClients: platform_customerByClients {
+               stripeCustomerId: organizationStripeCustomerId
+            }
             brandCustomers(where: { brandId: { _eq: $brandId } }) {
                id
                brandId
@@ -654,6 +657,15 @@ export const GET_FILEID = gql`
                }
             }
          }
+      }
+   }
+`
+
+export const ORGANIZATION = gql`
+   query organizations {
+      organizations {
+         id
+         stripeAccountType
       }
    }
 `

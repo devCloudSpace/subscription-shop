@@ -13,9 +13,9 @@ import { isClient, processUser } from '../../utils'
 import { BRAND, CUSTOMER, MUTATIONS } from '../../graphql'
 
 const Login = () => {
-   const { brand } = useConfig()
    const { addToast } = useToasts()
    const { user, dispatch } = useUser()
+   const { brand, organization } = useConfig()
    const [current, setCurrent] = React.useState('LOGIN')
 
    const [create_brand_customer] = useMutation(BRAND.CUSTOMER.CREATE, {
@@ -74,7 +74,10 @@ const Login = () => {
             }
             console.log('CUSTOMER EXISTS')
 
-            const user = await processUser(customer)
+            const user = await processUser(
+               customer,
+               organization?.stripeAccountType
+            )
             dispatch({ type: 'SET_USER', payload: user })
 
             const { brandCustomers = {} } = customer
