@@ -60,6 +60,28 @@ export const Billing = ({ billing }) => {
                   </Styles.Cell>
                </tr>
             )}
+            {!!billing?.walletAmountUsed?.value && (
+               <tr>
+                  <Styles.Cell>{billing?.walletAmountUsed?.label}</Styles.Cell>
+                  <Styles.Cell>
+                     {formatCurrency(billing?.walletAmountUsed?.value)}
+                  </Styles.Cell>
+               </tr>
+            )}
+            {!!billing?.loyaltyPointsUsed?.value && (
+               <tr>
+                  <Styles.Cell>{billing?.loyaltyPointsUsed?.label}</Styles.Cell>
+                  <Styles.Cell>{billing?.loyaltyPointsUsed?.value}</Styles.Cell>
+               </tr>
+            )}
+            {!!billing?.discount?.value && (
+               <tr>
+                  <Styles.Cell>{billing?.discount?.label}</Styles.Cell>
+                  <Styles.Cell>
+                     {formatCurrency(billing?.discount?.value)}
+                  </Styles.Cell>
+               </tr>
+            )}
             <tr>
                <Styles.Cell title={billing?.totalPrice?.description}>
                   {billing?.totalPrice?.label}

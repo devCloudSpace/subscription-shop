@@ -72,7 +72,7 @@ export const Coupon = () => {
 
 const Styles = {
    Wrapper: styled.div`
-      ${tw`m-1`}
+      ${tw`m-2`}
       border: 1px dashed teal;
       padding: 8px;
       border-radius: 2px;

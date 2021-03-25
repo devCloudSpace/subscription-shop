@@ -20,6 +20,13 @@ const BillingDetails = () => {
 
    return (
       <div>
+         {itemCountValid && state?.occurenceCustomer?.cart && (
+            <>
+               <Coupon cart={state?.occurenceCustomer?.cart} />
+               <WalletAmount cart={state?.occurenceCustomer?.cart} />
+               <LoyaltyPoints cart={state?.occurenceCustomer?.cart} />
+            </>
+         )}
          <header tw="mt-3 mb-3 h-10 flex items-center justify-between">
             <h4 tw="text-lg text-gray-700">
                Your Weekly Total:{' '}
@@ -30,13 +37,6 @@ const BillingDetails = () => {
             {itemCountValid && <Toggle open={open} toggle={toggle} />}
          </header>
          {itemCountValid && open && <Billing billing={billing} />}
-         {itemCountValid && state?.occurenceCustomer?.cart && (
-            <>
-               <Coupon cart={state?.occurenceCustomer?.cart} />
-               <WalletAmount cart={state?.occurenceCustomer?.cart} />
-               <LoyaltyPoints cart={state?.occurenceCustomer?.cart} />
-            </>
-         )}
       </div>
    )
 }
