@@ -3,13 +3,7 @@ import React from 'react'
 import tw, { styled } from 'twin.macro'
 import { MUTATIONS } from '../graphql'
 
-export const WalletAmount = () => {
-   const cart = {
-      walletAmountUsed: 0,
-      walletAmountUsable: 42,
-      id: 11,
-   }
-
+export const WalletAmount = ({ cart }) => {
    const [amount, setAmount] = React.useState(cart.walletAmountUsable)
 
    const [updateCart] = useMutation(MUTATIONS.CART.UPDATE, {
@@ -19,16 +13,19 @@ export const WalletAmount = () => {
 
    const handleSubmit = e => {
       e.preventDefault()
-      updateCart({
-         variables: {
-            id: cart?.id,
-            _set: {
-               walletAmountUsed: amount,
+      if (amount <= cart.walletAmountUsable) {
+         updateCart({
+            variables: {
+               id: cart?.id,
+               _set: {
+                  walletAmountUsed: amount,
+               },
             },
-         },
-      })
+         })
+      }
    }
 
+   if (!cart.walletAmountUsable) return null
    return (
       <Styles.Wrapper>
          {cart.walletAmountUsed ? (

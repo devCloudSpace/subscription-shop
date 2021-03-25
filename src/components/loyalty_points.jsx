@@ -3,13 +3,7 @@ import React from 'react'
 import tw, { styled } from 'twin.macro'
 import { MUTATIONS } from '../graphql'
 
-export const LoyaltyPoints = () => {
-   const cart = {
-      loyaltyPointsUsed: 200,
-      loyaltyPointsUsable: 500,
-      id: 11,
-   }
-
+export const LoyaltyPoints = ({ cart }) => {
    const [points, setPoints] = React.useState(cart.loyaltyPointsUsable)
 
    const [updateCart] = useMutation(MUTATIONS.CART.UPDATE, {
@@ -19,16 +13,19 @@ export const LoyaltyPoints = () => {
 
    const handleSubmit = e => {
       e.preventDefault()
-      updateCart({
-         variables: {
-            id: cart?.id,
-            _set: {
-               loyaltyPointsUsed: points,
+      if (points <= cart.loyaltyPointsUsable) {
+         updateCart({
+            variables: {
+               id: cart?.id,
+               _set: {
+                  loyaltyPointsUsed: points,
+               },
             },
-         },
-      })
+         })
+      }
    }
 
+   if (!cart.loyaltyPointsUsable) return null
    return (
       <Styles.Wrapper>
          {cart.loyaltyPointsUsed ? (

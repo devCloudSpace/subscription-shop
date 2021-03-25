@@ -30,11 +30,13 @@ const BillingDetails = () => {
             {itemCountValid && <Toggle open={open} toggle={toggle} />}
          </header>
          {itemCountValid && open && <Billing billing={billing} />}
-         {/* {itemCountValid && ( */}
-         <Coupon cart={state?.occurenceCustomer?.cart} />
-         <WalletAmount cart={state?.occurenceCustomer?.cart} />
-         <LoyaltyPoints cart={state?.occurenceCustomer?.cart} />
-         {/* )} */}
+         {itemCountValid && state?.occurenceCustomer?.cart && (
+            <>
+               <Coupon cart={state?.occurenceCustomer?.cart} />
+               <WalletAmount cart={state?.occurenceCustomer?.cart} />
+               <LoyaltyPoints cart={state?.occurenceCustomer?.cart} />
+            </>
+         )}
       </div>
    )
 }

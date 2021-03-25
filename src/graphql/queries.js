@@ -262,6 +262,10 @@ export const CART_BY_WEEK = gql`
             id
             status
             address
+            walletAmountUsable
+            loyaltyPointsUsable
+            walletAmountUsed
+            loyaltyPointsUsed
             billingDetails
             fulfillmentInfo
             products: cartItemViews(where: { level: { _eq: 1 } }) {
