@@ -26,7 +26,7 @@ export const PaymentTunnel = () => {
    }
 
    React.useEffect(() => {
-      if (user?.platform_customer?.stripeCustomerId) {
+      if (user?.platform_customer?.stripeCustomerId && isClient) {
          ;(async () => {
             const intent = await createSetupIntent(
                user?.platform_customer?.stripeCustomerId,
@@ -61,14 +61,12 @@ export const PaymentTunnel = () => {
 
 const createSetupIntent = async (customer, organization = {}) => {
    try {
-      const stripeAccountId =
-         organization?.stripeAccountType === 'standard'
-            ? organization?.stripeAccountId
-            : null
-      const { data } = await axios.post(
-         isClient ? `${window._env_.GATSBY_DAILYKEY_URL}/api/setup-intent` : '',
-         { customer, stripeAccountId }
-      )
+      let stripeAccountId = null
+      if (organization?.stripeAccountType === 'standard') {
+         stripeAccountId = organization?.stripeAccountId
+      }
+      const URL = `${window._env_.GATSBY_DAILYKEY_URL}/api/setup-intent`
+      const { data } = await axios.post(URL, { customer, stripeAccountId })
       return data.data
    } catch (error) {
       return error
