@@ -5,6 +5,7 @@ import tw, { styled, css } from 'twin.macro'
 import { useConfig } from '../../../lib'
 import { useUser } from '../../../context'
 import { SEO, Layout, ProfileSidebar, Form } from '../../../components'
+import { formatCurrency } from '../../../utils'
 
 const Profile = () => {
    const { isAuthenticated } = useUser()
@@ -65,6 +66,19 @@ const ProfileForm = () => {
                />
             </Form.Field>
          </div>
+         {!!user?.wallets?.length && (
+            <>
+               <Form.Label>Wallet Amount</Form.Label>
+               {formatCurrency(user?.wallets[0]?.amount)}
+            </>
+         )}
+         <div tw="h-2" />
+         {!!user?.loyaltyPoints?.length && (
+            <>
+               <Form.Label>Loyalty Points</Form.Label>
+               {user?.loyaltyPoints[0]?.points}
+            </>
+         )}
       </section>
    )
 }
