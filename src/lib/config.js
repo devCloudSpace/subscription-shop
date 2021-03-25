@@ -1,14 +1,15 @@
 import React from 'react'
 import { groupBy, has, isEmpty } from 'lodash'
-import { useSubscription } from '@apollo/react-hooks'
+import { useQuery, useSubscription } from '@apollo/react-hooks'
 
 import { isClient } from '../utils'
 import { PageLoader } from '../components'
-import { SETTINGS } from '../graphql/queries'
+import { ORGANIZATION, SETTINGS } from '../graphql/queries'
 
 const ConfigContext = React.createContext()
 
 const initialState = {
+   organization: {},
    brand: {
       id: null,
    },
@@ -17,6 +18,8 @@ const initialState = {
 
 const reducers = (state, { type, payload }) => {
    switch (type) {
+      case 'SET_ORGANIZATION':
+         return { ...state, organization: payload }
       case 'SET_BRANDID':
          return { ...state, brand: payload }
       case 'SET_SETTINGS':
@@ -29,6 +32,10 @@ const reducers = (state, { type, payload }) => {
 export const ConfigProvider = ({ children }) => {
    const [isLoading, setIsLoading] = React.useState(true)
    const [state, dispatch] = React.useReducer(reducers, initialState)
+   const {
+      loading: organizationLoading,
+      data: { organizations = [] } = {},
+   } = useQuery(ORGANIZATION)
    const { loading, data: { settings = [] } = {} } = useSubscription(SETTINGS, {
       variables: {
          domain: {
@@ -47,14 +54,23 @@ export const ConfigProvider = ({ children }) => {
    )
 
    React.useEffect(() => {
-      if (!loading && !isEmpty(settings)) {
-         dispatch({ type: 'SET_BRANDID', payload: { id: settings[0].brandId } })
-         dispatch({
-            type: 'SET_SETTINGS',
-            payload: groupBy(settings.map(transform), 'type'),
-         })
+      if (!loading && !organizationLoading) {
+         if (!isEmpty(settings)) {
+            dispatch({
+               type: 'SET_BRANDID',
+               payload: { id: settings[0].brandId },
+            })
+            dispatch({
+               type: 'SET_SETTINGS',
+               payload: groupBy(settings.map(transform), 'type'),
+            })
+         }
+         if (!isEmpty(organizations)) {
+            const [organization] = organizations
+            dispatch({ type: 'SET_ORGANIZATION', payload: organization })
+         }
+         setIsLoading(false)
       }
-      setIsLoading(false)
    }, [loading, settings, transform])
 
    if (isLoading) return <PageLoader />
@@ -100,5 +116,10 @@ export const useConfig = (globalType = '') => {
       [state, globalType]
    )
 
-   return { brand: state.brand, configOf, hasConfig }
+   return {
+      configOf,
+      hasConfig,
+      brand: state.brand,
+      organization: state.organization,
+   }
 }

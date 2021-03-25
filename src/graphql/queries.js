@@ -591,6 +591,9 @@ export const CUSTOMER = {
                id
                points
             }
+            customerByClients: platform_customerByClients {
+               stripeCustomerId: organizationStripeCustomerId
+            }
             brandCustomers(where: { brandId: { _eq: $brandId } }) {
                id
                brandId
@@ -708,6 +711,16 @@ export const CART_REWARDS = gql`
                isValid(args: { params: $params })
             }
          }
+      }
+   }
+`
+
+export const ORGANIZATION = gql`
+   query organizations {
+      organizations {
+         id
+         stripeAccountId
+         stripeAccountType
       }
    }
 `

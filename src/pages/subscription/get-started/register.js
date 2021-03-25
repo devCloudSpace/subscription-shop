@@ -13,9 +13,9 @@ import { SEO, Layout, StepsNavbar } from '../../../components'
 import { BRAND, CUSTOMER, MUTATIONS } from '../../../graphql'
 
 export default () => {
-   const { brand } = useConfig()
    const { addToast } = useToasts()
    const { user, dispatch } = useUser()
+   const { brand, organization } = useConfig()
    const [current, setCurrent] = React.useState('REGISTER')
 
    const [create_brand_customer] = useMutation(BRAND.CUSTOMER.CREATE, {
@@ -37,7 +37,10 @@ export default () => {
          refetchQueries: ['customer'],
          onCompleted: async ({ createCustomer }) => {
             if (!isEmpty(createCustomer)) {
-               const user = await processUser(createCustomer)
+               const user = await processUser(
+                  createCustomer,
+                  organization?.stripeAccountType
+               )
                dispatch({ type: 'SET_USER', payload: user })
             }
             if (isClient) {
@@ -77,7 +80,10 @@ export default () => {
             }
             console.log('CUSTOMER EXISTS')
 
-            const user = await processUser(customer)
+            const user = await processUser(
+               customer,
+               organization?.stripeAccountType
+            )
             dispatch({ type: 'SET_USER', payload: user })
 
             const { brandCustomers = {} } = customer

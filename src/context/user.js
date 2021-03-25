@@ -28,7 +28,7 @@ const reducers = (state, { type, payload }) => {
 }
 
 export const UserProvider = ({ children }) => {
-   const { brand } = useConfig()
+   const { brand, organization } = useConfig()
    const [isLoading, setIsLoading] = React.useState(true)
    const [keycloakId, setKeycloakId] = React.useState('')
    const [state, dispatch] = React.useReducer(reducers, {
@@ -65,13 +65,13 @@ export const UserProvider = ({ children }) => {
 
    React.useEffect(() => {
       if (!loading) {
-         if (customer?.id) {
-            const user = processUser(customer)
+         if (customer?.id && organization?.id) {
+            const user = processUser(customer, organization?.stripeAccountType)
             dispatch({ type: 'SET_USER', payload: user })
          }
       }
       setIsLoading(false)
-   }, [loading, customer])
+   }, [loading, customer, organization])
 
    if (isLoading) return <PageLoader />
    return (
