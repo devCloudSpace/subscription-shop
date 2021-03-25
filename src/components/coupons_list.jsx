@@ -1,26 +1,26 @@
-import { useSubscription } from '@apollo/react-hooks'
+import { useMutation, useSubscription } from '@apollo/react-hooks'
 import React from 'react'
 import tw, { styled } from 'twin.macro'
-import { COUPONS } from '../graphql'
+import { COUPONS, MUTATIONS } from '../graphql'
 import { useMenu } from '../sections/select-menu'
 import { useUser } from '../context'
 import { Loader } from './loader'
 
-export const CouponsList = () => {
+export const CouponsList = ({ closeTunnel }) => {
    const { state } = useMenu()
    const { user } = useUser()
-   // const { id } = state?.occurenceCustomer?.cart
-   // console.log(id)
+   const { id } = state?.occurenceCustomer?.cart
 
    const [availableCoupons, setAvailableCoupons] = React.useState([])
+   const [applying, setApplying] = React.useState(false)
 
    const { loading, error } = useSubscription(COUPONS, {
       variables: {
          params: {
-            cartId: 96,
+            cartId: id,
             keycloakId: user?.keycloakId,
          },
-         brandId: 1,
+         brandId: 1, // TODO: remove hard-coded brand id
       },
       onSubscriptionData: data => {
          console.log(data)
@@ -32,8 +32,42 @@ export const CouponsList = () => {
    })
    console.log('🚀 ~ CouponsList ~ error', error)
 
+   // Mutation
+   const [createOrderCartRewards] = useMutation(MUTATIONS.CART_REWARDS.CREATE, {
+      onCompleted: () => {
+         console.log('Applied coupon!')
+         closeTunnel()
+      },
+      onError: error => {
+         console.log(error)
+      },
+   })
+
    const handleApplyCoupon = coupon => {
-      console.log(coupon)
+      try {
+         if (applying) return
+         setApplying(true)
+         const objects = []
+         if (coupon.isRewardMulti) {
+            for (const reward in coupon.rewards) {
+               objects.push({ rewardId: reward.id, cartId: id })
+            }
+         } else {
+            objects.push({
+               rewardId: coupon.rewards[0].id,
+               cartId: id,
+            })
+         }
+         createOrderCartRewards({
+            variables: {
+               objects,
+            },
+         })
+      } catch (err) {
+         console.log(err)
+      } finally {
+         setApplying(false)
+      }
    }
 
    if (loading) return <Loader />

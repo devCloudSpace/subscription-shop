@@ -1,31 +1,50 @@
-import { useMutation } from '@apollo/react-hooks'
+import { useMutation, useSubscription } from '@apollo/react-hooks'
 import React from 'react'
 import tw, { styled } from 'twin.macro'
-import { MUTATIONS } from '../graphql'
+import { useUser } from '../context'
+import { CART_REWARDS, MUTATIONS } from '../graphql'
+import { useMenu } from '../sections/select-menu'
 import { CouponsList } from './coupons_list'
 import { Tunnel } from './tunnel'
 
 export const Coupon = () => {
-   const data = {
-      cartRewards: [
-         // {
-         //    reward: {
-         //       coupon: {
-         //          code: 'TESt',
-         //       },
-         //    },
-         // },
-      ],
-   }
+   const { state } = useMenu()
+   const { user } = useUser()
+   const { id } = state?.occurenceCustomer?.cart
+
+   const { data, error } = useSubscription(CART_REWARDS, {
+      variables: {
+         cartId: id,
+         params: {
+            cartId: id,
+            keycloakId: user?.keycloakId,
+         },
+      },
+      onSubscriptionData: ({ subscriptionData: { data = {} } = {} }) => {
+         if (data.cartRewards.length) {
+            const isCouponValid = data.cartRewards.every(
+               record => record.reward.condition.isValid
+            )
+            if (isCouponValid) {
+               console.log('Coupon is valid!')
+            } else {
+               console.log('Coupon is not valid anymore!')
+               toastr('error', 'Coupon is not valid!')
+               deleteCartRewards()
+            }
+         }
+      },
+   })
+   console.log('🚀 Coupon ~ error', error)
 
    const [isCouponListOpen, setIsCouponListOpen] = React.useState(false)
 
-   const [updateCart] = useMutation(MUTATIONS.CART.UPDATE, {
-      onCompleted: () => console.log('Wallet amount added!'),
-      onError: error => console.log(error),
+   const [deleteCartRewards] = useMutation(MUTATIONS.CART_REWARDS.DELETE, {
+      variables: {
+         cartId: id,
+      },
+      onError: err => console.log(err),
    })
-
-   const deleteCartRewards = () => {}
 
    return (
       <Styles.Wrapper>
@@ -37,9 +56,7 @@ export const Coupon = () => {
                   </Styles.CouponCode>
                   <Styles.Comment>Coupon applied!</Styles.Comment>
                </Styles.CouponDetails>
-               <Styles.Cross onClick={() => deleteCartRewards()}>
-                  &times;
-               </Styles.Cross>
+               <Styles.Cross onClick={deleteCartRewards}>&times;</Styles.Cross>
             </Styles.CouponWrapper>
          ) : (
             <Styles.Button onClick={() => setIsCouponListOpen(true)}>
@@ -47,7 +64,7 @@ export const Coupon = () => {
             </Styles.Button>
          )}
          <Tunnel isOpen={isCouponListOpen} toggleTunnel={setIsCouponListOpen}>
-            <CouponsList />
+            <CouponsList closeTunnel={() => setIsCouponListOpen(false)} />
          </Tunnel>
       </Styles.Wrapper>
    )
