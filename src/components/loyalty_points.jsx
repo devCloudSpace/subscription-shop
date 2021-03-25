@@ -1,9 +1,12 @@
 import { useMutation } from '@apollo/react-hooks'
 import React from 'react'
 import tw, { styled } from 'twin.macro'
+import { useUser } from '../context'
 import { MUTATIONS } from '../graphql'
 
 export const LoyaltyPoints = ({ cart }) => {
+   const { user } = useUser()
+
    const [points, setPoints] = React.useState(cart.loyaltyPointsUsable)
 
    const [updateCart] = useMutation(MUTATIONS.CART.UPDATE, {
@@ -52,22 +55,31 @@ export const LoyaltyPoints = ({ cart }) => {
                </Styles.Text>
             </Styles.Stat>
          ) : (
-            <Styles.Form onSubmit={handleSubmit}>
-               <Styles.InputWrapper>
-                  <Styles.Label> Loyalty points </Styles.Label>
-                  <Styles.Input
-                     type="number"
-                     min="0"
-                     required
-                     value={points}
-                     onChange={e => setPoints(e.target.value)}
-                  />
+            <>
+               <Styles.Form onSubmit={handleSubmit}>
+                  <Styles.InputWrapper>
+                     <Styles.Label> Loyalty points </Styles.Label>
+                     <Styles.Input
+                        type="number"
+                        min="0"
+                        required
+                        value={points}
+                        onChange={e => setPoints(e.target.value)}
+                     />
+                  </Styles.InputWrapper>
+                  <Styles.Button type="submit"> Add </Styles.Button>
+               </Styles.Form>
+               <Styles.Help>
                   <Styles.Small>
-                     Loyalty points limit: {cart.loyaltyPointsUsable}
+                     Max usable: {cart.loyaltyPointsUsable}
                   </Styles.Small>
-               </Styles.InputWrapper>
-               <Styles.Button type="submit"> Add </Styles.Button>
-            </Styles.Form>
+                  {!!user.loyaltyPoints?.length && (
+                     <Styles.Small>
+                        Balance: {user.loyaltyPoints[0].points}
+                     </Styles.Small>
+                  )}
+               </Styles.Help>
+            </>
          )}
       </Styles.Wrapper>
    )
@@ -76,11 +88,11 @@ export const LoyaltyPoints = ({ cart }) => {
 const Styles = {
    Wrapper: styled.div`
       ${tw`m-1`}
+      border: 1px solid #efefef;
+      padding: 8px;
+      border-radius: 2px;
    `,
    Form: styled.form`
-      border: 1px solid #efefef;
-      border-radius: 2px;
-      padding: 8px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -98,6 +110,11 @@ const Styles = {
       color: #fff;
       border-radius: 2px;
       padding: 4px;
+   `,
+   Help: styled.div`
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
    `,
    Small: styled.small``,
    Stat: styled.div`

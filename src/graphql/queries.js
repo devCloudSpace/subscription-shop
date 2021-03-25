@@ -583,6 +583,14 @@ export const CUSTOMER = {
             id
             keycloakId
             isSubscriber
+            wallets(where: { brandId: { _eq: $brandId } }) {
+               id
+               amount
+            }
+            loyaltyPoints(where: { brandId: { _eq: $brandId } }) {
+               id
+               points
+            }
             brandCustomers(where: { brandId: { _eq: $brandId } }) {
                id
                brandId

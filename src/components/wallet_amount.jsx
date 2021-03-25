@@ -1,9 +1,13 @@
 import { useMutation } from '@apollo/react-hooks'
 import React from 'react'
 import tw, { styled } from 'twin.macro'
+import { useUser } from '../context'
 import { MUTATIONS } from '../graphql'
+import { formatCurrency } from '../utils'
 
 export const WalletAmount = ({ cart }) => {
+   const { user } = useUser()
+
    const [amount, setAmount] = React.useState(cart.walletAmountUsable)
 
    const [updateCart] = useMutation(MUTATIONS.CART.UPDATE, {
@@ -52,22 +56,31 @@ export const WalletAmount = ({ cart }) => {
                </Styles.Text>
             </Styles.Stat>
          ) : (
-            <Styles.Form onSubmit={handleSubmit}>
-               <Styles.InputWrapper>
-                  <Styles.Label> Wallet amount </Styles.Label>
-                  <Styles.Input
-                     type="number"
-                     min="0"
-                     required
-                     value={amount}
-                     onChange={e => setAmount(e.target.value)}
-                  />
+            <>
+               <Styles.Form onSubmit={handleSubmit}>
+                  <Styles.InputWrapper>
+                     <Styles.Label> Wallet amount </Styles.Label>
+                     <Styles.Input
+                        type="number"
+                        min="0"
+                        required
+                        value={amount}
+                        onChange={e => setAmount(e.target.value)}
+                     />
+                  </Styles.InputWrapper>
+                  <Styles.Button type="submit"> Add </Styles.Button>
+               </Styles.Form>
+               <Styles.Help>
                   <Styles.Small>
-                     Wallet amount limit: ${cart.walletAmountUsable}
+                     Max usable: {formatCurrency(cart.walletAmountUsable)}
                   </Styles.Small>
-               </Styles.InputWrapper>
-               <Styles.Button type="submit"> Add </Styles.Button>
-            </Styles.Form>
+                  {!!user.wallets?.length && (
+                     <Styles.Small>
+                        Balance: {formatCurrency(user.wallets[0].amount)}
+                     </Styles.Small>
+                  )}
+               </Styles.Help>
+            </>
          )}
       </Styles.Wrapper>
    )
@@ -76,11 +89,11 @@ export const WalletAmount = ({ cart }) => {
 const Styles = {
    Wrapper: styled.div`
       ${tw`m-1`}
+      border: 1px solid #efefef;
+      padding: 8px;
+      border-radius: 2px;
    `,
    Form: styled.form`
-      border: 1px solid #efefef;
-      border-radius: 2px;
-      padding: 8px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -98,6 +111,11 @@ const Styles = {
       color: #fff;
       border-radius: 2px;
       padding: 4px;
+   `,
+   Help: styled.div`
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
    `,
    Small: styled.small``,
    Stat: styled.div`

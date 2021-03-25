@@ -5,9 +5,11 @@ import { COUPONS, MUTATIONS } from '../graphql'
 import { useMenu } from '../sections/select-menu'
 import { useUser } from '../context'
 import { Loader } from './loader'
+import { useConfig } from '../lib'
 
 export const CouponsList = ({ closeTunnel }) => {
    const { state } = useMenu()
+   const { brand } = useConfig()
    const { user } = useUser()
    const { id } = state?.occurenceCustomer?.cart
 
@@ -20,13 +22,17 @@ export const CouponsList = ({ closeTunnel }) => {
             cartId: id,
             keycloakId: user?.keycloakId,
          },
-         brandId: 1, // TODO: remove hard-coded brand id
+         brandId: brand.id,
       },
       onSubscriptionData: data => {
          console.log(data)
          const coupons = data.subscriptionData.data.coupons
          setAvailableCoupons([
-            ...coupons.filter(coupon => coupon.visibilityCondition?.isValid),
+            ...coupons.filter(
+               coupon =>
+                  coupon.visibilityCondition === null ||
+                  coupon.visibilityCondition.isValid
+            ),
          ])
       },
    })
