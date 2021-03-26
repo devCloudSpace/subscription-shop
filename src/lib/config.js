@@ -23,10 +23,6 @@ const reducers = (state, { type, payload }) => {
       case 'SET_BRANDID':
          return { ...state, brand: payload }
       case 'SET_SETTINGS':
-         console.log(
-            '🚀 ~ file: config.js ~ line 30 ~ reducers ~ payload',
-            payload
-         )
          return { ...state, settings: payload }
       default:
          return state

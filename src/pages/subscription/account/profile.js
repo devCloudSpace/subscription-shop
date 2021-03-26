@@ -1,11 +1,12 @@
 import React from 'react'
 import { navigate } from 'gatsby'
 import tw, { styled, css } from 'twin.macro'
-
+import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { useConfig } from '../../../lib'
 import { useUser } from '../../../context'
-import { SEO, Layout, ProfileSidebar, Form } from '../../../components'
+import { SEO, Layout, ProfileSidebar, Form, Button } from '../../../components'
 import { formatCurrency } from '../../../utils'
+import { useToasts } from 'react-toast-notifications'
 
 const Profile = () => {
    const { isAuthenticated } = useUser()
@@ -30,6 +31,7 @@ const Profile = () => {
 export default Profile
 
 const ProfileForm = () => {
+   const { addToast } = useToasts()
    const { user } = useUser()
    const { configOf } = useConfig()
 
@@ -73,7 +75,19 @@ const ProfileForm = () => {
          {referralsAllowed && !!user?.customerReferrals?.length && (
             <>
                <Form.Label>Referral Code</Form.Label>
-               {user?.customerReferrals[0]?.referralCode}
+               <Flex>
+                  {user?.customerReferrals[0]?.referralCode}
+                  <CopyToClipboard
+                     text={`${window.location.origin}/subscription?invite-code=${user?.customerReferrals[0]?.referralCode}`}
+                     onCopy={() =>
+                        addToast('Invite like copied!', {
+                           appearance: 'success',
+                        })
+                     }
+                  >
+                     <Button size="sm"> Copy invite link </Button>
+                  </CopyToClipboard>
+               </Flex>
             </>
          )}
          <div tw="h-2" />
@@ -110,4 +124,10 @@ const Main = styled.main`
    @media (max-width: 768px) {
       display: block;
    }
+`
+
+const Flex = styled.div`
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
 `

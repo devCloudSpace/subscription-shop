@@ -729,3 +729,19 @@ export const ORGANIZATION = gql`
       }
    }
 `
+
+export const REFERRER = gql`
+   query customerReferral($brandId: Int!, $code: String!) {
+      customerReferrals(
+         where: { brandId: { _eq: $brandId }, referralCode: { _eq: $code } }
+      ) {
+         id
+         customer {
+            platform_customer {
+               firstName
+               lastName
+            }
+         }
+      }
+   }
+`
