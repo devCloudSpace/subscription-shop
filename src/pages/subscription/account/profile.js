@@ -34,6 +34,9 @@ const ProfileForm = () => {
    const { configOf } = useConfig()
 
    const theme = configOf('theme-color', 'Visual')
+   const loyaltyPointsAllowed = configOf('Loyalty Points', 'rewards')
+      ?.isAvailable
+   const walletAllowed = configOf('Wallet', 'rewards')?.isAvailable
 
    return (
       <section tw="px-6 w-full md:w-5/12">
@@ -66,14 +69,14 @@ const ProfileForm = () => {
                />
             </Form.Field>
          </div>
-         {!!user?.wallets?.length && (
+         {walletAllowed && !!user?.wallets?.length && (
             <>
                <Form.Label>Wallet Amount</Form.Label>
                {formatCurrency(user?.wallets[0]?.amount)}
             </>
          )}
          <div tw="h-2" />
-         {!!user?.loyaltyPoints?.length && (
+         {loyaltyPointsAllowed && !!user?.loyaltyPoints?.length && (
             <>
                <Form.Label>Loyalty Points</Form.Label>
                {user?.loyaltyPoints[0]?.points}
