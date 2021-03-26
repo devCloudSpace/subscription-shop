@@ -3,18 +3,43 @@ import tw from 'twin.macro'
 
 import { useMenu } from '../../state'
 import { formatCurrency } from '../../../../utils'
-import { Billing } from '../../../../components'
+import {
+   Billing,
+   Coupon,
+   LoyaltyPoints,
+   WalletAmount,
+} from '../../../../components'
 import { PlusIcon, MinusIcon } from '../../../../assets/icons'
+import { useConfig } from '../../../../lib'
 
 const BillingDetails = () => {
    const { state } = useMenu()
+   const { configOf } = useConfig()
    const [open, toggle] = React.useState(false)
    const { billingDetails: billing = {} } = state?.occurenceCustomer?.cart || {}
    const { itemCountValid = false } =
       state?.occurenceCustomer?.validStatus || {}
 
+   const couponsAllowed = configOf('Coupons', 'rewards')?.isAvailable
+   const walletAllowed = configOf('Wallet', 'rewards')?.isAvailable
+   const loyaltyPointsAllowed = configOf('Loyalty Points', 'rewards')
+      ?.isAvailable
+
    return (
       <div>
+         {itemCountValid && state?.occurenceCustomer?.cart && (
+            <>
+               {couponsAllowed && (
+                  <Coupon cart={state?.occurenceCustomer?.cart} />
+               )}
+               {walletAllowed && (
+                  <WalletAmount cart={state?.occurenceCustomer?.cart} />
+               )}
+               {loyaltyPointsAllowed && (
+                  <LoyaltyPoints cart={state?.occurenceCustomer?.cart} />
+               )}
+            </>
+         )}
          <header tw="mt-3 mb-3 h-10 flex items-center justify-between">
             <h4 tw="text-lg text-gray-700">
                Your Weekly Total:{' '}

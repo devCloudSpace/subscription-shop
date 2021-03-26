@@ -262,6 +262,10 @@ export const CART_BY_WEEK = gql`
             id
             status
             address
+            walletAmountUsable
+            loyaltyPointsUsable
+            walletAmountUsed
+            loyaltyPointsUsed
             billingDetails
             fulfillmentInfo
             products: cartItemViews(where: { level: { _eq: 1 } }) {
@@ -579,6 +583,14 @@ export const CUSTOMER = {
             id
             keycloakId
             isSubscriber
+            wallets(where: { brandId: { _eq: $brandId } }) {
+               id
+               amount
+            }
+            loyaltyPoints(where: { brandId: { _eq: $brandId } }) {
+               id
+               points
+            }
             customerByClients: platform_customerByClients {
                stripeCustomerId: organizationStripeCustomerId
             }
@@ -655,6 +667,48 @@ export const GET_FILEID = gql`
                jsFile {
                   path
                }
+            }
+         }
+      }
+   }
+`
+export const COUPONS = gql`
+   subscription Coupons($params: jsonb, $brandId: Int!) {
+      coupons(
+         where: {
+            isActive: { _eq: true }
+            isArchived: { _eq: false }
+            brands: { brandId: { _eq: $brandId }, isActive: { _eq: true } }
+         }
+      ) {
+         id
+         code
+         isRewardMulti
+         rewards(order_by: { priority: desc }) {
+            id
+            condition {
+               isValid(args: { params: $params })
+            }
+         }
+         metaDetails
+         visibilityCondition {
+            isValid(args: { params: $params })
+         }
+      }
+   }
+`
+
+export const CART_REWARDS = gql`
+   subscription CartRewards($cartId: Int!, $params: jsonb) {
+      cartRewards(where: { cartId: { _eq: $cartId } }) {
+         reward {
+            id
+            coupon {
+               id
+               code
+            }
+            condition {
+               isValid(args: { params: $params })
             }
          }
       }
