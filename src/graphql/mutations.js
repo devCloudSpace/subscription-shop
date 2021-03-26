@@ -37,6 +37,25 @@ export const MUTATIONS = {
          `,
       },
    },
+   CUSTOMER_REFERRAL: {
+      UPDATE: gql`
+         mutation UpdateCustomerReferral(
+            $brandId: Int!
+            $keycloakId: String!
+            $_set: crm_customerReferral_set_input
+         ) {
+            updateCustomerReferrals(
+               where: {
+                  brandId: { _eq: $brandId }
+                  keycloakId: { _eq: $keycloakId }
+               }
+               _set: $_set
+            ) {
+               affected_rows
+            }
+         }
+      `,
+   },
    OCCURENCE: {
       CUSTOMER: {
          CREATE: {

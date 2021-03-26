@@ -591,6 +591,11 @@ export const CUSTOMER = {
                id
                points
             }
+            customerReferrals(where: { brandId: { _eq: $brandId } }) {
+               id
+               referralCode
+               referredByCode
+            }
             customerByClients: platform_customerByClients {
                stripeCustomerId: organizationStripeCustomerId
             }
@@ -721,6 +726,22 @@ export const ORGANIZATION = gql`
          id
          stripeAccountId
          stripeAccountType
+      }
+   }
+`
+
+export const REFERRER = gql`
+   query customerReferral($brandId: Int!, $code: String!) {
+      customerReferrals(
+         where: { brandId: { _eq: $brandId }, referralCode: { _eq: $code } }
+      ) {
+         id
+         customer {
+            platform_customer {
+               firstName
+               lastName
+            }
+         }
       }
    }
 `
