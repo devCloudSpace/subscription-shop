@@ -746,43 +746,34 @@ export const REFERRER = gql`
    }
 `
 
-export const WALLET_TRANSACTIONS = gql`
-   subscription WalletTransactions($brandId: Int!, $keycloakId: String!) {
-      walletTransactions(
-         where: {
-            wallet: {
-               brandId: { _eq: $brandId }
-               keycloakId: { _eq: $keycloakId }
-            }
-         }
-         order_by: { created_at: desc_nulls_last }
+export const WALLETS = gql`
+   subscription Wallets($brandId: Int!, $keycloakId: String!) {
+      wallets(
+         where: { brandId: { _eq: $brandId }, keycloakId: { _eq: $keycloakId } }
       ) {
-         id
          amount
-         type
-         created_at
+         walletTransactions(order_by: { created_at: desc_nulls_last }) {
+            id
+            type
+            amount
+            created_at
+         }
       }
    }
 `
 
-export const LOYALTY_POINTS_TRANSACTIONS = gql`
-   subscription LoyaltyPointsTransactions(
-      $brandId: Int!
-      $keycloakId: String!
-   ) {
-      loyaltyPointsTransactions(
-         where: {
-            loyaltyPoint: {
-               brandId: { _eq: $brandId }
-               keycloakId: { _eq: $keycloakId }
-            }
-         }
-         order_by: { created_at: desc_nulls_last }
+export const LOYALTY_POINTS = gql`
+   subscription LoyaltyPoints($brandId: Int!, $keycloakId: String!) {
+      loyaltyPoints(
+         where: { brandId: { _eq: $brandId }, keycloakId: { _eq: $keycloakId } }
       ) {
-         id
          points
-         type
-         created_at
+         loyaltyPointTransactions(order_by: { created_at: desc_nulls_last }) {
+            id
+            points
+            type
+            created_at
+         }
       }
    }
 `

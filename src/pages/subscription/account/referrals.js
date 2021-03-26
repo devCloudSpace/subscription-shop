@@ -3,7 +3,14 @@ import { navigate } from 'gatsby'
 import tw, { styled, css } from 'twin.macro'
 import { useConfig } from '../../../lib'
 import { useUser } from '../../../context'
-import { SEO, Layout, ProfileSidebar, Form, Button } from '../../../components'
+import {
+   SEO,
+   Layout,
+   ProfileSidebar,
+   Form,
+   Button,
+   Loader,
+} from '../../../components'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { useToasts } from 'react-toast-notifications'
 import { useQuery } from '@apollo/react-hooks'
@@ -42,7 +49,7 @@ const Content = () => {
    const theme = configOf('theme-color', 'Visual')
    const referralsAllowed = configOf('Referral', 'rewards')?.isAvailable
 
-   const { data: { customerReferrals = [] } = {} } = useQuery(
+   const { data: { customerReferrals = [] } = {}, loading } = useQuery(
       CUSTOMERS_REFERRED,
       {
          skip: !code,
@@ -50,9 +57,11 @@ const Content = () => {
             brandId: brand.id,
             code,
          },
+         fetchPolicy: 'cache-and-network',
       }
    )
 
+   if (loading) return <Loader />
    return (
       <section tw="px-6 w-full md:w-5/12">
          <header tw="mt-6 mb-3 flex items-center justify-between">

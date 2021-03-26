@@ -6,7 +6,7 @@ import { useUser } from '../../../context'
 import { SEO, Layout, ProfileSidebar, Form, Loader } from '../../../components'
 import { formatCurrency } from '../../../utils'
 import { useSubscription } from '@apollo/react-hooks'
-import { WALLET_TRANSACTIONS } from '../../../graphql'
+import { WALLETS, WALLET_TRANSACTIONS } from '../../../graphql'
 import * as moment from 'moment'
 
 const Wallet = () => {
@@ -38,15 +38,12 @@ const Content = () => {
    const theme = configOf('theme-color', 'Visual')
    const walletAllowed = configOf('Wallet', 'rewards')?.isAvailable
 
-   const { data: { walletTransactions = [] } = {}, loading } = useSubscription(
-      WALLET_TRANSACTIONS,
-      {
-         variables: {
-            brandId: brand.id,
-            keycloakId: user.keycloakId,
-         },
-      }
-   )
+   const { data: { wallets = [] } = {}, loading } = useSubscription(WALLETS, {
+      variables: {
+         brandId: brand.id,
+         keycloakId: user.keycloakId,
+      },
+   })
 
    if (loading) return <Loader />
    return (
@@ -54,10 +51,10 @@ const Content = () => {
          <header tw="mt-6 mb-3 flex items-center justify-between">
             <Title theme={theme}>Wallet</Title>
          </header>
-         {walletAllowed && !!user?.wallets?.length && (
+         {walletAllowed && !!wallets.length && (
             <>
                <Form.Label>Balance</Form.Label>
-               {formatCurrency(user?.wallets[0]?.amount)}
+               {formatCurrency(wallets[0]?.amount)}
                <div tw="h-4" />
                <Form.Label>Transactions</Form.Label>
                <Styles.Table>
@@ -70,7 +67,7 @@ const Content = () => {
                      </tr>
                   </thead>
                   <tbody>
-                     {walletTransactions.map(txn => (
+                     {wallets[0]?.walletTransactions.map(txn => (
                         <tr key={txn.id}>
                            <Styles.Cell>{txn.id}</Styles.Cell>
                            <Styles.Cell title={txn.type}>

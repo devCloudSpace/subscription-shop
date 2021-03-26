@@ -5,7 +5,7 @@ import { useConfig } from '../../../lib'
 import { useUser } from '../../../context'
 import { SEO, Layout, ProfileSidebar, Form, Loader } from '../../../components'
 import { useSubscription } from '@apollo/react-hooks'
-import { LOYALTY_POINTS_TRANSACTIONS } from '../../../graphql'
+import { LOYALTY_POINTS } from '../../../graphql'
 import * as moment from 'moment'
 
 const LoyaltyPoints = () => {
@@ -38,15 +38,15 @@ const Content = () => {
    const loyaltyPointsAllowed = configOf('Loyalty Points', 'rewards')
       ?.isAvailable
 
-   const {
-      data: { loyaltyPointsTransactions = [] } = {},
-      loading,
-   } = useSubscription(LOYALTY_POINTS_TRANSACTIONS, {
-      variables: {
-         brandId: brand.id,
-         keycloakId: user.keycloakId,
-      },
-   })
+   const { data: { loyaltyPoints = [] } = {}, loading } = useSubscription(
+      LOYALTY_POINTS,
+      {
+         variables: {
+            brandId: brand.id,
+            keycloakId: user.keycloakId,
+         },
+      }
+   )
 
    if (loading) return <Loader />
    return (
@@ -54,10 +54,10 @@ const Content = () => {
          <header tw="mt-6 mb-3 flex items-center justify-between">
             <Title theme={theme}>Loyalty Points</Title>
          </header>
-         {loyaltyPointsAllowed && !!user?.loyaltyPoints?.length && (
+         {loyaltyPointsAllowed && !!loyaltyPoints.length && (
             <>
                <Form.Label>Balance</Form.Label>
-               {user?.loyaltyPoints[0]?.points}
+               {loyaltyPoints[0]?.points}
                <div tw="h-4" />
                <Form.Label>Transactions</Form.Label>
                <Styles.Table>
@@ -70,7 +70,7 @@ const Content = () => {
                      </tr>
                   </thead>
                   <tbody>
-                     {loyaltyPointsTransactions.map(txn => (
+                     {loyaltyPoints[0]?.loyaltyPointTransactions.map(txn => (
                         <tr key={txn.id}>
                            <Styles.Cell>{txn.id}</Styles.Cell>
                            <Styles.Cell title={txn.type}>
