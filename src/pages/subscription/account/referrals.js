@@ -6,6 +6,8 @@ import { useUser } from '../../../context'
 import { SEO, Layout, ProfileSidebar, Form, Button } from '../../../components'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { useToasts } from 'react-toast-notifications'
+import { useQuery } from '@apollo/react-hooks'
+import { CUSTOMERS_REFERRED } from '../../../graphql'
 
 const Referrals = () => {
    const { isAuthenticated } = useUser()
@@ -32,10 +34,24 @@ export default Referrals
 const Content = () => {
    const { addToast } = useToasts()
    const { user } = useUser()
-   const { configOf } = useConfig()
+   const { brand, configOf } = useConfig()
+   const code = user?.customerReferrals
+      ? user?.customerReferrals[0]?.referralCode
+      : ''
 
    const theme = configOf('theme-color', 'Visual')
    const referralsAllowed = configOf('Referral', 'rewards')?.isAvailable
+
+   const { data: { customerReferrals = [] } = {} } = useQuery(
+      CUSTOMERS_REFERRED,
+      {
+         skip: !code,
+         variables: {
+            brandId: brand.id,
+            code,
+         },
+      }
+   )
 
    return (
       <section tw="px-6 w-full md:w-5/12">
@@ -58,6 +74,30 @@ const Content = () => {
                      <Button size="sm"> Copy invite link </Button>
                   </CopyToClipboard>
                </Flex>
+               <div tw="h-4" />
+               <Form.Label>
+                  Customers Referred ({customerReferrals.length}){' '}
+               </Form.Label>
+               <Styles.Table>
+                  <thead>
+                     <tr>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                     </tr>
+                  </thead>
+                  <tbody>
+                     {customerReferrals.map(ref => (
+                        <tr key={ref.id}>
+                           <Styles.Cell>
+                              {ref.customer.platform_customer.firstName}
+                           </Styles.Cell>
+                           <Styles.Cell>
+                              {ref.customer.platform_customer.lastName}
+                           </Styles.Cell>
+                        </tr>
+                     ))}
+                  </tbody>
+               </Styles.Table>
             </>
          )}
       </section>
@@ -87,3 +127,22 @@ const Flex = styled.div`
    align-items: center;
    justify-content: space-between;
 `
+
+const Styles = {
+   Table: styled.table`
+      ${tw`my-2 w-full table-auto`}
+      th {
+         text-align: left;
+      }
+      tr:nth-of-type(even) {
+         ${tw`bg-gray-100`}
+      }
+   `,
+   Cell: styled.td`
+      ${tw`border px-2 py-1`}
+      min-width: 100px;
+   `,
+   Comment: styled.p`
+      ${tw`text-sm text-gray-600`}
+   `,
+}

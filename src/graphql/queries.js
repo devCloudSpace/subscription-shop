@@ -786,3 +786,19 @@ export const LOYALTY_POINTS_TRANSACTIONS = gql`
       }
    }
 `
+
+export const CUSTOMERS_REFERRED = gql`
+   query CustomersReferred($brandId: Int!, $code: String!) {
+      customerReferrals(
+         where: { brandId: { _eq: $brandId }, referredByCode: { _eq: $code } }
+      ) {
+         id
+         customer {
+            platform_customer {
+               firstName
+               lastName
+            }
+         }
+      }
+   }
+`
