@@ -745,3 +745,44 @@ export const REFERRER = gql`
       }
    }
 `
+
+export const WALLET_TRANSACTIONS = gql`
+   subscription WalletTransactions($brandId: Int!, $keycloakId: String!) {
+      walletTransactions(
+         where: {
+            wallet: {
+               brandId: { _eq: $brandId }
+               keycloakId: { _eq: $keycloakId }
+            }
+         }
+         order_by: { created_at: desc_nulls_last }
+      ) {
+         id
+         amount
+         type
+         created_at
+      }
+   }
+`
+
+export const LOYALTY_POINTS_TRANSACTIONS = gql`
+   subscription LoyaltyPointsTransactions(
+      $brandId: Int!
+      $keycloakId: String!
+   ) {
+      loyaltyPointsTransactions(
+         where: {
+            loyaltyPoint: {
+               brandId: { _eq: $brandId }
+               keycloakId: { _eq: $keycloakId }
+            }
+         }
+         order_by: { created_at: desc_nulls_last }
+      ) {
+         id
+         points
+         type
+         created_at
+      }
+   }
+`
