@@ -32,9 +32,9 @@ export const PaymentForm = ({ intent }) => {
       try {
          if (setupIntent.status === 'succeeded') {
             const ORIGIN = isClient ? window._env_.GATSBY_DAILYKEY_URL : ''
-            const URL = `${ORIGIN}/api/payment-method/${setupIntent.payment_method}`
+            let URL = `${ORIGIN}/api/payment-method/${setupIntent.payment_method}`
             if (organization.stripeAccountType === 'standard') {
-               url += `?accountId=${organization.stripeAccountId}`
+               URL += `?accountId=${organization.stripeAccountId}`
             }
             const { data: { success, data = {} } = {} } = await axios.get(URL)
 
@@ -79,7 +79,9 @@ export const PaymentForm = ({ intent }) => {
          } else {
             throw "Couldn't complete card setup, please try again"
          }
-      } catch (error) {}
+      } catch (error) {
+         console.log(error)
+      }
    }
 
    const stripePromise = loadStripe(
