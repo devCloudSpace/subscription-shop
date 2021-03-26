@@ -103,7 +103,7 @@ const PaymentContent = ({ isCheckout }) => {
             variables: {
                id: cart.id,
                _set: {
-                  amount: state?.occurenceCustomer?.cart?.totalPrice,
+                  amount: cart?.totalPrice,
                   customerInfo: {
                      customerEmail: user?.platform_customer?.email,
                      customerPhone: state?.profile?.phoneNumber,
