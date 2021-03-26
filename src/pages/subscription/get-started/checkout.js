@@ -51,8 +51,9 @@ const PaymentContent = ({ isCheckout }) => {
    const { configOf } = useConfig()
 
    const { loading, data: { cart = {} } = {} } = useQuery(CART, {
+      skip: !isClient,
       variables: {
-         id: isClient && window.localStorage.getItem('cartId'),
+         id: isClient ? new URLSearchParams(location.search).get('id') : '',
       },
    })
 
@@ -62,7 +63,7 @@ const PaymentContent = ({ isCheckout }) => {
          addToast('Saved you preferences.', {
             appearance: 'success',
          })
-         navigate(`/subscription/get-started/placing-order`)
+         navigate(`/subscription/get-started/placing-order?id=${cart.id}`)
       },
    })
    const [updateCustomer] = useMutation(MUTATIONS.CUSTOMER.UPDATE, {

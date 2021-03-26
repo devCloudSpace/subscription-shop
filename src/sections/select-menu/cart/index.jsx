@@ -69,7 +69,9 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
                <SaveButton
                   bg={theme?.accent}
                   onClick={() =>
-                     navigate('/subscription/get-started/checkout/')
+                     navigate(
+                        `/subscription/get-started/checkout/?id=${state.occurenceCustomer?.cart?.id}`
+                     )
                   }
                   disabled={
                      !state?.week?.isValid ||

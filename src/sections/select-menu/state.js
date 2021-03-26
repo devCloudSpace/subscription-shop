@@ -152,8 +152,8 @@ export const MenuProvider = ({ children }) => {
       {
          skip:
             state.isOccurencesLoading ||
-            !state?.week?.id ||
-            occurenceCustomerLoading,
+            occurenceCustomerLoading ||
+            !state?.week?.id,
          onError: error => console.log(error),
       }
    )
@@ -228,8 +228,8 @@ export const MenuProvider = ({ children }) => {
    React.useEffect(() => {
       if (
          !state.isOccurencesLoading &&
-         state.week?.id &&
-         !occurenceCustomerLoading
+         !occurenceCustomerLoading &&
+         state.week?.id
       ) {
          if (isEmpty(occurenceCustomer)) {
             insertOccurenceCustomer({
@@ -249,8 +249,8 @@ export const MenuProvider = ({ children }) => {
       }
    }, [
       state.isOccurencesLoading,
-      state.week,
       occurenceCustomerLoading,
+      state.week,
       occurenceCustomer,
    ])
 
@@ -383,8 +383,6 @@ export const MenuProvider = ({ children }) => {
                      }
                   })
                })
-
-               isClient && window.localStorage.setItem('cartId', createCart.id)
 
                const skipList = new URL(location.href).searchParams.get(
                   'previous'

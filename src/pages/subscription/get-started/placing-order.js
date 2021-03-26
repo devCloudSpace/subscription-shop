@@ -12,8 +12,9 @@ import OrderInfo from '../../../sections/OrderInfo'
 const PlacingOrder = () => {
    const { configOf } = useConfig()
    const { loading, data: { cart = {} } = {} } = useSubscription(CART_STATUS, {
+      skip: !isClient,
       variables: {
-         id: isClient && window.localStorage.getItem('cartId'),
+         id: isClient ? new URLSearchParams(location.search).get('id') : '',
       },
    })
 
@@ -26,7 +27,6 @@ const PlacingOrder = () => {
    }, [cart])
 
    const gotoMenu = () => {
-      isClient && window.localStorage.removeItem('cartId')
       isClient && window.localStorage.removeItem('plan')
       if (isClient) {
          window.location.href = window.location.origin + '/subscription/menu'
