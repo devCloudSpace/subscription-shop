@@ -591,6 +591,11 @@ export const CUSTOMER = {
                id
                points
             }
+            customerReferrals(where: { brandId: { _eq: $brandId } }) {
+               id
+               referralCode
+               referredByCode
+            }
             customerByClients: platform_customerByClients {
                stripeCustomerId: organizationStripeCustomerId
             }

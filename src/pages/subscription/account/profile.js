@@ -37,6 +37,7 @@ const ProfileForm = () => {
    const loyaltyPointsAllowed = configOf('Loyalty Points', 'rewards')
       ?.isAvailable
    const walletAllowed = configOf('Wallet', 'rewards')?.isAvailable
+   const referralsAllowed = configOf('Referral', 'rewards')?.isAvailable
 
    return (
       <section tw="px-6 w-full md:w-5/12">
@@ -69,6 +70,13 @@ const ProfileForm = () => {
                />
             </Form.Field>
          </div>
+         {referralsAllowed && !!user?.customerReferrals?.length && (
+            <>
+               <Form.Label>Referral Code</Form.Label>
+               {user?.customerReferrals[0]?.referralCode}
+            </>
+         )}
+         <div tw="h-2" />
          {walletAllowed && !!user?.wallets?.length && (
             <>
                <Form.Label>Wallet Amount</Form.Label>
