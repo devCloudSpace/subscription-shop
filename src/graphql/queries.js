@@ -268,6 +268,7 @@ export const CART_BY_WEEK = gql`
             loyaltyPointsUsed
             billingDetails
             fulfillmentInfo
+            transactionId
             products: cartItemViews(where: { level: { _eq: 1 } }) {
                id
                name: displayName
@@ -314,9 +315,14 @@ export const CART = gql`
          tip
          address
          totalPrice
+         paymentStatus
          deliveryPrice
          billingDetails
          fulfillmentInfo
+         transactionId
+         transactionRemark
+         stripeInvoiceId
+         stripeInvoiceDetails
          products: cartItemViews(where: { level: { _eq: 1 } }) {
             id
             isAddOn
@@ -339,6 +345,8 @@ export const CART_STATUS = gql`
          status
          orderId
          address
+         transactionId
+         transactionRemark
          paymentStatus
          fulfillmentInfo
          billingDetails
