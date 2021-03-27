@@ -623,6 +623,7 @@ export const CUSTOMER = {
             id
             keycloakId
             isSubscriber
+            isTest
             wallets(where: { brandId: { _eq: $brandId } }) {
                id
                amount
