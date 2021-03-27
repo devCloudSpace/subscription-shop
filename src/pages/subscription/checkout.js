@@ -2,7 +2,7 @@ import React from 'react'
 import { navigate } from 'gatsby'
 import tw, { styled, css } from 'twin.macro'
 import { useToasts } from 'react-toast-notifications'
-import { useMutation, useQuery } from '@apollo/react-hooks'
+import { useMutation, useSubscription } from '@apollo/react-hooks'
 
 import { useConfig } from '../../lib'
 import { isClient, formatCurrency } from '../../utils'
@@ -50,17 +50,33 @@ const PaymentContent = ({ isCheckout }) => {
    const { addToast } = useToasts()
    const { configOf } = useConfig()
 
-   const { loading, data: { cart = {} } = {} } = useQuery(CART, {
-      skip: !isClient,
-      variables: {
-         id: isClient ? new URLSearchParams(location.search).get('id') : '',
-      },
-   })
+   const { loading, data: { cart = {} } = {} } = useSubscription(
+      CART_SUBSCRIPTION,
+      {
+         skip: !isClient,
+         variables: {
+            id: isClient ? new URLSearchParams(location.search).get('id') : '',
+         },
+      }
+   )
 
    React.useEffect(() => {
       if (!loading & !isEmpty(cart)) {
          if (cart.paymentStatus === 'SUCCEEDED') {
             navigate(`/subscription/placing-order?id=${cart.id}`)
+         }
+         if (cart.paymentStatus === 'REQUIRES_ACTION') {
+            console.log('Action required!')
+            if (cart.transactionRemark?.next_action?.use_strip_sdk?.stripe_js) {
+               console.log(
+                  'URL: ',
+                  cart.transactionRemark.next_action.use_strip_sdk.stripe_js
+               )
+               window.open(
+                  cart.transactionRemark.next_action.use_strip_sdk.stripe_js,
+                  '_blank'
+               )
+            }
          }
       }
    }, [loading, cart])
