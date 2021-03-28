@@ -7,6 +7,7 @@ import { useToasts } from 'react-toast-notifications'
 import { useMutation, useQuery, useSubscription } from '@apollo/react-hooks'
 
 import { useUser } from '../../context'
+import { useConfig } from '../../lib/config'
 import { isClient } from '../../utils'
 import { Loader } from '../../components'
 import {
@@ -79,6 +80,8 @@ const insertCartId = (node, cartId) => {
 
 export const MenuProvider = ({ children }) => {
    const { user } = useUser()
+   const { hasConfig, configOf } = useConfig()
+   const store = configOf('Store Availability', 'availability')
    const location = useLocation()
    const { addToast } = useToasts()
    const [cart, setCart] = React.useState({})
@@ -330,6 +333,7 @@ export const MenuProvider = ({ children }) => {
                   customerId: user.id,
                   source: 'subscription',
                   paymentStatus: 'PENDING',
+                  isTest: user?.isTest || !store?.isStoreLive,
                   address: user.defaultAddress,
                   fulfillmentInfo: fulfillment,
                   customerKeycloakId: user.keycloakId,
