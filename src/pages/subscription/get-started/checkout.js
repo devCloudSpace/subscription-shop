@@ -3,7 +3,7 @@ import moment from 'moment'
 import { navigate } from 'gatsby'
 import tw, { styled, css } from 'twin.macro'
 import { useToasts } from 'react-toast-notifications'
-import { useMutation, useQuery } from '@apollo/react-hooks'
+import { useMutation, useQuery, useSubscription } from '@apollo/react-hooks'
 
 import { useConfig } from '../../../lib'
 import { isClient, formatCurrency } from '../../../utils'
@@ -16,7 +16,7 @@ import {
 } from '../../../sections/checkout'
 import { useUser } from '../../../context'
 import {
-   CART,
+   CART_SUBSCRIPTION,
    BRAND,
    MUTATIONS,
    UPDATE_CART,
@@ -50,12 +50,15 @@ const PaymentContent = ({ isCheckout }) => {
    const { addToast } = useToasts()
    const { brand, configOf } = useConfig()
 
-   const { loading, data: { cart = {} } = {} } = useQuery(CART, {
-      skip: !isClient,
-      variables: {
-         id: isClient ? new URLSearchParams(location.search).get('id') : '',
-      },
-   })
+   const { loading, data: { cart = {} } = {} } = useSubscription(
+      CART_SUBSCRIPTION,
+      {
+         skip: !isClient,
+         variables: {
+            id: isClient ? new URLSearchParams(location.search).get('id') : '',
+         },
+      }
+   )
 
    const [updateBrandCustomer] = useMutation(BRAND.CUSTOMER.UPDATE, {
       refetchQueries: ['customer'],

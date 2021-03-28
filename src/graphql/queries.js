@@ -100,6 +100,7 @@ export const OCCURENCES_BY_SUBSCRIPTION = gql`
             isValid
             isVisible
             fulfillmentDate
+            cutoffTimeStamp
          }
       }
    }

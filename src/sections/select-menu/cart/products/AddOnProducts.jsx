@@ -202,7 +202,7 @@ const AddOnProduct = ({ node, isAdded, theme }) => {
                   onClick={() => methods.products.add(node.cartItem)}
                   tw="text-sm uppercase font-medium tracking-wider border border-gray-300 rounded px-1 text-gray-500"
                >
-                  {isActive ? 'Add Again' : 'Add'}
+                  {isActive ? 'REPEAT +' : 'ADD +'}
                </button>
             )}
          </div>

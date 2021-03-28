@@ -63,7 +63,7 @@ const BillingDetails = ({ isCheckout }) => {
                   )
                }
             >
-               Proceed to Checkout
+               PROCEED TO CHECKOUT
             </SaveButton>
          )}
       </div>

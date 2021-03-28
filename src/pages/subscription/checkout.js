@@ -15,7 +15,7 @@ import {
 } from '../../sections/checkout'
 import { useUser } from '../../context'
 import {
-   CART,
+   CART_SUBSCRIPTION,
    BRAND,
    MUTATIONS,
    UPDATE_CART,
@@ -36,7 +36,7 @@ const Checkout = () => {
    return (
       <Layout noHeader>
          <SEO title="Checkout" />
-         <StepsNavbar />
+         {/* <StepsNavbar /> */}
          <PaymentProvider>
             <PaymentContent isCheckout />
          </PaymentProvider>

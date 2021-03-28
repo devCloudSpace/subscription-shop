@@ -158,9 +158,9 @@ const Product = ({ node, isAdded, theme }) => {
             {canAdd() && (
                <button
                   onClick={() => add(node.cartItem)}
-                  tw="text-sm uppercase font-medium tracking-wider border border-gray-300 rounded px-1 text-gray-500"
+                  tw="text-sm uppercase font-bold tracking-wider border border-gray-300 rounded px-1 text-gray-500"
                >
-                  {isActive ? 'Add Again' : 'Add'}&nbsp;
+                  {isActive ? 'REPEAT +' : 'ADD +'}&nbsp;
                   {formatCurrency(Number(node.addOnPrice) || 0)}
                </button>
             )}

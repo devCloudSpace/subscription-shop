@@ -78,7 +78,7 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
                      !state?.occurenceCustomer?.validStatus?.itemCountValid
                   }
                >
-                  Proceed to Checkout
+                  PROCEED TO CHECKOUT
                </SaveButton>
             )}
          </Styles.Wrapper>
