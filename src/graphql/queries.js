@@ -375,6 +375,7 @@ export const CART_SUBSCRIPTION = gql`
 export const CART_STATUS = gql`
    subscription cart($id: Int!) {
       cart(id: $id) {
+         id
          status
          orderId
          address

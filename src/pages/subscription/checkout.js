@@ -65,19 +65,6 @@ const PaymentContent = ({ isCheckout }) => {
          if (cart.paymentStatus === 'SUCCEEDED') {
             navigate(`/subscription/placing-order?id=${cart.id}`)
          }
-         if (cart.paymentStatus === 'REQUIRES_ACTION') {
-            console.log('Action required!')
-            if (cart.transactionRemark?.next_action?.use_strip_sdk?.stripe_js) {
-               console.log(
-                  'URL: ',
-                  cart.transactionRemark.next_action.use_strip_sdk.stripe_js
-               )
-               window.open(
-                  cart.transactionRemark.next_action.use_strip_sdk.stripe_js,
-                  '_blank'
-               )
-            }
-         }
       }
    }, [loading, cart])
 
@@ -127,6 +114,7 @@ const PaymentContent = ({ isCheckout }) => {
          updateCart({
             variables: {
                id: cart.id,
+               _inc: { paymentRetryAttempt: 1 },
                _set: {
                   amount: cart?.totalPrice,
                   customerInfo: {
@@ -136,9 +124,6 @@ const PaymentContent = ({ isCheckout }) => {
                      customerFirstName: state?.profile?.firstName,
                   },
                   paymentMethodId: state.payment.selected.id,
-                  ...(isCheckout && {
-                     status: 'CART_PROCESS',
-                  }),
                },
             },
          })

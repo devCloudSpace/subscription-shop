@@ -9,9 +9,11 @@ import { CART_STATUS } from '../../../graphql'
 import { Layout, SEO, Loader, HelperBar } from '../../../components'
 import { PlacedOrderIllo, CartIllo, PaymentIllo } from '../../../assets/icons'
 import OrderInfo from '../../../sections/OrderInfo'
+import { navigate } from 'gatsby-link'
 
 const PlacingOrder = () => {
    const { configOf } = useConfig()
+   const [isPaymentPopup, setIsPaymentPopup] = React.useState(false)
    const { loading, data: { cart = {} } = {} } = useSubscription(CART_STATUS, {
       skip: !isClient,
       variables: {
@@ -21,7 +23,19 @@ const PlacingOrder = () => {
 
    React.useEffect(() => {
       if (!loading && !isEmpty(cart)) {
-         if (cart.paymentStatus === 'REQUIRES_ACTION') {
+         if (
+            cart.paymentStatus === 'REQUIRES_ACTION' &&
+            cart.transactionRemark?.next_action?.redirect_to_url?.url
+         ) {
+            setIsPaymentPopup(true)
+         } else if (
+            ['CANCELLED', 'PAYMENT_FAILED', 'REQUIRES_PAYMENT_METHOD'].includes(
+               cart.paymentStatus
+            )
+         ) {
+            navigate(`/subscription/get-started/checkout/?id=${cart.id}`)
+         } else if (cart.paymentStatus === 'SUCCEEDED') {
+            setIsPaymentPopup(false)
          }
       }
    }, [loading, cart])
@@ -121,6 +135,18 @@ const PlacingOrder = () => {
                )}
             </Main>
          </Wrapper>
+         {isPaymentPopup && (
+            <div tw="fixed inset-0 m-3 mt-20 bg-white shadow-md z-10">
+               <iframe
+                  frameborder="0"
+                  title="Payment Authentication"
+                  tw="h-full w-full"
+                  src={
+                     cart.transactionRemark?.next_action?.redirect_to_url?.url
+                  }
+               ></iframe>
+            </div>
+         )}
       </Layout>
    )
 }

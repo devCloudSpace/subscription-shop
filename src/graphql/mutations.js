@@ -179,15 +179,13 @@ export const MUTATIONS = {
 }
 
 export const UPDATE_DAILYKEY_CUSTOMER = gql`
-   mutation updateCustomers(
-      $keycloakId: String!
-      $_set: platform_customer_set_input!
+   mutation updateCart(
+      $id: Int!
+      $_set: order_cart_set_input!
+      $_inc: order_cart_inc_input = {}
    ) {
-      platform_updateCustomer(
-         pk_columns: { keycloakId: $keycloakId }
-         _set: $_set
-      ) {
-         keycloakId
+      updateCart(pk_columns: { id: $id }, _set: $_set, _inc: $_inc) {
+         id
       }
    }
 `
