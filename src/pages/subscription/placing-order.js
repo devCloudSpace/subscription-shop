@@ -1,5 +1,6 @@
 import React from 'react'
 import tw, { styled, css } from 'twin.macro'
+import { isEmpty } from 'lodash'
 import { useSubscription } from '@apollo/react-hooks'
 
 import { useConfig } from '../../lib'
@@ -11,6 +12,7 @@ import OrderInfo from '../../sections/OrderInfo'
 
 const PlacingOrder = () => {
    const { configOf } = useConfig()
+   const [isPaymentPopup, setIsPaymentPopup] = React.useState(false)
    const { loading, data: { cart = {} } = {} } = useSubscription(CART_STATUS, {
       skip: !isClient,
       variables: {

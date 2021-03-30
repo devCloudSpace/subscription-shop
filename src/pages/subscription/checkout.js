@@ -34,9 +34,8 @@ const Checkout = () => {
    }, [isAuthenticated])
 
    return (
-      <Layout noHeader>
+      <Layout>
          <SEO title="Checkout" />
-         {/* <StepsNavbar /> */}
          <PaymentProvider>
             <PaymentContent isCheckout />
          </PaymentProvider>
