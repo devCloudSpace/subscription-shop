@@ -15,6 +15,7 @@ import { navigate } from 'gatsby-link'
 const PlacingOrder = () => {
    const { configOf } = useConfig()
    const { addToast } = useToasts()
+   const [iframeUrl, setIframeUrl] = React.useState('')
    const [isPaymentPopup, setIsPaymentPopup] = React.useState(false)
    const { loading, data: { cart = {} } = {} } = useSubscription(CART_STATUS, {
       skip: !isClient,
@@ -25,27 +26,30 @@ const PlacingOrder = () => {
 
    React.useEffect(() => {
       if (!loading && !isEmpty(cart)) {
-         if (
-            cart.paymentStatus === 'REQUIRES_ACTION' &&
-            cart.transactionRemark?.next_action?.redirect_to_url?.url
-         ) {
+         if (cart.paymentStatus === 'REQUIRES_ACTION') {
+            if (
+               cart.transactionRemark?.next_action?.type === 'use_stripe_sdk'
+            ) {
+               setIframeUrl(
+                  cart.transactionRemark?.next_action?.use_stripe_sdk?.stripe_js
+               )
+            } else {
+               setIframeUrl(
+                  cart.transactionRemark?.next_action?.redirect_to_url?.url
+               )
+            }
             setIsPaymentPopup(true)
             addToast('Your payment method requires additional authorization!', {
                appearance: 'warning',
             })
          } else if (
-            ['CANCELLED', 'PAYMENT_FAILED', 'REQUIRES_PAYMENT_METHOD'].includes(
-               cart.paymentStatus
-            )
+            ['CANCELLED', 'PAYMENT_FAILED'].includes(cart.paymentStatus)
          ) {
             let message = ''
             if (cart.paymentStatus === 'CANCELLED') {
                message = 'Your payment has been cancelled, please try again!'
             } else if (cart.paymentStatus === 'PAYMENT_FAILED') {
                message = 'Your payment has failed, please try again!'
-            } else if (cart.paymentStatus === 'REQUIRES_PAYMENT_METHOD') {
-               message =
-                  'Your payment method has issues, please choose a different payment method'
             }
             addToast(message, { appearance: 'warning' })
             navigate(`/subscription/get-started/checkout/?id=${cart.id}`)
@@ -155,11 +159,9 @@ const PlacingOrder = () => {
             <div tw="fixed inset-0 m-3 mt-20 bg-white shadow-md z-10">
                <iframe
                   frameborder="0"
-                  title="Payment Authentication"
+                  src={iframeUrl}
                   tw="h-full w-full"
-                  src={
-                     cart.transactionRemark?.next_action?.redirect_to_url?.url
-                  }
+                  title="Payment Authentication"
                ></iframe>
             </div>
          )}
