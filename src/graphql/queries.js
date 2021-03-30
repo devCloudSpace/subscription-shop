@@ -166,7 +166,6 @@ export const OCCURENCE_PRODUCTS_BY_CATEGORIES = gql`
                   { subscriptionId: $subscriptionId }
                   { subscriptionOccurenceId: $occurenceId }
                ]
-               isAvailable: { _eq: true }
                isVisible: { _eq: true }
             }
          }
@@ -188,6 +187,7 @@ export const OCCURENCE_PRODUCTS_BY_CATEGORIES = gql`
                cartItem
                addOnLabel
                addOnPrice
+               isAvailable
                isSingleSelect
                productOption {
                   id

@@ -155,13 +155,23 @@ const Product = ({ node, isAdded, theme }) => {
                   {product.name} - {product.label}
                </Link>
             </section>
-            {canAdd() && (
+            {node.isAvailable && canAdd() ? (
                <button
                   onClick={() => add(node.cartItem)}
                   tw="text-sm uppercase font-bold tracking-wider border border-gray-300 rounded px-1 text-gray-500"
                >
-                  {isActive ? 'REPEAT +' : 'ADD +'}&nbsp;
-                  {formatCurrency(Number(node.addOnPrice) || 0)}
+                  {isActive ? 'REPEAT' : 'ADD'}
+                  {node.addOnPrice > 0 && ' + '}
+                  {node.addOnPrice > 0 &&
+                     formatCurrency(Number(node.addOnPrice) || 0)}
+               </button>
+            ) : (
+               <button
+                  disabled
+                  title="This product is out of stock."
+                  tw="flex-shrink-0 cursor-not-allowed text-sm uppercase font-medium border border-gray-300 rounded tracking-wider px-1 text-gray-400"
+               >
+                  Out Of Stock
                </button>
             )}
          </div>
