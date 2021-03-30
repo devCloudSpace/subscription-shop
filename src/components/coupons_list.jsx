@@ -55,7 +55,7 @@ export const CouponsList = ({ closeTunnel }) => {
          setApplying(true)
          const objects = []
          if (coupon.isRewardMulti) {
-            for (const reward in coupon.rewards) {
+            for (const reward of coupon.rewards) {
                objects.push({ rewardId: reward.id, cartId: id })
             }
          } else {
