@@ -155,23 +155,30 @@ const Product = ({ node, isAdded, theme }) => {
                   {product.name} - {product.label}
                </Link>
             </section>
-            {node.isAvailable && canAdd() ? (
+            {canAdd() && (
                <button
+                  disabled={!node.isAvailable}
                   onClick={() => add(node.cartItem)}
-                  tw="text-sm uppercase font-bold tracking-wider border border-gray-300 rounded px-1 text-gray-500"
+                  title={
+                     node.isAvailable
+                        ? 'Add product'
+                        : 'This product is out of stock.'
+                  }
+                  css={[
+                     tw`flex-shrink-0 text-sm uppercase font-bold tracking-wider border border-gray-300 rounded px-1 text-gray-500`,
+                     !node.isAvailable && tw`cursor-not-allowed text-gray-400`,
+                  ]}
                >
-                  {isActive ? 'REPEAT' : 'ADD'}
-                  {node.addOnPrice > 0 && ' + '}
-                  {node.addOnPrice > 0 &&
-                     formatCurrency(Number(node.addOnPrice) || 0)}
-               </button>
-            ) : (
-               <button
-                  disabled
-                  title="This product is out of stock."
-                  tw="flex-shrink-0 cursor-not-allowed text-sm uppercase font-medium border border-gray-300 rounded tracking-wider px-1 text-gray-400"
-               >
-                  Out Of Stock
+                  {node.isAvailable ? (
+                     <>
+                        {isActive ? 'REPEAT' : 'ADD'}
+                        {node.addOnPrice > 0 && ' + '}
+                        {node.addOnPrice > 0 &&
+                           formatCurrency(Number(node.addOnPrice) || 0)}
+                     </>
+                  ) : (
+                     'Out of Stock'
+                  )}
                </button>
             )}
          </div>
