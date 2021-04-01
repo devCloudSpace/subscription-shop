@@ -62,6 +62,7 @@ export const LoyaltyPoints = ({ cart }) => {
                      <Styles.Input
                         type="number"
                         min="0"
+                        max={cart.loyaltyPointsUsable}
                         required
                         value={points}
                         onChange={e => setPoints(e.target.value)}

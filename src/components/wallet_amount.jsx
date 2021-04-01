@@ -52,7 +52,7 @@ export const WalletAmount = ({ cart }) => {
                   >
                      &times;{' '}
                   </Styles.Cross>
-                  ${cart.walletAmountUsed}
+                  {formatCurrency(cart.walletAmountUsed)}
                </Styles.Text>
             </Styles.Stat>
          ) : (
@@ -63,6 +63,8 @@ export const WalletAmount = ({ cart }) => {
                      <Styles.Input
                         type="number"
                         min="0"
+                        step="0.01"
+                        max={cart.walletAmountUsable}
                         required
                         value={amount}
                         onChange={e => setAmount(e.target.value)}
