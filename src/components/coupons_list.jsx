@@ -28,11 +28,7 @@ export const CouponsList = ({ closeTunnel }) => {
          console.log(data)
          const coupons = data.subscriptionData.data.coupons
          setAvailableCoupons([
-            ...coupons.filter(
-               coupon =>
-                  coupon.visibilityCondition === null ||
-                  coupon.visibilityCondition.isValid
-            ),
+            ...coupons.filter(coupon => coupon.visibilityCondition.isValid),
          ])
       },
    })
@@ -56,7 +52,9 @@ export const CouponsList = ({ closeTunnel }) => {
          const objects = []
          if (coupon.isRewardMulti) {
             for (const reward of coupon.rewards) {
-               objects.push({ rewardId: reward.id, cartId: id })
+               if (reward.condition.isValid) {
+                  objects.push({ rewardId: reward.id, cartId: id })
+               }
             }
          } else {
             objects.push({
@@ -64,6 +62,7 @@ export const CouponsList = ({ closeTunnel }) => {
                cartId: id,
             })
          }
+         console.log(objects)
          createOrderCartRewards({
             variables: {
                objects,
@@ -73,6 +72,14 @@ export const CouponsList = ({ closeTunnel }) => {
          console.log(err)
       } finally {
          setApplying(false)
+      }
+   }
+
+   const isButtonDisabled = coupon => {
+      if (coupon.isRewardMulti) {
+         return !coupon.rewards.some(reward => reward.condition.isValid)
+      } else {
+         return !coupon.rewards[0].condition.isValid
       }
    }
 
@@ -91,11 +98,7 @@ export const CouponsList = ({ closeTunnel }) => {
                   <Styles.Code>{coupon.code} </Styles.Code>
                   <Styles.Button
                      onClick={() => handleApplyCoupon(coupon)}
-                     disabled={
-                        !coupon.rewards.every(
-                           reward => reward.condition?.isValid
-                        )
-                     }
+                     disabled={isButtonDisabled(coupon)}
                   >
                      Apply
                   </Styles.Button>
