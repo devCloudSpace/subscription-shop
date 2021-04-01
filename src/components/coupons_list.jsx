@@ -57,8 +57,11 @@ export const CouponsList = ({ closeTunnel }) => {
                }
             }
          } else {
+            const firstValidCoupon = coupon.rewards.find(
+               reward => reward.condition.isValid
+            )
             objects.push({
-               rewardId: coupon.rewards[0].id,
+               rewardId: firstValidCoupon.id,
                cartId: id,
             })
          }
@@ -76,11 +79,7 @@ export const CouponsList = ({ closeTunnel }) => {
    }
 
    const isButtonDisabled = coupon => {
-      if (coupon.isRewardMulti) {
-         return !coupon.rewards.some(reward => reward.condition.isValid)
-      } else {
-         return !coupon.rewards[0].condition.isValid
-      }
+      return !coupon.rewards.some(reward => reward.condition.isValid)
    }
 
    if (loading) return <Loader />
