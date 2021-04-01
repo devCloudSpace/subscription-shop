@@ -1,5 +1,6 @@
 import { useMutation, useSubscription } from '@apollo/react-hooks'
 import React from 'react'
+import { useToasts } from 'react-toast-notifications'
 import tw, { styled } from 'twin.macro'
 import { useUser } from '../context'
 import { CART_REWARDS, MUTATIONS } from '../graphql'
@@ -10,6 +11,7 @@ import { Tunnel } from './tunnel'
 export const Coupon = () => {
    const { state } = useMenu()
    const { user } = useUser()
+   const { addToast } = useToasts()
    const { id } = state?.occurenceCustomer?.cart
 
    const { data, error } = useSubscription(CART_REWARDS, {
@@ -29,7 +31,7 @@ export const Coupon = () => {
                console.log('Coupon is valid!')
             } else {
                console.log('Coupon is not valid anymore!')
-               toastr('error', 'Coupon is not valid!')
+               addToast('Coupon is not valid!', { appearance: 'error' })
                deleteCartRewards()
             }
          }
