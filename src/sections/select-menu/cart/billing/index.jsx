@@ -3,7 +3,7 @@ import tw from 'twin.macro'
 import { navigate } from 'gatsby'
 
 import { useMenu } from '../../state'
-import { SaveButton } from '../styled'
+import { SaveGhostButton } from '../styled'
 import { formatCurrency } from '../../../../utils'
 import {
    Billing,
@@ -26,8 +26,6 @@ const BillingDetails = ({ isCheckout }) => {
    const walletAllowed = configOf('Wallet', 'rewards')?.isAvailable
    const loyaltyPointsAllowed = configOf('Loyalty Points', 'rewards')
       ?.isAvailable
-
-   const theme = configOf('theme-color', 'Visual')
 
    return (
       <div>
@@ -55,16 +53,15 @@ const BillingDetails = ({ isCheckout }) => {
          </header>
          {itemCountValid && open && <Billing billing={billing} />}
          {!isCheckout && itemCountValid && (
-            <SaveButton
-               bg={theme?.accent}
+            <SaveGhostButton
                onClick={() =>
                   navigate(
                      `/subscription/checkout/?id=${state.occurenceCustomer?.cart?.id}`
                   )
                }
             >
-               PROCEED TO CHECKOUT
-            </SaveButton>
+               EARLY PAY
+            </SaveGhostButton>
          )}
       </div>
    )
