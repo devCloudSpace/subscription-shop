@@ -116,7 +116,7 @@ const PaymentContent = () => {
                   authTabRef.current.close()
                   if (!authTabRef.current.closed) {
                      window.open(
-                        `/subscription/get-started/checkout?id=${cart.id}`,
+                        `/subscription/checkout?id=${cart.id}`,
                         'payment_auth_page'
                      )
                   }
@@ -130,13 +130,12 @@ const PaymentContent = () => {
                      appearance: 'success',
                   }
                )
-               navigate(`/subscription/get-started/placing-order?id=${cart.id}`)
+               navigate(`/subscription/placing-order?id=${cart.id}`)
             } else if (cart.paymentStatus === 'PAYMENT_FAILED') {
                toggleOverlay(false)
-               addToast(
-                  'There was an issue with your payment, please try again.',
-                  { appearance: 'error' }
-               )
+               addToast('Your payment has failed, please try again.', {
+                  appearance: 'error',
+               })
             }
          } catch (error) {
             console.log('on succeeded -> error -> ', error)
