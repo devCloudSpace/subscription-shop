@@ -8,7 +8,7 @@ import { useConfig } from '../../lib'
 import * as Icon from '../../assets/icons'
 import OrderInfo from '../../sections/OrderInfo'
 import { isClient, formatCurrency } from '../../utils'
-import { SEO, Loader, Layout, StepsNavbar } from '../../components'
+import { SEO, Loader, Layout } from '../../components'
 import {
    usePayment,
    ProfileSection,
@@ -28,22 +28,21 @@ const Checkout = () => {
    }, [isAuthenticated])
 
    return (
-      <Layout noHeader>
+      <Layout>
          <SEO title="Checkout" />
-         <StepsNavbar />
          <PaymentProvider>
-            <PaymentContent isCheckout />
+            <PaymentContent />
          </PaymentProvider>
       </Layout>
    )
 }
 
-const PaymentContent = ({ isCheckout }) => {
+const PaymentContent = () => {
    const { user } = useUser()
    const { state } = usePayment()
    const { addToast } = useToasts()
    const authTabRef = React.useRef()
-   const { brand, configOf } = useConfig()
+   const { configOf } = useConfig()
    const [otpPageUrl, setOtpPageUrl] = React.useState('')
    const [isOverlayOpen, toggleOverlay] = React.useState(false)
    const [overlayMessage, setOverlayMessage] = React.useState('')
@@ -145,34 +144,7 @@ const PaymentContent = ({ isCheckout }) => {
       })()
    }, [cart.paymentStatus])
 
-   const [updateCustomerReferralRecord] = useMutation(
-      QUERIES.MUTATIONS.CUSTOMER_REFERRAL.UPDATE,
-      {
-         refetchQueries: ['customer'],
-         onError: error => {
-            console.log(error)
-            addToast('Referral code not applied!', { appearance: 'error' })
-         },
-      }
-   )
-
    const [updateCart] = useMutation(QUERIES.UPDATE_CART, {
-      onCompleted: () => {
-         if (
-            state.code &&
-            state.code !== user?.customerReferrals[0]?.referralCode
-         ) {
-            updateCustomerReferralRecord({
-               variables: {
-                  brandId: brand.id,
-                  keycloakId: user.keycloakId,
-                  _set: {
-                     referredByCode: state.code,
-                  },
-               },
-            })
-         }
-      },
       onError: error => {
          addToast(error.message, { appearance: 'error' })
       },
@@ -224,8 +196,7 @@ const PaymentContent = ({ isCheckout }) => {
          state.profile.firstName &&
          state.profile.lastName &&
          state.profile.phoneNumber &&
-         state.payment.selected?.id &&
-         state.code.isValid
+         state.payment.selected?.id
       )
    }
    const onOverlayClose = () => {
