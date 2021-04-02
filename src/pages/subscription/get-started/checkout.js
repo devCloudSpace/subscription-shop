@@ -151,7 +151,7 @@ const PaymentContent = ({ isCheckout }) => {
          refetchQueries: ['customer'],
          onError: error => {
             console.log(error)
-            addToast('Referral code not applied!', { appearance: 'danger' })
+            addToast('Referral code not applied!', { appearance: 'error' })
          },
       }
    )
@@ -174,7 +174,7 @@ const PaymentContent = ({ isCheckout }) => {
          }
       },
       onError: error => {
-         addToast(error.message, { appearance: 'danger' })
+         addToast(error.message, { appearance: 'error' })
       },
    })
 

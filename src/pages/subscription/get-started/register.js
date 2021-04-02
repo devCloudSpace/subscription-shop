@@ -44,7 +44,7 @@ export default () => {
       },
       onError: error => {
          console.log(error)
-         addToast('Referral code not applied!', { appearance: 'danger' })
+         addToast('Referral code not applied!', { appearance: 'error' })
       },
    })
    const [create, { loading: creatingCustomer }] = useMutation(
