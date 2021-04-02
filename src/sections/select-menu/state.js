@@ -1,14 +1,11 @@
 import React from 'react'
 import moment from 'moment'
 import { isEmpty } from 'lodash'
-import { v4 as uuidv4 } from 'uuid'
 import { useLocation } from '@reach/router'
 import { useToasts } from 'react-toast-notifications'
 import { useMutation, useQuery, useSubscription } from '@apollo/react-hooks'
 
 import { useUser } from '../../context'
-import { useConfig } from '../../lib/config'
-import { isClient } from '../../utils'
 import { Loader } from '../../components'
 import {
    ZIPCODE,
@@ -80,8 +77,6 @@ const insertCartId = (node, cartId) => {
 
 export const MenuProvider = ({ children }) => {
    const { user } = useUser()
-   const { hasConfig, configOf } = useConfig()
-   const store = configOf('Store Availability', 'availability')
    const location = useLocation()
    const { addToast } = useToasts()
    const [cart, setCart] = React.useState({})
@@ -387,23 +382,6 @@ export const MenuProvider = ({ children }) => {
                      }
                   })
                })
-
-               const skipList = new URL(location.href).searchParams.get(
-                  'previous'
-               )
-
-               if (skipList && skipList.split(',').length > 0) {
-                  insertOccurenceCustomers({
-                     variables: {
-                        objects: skipList.split(',').map(id => ({
-                           isSkipped: true,
-                           keycloakId: user.keycloakId,
-                           subscriptionOccurenceId: id,
-                           brand_customerId: user.brandCustomerId,
-                        })),
-                     },
-                  })
-               }
             })
             .catch(error => console.log('addProduct -> createCart ->', error))
       }
