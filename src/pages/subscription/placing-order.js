@@ -1,63 +1,22 @@
 import React from 'react'
 import tw, { styled, css } from 'twin.macro'
-import { isEmpty } from 'lodash'
-import { useToasts } from 'react-toast-notifications'
 import { useSubscription } from '@apollo/react-hooks'
 
 import { useConfig } from '../../lib'
 import { isClient } from '../../utils'
 import { CART_STATUS } from '../../graphql'
-import { Layout, SEO, Loader, HelperBar } from '../../components'
-import { PlacedOrderIllo, CartIllo, PaymentIllo } from '../../assets/icons'
 import OrderInfo from '../../sections/OrderInfo'
+import { Layout, SEO, Loader, HelperBar } from '../../components'
+import { PlacedOrderIllo, CazrtIllo, PaymentIllo } from '../../assets/icons'
 
 const PlacingOrder = () => {
    const { configOf } = useConfig()
-   const { addToast } = useToasts()
-   const [iframeUrl, setIframeUrl] = React.useState('')
-   const [isPaymentPopup, setIsPaymentPopup] = React.useState(false)
    const { loading, data: { cart = {} } = {} } = useSubscription(CART_STATUS, {
       skip: !isClient,
       variables: {
          id: isClient ? new URLSearchParams(location.search).get('id') : '',
       },
    })
-
-   React.useEffect(() => {
-      if (!loading && !isEmpty(cart)) {
-         if (cart.paymentStatus === 'REQUIRES_ACTION') {
-            if (
-               cart.transactionRemark?.next_action?.type === 'use_stripe_sdk'
-            ) {
-               setIframeUrl(
-                  cart.transactionRemark?.next_action?.use_stripe_sdk?.stripe_js
-               )
-            } else {
-               setIframeUrl(
-                  cart.transactionRemark?.next_action?.redirect_to_url?.url
-               )
-            }
-            setIsPaymentPopup(true)
-            addToast('Your payment method requires additional authorization!', {
-               appearance: 'warning',
-            })
-         } else if (
-            ['CANCELLED', 'PAYMENT_FAILED'].includes(cart.paymentStatus)
-         ) {
-            let message = ''
-            if (cart.paymentStatus === 'CANCELLED') {
-               message = 'Your payment has been cancelled, please try again!'
-            } else if (cart.paymentStatus === 'PAYMENT_FAILED') {
-               message = 'Your payment has failed, please try again!'
-            }
-            addToast(message, { appearance: 'warning' })
-            navigate(`/subscription/get-started/checkout/?id=${cart.id}`)
-         } else if (cart.paymentStatus === 'SUCCEEDED') {
-            addToast('Your payment has succeeded', { appearance: 'success' })
-            setIsPaymentPopup(false)
-         }
-      }
-   }, [loading, cart])
 
    const gotoMenu = () => {
       isClient && window.localStorage.removeItem('plan')
@@ -152,16 +111,6 @@ const PlacingOrder = () => {
                )}
             </Main>
          </Wrapper>
-         {isPaymentPopup && (
-            <div tw="fixed inset-0 m-3 mt-20 bg-white shadow-md z-10">
-               <iframe
-                  frameborder="0"
-                  src={iframeUrl}
-                  tw="h-full w-full"
-                  title="Payment Authentication"
-               ></iframe>
-            </div>
-         )}
       </Layout>
    )
 }
@@ -211,10 +160,4 @@ const Step = styled.li`
    &.active {
       ${tw`text-green-600`}
    }
-`
-
-const CartProducts = styled.ul`
-   ${tw`space-y-2 mb-3`}
-   overflow-y: auto;
-   max-height: 257px;
 `
