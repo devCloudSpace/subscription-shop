@@ -6,6 +6,7 @@ import { useToasts } from 'react-toast-notifications'
 import { useMutation, useSubscription } from '@apollo/react-hooks'
 
 import { useMenu } from '../../state'
+import { useConfig } from '../../../../lib'
 import { useUser } from '../../../../context'
 import { Loader } from '../../../../components'
 import { CheckIcon } from '../../../../assets/icons'
@@ -21,6 +22,8 @@ const Fulfillment = () => {
    const { state, dispatch } = useMenu()
    const { user } = useUser()
    const { addToast } = useToasts()
+   const { configOf } = useConfig()
+   const store = configOf('Store Availability', 'availability')
    const [updateOccurenceCustomer] = useMutation(
       MUTATIONS.OCCURENCE.CUSTOMER.UPDATE,
       { onError: error => console.log(error) }
@@ -143,6 +146,7 @@ const Fulfillment = () => {
                   address: user.defaultAddress,
                   customerKeycloakId: user.keycloakId,
                   subscriptionOccurenceId: state.week.id,
+                  isTest: user?.isTest || !store?.isStoreLive,
                   ...(user?.subscriptionPaymentMethodId && {
                      paymentMethodId: user?.subscriptionPaymentMethodId,
                   }),

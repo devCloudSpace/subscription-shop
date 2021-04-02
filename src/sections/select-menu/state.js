@@ -5,6 +5,7 @@ import { useLocation } from '@reach/router'
 import { useToasts } from 'react-toast-notifications'
 import { useMutation, useQuery, useSubscription } from '@apollo/react-hooks'
 
+import { useConfig } from '../../lib'
 import { useUser } from '../../context'
 import { Loader } from '../../components'
 import {
@@ -79,6 +80,7 @@ export const MenuProvider = ({ children }) => {
    const { user } = useUser()
    const location = useLocation()
    const { addToast } = useToasts()
+   const { configOf } = useConfig()
    const [cart, setCart] = React.useState({})
    const [fulfillment, setFulfillment] = React.useState({})
    const [state, dispatch] = React.useReducer(reducers, initialState)
@@ -173,21 +175,19 @@ export const MenuProvider = ({ children }) => {
       },
       onCompleted: ({ subscription = {} } = {}) => {
          if (subscription?.occurences?.length > 0) {
-            if (state.occurences.length === 0) {
-               const validWeekIndex = subscription?.occurences.findIndex(
-                  node => node.isValid
-               )
-               if (validWeekIndex === -1) return
-               dispatch({ type: 'SET_IS_OCCURENCES_LOADING', payload: false })
-               dispatch({
-                  type: 'SET_OCCURENCES',
-                  payload: subscription?.occurences,
-               })
-               dispatch({
-                  type: 'SET_WEEK',
-                  payload: subscription?.occurences[validWeekIndex],
-               })
-            }
+            const validWeekIndex = subscription?.occurences.findIndex(
+               node => node.isValid
+            )
+            if (validWeekIndex === -1) return
+            dispatch({ type: 'SET_IS_OCCURENCES_LOADING', payload: false })
+            dispatch({
+               type: 'SET_OCCURENCES',
+               payload: subscription?.occurences,
+            })
+            dispatch({
+               type: 'SET_WEEK',
+               payload: subscription?.occurences[validWeekIndex],
+            })
          } else if (
             subscription?.occurences?.length === 0 &&
             user?.subscriptionId
@@ -263,6 +263,7 @@ export const MenuProvider = ({ children }) => {
       )
    }
 
+   const store = configOf('Store Availability', 'availability')
    const addProduct = item => {
       dispatch({ type: 'CART_STATE', payload: 'SAVING' })
 
@@ -328,11 +329,11 @@ export const MenuProvider = ({ children }) => {
                   customerId: user.id,
                   source: 'subscription',
                   paymentStatus: 'PENDING',
-                  isTest: user?.isTest || !store?.isStoreLive,
                   address: user.defaultAddress,
                   fulfillmentInfo: fulfillment,
                   customerKeycloakId: user.keycloakId,
                   subscriptionOccurenceId: state.week.id,
+                  isTest: user?.isTest || !store?.isStoreLive,
                   ...(user?.subscriptionPaymentMethodId && {
                      paymentMethodId: user?.subscriptionPaymentMethodId,
                   }),
