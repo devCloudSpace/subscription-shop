@@ -1,11 +1,13 @@
 import React from 'react'
-import moment from 'moment'
 import { navigate } from 'gatsby'
 import tw, { styled, css } from 'twin.macro'
 import { useToasts } from 'react-toast-notifications'
-import { useMutation, useQuery, useSubscription } from '@apollo/react-hooks'
+import { useMutation, useSubscription } from '@apollo/react-hooks'
 
 import { useConfig } from '../../../lib'
+import * as QUERIES from '../../../graphql'
+import * as Icon from '../../../assets/icons'
+import OrderInfo from '../../../sections/OrderInfo'
 import { isClient, formatCurrency } from '../../../utils'
 import { SEO, Loader, Layout, StepsNavbar } from '../../../components'
 import {
@@ -15,14 +17,6 @@ import {
    PaymentSection,
 } from '../../../sections/checkout'
 import { useUser } from '../../../context'
-import {
-   CART_SUBSCRIPTION,
-   BRAND,
-   MUTATIONS,
-   UPDATE_CART,
-   UPDATE_DAILYKEY_CUSTOMER,
-} from '../../../graphql'
-import OrderInfo from '../../../sections/OrderInfo'
 
 const Checkout = () => {
    const { isAuthenticated } = useUser()
@@ -48,10 +42,14 @@ const PaymentContent = ({ isCheckout }) => {
    const { user } = useUser()
    const { state } = usePayment()
    const { addToast } = useToasts()
+   const authTabRef = React.useRef()
    const { brand, configOf } = useConfig()
+   const [otpPageUrl, setOtpPageUrl] = React.useState('')
+   const [isOverlayOpen, toggleOverlay] = React.useState(false)
+   const [overlayMessage, setOverlayMessage] = React.useState('')
 
    const { loading, data: { cart = {} } = {} } = useSubscription(
-      CART_SUBSCRIPTION,
+      QUERIES.CART_SUBSCRIPTION,
       {
          skip: !isClient,
          variables: {
@@ -60,33 +58,83 @@ const PaymentContent = ({ isCheckout }) => {
       }
    )
 
-   const [updateBrandCustomer] = useMutation(BRAND.CUSTOMER.UPDATE, {
-      refetchQueries: ['customer'],
-      onCompleted: () => {
-         addToast('Saved you preferences.', {
-            appearance: 'success',
-         })
-         navigate(`/subscription/get-started/placing-order?id=${cart.id}`)
-      },
-   })
-   const [updateCustomer] = useMutation(MUTATIONS.CUSTOMER.UPDATE, {
-      refetchQueries: ['customer'],
-      onCompleted: () => {
-         updateBrandCustomer({
-            variables: {
-               where: {
-                  keycloakId: { _eq: user.keycloakId },
-               },
-               _set: { isSubscriber: true },
-            },
-         })
-      },
-      onError: error => {
-         addToast(error.message, { appearance: 'danger' })
-      },
-   })
+   React.useEffect(() => {
+      ;(async () => {
+         try {
+            if (cart.paymentStatus === 'PENDING') {
+               setOverlayMessage('We are processing you payment.')
+            } else if (cart.paymentStatus === 'REQUIRES_ACTION') {
+               toggleOverlay(true)
+               setOverlayMessage(
+                  'Your provided payment method requires further action, please follow the procedure opened in new tab. In case the new tab has not opened own its own, please click'
+               )
+               let TAB_URL = ''
+               let remark = cart.transactionRemark
+               if (remark?.next_action?.type === 'use_stripe_sdk') {
+                  TAB_URL = remark?.next_action?.use_stripe_sdk?.stripe_js
+               } else {
+                  TAB_URL = remark?.next_action?.redirect_to_url?.url
+               }
+               setOtpPageUrl(TAB_URL)
+               authTabRef.current = window.open(TAB_URL, 'payment_auth_page')
+            } else if (
+               cart.paymentStatus === 'REQUIRES_PAYMENT_METHOD' &&
+               cart.transactionRemark?.last_payment_error?.code.includes(
+                  'payment_method'
+               )
+            ) {
+               toggleOverlay(false)
+               addToast(
+                  'There was an issue with your payment method, please try again with different payment method.',
+                  { appearance: 'error' }
+               )
+            } else if (
+               (cart.paymentStatus === 'REQUIRES_PAYMENT_METHOD' &&
+                  cart.transactionRemark?.last_payment_error?.code ===
+                     'card_declined') ||
+               cart.transactionRemark?.last_payment_error?.decline_code ===
+                  'insufficient_funds'
+            ) {
+               toggleOverlay(false)
+               addToast(
+                  'Your provided payment method has been declined, due to insufficient funds. Please select a different payment method.',
+                  { appearance: 'error' }
+               )
+            } else if (cart.paymentStatus === 'SUCCEEDED') {
+               if (authTabRef.current) {
+                  authTabRef.current.close()
+                  if (!authTabRef.current.closed) {
+                     window.open(
+                        `/subscription/get-started/checkout?id=${cart.id}`,
+                        'payment_auth_page'
+                     )
+                  }
+               }
+               setOverlayMessage(
+                  'Payment for your order has succeeded, you will redirected soon.'
+               )
+               addToast(
+                  'Your order has been placed, you will be redirected soon',
+                  {
+                     appearance: 'success',
+                  }
+               )
+               navigate(`/subscription/get-started/placing-order?id=${cart.id}`)
+            } else if (cart.paymentStatus === 'PAYMENT_FAILED') {
+               toggleOverlay(false)
+               addToast(
+                  'There was an issue with your payment, please try again.',
+                  { appearance: 'error' }
+               )
+            }
+         } catch (error) {
+            console.log('on succeeded -> error -> ', error)
+         }
+      })()
+   }, [cart.paymentStatus])
+
    const [updateCustomerReferralRecord] = useMutation(
-      MUTATIONS.CUSTOMER_REFERRAL.UPDATE,
+      QUERIES.MUTATIONS.CUSTOMER_REFERRAL.UPDATE,
       {
          refetchQueries: ['customer'],
          onError: error => {
@@ -96,14 +144,8 @@ const PaymentContent = ({ isCheckout }) => {
       }
    )
 
-   const [updateCart] = useMutation(UPDATE_CART, {
+   const [updateCart] = useMutation(QUERIES.UPDATE_CART, {
       onCompleted: () => {
-         updateCustomer({
-            variables: {
-               keycloakId: user.keycloakId,
-               _set: { isSubscriber: true },
-            },
-         })
          if (state.code.value) {
             updateCustomerReferralRecord({
                variables: {
@@ -121,38 +163,43 @@ const PaymentContent = ({ isCheckout }) => {
       },
    })
 
-   const [updatePlatformCustomer] = useMutation(UPDATE_DAILYKEY_CUSTOMER, {
-      refetchQueries: ['customer'],
-      onCompleted: () => {
-         updateCart({
-            variables: {
-               id: cart.id,
-               _inc: { paymentRetryAttempt: 1 },
-               _set: {
-                  amount: cart?.totalPrice,
-                  paymentMethodId: state.payment.selected.id,
-                  customerInfo: {
-                     customerEmail: user?.platform_customer?.email,
-                     customerPhone: state?.profile?.phoneNumber,
-                     customerLastName: state?.profile?.lastName,
-                     customerFirstName: state?.profile?.firstName,
+   const [updatePlatformCustomer] = useMutation(
+      QUERIES.UPDATE_DAILYKEY_CUSTOMER,
+      {
+         refetchQueries: ['customer'],
+         onCompleted: () => {
+            updateCart({
+               variables: {
+                  id: cart.id,
+                  _inc: { paymentRetryAttempt: 1 },
+                  _set: {
+                     amount: cart?.totalPrice,
+                     paymentMethodId: state.payment.selected.id,
+                     customerInfo: {
+                        customerEmail: user?.platform_customer?.email,
+                        customerPhone: state?.profile?.phoneNumber,
+                        customerLastName: state?.profile?.lastName,
+                        customerFirstName: state?.profile?.firstName,
+                     },
                   },
                },
-            },
-         })
-      },
-      onError: error => {
-         addToast(error.message, { appearance: 'success' })
-      },
-   })
+            })
+         },
+         onError: error => {
+            console.log('updatePlatformCustomer -> error -> ', error)
+            addToast('Failed to update the user profile!', {
+               appearance: 'success',
+            })
+         },
+      }
+   )
 
    const handleSubmit = () => {
+      toggleOverlay(true)
       updatePlatformCustomer({
          variables: {
             keycloakId: user.keycloakId,
-            _set: {
-               ...state.profile,
-            },
+            _set: { ...state.profile },
          },
       })
    }
@@ -165,6 +212,12 @@ const PaymentContent = ({ isCheckout }) => {
          state.payment.selected?.id &&
          state.code.isValid
       )
+   }
+
+   const onOverlayClose = () => {
+      setOtpPageUrl('')
+      setOverlayMessage('We are processing your payment.')
+      toggleOverlay(false)
    }
    const theme = configOf('theme-color', 'Visual')
 
@@ -190,11 +243,46 @@ const PaymentContent = ({ isCheckout }) => {
                </Button>
             </section>
          )}
+         {isOverlayOpen && (
+            <Overlay>
+               <header tw="flex pr-3 pt-3">
+                  <button
+                     onClick={onOverlayClose}
+                     tw="ml-auto bg-white h-10 w-10 flex items-center justify-center rounded-full"
+                  >
+                     <Icon.CloseIcon tw="stroke-current text-gray-600" />
+                  </button>
+               </header>
+               <main tw="flex-1 flex flex-col items-center justify-center">
+                  <p tw="text-white text-xl font-light mb-3 text-center">
+                     {overlayMessage}{' '}
+                     {cart.paymentStatus === 'REQUIRES_ACTION' && otpPageUrl && (
+                        <a
+                           target="_blank"
+                           href={otpPageUrl}
+                           title={otpPageUrl}
+                           tw="text-indigo-600"
+                           rel="noreferer noopener"
+                        >
+                           here
+                        </a>
+                     )}
+                  </p>
+                  <Loader inline />
+               </main>
+            </Overlay>
+         )}
       </Main>
    )
 }
 
 export default Checkout
+
+const Overlay = styled.section`
+   ${tw`fixed flex flex-col inset-0`};
+   z-index: 1000;
+   background: rgba(0, 0, 0, 0.3);
+`
 
 const SectionTitle = styled.h3(
    ({ theme }) => css`
@@ -222,9 +310,3 @@ const Button = styled.button(
       ${disabled && tw`cursor-not-allowed bg-gray-400`}
    `
 )
-
-const CartProducts = styled.ul`
-   ${tw`space-y-2`}
-   overflow-y: auto;
-   max-height: 257px;
-`
