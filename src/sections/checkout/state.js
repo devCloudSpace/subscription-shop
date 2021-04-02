@@ -12,7 +12,10 @@ const initialState = {
    payment: {
       selected: {},
    },
-   code: '',
+   code: {
+      isValid: true,
+      value: '',
+   },
 }
 
 const reducers = (state, { type, payload }) => {

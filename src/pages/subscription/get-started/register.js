@@ -11,6 +11,12 @@ import { useConfig, auth } from '../../../lib'
 import { isClient, processUser } from '../../../utils'
 import { SEO, Layout, StepsNavbar } from '../../../components'
 import { BRAND, CUSTOMER, MUTATIONS } from '../../../graphql'
+import {
+   deleteStoredReferralCode,
+   getStoredReferralCode,
+   isReferralCodeValid,
+   setStoredReferralCode,
+} from '../../../utils/referrals'
 
 export default () => {
    const { addToast } = useToasts()
@@ -31,6 +37,16 @@ export default () => {
          console.log(error)
       },
    })
+   const [applyReferralCode] = useMutation(MUTATIONS.CUSTOMER_REFERRAL.UPDATE, {
+      onCompleted: () => {
+         addToast('Referral code applied!', { appearance: 'success' })
+         deleteStoredReferralCode()
+      },
+      onError: error => {
+         console.log(error)
+         addToast('Referral code not applied!', { appearance: 'danger' })
+      },
+   })
    const [create, { loading: creatingCustomer }] = useMutation(
       MUTATIONS.CUSTOMER.CREATE,
       {
@@ -41,6 +57,19 @@ export default () => {
                   createCustomer,
                   organization?.stripeAccountType
                )
+               const storedCode = getStoredReferralCode(null)
+               console.log('🚀 ~ onCompleted: ~ storedCode', storedCode)
+               if (storedCode) {
+                  await applyReferralCode({
+                     variables: {
+                        brandId: brand.id,
+                        keycloakId: user.keycloakId,
+                        _set: {
+                           referredByCode: storedCode,
+                        },
+                     },
+                  })
+               }
                dispatch({ type: 'SET_USER', payload: user })
             }
             if (isClient) {
@@ -245,21 +274,39 @@ const RegisterPanel = ({ loading, customer, setCurrent }) => {
    const [form, setForm] = React.useState({
       email: '',
       password: '',
+      code: '',
    })
 
    const isValid = form.email && form.password
+
+   React.useEffect(() => {
+      const storedReferralCode = getStoredReferralCode('')
+      setForm({ ...form, code: storedReferralCode })
+   }, [])
 
    const onChange = e => {
       const { name, value } = e.target
       setForm(form => ({
          ...form,
-         [name]: value,
+         [name]: value.trim(),
       }))
    }
 
    const submit = async () => {
       try {
          setError('')
+         const isCodeValid = await isReferralCodeValid(
+            brand.id,
+            form.code,
+            true
+         )
+         if (!isCodeValid) {
+            deleteStoredReferralCode()
+            return setError('Referral code is not valid!')
+         }
+         if (form.code) {
+            setStoredReferralCode(form.code)
+         }
          const result = await auth.register({
             email: form.email,
             password: form.password,
@@ -279,6 +326,7 @@ const RegisterPanel = ({ loading, customer, setCurrent }) => {
             }
          }
       } catch (error) {
+         console.log(error)
          if (error.includes('exists')) {
             return setError('Email is already in use!')
          }
@@ -306,6 +354,16 @@ const RegisterPanel = ({ loading, customer, setCurrent }) => {
                onChange={onChange}
                value={form.password}
                placeholder="Enter your password"
+            />
+         </FieldSet>
+         <FieldSet>
+            <Label htmlFor="code">Referral Code</Label>
+            <Input
+               name="code"
+               type="text"
+               onChange={onChange}
+               value={form.code}
+               placeholder="Enter referral code"
             />
          </FieldSet>
          <Submit

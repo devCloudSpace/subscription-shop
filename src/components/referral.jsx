@@ -6,13 +6,20 @@ import { useConfig } from '../lib'
 import { Form } from './form'
 import { useUser } from '../context'
 import { usePayment } from '../sections/checkout/state'
+import {
+   deleteStoredReferralCode,
+   getStoredReferralCode,
+   isReferralCodeValid,
+} from '../utils/referrals'
+import { useToasts } from 'react-toast-notifications'
 
 export const Referral = () => {
    const { state, dispatch } = usePayment()
    const { brand } = useConfig()
+   const { addToast } = useToasts()
    const { user } = useUser()
 
-   const code = localStorage.getItem('code')
+   const storedCode = getStoredReferralCode(null)
    const [referrer, setReferrer] = React.useState('')
 
    const [fetchReferrer, { loading }] = useLazyQuery(REFERRER, {
@@ -25,24 +32,57 @@ export const Referral = () => {
             setReferrer(`${firstName} ${lastName}`)
          }
       },
+      fetchPolicy: 'cache-and-network',
    })
 
    React.useEffect(() => {
-      if (code) {
+      ;(async () => {
+         if (storedCode && brand.id) {
+            const isCodeValid = await isReferralCodeValid(brand.id, storedCode)
+            if (!isCodeValid) {
+               deleteStoredReferralCode()
+               dispatch({
+                  type: 'SET_CODE',
+                  payload: { isValid: true, value: '' },
+               })
+            } else {
+               fetchReferrer({
+                  variables: {
+                     brandId: brand.id,
+                     code: storedCode,
+                  },
+               })
+               dispatch({
+                  type: 'SET_CODE',
+                  payload: { isValid: true, value: storedCode },
+               })
+            }
+         }
+      })()
+   }, [storedCode, brand.id])
+
+   const handleBlur = async () => {
+      const isValid =
+         (await isReferralCodeValid(brand.id, state.code.value)) &&
+         state.code.value !== user?.customerReferral?.referralCode
+      if (!isValid) {
+         addToast('Referral code is not valid!', { appearance: 'error' })
+         setReferrer('')
+      } else if (isValid && state.code.value) {
+         addToast('Referral code is valid!', { appearance: 'success' })
          fetchReferrer({
             variables: {
                brandId: brand.id,
-               code,
+               code: state.code.value,
             },
          })
-         dispatch({
-            type: 'SET_CODE',
-            payload: code,
-         })
       }
-   }, [code])
+      dispatch({
+         type: 'SET_CODE',
+         payload: { ...state.code, isValid },
+      })
+   }
 
-   if (user?.isSubscriber) return null
    return (
       <Styles.Wrapper>
          <Form.Label>Referral Code</Form.Label>
@@ -55,11 +95,11 @@ export const Referral = () => {
                   onChange={e =>
                      dispatch({
                         type: 'SET_CODE',
-                        payload: e.target.value,
+                        payload: { ...state.code, value: e.target.value },
                      })
                   }
-                  value={state.code}
-                  disabled={code && referrer}
+                  onBlur={handleBlur}
+                  value={state.code.value}
                   placeholder="Enter referral code"
                />
                {referrer && (

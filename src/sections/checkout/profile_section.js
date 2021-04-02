@@ -67,7 +67,9 @@ export const ProfileSection = () => {
                placeholder="Enter your phone no. eg. 987 987 9876"
             />
          </Form.Field>
-         <Referral />
+         {!user?.isSubscriber && !user?.customerReferral?.referredByCode && (
+            <Referral />
+         )}
       </main>
    )
 }
