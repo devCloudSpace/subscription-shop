@@ -42,9 +42,6 @@ const Content = () => {
    const { addToast } = useToasts()
    const { user } = useUser()
    const { brand, configOf } = useConfig()
-   const code = user?.customerReferrals
-      ? user?.customerReferrals[0]?.referralCode
-      : ''
 
    const theme = configOf('theme-color', 'Visual')
    const referralsAllowed = configOf('Referral', 'rewards')?.isAvailable
@@ -52,10 +49,10 @@ const Content = () => {
    const { data: { customerReferrals = [] } = {}, loading } = useQuery(
       CUSTOMERS_REFERRED,
       {
-         skip: !code,
+         skip: !user.customerReferral?.referralCode,
          variables: {
             brandId: brand.id,
-            code,
+            code: user.customerReferral?.referralCode,
          },
          fetchPolicy: 'cache-and-network',
       }

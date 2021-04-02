@@ -91,7 +91,7 @@ const PaymentContent = ({ isCheckout }) => {
          refetchQueries: ['customer'],
          onError: error => {
             console.log(error)
-            addToast('Referral code not applied!', { appearance: 'danger' })
+            addToast('Referral code not applied!', { appearance: 'error' })
          },
       }
    )
@@ -104,16 +104,13 @@ const PaymentContent = ({ isCheckout }) => {
                _set: { isSubscriber: true },
             },
          })
-         if (
-            state.code &&
-            state.code !== user?.customerReferrals[0]?.referralCode
-         ) {
+         if (state.code.value) {
             updateCustomerReferralRecord({
                variables: {
                   brandId: brand.id,
                   keycloakId: user.keycloakId,
                   _set: {
-                     referredByCode: state.code,
+                     referredByCode: state.code.value,
                   },
                },
             })
@@ -165,7 +162,8 @@ const PaymentContent = ({ isCheckout }) => {
          state.profile.firstName &&
          state.profile.lastName &&
          state.profile.phoneNumber &&
-         state.payment.selected?.id
+         state.payment.selected?.id &&
+         state.code.isValid
       )
    }
    const theme = configOf('theme-color', 'Visual')

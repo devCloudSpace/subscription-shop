@@ -13,8 +13,8 @@ import { SEO, Layout, StepsNavbar } from '../../../components'
 import { BRAND, CUSTOMER, MUTATIONS } from '../../../graphql'
 import {
    deleteStoredReferralCode,
-   fetchReferrer,
    getStoredReferralCode,
+   isReferralCodeValid,
    setStoredReferralCode,
 } from '../../../utils/referrals'
 
@@ -292,33 +292,20 @@ const RegisterPanel = ({ loading, customer, setCurrent }) => {
       }))
    }
 
-   const isReferralCodeValid = async enteredCode => {
-      if (!enteredCode) {
-         return true
-      } else {
-         const response = await fetchReferrer(brand.id, enteredCode)
-         if (response.data?.data) {
-            const { customerReferralsAggregate: cra } = response.data.data
-            console.log(cra.aggregate.count)
-            if (cra.aggregate.count) {
-               setStoredReferralCode(enteredCode)
-               return true
-            } else {
-               return false
-            }
-         } else {
-            return false
-         }
-      }
-   }
-
    const submit = async () => {
       try {
          setError('')
-         const isCodeValid = await isReferralCodeValid(form.code)
+         const isCodeValid = await isReferralCodeValid(
+            brand.id,
+            form.code,
+            true
+         )
          if (!isCodeValid) {
             deleteStoredReferralCode()
             return setError('Referral code is not valid!')
+         }
+         if (form.code) {
+            setStoredReferralCode(form.code)
          }
          const result = await auth.register({
             email: form.email,
@@ -339,6 +326,7 @@ const RegisterPanel = ({ loading, customer, setCurrent }) => {
             }
          }
       } catch (error) {
+         console.log(error)
          if (error.includes('exists')) {
             return setError('Email is already in use!')
          }

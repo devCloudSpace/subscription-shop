@@ -36,3 +36,22 @@ export const setStoredReferralCode = value => {
 export const deleteStoredReferralCode = () => {
    return localStorage.removeItem('code')
 }
+
+export const isReferralCodeValid = async (brandId, enteredCode) => {
+   if (!enteredCode) {
+      return true
+   } else {
+      const response = await fetchReferrer(brandId, enteredCode)
+      if (response.data?.data) {
+         const { customerReferralsAggregate: cra } = response.data.data
+         console.log(cra.aggregate.count)
+         if (cra.aggregate.count) {
+            return true
+         } else {
+            return false
+         }
+      } else {
+         return false
+      }
+   }
+}
