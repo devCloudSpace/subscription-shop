@@ -67,13 +67,13 @@ const Content = () => {
          <header tw="mt-6 mb-3 flex items-center justify-between">
             <Title theme={theme}>Referrals</Title>
          </header>
-         {referralsAllowed && !!user?.customerReferrals?.length && (
+         {referralsAllowed && !!user.customerReferral && (
             <>
                <Form.Label>Referral Code</Form.Label>
                <Flex>
-                  {user?.customerReferrals[0]?.referralCode}
+                  {user.customerReferral.referralCode}
                   <CopyToClipboard
-                     text={`${window.location.origin}/subscription?invite-code=${user?.customerReferrals[0]?.referralCode}`}
+                     text={`${window.location.origin}/subscription?invite-code=${user.customerReferral.referralCode}`}
                      onCopy={() =>
                         addToast('Invite like copied!', {
                            appearance: 'success',

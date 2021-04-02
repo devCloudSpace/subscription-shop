@@ -74,9 +74,9 @@ export const LoyaltyPoints = ({ cart }) => {
                   <Styles.Small>
                      Max usable: {cart.loyaltyPointsUsable}
                   </Styles.Small>
-                  {!!user.loyaltyPoints?.length && (
+                  {!!user.loyaltyPoint && (
                      <Styles.Small>
-                        Balance: {user.loyaltyPoints[0].points}
+                        Balance: {user.loyaltyPoint?.points}
                      </Styles.Small>
                   )}
                </Styles.Help>
