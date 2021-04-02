@@ -89,15 +89,27 @@ const PaymentContent = ({ isCheckout }) => {
                   { appearance: 'error' }
                )
             } else if (
-               (cart.paymentStatus === 'REQUIRES_PAYMENT_METHOD' &&
-                  cart.transactionRemark?.last_payment_error?.code ===
-                     'card_declined') ||
+               cart.paymentStatus === 'REQUIRES_PAYMENT_METHOD' &&
+               cart.transactionRemark?.last_payment_error?.code ===
+                  'card_declined' &&
                cart.transactionRemark?.last_payment_error?.decline_code ===
                   'insufficient_funds'
             ) {
                toggleOverlay(false)
                addToast(
                   'Your provided payment method has been declined, due to insufficient funds. Please select a different payment method.',
+                  { appearance: 'error' }
+               )
+            } else if (
+               cart.paymentStatus === 'REQUIRES_PAYMENT_METHOD' &&
+               cart.transactionRemark?.last_payment_error?.code ===
+                  'card_declined' &&
+               cart.transactionRemark?.last_payment_error?.decline_code ===
+                  'card_error'
+            ) {
+               toggleOverlay(false)
+               addToast(
+                  'Your provided payment method has been declined. Please select a different payment method.',
                   { appearance: 'error' }
                )
             } else if (cart.paymentStatus === 'SUCCEEDED') {
@@ -139,20 +151,23 @@ const PaymentContent = ({ isCheckout }) => {
          refetchQueries: ['customer'],
          onError: error => {
             console.log(error)
-            addToast('Referral code not applied!', { appearance: 'error' })
+            addToast('Referral code not applied!', { appearance: 'danger' })
          },
       }
    )
 
    const [updateCart] = useMutation(QUERIES.UPDATE_CART, {
       onCompleted: () => {
-         if (state.code.value) {
+         if (
+            state.code &&
+            state.code !== user?.customerReferrals[0]?.referralCode
+         ) {
             updateCustomerReferralRecord({
                variables: {
                   brandId: brand.id,
                   keycloakId: user.keycloakId,
                   _set: {
-                     referredByCode: state.code.value,
+                     referredByCode: state.code,
                   },
                },
             })
@@ -213,12 +228,12 @@ const PaymentContent = ({ isCheckout }) => {
          state.code.isValid
       )
    }
-
    const onOverlayClose = () => {
       setOtpPageUrl('')
       setOverlayMessage('We are processing your payment.')
       toggleOverlay(false)
    }
+
    const theme = configOf('theme-color', 'Visual')
 
    if (loading) return <Loader inline />
