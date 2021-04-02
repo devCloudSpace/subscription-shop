@@ -1,6 +1,7 @@
 import React from 'react'
 import { navigate } from 'gatsby'
 import tw, { styled, css } from 'twin.macro'
+import { useMutation } from '@apollo/react-hooks'
 
 import Billing from './billing'
 import Products from './products'
@@ -10,12 +11,45 @@ import OrderInfo from '../../OrderInfo'
 import Fulfillment from './fulfillment'
 import { useConfig } from '../../../lib'
 import { useUser } from '../../../context'
+import { MUTATIONS } from '../../../graphql'
 import { CloseIcon } from '../../../assets/icons'
 
 export const CartPanel = ({ noSkip, isCheckout }) => {
+   const { user } = useUser()
    const { state } = useMenu()
    const { configOf } = useConfig()
    const [isCartPanelOpen, setIsCartPanelOpen] = React.useState(false)
+
+   const [insertOccurenceCustomers] = useMutation(
+      MUTATIONS.OCCURENCE.CUSTOMER.CREATE.MULTIPLE,
+      { onError: error => console.log('SKIP CARTS -> ERROR -> ', error) }
+   )
+
+   const onSubmit = async () => {
+      try {
+         if (isCheckout) {
+            const skipList = new URL(location.href).searchParams.get('previous')
+
+            if (skipList && skipList.split(',').length > 0) {
+               await insertOccurenceCustomers({
+                  variables: {
+                     objects: skipList.split(',').map(id => ({
+                        isSkipped: true,
+                        keycloakId: user.keycloakId,
+                        subscriptionOccurenceId: id,
+                        brand_customerId: user.brandCustomerId,
+                     })),
+                  },
+               })
+            }
+         }
+         navigate(
+            `/subscription/get-started/checkout/?id=${state.occurenceCustomer?.cart?.id}`
+         )
+      } catch (error) {
+         console.log('SKIP CARTS -> ERROR -> ', error)
+      }
+   }
 
    const theme = configOf('theme-color', 'Visual')
    if (
@@ -63,20 +97,18 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
             {/* Fulfilment Mode */}
             <Fulfillment />
             {/* Billing Details */}
-            <Billing />
+            <Billing isCheckout={isCheckout} />
             {/* Checkout */}
             {isCheckout && (
                <SaveButton
                   bg={theme?.accent}
-                  onClick={() =>
-                     navigate('/subscription/get-started/checkout/')
-                  }
+                  onClick={onSubmit}
                   disabled={
                      !state?.week?.isValid ||
                      !state?.occurenceCustomer?.validStatus?.itemCountValid
                   }
                >
-                  Proceed to Checkout
+                  PROCEED TO CHECKOUT
                </SaveButton>
             )}
          </Styles.Wrapper>

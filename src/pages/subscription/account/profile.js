@@ -1,10 +1,9 @@
-import React from 'react'
 import { navigate } from 'gatsby'
-import tw, { styled, css } from 'twin.macro'
-
-import { useConfig } from '../../../lib'
+import React from 'react'
+import tw, { css, styled } from 'twin.macro'
+import { Form, Layout, ProfileSidebar, SEO } from '../../../components'
 import { useUser } from '../../../context'
-import { SEO, Layout, ProfileSidebar, Form } from '../../../components'
+import { useConfig } from '../../../lib'
 
 const Profile = () => {
    const { isAuthenticated } = useUser()

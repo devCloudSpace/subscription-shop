@@ -100,6 +100,7 @@ export const OCCURENCES_BY_SUBSCRIPTION = gql`
             isValid
             isVisible
             fulfillmentDate
+            cutoffTimeStamp
          }
       }
    }
@@ -165,7 +166,6 @@ export const OCCURENCE_PRODUCTS_BY_CATEGORIES = gql`
                   { subscriptionId: $subscriptionId }
                   { subscriptionOccurenceId: $occurenceId }
                ]
-               isAvailable: { _eq: true }
                isVisible: { _eq: true }
             }
          }
@@ -187,6 +187,7 @@ export const OCCURENCE_PRODUCTS_BY_CATEGORIES = gql`
                cartItem
                addOnLabel
                addOnPrice
+               isAvailable
                isSingleSelect
                productOption {
                   id
@@ -262,8 +263,13 @@ export const CART_BY_WEEK = gql`
             id
             status
             address
+            walletAmountUsable
+            loyaltyPointsUsable
+            walletAmountUsed
+            loyaltyPointsUsed
             billingDetails
             fulfillmentInfo
+            transactionId
             products: cartItemViews(where: { level: { _eq: 1 } }) {
                id
                name: displayName
@@ -310,9 +316,46 @@ export const CART = gql`
          tip
          address
          totalPrice
+         paymentStatus
          deliveryPrice
          billingDetails
          fulfillmentInfo
+         transactionId
+         transactionRemark
+         stripeInvoiceId
+         stripeInvoiceDetails
+         products: cartItemViews(where: { level: { _eq: 1 } }) {
+            id
+            isAddOn
+            unitPrice
+            addOnLabel
+            addOnPrice
+            isAutoAdded
+            name: displayName
+            image: displayImage
+            subscriptionOccurenceProductId
+            subscriptionOccurenceAddOnProductId
+         }
+      }
+   }
+`
+
+export const CART_SUBSCRIPTION = gql`
+   subscription cart($id: Int!) {
+      cart(id: $id) {
+         id
+         tax
+         tip
+         address
+         totalPrice
+         paymentStatus
+         deliveryPrice
+         billingDetails
+         fulfillmentInfo
+         transactionId
+         transactionRemark
+         stripeInvoiceId
+         stripeInvoiceDetails
          products: cartItemViews(where: { level: { _eq: 1 } }) {
             id
             isAddOn
@@ -332,9 +375,12 @@ export const CART = gql`
 export const CART_STATUS = gql`
    subscription cart($id: Int!) {
       cart(id: $id) {
+         id
          status
          orderId
          address
+         transactionId
+         transactionRemark
          paymentStatus
          fulfillmentInfo
          billingDetails
@@ -579,6 +625,10 @@ export const CUSTOMER = {
             id
             keycloakId
             isSubscriber
+            isTest
+            customerByClients: platform_customerByClients {
+               stripeCustomerId: organizationStripeCustomerId
+            }
             brandCustomers(where: { brandId: { _eq: $brandId } }) {
                id
                brandId
@@ -652,6 +702,133 @@ export const GET_FILEID = gql`
                jsFile {
                   path
                }
+            }
+         }
+      }
+   }
+`
+export const COUPONS = gql`
+   subscription Coupons($params: jsonb, $brandId: Int!) {
+      coupons(
+         where: {
+            isActive: { _eq: true }
+            isArchived: { _eq: false }
+            brands: { brandId: { _eq: $brandId }, isActive: { _eq: true } }
+         }
+      ) {
+         id
+         code
+         isRewardMulti
+         rewards(order_by: { priority: desc }) {
+            id
+            condition {
+               isValid(args: { params: $params })
+            }
+         }
+         metaDetails
+         visibilityCondition {
+            isValid(args: { params: $params })
+         }
+      }
+   }
+`
+
+export const CART_REWARDS = gql`
+   subscription CartRewards($cartId: Int!, $params: jsonb) {
+      cartRewards(where: { cartId: { _eq: $cartId } }) {
+         reward {
+            id
+            coupon {
+               id
+               code
+            }
+            condition {
+               isValid(args: { params: $params })
+            }
+         }
+      }
+   }
+`
+
+export const ORGANIZATION = gql`
+   query organizations {
+      organizations {
+         id
+         stripeAccountId
+         stripeAccountType
+      }
+   }
+`
+
+export const REFERRER = gql`
+   query customerReferral($brandId: Int!, $code: String!) {
+      customerReferrals(
+         where: { brandId: { _eq: $brandId }, referralCode: { _eq: $code } }
+      ) {
+         id
+         customer {
+            platform_customer {
+               firstName
+               lastName
+            }
+         }
+      }
+   }
+`
+
+export const WALLETS = gql`
+   subscription Wallets($brandId: Int!, $keycloakId: String!) {
+      wallets(
+         where: { brandId: { _eq: $brandId }, keycloakId: { _eq: $keycloakId } }
+      ) {
+         amount
+         walletTransactions(order_by: { created_at: desc_nulls_last }) {
+            id
+            type
+            amount
+            created_at
+         }
+      }
+   }
+`
+
+export const LOYALTY_POINTS = gql`
+   subscription LoyaltyPoints($brandId: Int!, $keycloakId: String!) {
+      loyaltyPoints(
+         where: { brandId: { _eq: $brandId }, keycloakId: { _eq: $keycloakId } }
+      ) {
+         points
+         loyaltyPointTransactions(order_by: { created_at: desc_nulls_last }) {
+            id
+            points
+            type
+            created_at
+         }
+      }
+   }
+`
+export const CUSTOMER_REFERRALS = gql`
+   subscription CustomerReferrals($brandId: Int!, $keycloakId: String!) {
+      customerReferrals(
+         where: { brandId: { _eq: $brandId }, keycloakId: { _eq: $keycloakId } }
+      ) {
+         id
+         referralCode
+         referredByCode
+      }
+   }
+`
+
+export const CUSTOMERS_REFERRED = gql`
+   query CustomersReferred($brandId: Int!, $code: String!) {
+      customerReferrals(
+         where: { brandId: { _eq: $brandId }, referredByCode: { _eq: $code } }
+      ) {
+         id
+         customer {
+            platform_customer {
+               firstName
+               lastName
             }
          }
       }

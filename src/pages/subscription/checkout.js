@@ -4,19 +4,19 @@ import tw, { styled, css } from 'twin.macro'
 import { useToasts } from 'react-toast-notifications'
 import { useMutation, useSubscription } from '@apollo/react-hooks'
 
-import { useConfig } from '../../../lib'
-import * as QUERIES from '../../../graphql'
-import * as Icon from '../../../assets/icons'
-import OrderInfo from '../../../sections/OrderInfo'
-import { isClient, formatCurrency } from '../../../utils'
-import { SEO, Loader, Layout, StepsNavbar } from '../../../components'
+import { useConfig } from '../../lib'
+import * as Icon from '../../assets/icons'
+import OrderInfo from '../../sections/OrderInfo'
+import { isClient, formatCurrency } from '../../utils'
+import { SEO, Loader, Layout } from '../../components'
 import {
    usePayment,
    ProfileSection,
    PaymentProvider,
    PaymentSection,
-} from '../../../sections/checkout'
-import { useUser } from '../../../context'
+} from '../../sections/checkout'
+import { useUser } from '../../context'
+import * as QUERIES from '../../graphql'
 
 const Checkout = () => {
    const { isAuthenticated } = useUser()
@@ -28,22 +28,21 @@ const Checkout = () => {
    }, [isAuthenticated])
 
    return (
-      <Layout noHeader>
+      <Layout>
          <SEO title="Checkout" />
-         <StepsNavbar />
          <PaymentProvider>
-            <PaymentContent isCheckout />
+            <PaymentContent />
          </PaymentProvider>
       </Layout>
    )
 }
 
-const PaymentContent = ({ isCheckout }) => {
+const PaymentContent = () => {
    const { user } = useUser()
    const { state } = usePayment()
    const { addToast } = useToasts()
    const authTabRef = React.useRef()
-   const { brand, configOf } = useConfig()
+   const { configOf } = useConfig()
    const [otpPageUrl, setOtpPageUrl] = React.useState('')
    const [isOverlayOpen, toggleOverlay] = React.useState(false)
    const [overlayMessage, setOverlayMessage] = React.useState('')
@@ -117,7 +116,7 @@ const PaymentContent = ({ isCheckout }) => {
                   authTabRef.current.close()
                   if (!authTabRef.current.closed) {
                      window.open(
-                        `/subscription/get-started/checkout?id=${cart.id}`,
+                        `/subscription/checkout?id=${cart.id}`,
                         'payment_auth_page'
                      )
                   }
@@ -131,7 +130,7 @@ const PaymentContent = ({ isCheckout }) => {
                      appearance: 'success',
                   }
                )
-               navigate(`/subscription/get-started/placing-order?id=${cart.id}`)
+               navigate(`/subscription/placing-order?id=${cart.id}`)
             } else if (cart.paymentStatus === 'PAYMENT_FAILED') {
                toggleOverlay(false)
                addToast('Your payment has failed, please try again.', {
@@ -144,34 +143,7 @@ const PaymentContent = ({ isCheckout }) => {
       })()
    }, [cart.paymentStatus])
 
-   const [updateCustomerReferralRecord] = useMutation(
-      QUERIES.MUTATIONS.CUSTOMER_REFERRAL.UPDATE,
-      {
-         refetchQueries: ['customer'],
-         onError: error => {
-            console.log(error)
-            addToast('Referral code not applied!', { appearance: 'error' })
-         },
-      }
-   )
-
    const [updateCart] = useMutation(QUERIES.UPDATE_CART, {
-      onCompleted: () => {
-         if (
-            state.code &&
-            state.code !== user?.customerReferrals[0]?.referralCode
-         ) {
-            updateCustomerReferralRecord({
-               variables: {
-                  brandId: brand.id,
-                  keycloakId: user.keycloakId,
-                  _set: {
-                     referredByCode: state.code,
-                  },
-               },
-            })
-         }
-      },
       onError: error => {
          addToast(error.message, { appearance: 'error' })
       },
@@ -223,8 +195,7 @@ const PaymentContent = ({ isCheckout }) => {
          state.profile.firstName &&
          state.profile.lastName &&
          state.profile.phoneNumber &&
-         state.payment.selected?.id &&
-         state.code.isValid
+         state.payment.selected?.id
       )
    }
    const onOverlayClose = () => {

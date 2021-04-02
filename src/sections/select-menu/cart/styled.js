@@ -29,3 +29,25 @@ export const SaveButton = styled.button(
       `}
    `
 )
+
+export const SaveGhostButton = styled.button(
+   ({ disabled }) => css`
+      ${tw`
+      h-10
+      w-full
+      rounded
+      text-center
+      text-green-600
+      hover:bg-gray-100
+   `}
+      ${disabled &&
+      tw`
+         h-10
+         w-full
+         rounded
+         text-center
+         text-gray-600
+         cursor-not-allowed 
+      `}
+   `
+)

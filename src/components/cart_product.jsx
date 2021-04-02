@@ -20,13 +20,6 @@ export const CartProduct = ({ product, isRemovable, onDelete }) => {
                   N/A
                </span>
             )}
-            {isRemovable && (
-               <span className="remove_product">
-                  <button onClick={() => onDelete(product)}>
-                     <CloseIcon size={16} tw="stroke-current text-green-400" />
-                  </button>
-               </span>
-            )}
          </aside>
          <main tw="pl-3">
             <p tw="text-gray-800" title={product.name}>
@@ -48,26 +41,33 @@ export const CartProduct = ({ product, isRemovable, onDelete }) => {
                </span>
             )}
          </main>
+         {isRemovable && (
+            <section>
+               <button onClick={() => onDelete(product)} title="Remove Product">
+                  <CloseIcon size={16} tw="stroke-current text-gray-700" />
+               </button>
+            </section>
+         )}
       </Wrapper>
    )
 }
 
 const Wrapper = styled.li`
-   ${tw`h-auto py-2 bg-white border flex items-start px-2 rounded`}
+   ${tw`h-auto py-2 bg-white border grid items-start px-2 rounded`}
+   grid-template-columns: 96px 1fr auto;
    aside {
-      ${tw`w-24 h-16 bg-gray-300 rounded flex items-start justify-center`}
-      span.remove_product {
-         display: none;
-         background: rgba(0, 0, 0, 0.3);
-         ${tw`absolute h-full w-full items-center justify-center`}
-         button {
-            ${tw`bg-white h-6 w-6 rounded-full flex items-center justify-center`}
-         }
-      }
+      ${tw`w-full h-16 bg-gray-300 rounded flex items-start justify-center`}
+
       :hover {
          span.remove_product {
             display: flex;
          }
+      }
+   }
+   section {
+      ${tw`h-full flex items-center justify-center`}
+      > button {
+         ${tw`cursor-pointer bg-gray-100 h-6 w-6 rounded-full flex items-center justify-center`}
       }
    }
 `

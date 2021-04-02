@@ -1,13 +1,11 @@
 import React from 'react'
 import moment from 'moment'
 import { isEmpty } from 'lodash'
-import { v4 as uuidv4 } from 'uuid'
 import { useLocation } from '@reach/router'
 import { useToasts } from 'react-toast-notifications'
 import { useMutation, useQuery, useSubscription } from '@apollo/react-hooks'
 
 import { useUser } from '../../context'
-import { isClient } from '../../utils'
 import { Loader } from '../../components'
 import {
    ZIPCODE,
@@ -152,8 +150,8 @@ export const MenuProvider = ({ children }) => {
       {
          skip:
             state.isOccurencesLoading ||
-            !state?.week?.id ||
-            occurenceCustomerLoading,
+            occurenceCustomerLoading ||
+            !state?.week?.id,
          onError: error => console.log(error),
       }
    )
@@ -228,8 +226,8 @@ export const MenuProvider = ({ children }) => {
    React.useEffect(() => {
       if (
          !state.isOccurencesLoading &&
-         state.week?.id &&
-         !occurenceCustomerLoading
+         !occurenceCustomerLoading &&
+         state.week?.id
       ) {
          if (isEmpty(occurenceCustomer)) {
             insertOccurenceCustomer({
@@ -249,8 +247,8 @@ export const MenuProvider = ({ children }) => {
       }
    }, [
       state.isOccurencesLoading,
-      state.week,
       occurenceCustomerLoading,
+      state.week,
       occurenceCustomer,
    ])
 
@@ -273,74 +271,8 @@ export const MenuProvider = ({ children }) => {
          const cart = insertCartId(item, occurenceCustomer?.cart?.id)
          insertCartItem({
             variables: { object: cart },
-         }).then(({ data: { createCartItem = {} } = {} }) => {
-            const { products = [] } = createCartItem
-            if (!isEmpty(products)) {
-               const [product] = products
-               addToast(`You've added the product - ${product.name}.`, {
-                  appearance: 'info',
-               })
-            }
-
-            updateOccurenceCustomer({
-               variables: {
-                  pk_columns: {
-                     keycloakId: user.keycloakId,
-                     subscriptionOccurenceId: state.week.id,
-                     brand_customerId: user.brandCustomerId,
-                  },
-                  _set: {
-                     isSkipped: false,
-                     cartId: createCartItem?.cart?.id,
-                  },
-               },
-            }).then(({ data: { updateOccurenceCustomer = {} } = {} }) => {
-               if (!item?.isAddOn) {
-                  dispatch({
-                     type: 'IS_CART_FULL',
-                     payload:
-                        updateOccurenceCustomer?.validStatus?.itemCountValid,
-                  })
-               }
-               if (updateOccurenceCustomer?.isSkipped !== isSkipped) {
-                  if (!updateOccurenceCustomer?.isSkipped) {
-                     addToast('This week has been unskipped.', {
-                        appearance: 'info',
-                     })
-                  }
-               }
-            })
          })
-      } else {
-         const customerInfo = {
-            customerEmail: user?.platform_customer?.email || '',
-            customerPhone: user?.platform_customer?.phoneNumber || '',
-            customerLastName: user?.platform_customer?.lastName || '',
-            customerFirstName: user?.platform_customer?.firstName || '',
-         }
-         createCart({
-            variables: {
-               object: {
-                  customerInfo,
-                  status: 'CART_PENDING',
-                  customerId: user.id,
-                  source: 'subscription',
-                  paymentStatus: 'PENDING',
-                  address: user.defaultAddress,
-                  fulfillmentInfo: fulfillment,
-                  customerKeycloakId: user.keycloakId,
-                  subscriptionOccurenceId: state.week.id,
-                  ...(user?.subscriptionPaymentMethodId && {
-                     paymentMethodId: user?.subscriptionPaymentMethodId,
-                  }),
-                  stripeCustomerId: user?.platform_customer?.stripeCustomerId,
-               },
-            },
-         }).then(({ data: { createCart = {} } = {} }) => {
-            const cart = insertCartId(item, createCart?.id)
-            insertCartItem({
-               variables: { object: cart },
-            }).then(({ data: { createCartItem = {} } = {} }) => {
+            .then(({ data: { createCartItem = {} } = {} }) => {
                const { products = [] } = createCartItem
                if (!isEmpty(products)) {
                   const [product] = products
@@ -348,6 +280,7 @@ export const MenuProvider = ({ children }) => {
                      appearance: 'info',
                   })
                }
+
                updateOccurenceCustomer({
                   variables: {
                      pk_columns: {
@@ -377,24 +310,80 @@ export const MenuProvider = ({ children }) => {
                   }
                })
             })
-
-            isClient && window.localStorage.setItem('cartId', createCart.id)
-
-            const skipList = new URL(location.href).searchParams.get('previous')
-
-            if (skipList && skipList.split(',').length > 0) {
-               insertOccurenceCustomers({
-                  variables: {
-                     objects: skipList.split(',').map(id => ({
-                        isSkipped: true,
-                        keycloakId: user.keycloakId,
-                        subscriptionOccurenceId: id,
-                        brand_customerId: user.brandCustomerId,
-                     })),
-                  },
-               })
-            }
+            .catch(error =>
+               console.log('addProduct -> insertCartItem ->', error)
+            )
+      } else {
+         const customerInfo = {
+            customerEmail: user?.platform_customer?.email || '',
+            customerPhone: user?.platform_customer?.phoneNumber || '',
+            customerLastName: user?.platform_customer?.lastName || '',
+            customerFirstName: user?.platform_customer?.firstName || '',
+         }
+         createCart({
+            variables: {
+               object: {
+                  customerInfo,
+                  status: 'CART_PENDING',
+                  customerId: user.id,
+                  source: 'subscription',
+                  paymentStatus: 'PENDING',
+                  isTest: user?.isTest || !store?.isStoreLive,
+                  address: user.defaultAddress,
+                  fulfillmentInfo: fulfillment,
+                  customerKeycloakId: user.keycloakId,
+                  subscriptionOccurenceId: state.week.id,
+                  ...(user?.subscriptionPaymentMethodId && {
+                     paymentMethodId: user?.subscriptionPaymentMethodId,
+                  }),
+                  stripeCustomerId: user?.platform_customer?.stripeCustomerId,
+               },
+            },
          })
+            .then(({ data: { createCart = {} } = {} }) => {
+               const cart = insertCartId(item, createCart?.id)
+               insertCartItem({
+                  variables: { object: cart },
+               }).then(({ data: { createCartItem = {} } = {} }) => {
+                  const { products = [] } = createCartItem
+                  if (!isEmpty(products)) {
+                     const [product] = products
+                     addToast(`You've added the product - ${product.name}.`, {
+                        appearance: 'info',
+                     })
+                  }
+                  updateOccurenceCustomer({
+                     variables: {
+                        pk_columns: {
+                           keycloakId: user.keycloakId,
+                           subscriptionOccurenceId: state.week.id,
+                           brand_customerId: user.brandCustomerId,
+                        },
+                        _set: {
+                           isSkipped: false,
+                           cartId: createCartItem?.cart?.id,
+                        },
+                     },
+                  }).then(({ data: { updateOccurenceCustomer = {} } = {} }) => {
+                     if (!item?.isAddOn) {
+                        dispatch({
+                           type: 'IS_CART_FULL',
+                           payload:
+                              updateOccurenceCustomer?.validStatus
+                                 ?.itemCountValid,
+                        })
+                     }
+                     if (updateOccurenceCustomer?.isSkipped !== isSkipped) {
+                        if (!updateOccurenceCustomer?.isSkipped) {
+                           addToast('This week has been unskipped.', {
+                              appearance: 'info',
+                           })
+                        }
+                     }
+                  })
+               })
+            })
+            .catch(error => console.log('addProduct -> createCart ->', error))
       }
    }
 

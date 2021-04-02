@@ -19,14 +19,13 @@ export const Button = styled.button(
          hover:bg-teal-500 hover:text-white
       `}
       ${sizeSelector(size)}
-      ${
-         disabled &&
-         tw`
+      ${disabled &&
+      tw`
+            bg-gray-100 
             text-gray-700 
-            border-gray-300 
+            border-white
             cursor-not-allowed 
-            hover:bg-transparent hover:text-gray-700 
-         `
-      }
+            hover:bg-gray-100 hover:text-gray-700 
+         `}
    `
 )

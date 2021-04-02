@@ -9,7 +9,7 @@ import { useConfig } from '../lib/config'
 import { MailIcon, PhoneIcon } from '../assets/icons'
 
 export const Layout = ({ children, noHeader }) => {
-   const { isAuthenticated } = useUser()
+   const { isAuthenticated, user } = useUser()
    const { hasConfig, configOf } = useConfig()
 
    const brand = configOf('theme-brand', 'brand')
@@ -19,11 +19,12 @@ export const Layout = ({ children, noHeader }) => {
       isTermsAndConditionsAvailable,
    } = configOf('Policy Availability', 'brand')
    const store = configOf('Store Availability', 'availability')
+   console.log(user.isTest)
    return (
       <>
          {!noHeader && <Header />}
          {children}
-         {store?.isStoreLive === false && (
+         {(user?.isTest === true || store?.isStoreLive === false) && (
             <div tw="p-2 bg-gray-200 text-gray-700 w-full flex items-center justify-center">
                Store running in test mode so payments will be bypassed
             </div>

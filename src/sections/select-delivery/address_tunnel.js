@@ -118,8 +118,15 @@ export const AddressTunnel = () => {
             {address && (
                <>
                   <Form.Field>
-                     <Form.Label>Line 1</Form.Label>
-                     <FormPlaceholder>{address.line1}</FormPlaceholder>
+                     <Form.Label>Line 1*</Form.Label>
+                     <Form.Text
+                        type="text"
+                        placeholder="Enter line 1"
+                        value={address.line1 || ''}
+                        onChange={e =>
+                           setAddress({ ...address, line1: e.target.value })
+                        }
+                     />
                   </Form.Field>
                   <Form.Field>
                      <Form.Label>Line 2</Form.Label>
@@ -132,10 +139,28 @@ export const AddressTunnel = () => {
                         }
                      />
                   </Form.Field>
+                  <Form.Field>
+                     <Form.Label>Landmark</Form.Label>
+                     <Form.Text
+                        type="text"
+                        value={address.landmark || ''}
+                        placeholder="Enter landmark"
+                        onChange={e =>
+                           setAddress({ ...address, landmark: e.target.value })
+                        }
+                     />
+                  </Form.Field>
                   <div css={tw`flex`}>
                      <Form.Field mr="16px">
-                        <Form.Label>City</Form.Label>
-                        <FormPlaceholder>{address.city}</FormPlaceholder>
+                        <Form.Label>City*</Form.Label>
+                        <Form.Text
+                           type="text"
+                           placeholder="Enter city"
+                           value={address.city || ''}
+                           onChange={e =>
+                              setAddress({ ...address, city: e.target.value })
+                           }
+                        />
                      </Form.Field>
                      <Form.Field>
                         <Form.Label>State</Form.Label>
@@ -177,7 +202,11 @@ export const AddressTunnel = () => {
                   <Button
                      size="sm"
                      onClick={() => handleSubmit()}
-                     disabled={formStatus === 'SAVING'}
+                     disabled={
+                        !address?.line1 ||
+                        !address?.city ||
+                        formStatus === 'SAVING'
+                     }
                   >
                      {formStatus === 'SAVING' ? 'Saving...' : 'Save Address'}
                   </Button>
