@@ -3,10 +3,8 @@ import { navigate } from 'gatsby'
 import tw, { styled, css } from 'twin.macro'
 import { useConfig } from '../../../lib'
 import { useUser } from '../../../context'
-import { SEO, Layout, ProfileSidebar, Form, Loader } from '../../../components'
+import { SEO, Layout, ProfileSidebar, Form } from '../../../components'
 import { formatCurrency } from '../../../utils'
-import { useSubscription } from '@apollo/react-hooks'
-import { WALLETS, WALLET_TRANSACTIONS } from '../../../graphql'
 import * as moment from 'moment'
 
 const Wallet = () => {
@@ -33,28 +31,20 @@ export default Wallet
 
 const Content = () => {
    const { user } = useUser()
-   const { brand, configOf } = useConfig()
+   const { configOf } = useConfig()
 
    const theme = configOf('theme-color', 'Visual')
    const walletAllowed = configOf('Wallet', 'rewards')?.isAvailable
 
-   const { data: { wallets = [] } = {}, loading } = useSubscription(WALLETS, {
-      variables: {
-         brandId: brand.id,
-         keycloakId: user.keycloakId,
-      },
-   })
-
-   if (loading) return <Loader />
    return (
       <section tw="px-6 w-full md:w-6/12">
          <header tw="mt-6 mb-3 flex items-center justify-between">
             <Title theme={theme}>Wallet</Title>
          </header>
-         {walletAllowed && !!wallets.length && (
+         {walletAllowed && !!user.wallet && (
             <>
                <Form.Label>Balance</Form.Label>
-               {formatCurrency(wallets[0]?.amount)}
+               {formatCurrency(user.wallet.amount)}
                <div tw="h-4" />
                <Form.Label>Transactions</Form.Label>
                <Styles.Table>
@@ -67,7 +57,7 @@ const Content = () => {
                      </tr>
                   </thead>
                   <tbody>
-                     {wallets[0]?.walletTransactions.map(txn => (
+                     {user.wallet.walletTransactions.map(txn => (
                         <tr key={txn.id}>
                            <Styles.Cell>{txn.id}</Styles.Cell>
                            <Styles.Cell title={txn.type}>

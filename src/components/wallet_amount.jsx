@@ -76,9 +76,9 @@ export const WalletAmount = ({ cart }) => {
                   <Styles.Small>
                      Max usable: {formatCurrency(cart.walletAmountUsable)}
                   </Styles.Small>
-                  {!!user.wallets?.length && (
+                  {!!user.wallet && (
                      <Styles.Small>
-                        Balance: {formatCurrency(user.wallets[0].amount)}
+                        Balance: {formatCurrency(user.wallet?.amount)}
                      </Styles.Small>
                   )}
                </Styles.Help>
