@@ -88,6 +88,18 @@ const PaymentContent = ({ isCheckout }) => {
                   'There was an issue with your payment method, please try again with different payment method.',
                   { appearance: 'error' }
                )
+            } else if (
+               (cart.paymentStatus === 'REQUIRES_PAYMENT_METHOD' &&
+                  cart.transactionRemark?.last_payment_error?.code ===
+                     'card_declined') ||
+               cart.transactionRemark?.last_payment_error?.decline_code ===
+                  'insufficient_funds'
+            ) {
+               toggleOverlay(false)
+               addToast(
+                  'Your provided payment method has been declined, due to insufficient funds. Please select a different payment method.',
+                  { appearance: 'error' }
+               )
             } else if (cart.paymentStatus === 'SUCCEEDED') {
                if (authTabRef.current) {
                   authTabRef.current.close()
