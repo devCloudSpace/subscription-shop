@@ -7,7 +7,7 @@ import { isClient } from '../../utils'
 import { CART_STATUS } from '../../graphql'
 import OrderInfo from '../../sections/OrderInfo'
 import { Layout, SEO, Loader, HelperBar } from '../../components'
-import { PlacedOrderIllo, CazrtIllo, PaymentIllo } from '../../assets/icons'
+import { PlacedOrderIllo, CartIllo, PaymentIllo } from '../../assets/icons'
 
 const PlacingOrder = () => {
    const { configOf } = useConfig()
