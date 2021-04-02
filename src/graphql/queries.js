@@ -626,19 +626,6 @@ export const CUSTOMER = {
             keycloakId
             isSubscriber
             isTest
-            wallets(where: { brandId: { _eq: $brandId } }) {
-               id
-               amount
-            }
-            loyaltyPoints(where: { brandId: { _eq: $brandId } }) {
-               id
-               points
-            }
-            customerReferrals(where: { brandId: { _eq: $brandId } }) {
-               id
-               referralCode
-               referredByCode
-            }
             customerByClients: platform_customerByClients {
                stripeCustomerId: organizationStripeCustomerId
             }
@@ -817,6 +804,17 @@ export const LOYALTY_POINTS = gql`
             type
             created_at
          }
+      }
+   }
+`
+export const CUSTOMER_REFERRALS = gql`
+   subscription CustomerReferrals($brandId: Int!, $keycloakId: String!) {
+      customerReferrals(
+         where: { brandId: { _eq: $brandId }, keycloakId: { _eq: $keycloakId } }
+      ) {
+         id
+         referralCode
+         referredByCode
       }
    }
 `

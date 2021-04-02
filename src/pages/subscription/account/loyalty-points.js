@@ -3,9 +3,7 @@ import { navigate } from 'gatsby'
 import tw, { styled, css } from 'twin.macro'
 import { useConfig } from '../../../lib'
 import { useUser } from '../../../context'
-import { SEO, Layout, ProfileSidebar, Form, Loader } from '../../../components'
-import { useSubscription } from '@apollo/react-hooks'
-import { LOYALTY_POINTS } from '../../../graphql'
+import { SEO, Layout, ProfileSidebar, Form } from '../../../components'
 import * as moment from 'moment'
 
 const LoyaltyPoints = () => {
@@ -32,32 +30,21 @@ export default LoyaltyPoints
 
 const Content = () => {
    const { user } = useUser()
-   const { brand, configOf } = useConfig()
+   const { configOf } = useConfig()
 
    const theme = configOf('theme-color', 'Visual')
    const loyaltyPointsAllowed = configOf('Loyalty Points', 'rewards')
       ?.isAvailable
 
-   const { data: { loyaltyPoints = [] } = {}, loading } = useSubscription(
-      LOYALTY_POINTS,
-      {
-         variables: {
-            brandId: brand.id,
-            keycloakId: user.keycloakId,
-         },
-      }
-   )
-
-   if (loading) return <Loader />
    return (
       <section tw="px-6 w-full md:w-6/12">
          <header tw="mt-6 mb-3 flex items-center justify-between">
             <Title theme={theme}>Loyalty Points</Title>
          </header>
-         {loyaltyPointsAllowed && !!loyaltyPoints.length && (
+         {loyaltyPointsAllowed && !!user.loyaltyPoint && (
             <>
                <Form.Label>Balance</Form.Label>
-               {loyaltyPoints[0]?.points}
+               {user.loyaltyPoint.points}
                <div tw="h-4" />
                <Form.Label>Transactions</Form.Label>
                <Styles.Table>
@@ -70,7 +57,7 @@ const Content = () => {
                      </tr>
                   </thead>
                   <tbody>
-                     {loyaltyPoints[0]?.loyaltyPointTransactions.map(txn => (
+                     {user.loyaltyPoint.loyaltyPointTransactions.map(txn => (
                         <tr key={txn.id}>
                            <Styles.Cell>{txn.id}</Styles.Cell>
                            <Styles.Cell title={txn.type}>

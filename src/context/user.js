@@ -1,10 +1,15 @@
 import 'twin.macro'
 import React from 'react'
 import jwtDecode from 'jwt-decode'
-import { useQuery } from '@apollo/react-hooks'
+import { useQuery, useSubscription } from '@apollo/react-hooks'
 
 import { useConfig } from '../lib'
-import { CUSTOMER } from '../graphql'
+import {
+   CUSTOMER,
+   CUSTOMER_REFERRALS,
+   LOYALTY_POINTS,
+   WALLETS,
+} from '../graphql'
 import { PageLoader } from '../components'
 import { isClient, processUser } from '../utils'
 
@@ -49,6 +54,57 @@ export const UserProvider = ({ children }) => {
          },
       }
    )
+
+   useSubscription(LOYALTY_POINTS, {
+      skip: !(brand.id && state.user?.keycloakId),
+      variables: {
+         brandId: brand.id,
+         keycloakId: state.user?.keycloakId,
+      },
+      onSubscriptionData: data => {
+         const { loyaltyPoints } = data.subscriptionData.data
+         if (loyaltyPoints?.length) {
+            dispatch({
+               type: 'SET_USER',
+               payload: { loyaltyPoint: loyaltyPoints[0] },
+            })
+         }
+      },
+   })
+
+   useSubscription(WALLETS, {
+      skip: !(brand.id && state.user?.keycloakId),
+      variables: {
+         brandId: brand.id,
+         keycloakId: state.user?.keycloakId,
+      },
+      onSubscriptionData: data => {
+         const { wallets } = data.subscriptionData.data
+         if (wallets?.length) {
+            dispatch({
+               type: 'SET_USER',
+               payload: { wallet: wallets[0] },
+            })
+         }
+      },
+   })
+
+   useSubscription(CUSTOMER_REFERRALS, {
+      skip: !(brand.id && state.user?.keycloakId),
+      variables: {
+         brandId: brand.id,
+         keycloakId: state.user?.keycloakId,
+      },
+      onSubscriptionData: data => {
+         const { customerReferrals } = data.subscriptionData.data
+         if (customerReferrals?.length) {
+            dispatch({
+               type: 'SET_USER',
+               payload: { customerReferral: customerReferrals[0] },
+            })
+         }
+      },
+   })
 
    React.useEffect(() => {
       if (isClient) {
