@@ -215,6 +215,12 @@ const PaymentContent = ({ isCheckout }) => {
          state.payment.selected?.id
       )
    }
+
+   const onOverlayClose = () => {
+      setOtpPageUrl('')
+      setOverlayMessage('We are processing your payment.')
+      toggleOverlay(false)
+   }
    const theme = configOf('theme-color', 'Visual')
 
    if (loading) return <Loader inline />
@@ -243,7 +249,7 @@ const PaymentContent = ({ isCheckout }) => {
             <Overlay>
                <header tw="flex pr-3 pt-3">
                   <button
-                     onClick={() => toggleOverlay(false)}
+                     onClick={onOverlayClose}
                      tw="ml-auto bg-white h-10 w-10 flex items-center justify-center rounded-full"
                   >
                      <Icon.CloseIcon tw="stroke-current text-gray-600" />
@@ -252,7 +258,7 @@ const PaymentContent = ({ isCheckout }) => {
                <main tw="flex-1 flex flex-col items-center justify-center">
                   <p tw="text-white text-xl font-light mb-3 text-center">
                      {overlayMessage}{' '}
-                     {cart.paymentStatus === 'REQUIRES_ACTION' && (
+                     {cart.paymentStatus === 'REQUIRES_ACTION' && otpPageUrl && (
                         <a
                            target="_blank"
                            href={otpPageUrl}
