@@ -61,7 +61,7 @@ const PaymentContent = () => {
       ;(async () => {
          try {
             if (cart.paymentStatus === 'PENDING') {
-               setOverlayMessage('We are processing you payment.')
+               setOverlayMessage('We are processing your payment.')
             } else if (
                cart.paymentStatus === 'REQUIRES_ACTION' &&
                !cart.transactionRemark?.next_action?.type
