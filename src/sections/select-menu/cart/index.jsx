@@ -52,11 +52,7 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
    }
 
    const theme = configOf('theme-color', 'Visual')
-   if (
-      ['ORDER_PENDING', 'CART_PROCESS'].includes(
-         state?.occurenceCustomer?.cart?.status
-      )
-   )
+   if (['ORDER_PENDING'].includes(state?.occurenceCustomer?.cart?.status))
       return (
          <>
             <CartBar setIsCartPanelOpen={setIsCartPanelOpen} />

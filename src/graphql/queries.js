@@ -263,6 +263,7 @@ export const CART_BY_WEEK = gql`
             id
             status
             address
+            paymentStatus
             walletAmountUsable
             loyaltyPointsUsable
             walletAmountUsed
@@ -407,7 +408,7 @@ export const ORDER_HISTORY = gql`
             keycloakId: $keycloakId
             cart: {
                paymentStatus: { _eq: "SUCCEEDED" }
-               status: { _nin: ["CART_PENDING", "CART_PROCESS"] }
+               status: { _nin: ["CART_PENDING"] }
             }
          }
          order_by: { subscriptionOccurence: { fulfillmentDate: desc } }

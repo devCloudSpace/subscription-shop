@@ -1,7 +1,8 @@
 import React from 'react'
 import moment from 'moment'
 import { navigate } from 'gatsby'
-import { styled } from 'twin.macro'
+import tw, { styled, css } from 'twin.macro'
+import { useToasts } from 'react-toast-notifications'
 
 import { useUser } from '../context'
 import { normalizeAddress } from '../utils'
@@ -9,6 +10,16 @@ import { Billing, CartProduct } from '../components'
 
 const OrderInfo = ({ cart, showViewOrderButton = false }) => {
    const { user } = useUser()
+   const { addToast } = useToasts()
+
+   React.useEffect(() => {
+      if (cart.paymentStatus !== 'SUCCEEDED') {
+         addToast(
+            'There was an issue with your payment, please click early pay button to proceed.',
+            { appearance: 'error' }
+         )
+      }
+   }, [cart?.paymentStatus])
 
    const planProducts = cart?.products.filter(node => !node.isAddOn) || []
    const addOnProducts = cart?.products.filter(node => node.isAddOn) || []
@@ -81,16 +92,30 @@ const OrderInfo = ({ cart, showViewOrderButton = false }) => {
             )}
          </section>
          {showViewOrderButton && (
-            <button
-               tw="h-10 w-full rounded text-white text-center bg-green-500"
-               onClick={() =>
-                  navigate(
-                     `/subscription/account/orders?id=${cart?.subscriptionOccurenceId}`
-                  )
-               }
-            >
-               Go to Order
-            </button>
+            <>
+               {cart?.paymentStatus === 'SUCCEEDED' ? (
+                  <button
+                     tw="h-10 w-full rounded text-white text-center bg-green-500"
+                     onClick={() =>
+                        navigate(
+                           `/subscription/account/orders?id=${cart?.subscriptionOccurenceId}`
+                        )
+                     }
+                  >
+                     Go to Order
+                  </button>
+               ) : (
+                  <SaveGhostButton
+                     onClick={() =>
+                        navigate(
+                           `/subscription/checkout/?id=${state.occurenceCustomer?.cart?.id}`
+                        )
+                     }
+                  >
+                     EARLY PAY
+                  </SaveGhostButton>
+               )}
+            </>
          )}
       </div>
    )
@@ -103,3 +128,25 @@ const ProductCards = styled.ul`
    grid-gap: 16px;
    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
 `
+
+export const SaveGhostButton = styled.button(
+   ({ disabled }) => css`
+      ${tw`
+      h-10
+      w-full
+      rounded
+      text-center
+      text-green-600
+      hover:bg-gray-100
+   `}
+      ${disabled &&
+      tw`
+         h-10
+         w-full
+         rounded
+         text-center
+         text-gray-600
+         cursor-not-allowed 
+      `}
+   `
+)
