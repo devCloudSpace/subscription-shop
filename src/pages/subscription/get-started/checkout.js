@@ -63,10 +63,21 @@ const PaymentContent = ({ isCheckout }) => {
          try {
             if (cart.paymentStatus === 'PENDING') {
                setOverlayMessage('We are processing you payment.')
-            } else if (cart.paymentStatus === 'REQUIRES_ACTION') {
+            } else if (
+               cart.paymentStatus === 'REQUIRES_ACTION' &&
+               !cart.transactionRemark?.next_action?.type
+            ) {
                toggleOverlay(true)
                setOverlayMessage(
-                  'Your provided payment method requires further action, please follow the procedure opened in new tab. In case the new tab has not opened own its own, please click'
+                  'A window will open in short while for further payment authorization required by your bank!'
+               )
+            } else if (
+               cart.paymentStatus === 'REQUIRES_ACTION' &&
+               cart.transactionRemark?.next_action?.type
+            ) {
+               toggleOverlay(true)
+               setOverlayMessage(
+                  'A window will open in short while for further payment authorization required by your bank. In case the new window has not opened own yet, please click'
                )
                let TAB_URL = ''
                let remark = cart.transactionRemark
