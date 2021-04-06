@@ -151,13 +151,13 @@ const PaymentContent = ({ isCheckout }) => {
             referralCode = referral?.referralCode
          }
 
-         if (state.code && state.code !== referralCode) {
+         if (state.code.value && state.code.value !== referralCode) {
             updateCustomerReferralRecord({
                variables: {
                   brandId: brand.id,
                   keycloakId: user.keycloakId,
                   _set: {
-                     referredByCode: state.code,
+                     referredByCode: state.code.value,
                   },
                },
             })
