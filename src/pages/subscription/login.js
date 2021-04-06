@@ -207,6 +207,12 @@ const LoginPanel = ({ loading, customer }) => {
                placeholder="Enter your password"
             />
          </FieldSet>
+         <button
+            tw="self-start mb-2 text-blue-500"
+            onClick={() => navigate('/subscription/get-started/select-plan')}
+         >
+            Register instead?
+         </button>
          <Submit
             className={!isValid || loading ? 'disabled' : ''}
             onClick={() => isValid && submit()}

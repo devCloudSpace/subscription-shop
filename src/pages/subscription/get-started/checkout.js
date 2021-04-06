@@ -62,11 +62,22 @@ const PaymentContent = ({ isCheckout }) => {
       ;(async () => {
          try {
             if (cart.paymentStatus === 'PENDING') {
-               setOverlayMessage('We are processing you payment.')
-            } else if (cart.paymentStatus === 'REQUIRES_ACTION') {
+               setOverlayMessage('We are processing your payment.')
+            } else if (
+               cart.paymentStatus === 'REQUIRES_ACTION' &&
+               !cart.transactionRemark?.next_action?.type
+            ) {
                toggleOverlay(true)
                setOverlayMessage(
-                  'Your provided payment method requires further action, please follow the procedure opened in new tab. In case the new tab has not opened own its own, please click'
+                  'A window will open in short while for further payment authorization required by your bank!'
+               )
+            } else if (
+               cart.paymentStatus === 'REQUIRES_ACTION' &&
+               cart.transactionRemark?.next_action?.type
+            ) {
+               toggleOverlay(true)
+               setOverlayMessage(
+                  'A window will open in short while for further payment authorization required by your bank. In case the new window has not opened own yet, please click'
                )
                let TAB_URL = ''
                let remark = cart.transactionRemark
@@ -79,39 +90,13 @@ const PaymentContent = ({ isCheckout }) => {
                authTabRef.current = window.open(TAB_URL, 'payment_auth_page')
             } else if (
                cart.paymentStatus === 'REQUIRES_PAYMENT_METHOD' &&
-               cart.transactionRemark?.last_payment_error?.code.includes(
-                  'payment_method'
-               )
+               cart.transactionRemark?.last_payment_error?.code
             ) {
                toggleOverlay(false)
-               addToast(
-                  'There was an issue with your payment method, please try again with different payment method.',
-                  { appearance: 'error' }
-               )
-            } else if (
-               cart.paymentStatus === 'REQUIRES_PAYMENT_METHOD' &&
-               cart.transactionRemark?.last_payment_error?.code ===
-                  'card_declined' &&
-               cart.transactionRemark?.last_payment_error?.decline_code ===
-                  'insufficient_funds'
-            ) {
-               toggleOverlay(false)
-               addToast(
-                  'Your provided payment method has been declined, due to insufficient funds. Please select a different payment method.',
-                  { appearance: 'error' }
-               )
-            } else if (
-               cart.paymentStatus === 'REQUIRES_PAYMENT_METHOD' &&
-               cart.transactionRemark?.last_payment_error?.code ===
-                  'card_declined' &&
-               cart.transactionRemark?.last_payment_error?.decline_code ===
-                  'card_error'
-            ) {
-               toggleOverlay(false)
-               addToast(
-                  'Your provided payment method has been declined. Please select a different payment method.',
-                  { appearance: 'error' }
-               )
+               setOverlayMessage('We are processing your payment.')
+               addToast(cart.transactionRemark?.last_payment_error?.message, {
+                  appearance: 'error',
+               })
             } else if (cart.paymentStatus === 'SUCCEEDED') {
                if (authTabRef.current) {
                   authTabRef.current.close()
@@ -157,10 +142,16 @@ const PaymentContent = ({ isCheckout }) => {
 
    const [updateCart] = useMutation(QUERIES.UPDATE_CART, {
       onCompleted: () => {
+         let referralCode = null
          if (
-            state.code &&
-            state.code !== user?.customerReferrals[0]?.referralCode
+            Array.isArray(user?.customerReferrals) &&
+            user?.customerReferrals.length > 0
          ) {
+            const [referral] = user?.customerReferrals
+            referralCode = referral?.referralCode
+         }
+
+         if (state.code && state.code !== referralCode) {
             updateCustomerReferralRecord({
                variables: {
                   brandId: brand.id,
@@ -238,24 +229,26 @@ const PaymentContent = ({ isCheckout }) => {
    if (loading) return <Loader inline />
    return (
       <Main>
-         <section>
+         <Form>
             <header tw="my-3 pb-1 border-b flex items-center justify-between">
                <SectionTitle theme={theme}>Profile Details</SectionTitle>
             </header>
             <ProfileSection />
             <PaymentSection />
-         </section>
+         </Form>
          {cart?.products?.length > 0 && (
-            <section>
+            <CartDetails>
                <OrderInfo cart={cart} />
-               <Button
-                  bg={theme?.accent}
-                  onClick={handleSubmit}
-                  disabled={!Boolean(isValid())}
-               >
-                  Confirm & Pay {formatCurrency(cart.totalPrice)}
-               </Button>
-            </section>
+               <section>
+                  <Button
+                     bg={theme?.accent}
+                     onClick={handleSubmit}
+                     disabled={!Boolean(isValid())}
+                  >
+                     Confirm & Pay {formatCurrency(cart.totalPrice)}
+                  </Button>
+               </section>
+            </CartDetails>
          )}
          {isOverlayOpen && (
             <Overlay>
@@ -306,14 +299,32 @@ const SectionTitle = styled.h3(
 )
 
 const Main = styled.main`
-   margin: auto;
+   display: flex;
+   padding: 0 16px;
    margin-bottom: 24px;
-   width: calc(100vw - 48px);
    min-height: calc(100vh - 160px);
-   ${tw`grid gap-8`}
-   grid-template-columns: 1fr 400px;
+   ${tw`gap-4`}
    @media (max-width: 768px) {
-      grid-template-columns: 1fr;
+      flex-direction: column;
+   }
+`
+
+const Form = styled.section`
+   flex: 1;
+`
+const CartDetails = styled.section`
+   width: 420px;
+   @media (max-width: 768px) {
+      width: 100%;
+      > section {
+         padding: 16px 16px 0 16px;
+         position: fixed;
+         bottom: 16px;
+         left: 0;
+         right: 0;
+         > button {
+         }
+      }
    }
 `
 

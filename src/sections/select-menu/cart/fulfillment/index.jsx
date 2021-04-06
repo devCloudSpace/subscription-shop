@@ -22,7 +22,7 @@ const Fulfillment = () => {
    const { state, dispatch } = useMenu()
    const { user } = useUser()
    const { addToast } = useToasts()
-   const { configOf } = useConfig()
+   const { brand, configOf } = useConfig()
    const store = configOf('Store Availability', 'availability')
    const [updateOccurenceCustomer] = useMutation(
       MUTATIONS.OCCURENCE.CUSTOMER.UPDATE,
@@ -139,6 +139,7 @@ const Fulfillment = () => {
                object: {
                   customerInfo,
                   fulfillmentInfo,
+                  brandId: brand.id,
                   status: 'CART_PENDING',
                   customerId: user.id,
                   source: 'subscription',

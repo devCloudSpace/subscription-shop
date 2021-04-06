@@ -12,6 +12,7 @@ import { useUser } from '../../../../context'
 import { PlusIcon, CloseIcon, CheckIcon } from '../../../../assets/icons'
 import { Tunnel, Loader, Button, CartProduct } from '../../../../components'
 import { OCCURENCE_ADDON_PRODUCTS_BY_CATEGORIES } from '../../../../graphql'
+import { formatCurrency } from '../../../../utils'
 
 const AddOnProducts = () => {
    const { state, methods } = useMenu()
@@ -203,6 +204,7 @@ const AddOnProduct = ({ node, isAdded, theme }) => {
                   tw="text-sm uppercase font-medium tracking-wider border border-gray-300 rounded px-1 text-gray-500"
                >
                   {isActive ? 'REPEAT +' : 'ADD +'}
+                  {formatCurrency(Number(node.cartItem.unitPrice) || 0)}
                </button>
             )}
          </div>
