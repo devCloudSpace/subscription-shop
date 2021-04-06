@@ -2,14 +2,16 @@ import React from 'react'
 import tw, { css, styled } from 'twin.macro'
 import { useMutation } from '@apollo/react-hooks'
 import { useToasts } from 'react-toast-notifications'
+import Countdown from 'react-countdown'
 
 import { useMenu } from '../../state'
 import { CartProducts } from '../styled'
 import { useUser } from '../../../../context'
+import { formatDate } from '../../../../utils'
 import { MUTATIONS } from '../../../../graphql'
 import { ProductSkeleton, CartProduct } from '../../../../components'
 
-const PlanProducts = ({ noSkip }) => {
+const PlanProducts = ({ noSkip, isCheckout }) => {
    const { user } = useUser()
    const { addToast } = useToasts()
    const { state, methods } = useMenu()
@@ -60,12 +62,13 @@ const PlanProducts = ({ noSkip }) => {
 
    return (
       <div>
-         <header tw="my-3 pb-1 border-b flex items-center justify-between">
+         <header tw="mt-3 mb-2 pb-1 border-b flex items-center justify-between">
             <h4 tw="text-lg text-gray-700">
                Your Box{' '}
                {state?.occurenceCustomer?.validStatus?.addedProductsCount}/
                {user?.subscription?.recipes?.count}
             </h4>
+
             <section tw="sm:hidden md:block">
                {state.cartState === 'SAVING' && (
                   <span tw="text-sm bg-blue-200 text-blue-700  rounded-full px-3 font-medium">
@@ -94,6 +97,14 @@ const PlanProducts = ({ noSkip }) => {
                </SkipWeek>
             )}
          </header>
+         {!isCheckout && state.week.cutoffTimeStamp && (
+            <section
+               tw="block mb-3"
+               title={formatDate(state.week.cutoffTimeStamp)}
+            >
+               Time remaining: <Countdown date={state.week.cutoffTimeStamp} />
+            </section>
+         )}
          <CartProducts>
             {state?.occurenceCustomer?.cart?.products?.map(
                product =>
