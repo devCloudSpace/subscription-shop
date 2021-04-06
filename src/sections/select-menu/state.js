@@ -80,7 +80,7 @@ export const MenuProvider = ({ children }) => {
    const { user } = useUser()
    const location = useLocation()
    const { addToast } = useToasts()
-   const { configOf } = useConfig()
+   const { brand, configOf } = useConfig()
    const [cart, setCart] = React.useState({})
    const [fulfillment, setFulfillment] = React.useState({})
    const [state, dispatch] = React.useReducer(reducers, initialState)
@@ -325,6 +325,7 @@ export const MenuProvider = ({ children }) => {
             variables: {
                object: {
                   customerInfo,
+                  brandId: brand.id,
                   status: 'CART_PENDING',
                   customerId: user.id,
                   source: 'subscription',
