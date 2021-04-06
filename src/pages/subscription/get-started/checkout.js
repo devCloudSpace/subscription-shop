@@ -142,7 +142,10 @@ const PaymentContent = ({ isCheckout }) => {
    const [updateCart] = useMutation(QUERIES.UPDATE_CART, {
       onCompleted: () => {
          let referralCode = null
-         if (user?.customerReferrals.length > 0) {
+         if (
+            Array.isArray(user?.customerReferrals) &&
+            user?.customerReferrals.length > 0
+         ) {
             const [referral] = user?.customerReferrals
             referralCode = referral?.referralCode
          }
