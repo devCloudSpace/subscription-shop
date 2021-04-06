@@ -93,6 +93,7 @@ const PaymentContent = ({ isCheckout }) => {
                cart.transactionRemark?.last_payment_error?.code
             ) {
                toggleOverlay(false)
+               setOverlayMessage('We are processing your payment.')
                addToast(cart.transactionRemark?.last_payment_error?.message, {
                   appearance: 'error',
                })
@@ -228,24 +229,26 @@ const PaymentContent = ({ isCheckout }) => {
    if (loading) return <Loader inline />
    return (
       <Main>
-         <section>
+         <Form>
             <header tw="my-3 pb-1 border-b flex items-center justify-between">
                <SectionTitle theme={theme}>Profile Details</SectionTitle>
             </header>
             <ProfileSection />
             <PaymentSection />
-         </section>
+         </Form>
          {cart?.products?.length > 0 && (
-            <section>
+            <CartDetails>
                <OrderInfo cart={cart} />
-               <Button
-                  bg={theme?.accent}
-                  onClick={handleSubmit}
-                  disabled={!Boolean(isValid())}
-               >
-                  Confirm & Pay {formatCurrency(cart.totalPrice)}
-               </Button>
-            </section>
+               <section>
+                  <Button
+                     bg={theme?.accent}
+                     onClick={handleSubmit}
+                     disabled={!Boolean(isValid())}
+                  >
+                     Confirm & Pay {formatCurrency(cart.totalPrice)}
+                  </Button>
+               </section>
+            </CartDetails>
          )}
          {isOverlayOpen && (
             <Overlay>
@@ -296,14 +299,32 @@ const SectionTitle = styled.h3(
 )
 
 const Main = styled.main`
-   margin: auto;
+   display: flex;
+   padding: 0 16px;
    margin-bottom: 24px;
-   width: calc(100vw - 48px);
    min-height: calc(100vh - 160px);
-   ${tw`grid gap-8`}
-   grid-template-columns: 1fr 400px;
+   ${tw`gap-4`}
    @media (max-width: 768px) {
-      grid-template-columns: 1fr;
+      flex-direction: column;
+   }
+`
+
+const Form = styled.section`
+   flex: 1;
+`
+const CartDetails = styled.section`
+   width: 420px;
+   @media (max-width: 768px) {
+      width: 100%;
+      > section {
+         padding: 16px 16px 0 16px;
+         position: fixed;
+         bottom: 16px;
+         left: 0;
+         right: 0;
+         > button {
+         }
+      }
    }
 `
 
