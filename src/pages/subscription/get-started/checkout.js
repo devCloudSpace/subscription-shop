@@ -141,10 +141,13 @@ const PaymentContent = ({ isCheckout }) => {
 
    const [updateCart] = useMutation(QUERIES.UPDATE_CART, {
       onCompleted: () => {
-         if (
-            state.code &&
-            state.code !== user?.customerReferrals[0]?.referralCode
-         ) {
+         let referralCode = null
+         if (user?.customerReferrals.length > 0) {
+            const [referral] = user?.customerReferrals
+            referralCode = referral?.referralCode
+         }
+
+         if (state.code && state.code !== referralCode) {
             updateCustomerReferralRecord({
                variables: {
                   brandId: brand.id,
