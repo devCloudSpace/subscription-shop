@@ -452,6 +452,9 @@ export const ORDER = gql`
          cart {
             id
             status
+            orderStatus {
+               title
+            }
             address
             itemTotal
             addOnTotal
@@ -460,6 +463,7 @@ export const ORDER = gql`
             paymentMethodId
             billingDetails
             fulfillmentInfo
+            paymentStatus
             products: cartItemViews(where: { level: { _eq: 1 } }) {
                id
                name: displayName

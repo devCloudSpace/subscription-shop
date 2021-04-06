@@ -181,14 +181,24 @@ const Details = () => {
       <main tw="mx-3">
          <header tw="flex items-center justify-between">
             <Title theme={theme}>Order Details</Title>
-            {order?.cart?.order?.status && (
-               <Status status={order?.cart?.order?.status}>
-                  {order?.cart?.order?.status}
+            {order?.cart?.orderStatus?.title && (
+               <Status status={order?.cart?.orderStatus?.title}>
+                  {order?.cart?.orderStatus?.title}
                </Status>
             )}
          </header>
          <OrderInfo cart={order?.cart} />
          <h4 tw="text-lg text-gray-700 my-4 pb-1 border-b">Payment</h4>
+         {order?.cart?.paymentStatus !== 'SUCCEEDED' && (
+            <button
+               onClick={() =>
+                  navigate(`/subscription/checkout?id=${order?.cart?.id}`)
+               }
+               tw="rounded py-2 bg-red-500 text-white px-6 uppercase tracking-wider mb-3"
+            >
+               Complete Payment
+            </button>
+         )}
          <section tw="mb-3 p-2 border w-full">
             <div tw="rounded flex items-center justify-between">
                <span tw="text-xl">{paymentMethod?.cardHolderName}</span>
