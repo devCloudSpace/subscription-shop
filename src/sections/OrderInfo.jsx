@@ -13,7 +13,7 @@ const OrderInfo = ({ cart, showViewOrderButton = false }) => {
    const { addToast } = useToasts()
 
    React.useEffect(() => {
-      if (cart.paymentStatus !== 'SUCCEEDED') {
+      if (showViewOrderButton && cart.paymentStatus !== 'SUCCEEDED') {
          addToast(
             'There was an issue with your payment, please click early pay button to proceed.',
             { appearance: 'error' }
@@ -107,9 +107,7 @@ const OrderInfo = ({ cart, showViewOrderButton = false }) => {
                ) : (
                   <SaveGhostButton
                      onClick={() =>
-                        navigate(
-                           `/subscription/checkout/?id=${state.occurenceCustomer?.cart?.id}`
-                        )
+                        navigate(`/subscription/checkout/?id=${cart?.id}`)
                      }
                   >
                      EARLY PAY
