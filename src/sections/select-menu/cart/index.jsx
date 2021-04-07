@@ -11,13 +11,19 @@ import OrderInfo from '../../OrderInfo'
 import Fulfillment from './fulfillment'
 import { useConfig } from '../../../lib'
 import { useUser } from '../../../context'
-import { MUTATIONS } from '../../../graphql'
 import { CloseIcon } from '../../../assets/icons'
+import { MUTATIONS, UPDATE_BRAND_CUSTOMER } from '../../../graphql'
 
 export const CartPanel = ({ noSkip, isCheckout }) => {
    const { user } = useUser()
    const { state } = useMenu()
    const { configOf } = useConfig()
+   const [updateBrandCustomer] = useMutation(UPDATE_BRAND_CUSTOMER, {
+      skip: !isCheckout || !user?.brandCustomerId,
+      onError: error => {
+         console.log('UPDATE BRAND CUSTOMER -> ERROR -> ', error)
+      },
+   })
    const [isCartPanelOpen, setIsCartPanelOpen] = React.useState(false)
 
    const [insertOccurenceCustomers] = useMutation(
@@ -28,6 +34,13 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
    const onSubmit = async () => {
       try {
          if (isCheckout) {
+            await updateBrandCustomer({
+               variables: {
+                  id: user?.brandCustomerId,
+                  _set: { subscriptionOnboardStatus: 'CHECKOUT' },
+               },
+            })
+
             const skipList = new URL(location.href).searchParams.get('previous')
 
             if (skipList && skipList.split(',').length > 0) {

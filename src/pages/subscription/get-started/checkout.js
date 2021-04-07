@@ -17,6 +17,7 @@ import {
    PaymentSection,
 } from '../../../sections/checkout'
 import { useUser } from '../../../context'
+import { UPDATE_BRAND_CUSTOMER } from '../../../graphql'
 
 const Checkout = () => {
    const { isAuthenticated } = useUser()
@@ -32,7 +33,7 @@ const Checkout = () => {
          <SEO title="Checkout" />
          <StepsNavbar />
          <PaymentProvider>
-            <PaymentContent isCheckout />
+            <PaymentContent />
          </PaymentProvider>
       </Layout>
    )
@@ -47,6 +48,12 @@ const PaymentContent = ({ isCheckout }) => {
    const [otpPageUrl, setOtpPageUrl] = React.useState('')
    const [isOverlayOpen, toggleOverlay] = React.useState(false)
    const [overlayMessage, setOverlayMessage] = React.useState('')
+   const [updateBrandCustomer] = useMutation(UPDATE_BRAND_CUSTOMER, {
+      skip: !user?.brandCustomerId,
+      onError: error => {
+         console.log('UPDATE BRAND CUSTOMER -> ERROR -> ', error)
+      },
+   })
 
    const { loading, data: { cart = {} } = {} } = useSubscription(
       QUERIES.CART_SUBSCRIPTION,
@@ -98,6 +105,12 @@ const PaymentContent = ({ isCheckout }) => {
                   appearance: 'error',
                })
             } else if (cart.paymentStatus === 'SUCCEEDED') {
+               await updateBrandCustomer({
+                  variables: {
+                     id: user?.brandCustomerId,
+                     _set: { subscriptionOnboardStatus: 'ONBOARDED' },
+                  },
+               })
                if (authTabRef.current) {
                   authTabRef.current.close()
                   if (!authTabRef.current.closed) {

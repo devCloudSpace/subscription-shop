@@ -623,6 +623,15 @@ export const SETTINGS = gql`
    }
 `
 
+export const BRAND_CUSTOMER = gql`
+   subscription brandCustomer($id: Int!) {
+      brandCustomer(id: $id) {
+         id
+         subscriptionOnboardStatus
+      }
+   }
+`
+
 export const CUSTOMER = {
    DETAILS: gql`
       query customer($keycloakId: String!, $brandId: Int!) {
@@ -631,6 +640,12 @@ export const CUSTOMER = {
             keycloakId
             isSubscriber
             isTest
+            carts {
+               id
+               subscriptionOccurence {
+                  fulfillmentDate
+               }
+            }
             customerByClients: platform_customerByClients {
                stripeCustomerId: organizationStripeCustomerId
             }

@@ -101,7 +101,12 @@ export default () => {
                         source: 'subscription',
                         sourceBrandId: brand.id,
                         clientId: isClient && window._env_.GATSBY_CLIENTID,
-                        brandCustomers: { data: { brandId: brand.id } },
+                        brandCustomers: {
+                           data: {
+                              brandId: brand.id,
+                              subscriptionOnboardStatus: 'SELECT_DELIVERY',
+                           },
+                        },
                      },
                   },
                })
@@ -123,6 +128,7 @@ export default () => {
                      object: {
                         keycloakId,
                         brandId: brand.id,
+                        subscriptionOnboardStatus: 'SELECT_DELIVERY',
                      },
                   },
                })
