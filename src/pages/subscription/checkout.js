@@ -37,6 +37,17 @@ const Checkout = () => {
    )
 }
 
+const messages = {
+   PENDING: 'We are processing your payment.',
+   SUCCEEDED: 'Payment for your order has succeeded, you will redirected soon.',
+   REQUIRES_PAYMENT_METHOD: '',
+   REQUIRES_ACTION:
+      'A window will open in short while for further payment authorization required by your bank!',
+   PAYMENT_FAILED: 'Your payment has failed, please try again.',
+   REQUIRES_ACTION_WITH_URL:
+      'A window will open in short while for further payment authorization required by your bank. In case the new window has not opened own yet, please click the button below.',
+}
+
 const PaymentContent = () => {
    const { user } = useUser()
    const { state } = usePayment()
@@ -59,40 +70,35 @@ const PaymentContent = () => {
 
    React.useEffect(() => {
       ;(async () => {
+         const status = cart.paymentStatus
+         const remark = cart.transactionRemark
+         const next_action = cart.transactionRemark?.next_action
+
          try {
-            if (cart.paymentStatus === 'PENDING') {
-               setOverlayMessage('We are processing your payment.')
-            } else if (
-               cart.paymentStatus === 'REQUIRES_ACTION' &&
-               !cart.transactionRemark?.next_action?.type
-            ) {
+            if (status === 'PENDING') {
+               setOverlayMessage(messages['PENDING'])
+            } else if (status === 'REQUIRES_ACTION' && !next_action?.type) {
                toggleOverlay(true)
-               setOverlayMessage(
-                  'A window will open in short while for further payment authorization required by your bank!'
-               )
-            } else if (
-               cart.paymentStatus === 'REQUIRES_ACTION' &&
-               cart.transactionRemark?.next_action?.type
-            ) {
+               setOverlayMessage(messages['REQUIRES_ACTION'])
+            } else if (status === 'REQUIRES_ACTION' && next_action?.type) {
                toggleOverlay(true)
-               setOverlayMessage(
-                  'A window will open in short while for further payment authorization required by your bank. In case the new window has not opened own yet, please click'
-               )
+               setOverlayMessage(messages['REQUIRES_ACTION_WITH_URL'])
                let TAB_URL = ''
-               let remark = cart.transactionRemark
-               if (remark?.next_action?.type === 'use_stripe_sdk') {
-                  TAB_URL = remark?.next_action?.use_stripe_sdk?.stripe_js
+               let remark = remark
+               if (next_action?.type === 'use_stripe_sdk') {
+                  TAB_URL = next_action?.use_stripe_sdk?.stripe_js
                } else {
-                  TAB_URL = remark?.next_action?.redirect_to_url?.url
+                  TAB_URL = next_action?.redirect_to_url?.url
                }
                setOtpPageUrl(TAB_URL)
                authTabRef.current = window.open(TAB_URL, 'payment_auth_page')
             } else if (
-               cart.paymentStatus === 'REQUIRES_PAYMENT_METHOD' &&
-               cart.transactionRemark?.last_payment_error?.code
+               status === 'REQUIRES_PAYMENT_METHOD' &&
+               remark?.last_payment_error?.code
             ) {
                toggleOverlay(false)
-               addToast(cart.transactionRemark?.last_payment_error?.message, {
+               setOverlayMessage(messages['PENDING'])
+               addToast(remark?.last_payment_error?.message, {
                   appearance: 'error',
                })
             } else if (cart.paymentStatus === 'SUCCEEDED') {
@@ -105,19 +111,12 @@ const PaymentContent = () => {
                      )
                   }
                }
-               setOverlayMessage(
-                  'Payment for your order has succeeded, you will redirected soon.'
-               )
-               addToast(
-                  'Your order has been placed, you will be redirected soon',
-                  {
-                     appearance: 'success',
-                  }
-               )
+               setOverlayMessage(messages['SUCCEEDED'])
+               addToast(messages['SUCCEEDED'], { appearance: 'success' })
                navigate(`/subscription/placing-order?id=${cart.id}`)
-            } else if (cart.paymentStatus === 'PAYMENT_FAILED') {
+            } else if (status === 'PAYMENT_FAILED') {
                toggleOverlay(false)
-               addToast('Your payment has failed, please try again.', {
+               addToast(messages['PAYMENT_FAILED'], {
                   appearance: 'error',
                })
             }
@@ -225,21 +224,24 @@ const PaymentContent = () => {
                   </button>
                </header>
                <main tw="flex-1 flex flex-col items-center justify-center">
-                  <p tw="text-white text-xl font-light mb-3 text-center">
-                     {overlayMessage}{' '}
+                  <section tw="p-4 w-11/12 lg:w-8/12 bg-white rounded flex flex-col items-center">
+                     <p tw="lg:w-3/4 text-gray-700 md:text-lg mb-4 text-center">
+                        {overlayMessage}{' '}
+                     </p>
                      {cart.paymentStatus === 'REQUIRES_ACTION' && otpPageUrl && (
                         <a
                            target="_blank"
                            href={otpPageUrl}
                            title={otpPageUrl}
-                           tw="text-indigo-600"
                            rel="noreferer noopener"
+                           style={{ color: '#fff' }}
+                           tw="inline-block px-4 py-2 bg-orange-400 text-sm uppercase rounded font-medium tracking-wider text-indigo-600"
                         >
-                           here
+                           Complete Payment
                         </a>
                      )}
-                  </p>
-                  <Loader inline />
+                     {cart.paymentStatus !== 'PENDING' && <Loader inline />}
+                  </section>
                </main>
             </Overlay>
          )}
