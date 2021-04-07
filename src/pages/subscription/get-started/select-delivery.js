@@ -113,14 +113,11 @@ const DeliveryContent = () => {
       updateBrandCustomer({
          variables: {
             where: {
-               keycloakId: {
-                  _eq: user?.keycloakId,
-               },
-               brandId: {
-                  _eq: brand.id,
-               },
+               keycloakId: { _eq: user?.keycloakId },
+               brandId: { _eq: brand.id },
             },
             _set: {
+               subscriptionOnboardStatus: 'SELECT_MENU',
                subscriptionId: state.delivery.selected.id,
                subscriptionAddressId: state.address.selected.id,
             },
@@ -152,11 +149,7 @@ const DeliveryContent = () => {
          </SectionTitle>
          <DeliveryDateSection />
          <div tw="mt-4 w-full flex items-center justify-center">
-            <Button
-               bg={theme?.accent}
-               onClick={() => nextStep()}
-               disabled={!isValid()}
-            >
+            <Button bg={theme?.accent} onClick={nextStep} disabled={!isValid()}>
                Continue
             </Button>
          </div>

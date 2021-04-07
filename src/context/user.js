@@ -1,10 +1,12 @@
 import 'twin.macro'
 import React from 'react'
+import { isEmpty } from 'lodash'
 import jwtDecode from 'jwt-decode'
 import { useQuery, useSubscription } from '@apollo/react-hooks'
 
 import { useConfig } from '../lib'
 import {
+   BRAND_CUSTOMER,
    CUSTOMER,
    CUSTOMER_REFERRALS,
    LOYALTY_POINTS,
@@ -17,17 +19,18 @@ const UserContext = React.createContext()
 
 const reducers = (state, { type, payload }) => {
    switch (type) {
-      case 'SET_USER':
+      case 'SET_USER': {
          return {
             ...state,
             isAuthenticated: true,
             user: { ...state.user, ...payload },
          }
+      }
       case 'CLEAR_USER':
          return {
             ...state,
             isAuthenticated: false,
-            user: { keycloakId: '' },
+            user: { subscriptionOnboardStatus: 'SELECT_PLAN', keycloakId: '' },
          }
    }
 }
@@ -38,7 +41,23 @@ export const UserProvider = ({ children }) => {
    const [keycloakId, setKeycloakId] = React.useState('')
    const [state, dispatch] = React.useReducer(reducers, {
       isAuthenticated: false,
-      user: { keycloakId: '' },
+      user: { subscriptionOnboardStatus: 'SELECT_PLAN', keycloakId: '' },
+   })
+   useSubscription(BRAND_CUSTOMER, {
+      skip: !state?.user?.brandCustomerId,
+      variables: { id: state?.user?.brandCustomerId },
+      onSubscriptionData: ({
+         subscriptionData: { data: { brandCustomer = {} } = {} } = {},
+      }) => {
+         if (isEmpty(brandCustomer)) return
+         dispatch({
+            type: 'SET_USER',
+            payload: {
+               subscriptionOnboardStatus:
+                  brandCustomer.subscriptionOnboardStatus,
+            },
+         })
+      },
    })
    const { loading, data: { customer = {} } = {} } = useQuery(
       CUSTOMER.DETAILS,

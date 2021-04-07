@@ -19,7 +19,6 @@ export const Layout = ({ children, noHeader }) => {
       isTermsAndConditionsAvailable,
    } = configOf('Policy Availability', 'brand')
    const store = configOf('Store Availability', 'availability')
-   console.log(user.isTest)
    return (
       <>
          {!noHeader && <Header />}

@@ -268,3 +268,14 @@ export const INSERT_CART_ITEM = gql`
       }
    }
 `
+
+export const UPDATE_BRAND_CUSTOMER = gql`
+   mutation updateBrandCustomer(
+      $id: Int!
+      $_set: crm_brand_customer_set_input = {}
+   ) {
+      updateBrandCustomer(pk_columns: { id: $id }, _set: $_set) {
+         id
+      }
+   }
+`

@@ -2,13 +2,31 @@ import React from 'react'
 import { Link, navigate } from 'gatsby'
 import { useLocation } from '@reach/router'
 import tw, { styled, css } from 'twin.macro'
+import { findKey, has, isEmpty } from 'lodash'
 
 import { useConfig } from '../lib'
 import { useUser } from '../context'
 import { isClient } from '../utils'
 
+const routes = {
+   '/subscription/get-started/select-plan': {
+      status: 'SELECT_PLAN',
+      level: 0,
+   },
+   '/subscription/get-started/register': { status: 'REGISTER', level: 25 },
+   '/subscription/get-started/select-delivery': {
+      status: 'SELECT_DELIVERY',
+      level: 50,
+   },
+   '/subscription/get-started/select-menu/': {
+      status: 'SELECT_MENU',
+      level: 75,
+   },
+   '/subscription/get-started/checkout/': { status: 'CHECKOUT', level: 100 },
+}
+
 export const StepsNavbar = () => {
-   const { isAuthenticated, dispatch } = useUser()
+   const { user, isAuthenticated } = useUser()
    const { hasConfig, configOf } = useConfig()
    const [steps, setSteps] = React.useState({
       register: 'Register',
@@ -25,11 +43,8 @@ export const StepsNavbar = () => {
 
    const location = useLocation()
    const [currentStep] = React.useState(() => {
-      if (location.pathname.includes('/get-started/select-plan')) return 0
-      if (location.pathname.includes('/get-started/register')) return 25
-      if (location.pathname.includes('/get-started/select-delivery')) return 50
-      if (location.pathname.includes('/get-started/select-menu')) return 75
-      if (location.pathname.includes('/get-started/checkout')) return 100
+      if (!has(routes, location.pathname)) return
+      return routes[location.pathname].level
    })
 
    const brand = configOf('theme-brand', 'brand')
@@ -39,6 +54,32 @@ export const StepsNavbar = () => {
       isClient && localStorage.removeItem('token')
       if (isClient) {
          window.location.href = window.location.origin + '/subscription'
+      }
+   }
+
+   const canGoToStep = route => {
+      if (!has(routes, route) || !has(routes, location.pathname)) return
+      const status = user?.subscriptionOnboardStatus || 'SELECT_PLAN'
+      const statusKey = findKey(routes, { status })
+      const completedRoute = routes[statusKey]
+      if (routes[route].level <= completedRoute.level) {
+         return true
+      }
+      return false
+   }
+
+   const goToStep = route => {
+      let path = route
+      if (canGoToStep(route)) {
+         if (!isEmpty(user?.carts)) {
+            const [cart] = user?.carts
+            if (route === '/subscription/get-started/checkout/') {
+               path += `?id=${cart.id}`
+            } else if (route === '/subscription/get-started/select-menu/') {
+               path += `?date=${cart.subscriptionOccurence?.fulfillmentDate}`
+            }
+         }
+         navigate(path)
       }
    }
 
@@ -56,11 +97,46 @@ export const StepsNavbar = () => {
          <Progress>
             <ProgressBar theme={theme} current={currentStep} />
             <Steps>
-               <Step>Select Plan</Step>
-               <Step>{steps.register}</Step>
-               <Step>{steps.selectDelivery}</Step>
-               <Step>{steps.selectMenu}</Step>
-               <Step>{steps.checkout}</Step>
+               <RenderStep
+                  goToStep={goToStep}
+                  canGoToStep={canGoToStep}
+                  isActive={currentStep === 0}
+                  route="/subscription/get-started/select-plan"
+               >
+                  Select Plan
+               </RenderStep>
+               <RenderStep
+                  goToStep={goToStep}
+                  canGoToStep={canGoToStep}
+                  isActive={currentStep === 25}
+                  route="/subscription/get-started/register"
+               >
+                  {steps.register}
+               </RenderStep>
+               <RenderStep
+                  goToStep={goToStep}
+                  canGoToStep={canGoToStep}
+                  isActive={currentStep === 50}
+                  route="/subscription/get-started/select-delivery"
+               >
+                  {steps.selectDelivery}
+               </RenderStep>
+               <RenderStep
+                  goToStep={goToStep}
+                  canGoToStep={canGoToStep}
+                  isActive={currentStep === 75}
+                  route="/subscription/get-started/select-menu/"
+               >
+                  {steps.selectMenu}
+               </RenderStep>
+               <RenderStep
+                  goToStep={goToStep}
+                  canGoToStep={canGoToStep}
+                  isActive={currentStep === 100}
+                  route="/subscription/get-started/checkout/"
+               >
+                  {steps.checkout}
+               </RenderStep>
             </Steps>
          </Progress>
          <section tw="px-4 ml-auto">
@@ -76,6 +152,21 @@ export const StepsNavbar = () => {
             )}
          </section>
       </Navbar>
+   )
+}
+
+const RenderStep = ({ route, isActive, children, canGoToStep, goToStep }) => {
+   return (
+      <Step
+         css={[
+            canGoToStep(route) || isActive
+               ? tw`text-gray-600 cursor-pointer`
+               : tw`text-gray-400`,
+         ]}
+         onClick={() => goToStep(route)}
+      >
+         {children}
+      </Step>
    )
 }
 
@@ -108,7 +199,7 @@ const Steps = styled.ul`
 `
 
 const Step = styled.li`
-   ${tw`text-sm text-center text-gray-600`}
+   ${tw`text-sm text-center`}
 `
 
 const ProgressBar = styled.span(
