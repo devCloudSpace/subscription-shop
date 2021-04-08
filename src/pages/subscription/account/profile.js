@@ -3,7 +3,14 @@ import { navigate } from 'gatsby'
 import React from 'react'
 import { useToasts } from 'react-toast-notifications'
 import tw, { css, styled } from 'twin.macro'
-import { Form, Layout, Loader, ProfileSidebar, SEO } from '../../../components'
+import {
+   Button,
+   Form,
+   Layout,
+   Loader,
+   ProfileSidebar,
+   SEO,
+} from '../../../components'
 import { useUser } from '../../../context'
 import { SUBSCRIPTION_PLAN } from '../../../graphql'
 import { useConfig } from '../../../lib'
@@ -79,9 +86,11 @@ const CurrentPlan = () => {
    const { addToast } = useToasts()
    const { configOf } = useConfig()
 
-   console.log(user)
+   const theme = configOf('theme-color', 'Visual')
 
    const [plan, setPlan] = React.useState(null)
+   const [isCancelFormVisible, setIsCancelFormVisible] = React.useState(false)
+   const [reason, setReason] = React.useState('')
 
    const { loading } = useQuery(SUBSCRIPTION_PLAN, {
       variables: {
@@ -112,7 +121,10 @@ const CurrentPlan = () => {
       },
    })
 
-   const theme = configOf('theme-color', 'Visual')
+   const handleCancellation = e => {
+      e.preventDefault()
+      console.log(`Cancelling...`)
+   }
 
    if (loading) return <Loader inline />
    return (
@@ -134,6 +146,43 @@ const CurrentPlan = () => {
                <CurrentPlanStatValue>{plan?.servings}</CurrentPlanStatValue>
             </CurrentPlanStat>
          </CurrentPlanCard>
+         <Button size="sm" theme={theme}>
+            Change Plan
+         </Button>
+         <div tw="h-2" />
+         {isCancelFormVisible ? (
+            <CancellationForm onSubmit={handleCancellation}>
+               <Form.Field>
+                  <Form.Label>Reason(Optional)</Form.Label>
+                  <Form.Text
+                     type="text"
+                     name="reason"
+                     placeholder="Enter your reason"
+                     onChange={e => setReason(e.target.value)}
+                     value={reason}
+                  />
+               </Form.Field>
+               <Button size="sm" type="submit">
+                  Yes! Cancel my subscription.
+               </Button>
+               <span tw="w-2 inline-block" />
+               <Button
+                  size="sm"
+                  type="reset"
+                  onClick={() => setIsCancelFormVisible(false)}
+               >
+                  No! I changed my mind.
+               </Button>
+            </CancellationForm>
+         ) : (
+            <Button
+               size="sm"
+               theme={theme}
+               onClick={() => setIsCancelFormVisible(true)}
+            >
+               Cancel Subscription
+            </Button>
+         )}
       </CurrentPlanWrapper>
    )
 }
@@ -144,6 +193,7 @@ const CurrentPlanWrapper = styled.div`
 
 const CurrentPlanHeading = styled.div(
    ({ theme }) => css`
+      margin-bottom: 4px;
       ${tw`text-green-600`}
       ${theme?.accent && `color: ${theme.accent}`}
    `
@@ -156,6 +206,7 @@ const CurrentPlanCard = styled.div`
    display: flex;
    max-width: 420px;
    justify-content: space-between;
+   margin-bottom: 24px;
 `
 
 const CurrentPlanStat = styled.div``
@@ -166,6 +217,13 @@ const CurrentPlanStatKey = styled.small`
 
 const CurrentPlanStatValue = styled.p`
    font-weight: 500;
+`
+
+const CancellationForm = styled.form`
+   border: 1px solid #cacaca;
+   padding: 1rem;
+   border-radius: 4px;
+   max-width: 680px;
 `
 
 const Title = styled.h2(
