@@ -655,6 +655,7 @@ export const CUSTOMER = {
                keycloakId
                isSubscriber
                isSubscriptionCancelled
+               pausePeriod
                subscriptionId
                subscriptionAddressId
                subscriptionPaymentMethodId
