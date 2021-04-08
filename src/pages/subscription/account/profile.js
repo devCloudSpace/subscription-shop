@@ -1,4 +1,4 @@
-import { useQuery } from '@apollo/react-hooks'
+import { useMutation, useQuery } from '@apollo/react-hooks'
 import { navigate } from 'gatsby'
 import React from 'react'
 import { useToasts } from 'react-toast-notifications'
@@ -12,8 +12,9 @@ import {
    SEO,
 } from '../../../components'
 import { useUser } from '../../../context'
-import { SUBSCRIPTION_PLAN } from '../../../graphql'
+import { BRAND, SUBSCRIPTION_PLAN } from '../../../graphql'
 import { useConfig } from '../../../lib'
+import { isClient } from '../../../utils'
 
 const Profile = () => {
    const { isAuthenticated } = useUser()
@@ -84,7 +85,7 @@ const ProfileForm = () => {
 const CurrentPlan = () => {
    const { user } = useUser()
    const { addToast } = useToasts()
-   const { configOf } = useConfig()
+   const { brand, configOf } = useConfig()
 
    const theme = configOf('theme-color', 'Visual')
 
@@ -101,10 +102,6 @@ const CurrentPlan = () => {
       onCompleted: data => {
          if (data?.subscription_subscription?.length) {
             const [fetchedPlan] = data.subscription_subscription
-            console.log(
-               '🚀 ~ file: profile.js ~ line 90 ~ CurrentPlan ~ fetchedPlan',
-               fetchedPlan
-            )
             setPlan({
                name:
                   fetchedPlan.subscriptionItemCount.subscriptionServing
@@ -122,12 +119,66 @@ const CurrentPlan = () => {
       },
    })
 
+   const [updateBrandCustomer] = useMutation(BRAND.CUSTOMER.UPDATE, {
+      refetchQueries: ['customer'],
+      onCompleted: () => {
+         addToast('Successfully updated subscription status.', {
+            appearance: 'success',
+         })
+         setIsCancelFormVisible(false)
+      },
+      onError: error => {
+         addToast(error.message, {
+            appearance: 'error',
+         })
+      },
+   })
+
    const handleCancellation = e => {
       e.preventDefault()
-      console.log(`Cancelling...`)
+      updateBrandCustomer({
+         variables: {
+            where: {
+               keycloakId: { _eq: user?.keycloakId },
+               brandId: { _eq: brand.id },
+            },
+            _set: {
+               isSubscriptionCancelled: true,
+               ...(reason && { subscriptionCancellationReason: reason }),
+            },
+         },
+      })
+   }
+
+   const handleReactivation = () => {
+      const isConfirmed =
+         isClient &&
+         window.confirm('Are you sure you want to reactivate subscription?')
+      if (isConfirmed) {
+         updateBrandCustomer({
+            variables: {
+               where: {
+                  keycloakId: { _eq: user?.keycloakId },
+                  brandId: { _eq: brand.id },
+               },
+               _set: {
+                  isSubscriptionCancelled: false,
+                  subscriptionCancellationReason: '',
+               },
+            },
+         })
+      }
    }
 
    if (loading) return <Loader inline />
+   if (user?.isSubscriptionCancelled)
+      return (
+         <CurrentPlanWrapper>
+            <Button size="sm" onClick={handleReactivation}>
+               Reactivate Subscription
+            </Button>
+         </CurrentPlanWrapper>
+      )
    return (
       <CurrentPlanWrapper>
          <CurrentPlanHeading theme={theme}>

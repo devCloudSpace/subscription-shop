@@ -13,9 +13,11 @@ export const processUser = (customer, stripeAccountType = '') => {
          subscriptionId = null,
          subscriptionAddressId = null,
          subscriptionPaymentMethodId = null,
+         isSubscriptionCancelled = null,
       } = brand_customer
 
       rest.brandCustomerId = id
+      rest.isSubscriptionCancelled = isSubscriptionCancelled
       rest.subscription = subscription
       rest.subscriptionId = subscriptionId
       rest.subscriptionAddressId = subscriptionAddressId
