@@ -40,12 +40,21 @@ const reducers = (state, { type, payload }) => {
                ...state.address,
                selected: payload,
             },
+            delivery: {
+               selected: {},
+            },
+            delivery_date: {
+               selected: {},
+            },
          }
       case 'SET_DAY':
          return {
             ...state,
             delivery: {
                selected: payload,
+            },
+            delivery_date: {
+               selected: {},
             },
          }
       case 'SET_DATE':
@@ -59,6 +68,22 @@ const reducers = (state, { type, payload }) => {
          return {
             ...state,
             skip_list: payload,
+         }
+      case 'RESET':
+         return {
+            ...state,
+            address: {
+               selected: {},
+               error: '',
+               tunnel: false,
+            },
+            delivery: {
+               selected: {},
+            },
+            delivery_date: {
+               selected: {},
+            },
+            skip_list: [],
          }
       default:
          return state

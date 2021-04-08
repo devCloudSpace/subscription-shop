@@ -62,7 +62,7 @@ export const StepsNavbar = () => {
       const status = user?.subscriptionOnboardStatus || 'SELECT_PLAN'
       const statusKey = findKey(routes, { status })
       const completedRoute = routes[statusKey]
-      if (routes[route].level <= completedRoute.level) {
+      if (routes[route].level <= completedRoute?.level) {
          return true
       }
       return false

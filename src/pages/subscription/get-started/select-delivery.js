@@ -116,11 +116,11 @@ const DeliveryContent = () => {
    const [updateBrandCustomer] = useMutation(BRAND.CUSTOMER.UPDATE, {
       refetchQueries: ['customer'],
       onCompleted: () => {
-         if (!isEmpty(user?.carts)) {
-            user.carts.forEach(cart => {
-               deleteCart({ variables: { id: cart?.id } })
-            })
-         }
+         // if (!isEmpty(user?.carts)) {
+         //    user.carts.forEach(cart => {
+         //       deleteCart({ variables: { id: cart?.id } })
+         //    })
+         // }
          addToast('Successfully saved delivery preferences.', {
             appearance: 'success',
          })
