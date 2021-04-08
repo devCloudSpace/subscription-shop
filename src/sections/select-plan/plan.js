@@ -7,7 +7,7 @@ import { useConfig } from '../../lib'
 import { Loader } from '../../components'
 import { isClient, formatCurrency } from '../../utils'
 
-export const Plan = ({ plan }) => {
+export const Plan = ({ plan, handlePlanClick }) => {
    const { addToast } = useToasts()
    const { configOf } = useConfig('conventions')
    const [defaultItemCount, setDefaultItemCount] = React.useState(null)
@@ -30,6 +30,9 @@ export const Plan = ({ plan }) => {
    }, [defaultServing])
 
    const selectPlan = () => {
+      if (handlePlanClick) {
+         return handlePlanClick(defaultItemCount.id)
+      }
       if (isClient) {
          window.localStorage.setItem('plan', defaultItemCount.id)
       }

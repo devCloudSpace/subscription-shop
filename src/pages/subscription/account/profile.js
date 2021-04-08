@@ -93,6 +93,7 @@ const CurrentPlan = () => {
    const [reason, setReason] = React.useState('')
 
    const { loading } = useQuery(SUBSCRIPTION_PLAN, {
+      skip: !(user.subscriptionId && user.brandCustomerId),
       variables: {
          subscriptionId: user.subscriptionId,
          brandCustomerId: user.brandCustomerId,
@@ -146,7 +147,11 @@ const CurrentPlan = () => {
                <CurrentPlanStatValue>{plan?.servings}</CurrentPlanStatValue>
             </CurrentPlanStat>
          </CurrentPlanCard>
-         <Button size="sm" theme={theme}>
+         <Button
+            size="sm"
+            theme={theme}
+            onClick={() => navigate(`/subscription/change-plan`)}
+         >
             Change Plan
          </Button>
          <div tw="h-2" />
