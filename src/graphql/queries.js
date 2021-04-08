@@ -258,6 +258,7 @@ export const CART_BY_WEEK = gql`
       ) {
          isAuto
          isSkipped
+         betweenPause
          validStatus
          cart {
             id

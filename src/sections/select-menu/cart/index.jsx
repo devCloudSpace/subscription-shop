@@ -142,18 +142,26 @@ const CartBar = ({ setIsCartPanelOpen }) => {
                View full summary <span>&#8657;</span>
             </h4>
          </section>
-         <section tw="sm:hidden md:block">
-            {state.cartState === 'SAVING' && (
-               <span tw="text-sm bg-blue-200 text-blue-700  rounded-full px-3 font-medium">
-                  SAVING
-               </span>
-            )}
-            {state.cartState === 'SAVED' && (
-               <span tw="text-sm bg-green-200 text-green-700 rounded-full px-3 font-medium">
-                  SAVED
-               </span>
-            )}
-         </section>
+         {state.occurenceCustomer?.betweenPause ? (
+            <span tw="text-sm bg-yellow-200 text-yellow-700  rounded-full px-3 font-medium">
+               PAUSED
+            </span>
+         ) : (
+            <>
+               <section tw="sm:hidden md:block">
+                  {state.cartState === 'SAVING' && (
+                     <span tw="text-sm bg-blue-200 text-blue-700  rounded-full px-3 font-medium">
+                        SAVING
+                     </span>
+                  )}
+                  {state.cartState === 'SAVED' && (
+                     <span tw="text-sm bg-green-200 text-green-700 rounded-full px-3 font-medium">
+                        SAVED
+                     </span>
+                  )}
+               </section>
+            </>
+         )}
       </Styles.CartBar>
    )
 }
