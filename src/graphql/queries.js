@@ -854,3 +854,24 @@ export const CUSTOMERS_REFERRED = gql`
       }
    }
 `
+
+export const SUBSCRIPTION_PLAN = gql`
+   query SubscriptionPlan($subscriptionId: Int!, $brandCustomerId: Int) {
+      subscription_subscription(
+         where: {
+            id: { _eq: $subscriptionId }
+            brand_customers: { id: { _eq: $brandCustomerId } }
+         }
+      ) {
+         subscriptionItemCount {
+            count
+            subscriptionServing {
+               servingSize
+               subscriptionTitle {
+                  title
+               }
+            }
+         }
+      }
+   }
+`

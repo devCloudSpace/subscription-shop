@@ -1,8 +1,11 @@
+import { useQuery } from '@apollo/react-hooks'
 import { navigate } from 'gatsby'
 import React from 'react'
+import { useToasts } from 'react-toast-notifications'
 import tw, { css, styled } from 'twin.macro'
-import { Form, Layout, ProfileSidebar, SEO } from '../../../components'
+import { Form, Layout, Loader, ProfileSidebar, SEO } from '../../../components'
 import { useUser } from '../../../context'
+import { SUBSCRIPTION_PLAN } from '../../../graphql'
 import { useConfig } from '../../../lib'
 
 const Profile = () => {
@@ -19,7 +22,10 @@ const Profile = () => {
          <SEO title="Profile" />
          <Main>
             <ProfileSidebar />
-            <ProfileForm />
+            <div>
+               <ProfileForm />
+               <CurrentPlan />
+            </div>
          </Main>
       </Layout>
    )
@@ -67,6 +73,100 @@ const ProfileForm = () => {
       </section>
    )
 }
+
+const CurrentPlan = () => {
+   const { user } = useUser()
+   const { addToast } = useToasts()
+   const { configOf } = useConfig()
+
+   console.log(user)
+
+   const [plan, setPlan] = React.useState(null)
+
+   const { loading } = useQuery(SUBSCRIPTION_PLAN, {
+      variables: {
+         subscriptionId: user.subscriptionId,
+         brandCustomerId: user.brandCustomerId,
+      },
+      onCompleted: data => {
+         if (data?.subscription_subscription?.length) {
+            const [fetchedPlan] = data.subscription_subscription
+            console.log(
+               '🚀 ~ file: profile.js ~ line 90 ~ CurrentPlan ~ fetchedPlan',
+               fetchedPlan
+            )
+            setPlan({
+               name:
+                  fetchedPlan.subscriptionItemCount.subscriptionServing
+                     .subscriptionTitle.title,
+               itemCount: fetchedPlan.subscriptionItemCount.count,
+               servings:
+                  fetchedPlan.subscriptionItemCount.subscriptionServing
+                     .servingSize,
+            })
+         }
+      },
+      onError: error => {
+         console.log(error)
+         addToast('Failed to fetch current plan!', { appearance: 'error' })
+      },
+   })
+
+   const theme = configOf('theme-color', 'Visual')
+
+   if (loading) return <Loader inline />
+   return (
+      <CurrentPlanWrapper>
+         <CurrentPlanHeading theme={theme}>
+            Your current plan
+         </CurrentPlanHeading>
+         <CurrentPlanCard>
+            <CurrentPlanStat>
+               <CurrentPlanStatKey>Name</CurrentPlanStatKey>
+               <CurrentPlanStatValue>{plan?.name}</CurrentPlanStatValue>
+            </CurrentPlanStat>
+            <CurrentPlanStat>
+               <CurrentPlanStatKey>Item Count</CurrentPlanStatKey>
+               <CurrentPlanStatValue>{plan?.itemCount}</CurrentPlanStatValue>
+            </CurrentPlanStat>
+            <CurrentPlanStat>
+               <CurrentPlanStatKey>Servings</CurrentPlanStatKey>
+               <CurrentPlanStatValue>{plan?.servings}</CurrentPlanStatValue>
+            </CurrentPlanStat>
+         </CurrentPlanCard>
+      </CurrentPlanWrapper>
+   )
+}
+
+const CurrentPlanWrapper = styled.div`
+   padding: 1.5rem;
+`
+
+const CurrentPlanHeading = styled.div(
+   ({ theme }) => css`
+      ${tw`text-green-600`}
+      ${theme?.accent && `color: ${theme.accent}`}
+   `
+)
+
+const CurrentPlanCard = styled.div`
+   padding: 1rem;
+   border: 1px solid #cacaca;
+   border-radius: 4px;
+   display: flex;
+   max-width: 420px;
+   justify-content: space-between;
+`
+
+const CurrentPlanStat = styled.div``
+
+const CurrentPlanStatKey = styled.small`
+   ${tw`block mb-1 text-gray-700 text-sm tracking-wide`}
+`
+
+const CurrentPlanStatValue = styled.p`
+   font-weight: 500;
+`
 
 const Title = styled.h2(
    ({ theme }) => css`
