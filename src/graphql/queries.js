@@ -741,7 +741,7 @@ export const COUPONS = gql`
          id
          code
          isRewardMulti
-         rewards(order_by: { priority: desc }) {
+         rewards(order_by: { position: desc_nulls_last }) {
             id
             condition {
                isValid(args: { params: $params })
