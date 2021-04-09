@@ -76,11 +76,20 @@ const MenuContent = () => {
                      plan if you want to add items.
                   </MessageBar>
                )}
+               {user.isSubscriptionCancelled && (
+                  <MessageBar large>
+                     Oh! Looks like you cancelled your subscription. Changed
+                     your mind? Re-activate your last plan by going to your
+                     profile.
+                  </MessageBar>
+               )}
             </div>
-            <Content>
-               <Menu />
-               <CartPanel />
-            </Content>
+            {!user.isSubscriptionCancelled && (
+               <Content>
+                  <Menu />
+                  <CartPanel />
+               </Content>
+            )}
          </Main>
       )
    return (
@@ -134,11 +143,14 @@ const Header = styled.header`
 `
 
 const MessageBar = styled.div`
-   height: 80px;
+   height: ${props => (props.large ? '120px' : '80px')};
    display: flex;
    align-items: center;
    justify-content: center;
-   ${tw`bg-yellow-200 text-yellow-600 text-center`}
+   ${props =>
+      props.large
+         ? tw`bg-red-200 text-red-600 text-center`
+         : tw`bg-yellow-200 text-yellow-600 text-center`}
 
    a {
       text-decoration: underline;
