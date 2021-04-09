@@ -28,6 +28,7 @@ export const DeliveryDateSection = () => {
                appearance: 'error',
             })
          },
+         fetchPolicy: 'cache-and-network',
       }
    )
 
