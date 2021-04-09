@@ -189,23 +189,23 @@ const CurrentPlan = () => {
 
    const handlePausePlan = e => {
       e.preventDefault()
-      console.log({ startDate, endDate })
       if (startDate && endDate) {
          const start = new Date(startDate)
          const end = new Date(endDate)
-         const now = Date.now()
-         if (start < now) {
+         const now = moment().format('YYYY-MM-DD')
+         console.log({ startDate, endDate, now })
+         if (moment(start).isBefore(now)) {
             return addToast('Start date is not valid!', { appearance: 'error' })
-         }
-         if (end <= now) {
+         } else if (moment(end).isBefore(now)) {
             return addToast('End date is not valid!', { appearance: 'error' })
-         }
-         if (end <= start) {
-            return addToast('End date should be greater than start date!', {
-               appearance: 'error',
-            })
-         }
-         if (start >= now && end > now && end > start) {
+         } else if (moment(end).isBefore(start)) {
+            return addToast(
+               'End date should be greater than or same as start date!',
+               {
+                  appearance: 'error',
+               }
+            )
+         } else {
             updateBrandCustomer({
                variables: {
                   where: {
@@ -220,8 +220,6 @@ const CurrentPlan = () => {
                   },
                },
             })
-         } else {
-            addToast('Invalid date selection!', { appearance: 'error' })
          }
       }
    }
