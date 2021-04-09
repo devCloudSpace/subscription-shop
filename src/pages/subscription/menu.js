@@ -1,6 +1,6 @@
 import React from 'react'
 import { isEmpty } from 'lodash'
-import { navigate } from 'gatsby'
+import { Link, navigate } from 'gatsby'
 import tw, { styled } from 'twin.macro'
 
 import { SEO, Layout, HelperBar, Loader } from '../../components'
@@ -70,6 +70,12 @@ const MenuContent = () => {
                      </h3>
                   )}
                </Header>
+               {state.occurenceCustomer?.betweenPause && (
+                  <MessageBar>
+                     You've paused the plan for this week. Please resume the
+                     plan if you want to add items.
+                  </MessageBar>
+               )}
             </div>
             <Content>
                <Menu />
@@ -124,6 +130,18 @@ const Header = styled.header`
       width: 100%;
       z-index: 1;
       ${tw`bg-black opacity-25`}
+   }
+`
+
+const MessageBar = styled.div`
+   height: 80px;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   ${tw`bg-yellow-200 text-yellow-600 text-center`}
+
+   a {
+      text-decoration: underline;
    }
 `
 
