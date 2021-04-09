@@ -25,6 +25,7 @@ export const DeliverySection = ({ planId }) => {
                appearance: 'error',
             })
          },
+         fetchPolicy: 'cache-and-network',
       }
    )
 
