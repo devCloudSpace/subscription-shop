@@ -73,15 +73,18 @@ const MenuContent = () => {
                {!user.isSubscriptionCancelled &&
                   state.occurenceCustomer?.betweenPause && (
                      <MessageBar>
-                        You've paused the plan for this week. Please resume the
-                        plan if you want to add items.
+                        You've paused the plan for this week.&nbsp;
+                        <Link to="/subscription/account/profile">
+                           UNPAUSE SUBSCRIPTION
+                        </Link>
                      </MessageBar>
                   )}
                {user.isSubscriptionCancelled && (
                   <MessageBar large>
-                     Oh! Looks like you cancelled your subscription. Changed
-                     your mind? Re-activate your last plan by going to your
-                     profile.
+                     Oh! Looks like you cancelled your subscription.&nbsp;
+                     <Link to="/subscription/account/profile">
+                        REACTIVATE SUBSCRIPTION
+                     </Link>
                   </MessageBar>
                )}
             </div>

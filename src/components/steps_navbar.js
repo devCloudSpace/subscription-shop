@@ -94,6 +94,7 @@ export const StepsNavbar = () => {
          <Brand to="/subscription" title={brand?.name || 'Subscription Shop'}>
             {brand?.logo?.logoMark && (
                <img
+                  tw="h-12"
                   src={brand?.logo?.logoMark}
                   alt={brand?.name || 'Subscription Shop'}
                />
@@ -146,6 +147,11 @@ export const StepsNavbar = () => {
             </Steps>
          </Progress>
          <section tw="px-4 ml-auto">
+            {!user.isSubscriber && (
+               <SelectPlanLink to="/subscription/get-started/select-plan">
+                  Select Plan
+               </SelectPlanLink>
+            )}
             {isAuthenticated ? (
                <button
                   onClick={logout}
@@ -187,9 +193,14 @@ const Navbar = styled.div`
    }
 `
 
+const SelectPlanLink = styled(Link)`
+   text-decoration: none;
+   ${tw`text-gray-800 hover:text-indigo-600 mr-3`}
+`
+
 const Brand = styled(Link)`
-   width: 140px;
-   ${tw`h-full px-6 flex items-center border-r`}
+   text-decoration: none;
+   ${tw`h-full px-6 flex items-center border-r text-gray-800`}
 `
 
 const Progress = styled.section`
