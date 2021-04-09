@@ -13,7 +13,7 @@ import { ITEM_COUNT } from '../../graphql'
 import { CheckIcon, TickIcon, CrossIcon } from '../../assets/icons'
 import { Loader, HelperBar } from '../../components'
 
-export const DeliverySection = () => {
+export const DeliverySection = ({ planId }) => {
    const { user } = useUser()
    const { addToast } = useToasts()
    const { state, dispatch } = useDelivery()
@@ -29,7 +29,7 @@ export const DeliverySection = () => {
    )
 
    React.useEffect(() => {
-      if (user.subscriptionId) {
+      if (user.subscriptionId && !planId) {
          dispatch({
             type: 'SET_DAY',
             payload: {
@@ -43,12 +43,12 @@ export const DeliverySection = () => {
       if (!isEmpty(state.address.selected)) {
          fetchDays({
             variables: {
-               id: isClient && window.localStorage.getItem('plan'),
+               id: planId ?? (isClient && window.localStorage.getItem('plan')),
                zipcode: state.address.selected.zipcode,
             },
          })
       }
-   }, [state.address.selected, fetchDays])
+   }, [state.address.selected, fetchDays, planId])
 
    const daySelection = day => {
       dispatch({ type: 'SET_DAY', payload: day })

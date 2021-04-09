@@ -188,7 +188,7 @@ const LoginPanel = ({ loading, customer }) => {
    return (
       <Panel>
          <FieldSet>
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">Email*</Label>
             <Input
                type="email"
                name="email"
@@ -198,7 +198,7 @@ const LoginPanel = ({ loading, customer }) => {
             />
          </FieldSet>
          <FieldSet>
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">Password*</Label>
             <Input
                name="password"
                type="password"

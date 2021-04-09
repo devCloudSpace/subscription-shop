@@ -101,7 +101,12 @@ export default () => {
                         source: 'subscription',
                         sourceBrandId: brand.id,
                         clientId: isClient && window._env_.GATSBY_CLIENTID,
-                        brandCustomers: { data: { brandId: brand.id } },
+                        brandCustomers: {
+                           data: {
+                              brandId: brand.id,
+                              subscriptionOnboardStatus: 'SELECT_DELIVERY',
+                           },
+                        },
                      },
                   },
                })
@@ -123,6 +128,7 @@ export default () => {
                      object: {
                         keycloakId,
                         brandId: brand.id,
+                        subscriptionOnboardStatus: 'SELECT_DELIVERY',
                      },
                   },
                })
@@ -238,7 +244,7 @@ const LoginPanel = ({ loading, customer }) => {
    return (
       <Panel>
          <FieldSet>
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">Email*</Label>
             <Input
                type="email"
                name="email"
@@ -248,7 +254,7 @@ const LoginPanel = ({ loading, customer }) => {
             />
          </FieldSet>
          <FieldSet>
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">Password*</Label>
             <Input
                name="password"
                type="password"
@@ -268,16 +274,24 @@ const LoginPanel = ({ loading, customer }) => {
    )
 }
 
+function validateEmail(email) {
+   const re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+   return re.test(email)
+}
+
 const RegisterPanel = ({ loading, customer, setCurrent }) => {
    const { brand } = useConfig()
    const [error, setError] = React.useState('')
+   const [emailError, setEmailError] = React.useState('')
+   const [passwordError, setPasswordError] = React.useState('')
    const [form, setForm] = React.useState({
       email: '',
       password: '',
       code: '',
    })
 
-   const isValid = form.email && form.password
+   const isValid =
+      validateEmail(form.email) && form.password && form.password.length >= 6
 
    React.useEffect(() => {
       const storedReferralCode = getStoredReferralCode('')
@@ -286,6 +300,12 @@ const RegisterPanel = ({ loading, customer, setCurrent }) => {
 
    const onChange = e => {
       const { name, value } = e.target
+      if (name === 'email' && validateEmail(value) && emailError) {
+         setEmailError('')
+      }
+      if (name === 'password' && value.length >= 6 && passwordError) {
+         setPasswordError('')
+      }
       setForm(form => ({
          ...form,
          [name]: value.trim(),
@@ -336,26 +356,44 @@ const RegisterPanel = ({ loading, customer, setCurrent }) => {
 
    return (
       <Panel>
-         <FieldSet>
-            <Label htmlFor="email">Email</Label>
+         <FieldSet css={[emailError && tw`mb-1`]}>
+            <Label htmlFor="email">Email*</Label>
             <Input
                type="email"
                name="email"
                value={form.email}
                onChange={onChange}
                placeholder="Enter your email"
+               onBlur={e =>
+                  validateEmail(e.target.value)
+                     ? setEmailError('')
+                     : setEmailError('Must be a valid email!')
+               }
             />
          </FieldSet>
-         <FieldSet>
-            <Label htmlFor="password">Password</Label>
+         {emailError && (
+            <span tw="self-start block text-red-500 mb-2">{emailError}</span>
+         )}
+         <FieldSet css={[passwordError && tw`mb-1`]}>
+            <Label htmlFor="password">Password*</Label>
             <Input
                name="password"
                type="password"
                onChange={onChange}
                value={form.password}
                placeholder="Enter your password"
+               onBlur={e =>
+                  e.target.value.length < 6
+                     ? setPasswordError(
+                          'Password must be atleast 6 letters long!'
+                       )
+                     : setPasswordError('')
+               }
             />
          </FieldSet>
+         {passwordError && (
+            <span tw="self-start block text-red-500 mb-2">{passwordError}</span>
+         )}
          <FieldSet>
             <Label htmlFor="code">Referral Code</Label>
             <Input

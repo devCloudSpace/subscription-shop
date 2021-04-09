@@ -19,7 +19,6 @@ export const Layout = ({ children, noHeader }) => {
       isTermsAndConditionsAvailable,
    } = configOf('Policy Availability', 'brand')
    const store = configOf('Store Availability', 'availability')
-   console.log(user.isTest)
    return (
       <>
          {!noHeader && <Header />}
@@ -120,7 +119,6 @@ const Footer = styled.footer(
       background-size: 160px;
       ${tw`bg-green-600 text-white`}
       ${theme?.accent && `background-color: ${theme.accent}`};
-      background-image: url('https://dailykit-assets.s3.us-east-2.amazonaws.com/subs-icons/pattern.png');
       div {
          margin: 0 auto;
          max-width: 980px;

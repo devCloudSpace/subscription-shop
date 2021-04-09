@@ -56,13 +56,15 @@ const Content = () => {
             const validOccurences = subscription.occurences.filter(
                node => node.isVisible
             )
-            setOccurences(validOccurences)
-            fetchProducts({
-               variables: {
-                  occurenceId: { _eq: validOccurences[0].id },
-                  subscriptionId: { _eq: subscription.id },
-               },
-            })
+            if (validOccurences?.length) {
+               setOccurences(validOccurences)
+               fetchProducts({
+                  variables: {
+                     occurenceId: { _eq: validOccurences[0].id },
+                     subscriptionId: { _eq: subscription.id },
+                  },
+               })
+            }
          }
       },
    })

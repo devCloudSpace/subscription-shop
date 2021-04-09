@@ -81,7 +81,7 @@ const PlanProducts = ({ noSkip, isCheckout }) => {
                   </span>
                )}
             </section>
-            {isSkippable && (
+            {isSkippable && !state.occurenceCustomer?.betweenPause && (
                <SkipWeek>
                   <label htmlFor="skip" tw="mr-2 text-gray-600">
                      Skip

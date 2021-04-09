@@ -97,6 +97,11 @@ const Product = ({ node, isAdded, theme }) => {
    const { state, methods } = useMenu()
 
    const add = item => {
+      if (state.occurenceCustomer?.betweenPause) {
+         return addToast('You have paused your plan!', {
+            appearance: 'warning',
+         })
+      }
       if (state.occurenceCustomer?.validStatus?.itemCountValid) {
          addToast("Your're cart is already full!", {
             appearance: 'warning',

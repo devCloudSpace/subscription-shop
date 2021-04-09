@@ -268,3 +268,40 @@ export const INSERT_CART_ITEM = gql`
       }
    }
 `
+
+export const UPDATE_BRAND_CUSTOMER = gql`
+   mutation updateBrandCustomer(
+      $id: Int!
+      $_set: crm_brand_customer_set_input = {}
+   ) {
+      updateBrandCustomer(pk_columns: { id: $id }, _set: $_set) {
+         id
+      }
+   }
+`
+
+export const DELETE_CART = gql`
+   mutation deleteCart($id: Int!) {
+      deleteCart(id: $id) {
+         id
+         customerKeycloakId
+         subscriptionOccurenceId
+      }
+   }
+`
+
+export const DELETE_OCCURENCE_CUSTOMER = gql`
+   mutation deleteOccurenceCustomer(
+      $brand_customerId: Int!
+      $keycloakId: String!
+      $subscriptionOccurenceId: Int!
+   ) {
+      delete_subscription_subscriptionOccurence_customer_by_pk(
+         brand_customerId: $brand_customerId
+         keycloakId: $keycloakId
+         subscriptionOccurenceId: $subscriptionOccurenceId
+      ) {
+         cartId
+      }
+   }
+`

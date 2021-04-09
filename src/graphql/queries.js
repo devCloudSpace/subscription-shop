@@ -258,6 +258,7 @@ export const CART_BY_WEEK = gql`
       ) {
          isAuto
          isSkipped
+         betweenPause
          validStatus
          cart {
             id
@@ -623,6 +624,15 @@ export const SETTINGS = gql`
    }
 `
 
+export const BRAND_CUSTOMER = gql`
+   subscription brandCustomer($id: Int!) {
+      brandCustomer(id: $id) {
+         id
+         subscriptionOnboardStatus
+      }
+   }
+`
+
 export const CUSTOMER = {
    DETAILS: gql`
       query customer($keycloakId: String!, $brandId: Int!) {
@@ -631,6 +641,12 @@ export const CUSTOMER = {
             keycloakId
             isSubscriber
             isTest
+            carts {
+               id
+               subscriptionOccurence {
+                  fulfillmentDate
+               }
+            }
             customerByClients: platform_customerByClients {
                stripeCustomerId: organizationStripeCustomerId
             }
@@ -639,6 +655,8 @@ export const CUSTOMER = {
                brandId
                keycloakId
                isSubscriber
+               isSubscriptionCancelled
+               pausePeriod
                subscriptionId
                subscriptionAddressId
                subscriptionPaymentMethodId
@@ -724,7 +742,7 @@ export const COUPONS = gql`
          id
          code
          isRewardMulti
-         rewards(order_by: { priority: desc }) {
+         rewards(order_by: { position: desc_nulls_last }) {
             id
             condition {
                isValid(args: { params: $params })
@@ -834,6 +852,27 @@ export const CUSTOMERS_REFERRED = gql`
             platform_customer {
                firstName
                lastName
+            }
+         }
+      }
+   }
+`
+
+export const SUBSCRIPTION_PLAN = gql`
+   query SubscriptionPlan($subscriptionId: Int!, $brandCustomerId: Int) {
+      subscription_subscription(
+         where: {
+            id: { _eq: $subscriptionId }
+            brand_customers: { id: { _eq: $brandCustomerId } }
+         }
+      ) {
+         subscriptionItemCount {
+            count
+            subscriptionServing {
+               servingSize
+               subscriptionTitle {
+                  title
+               }
             }
          }
       }
