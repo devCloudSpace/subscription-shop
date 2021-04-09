@@ -32,6 +32,7 @@ export const Header = () => {
             >
                {brand?.logo?.logoMark && (
                   <img
+                     tw="h-12"
                      src={brand?.logo?.logoMark}
                      alt={brand?.name || 'Subscription Shop'}
                   />
@@ -116,7 +117,6 @@ const Wrapper = styled.header`
 `
 
 const Brand = styled(Link)`
-   width: 140px;
    ${tw`h-full px-6 flex items-center border-r`}
 `
 
