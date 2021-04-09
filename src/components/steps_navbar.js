@@ -27,6 +27,7 @@ const routes = {
 
 export const StepsNavbar = () => {
    const { user, isAuthenticated } = useUser()
+   const [currentStep, setCurrentStep] = React.useState(null)
    const { hasConfig, configOf } = useConfig()
    const [steps, setSteps] = React.useState({
       register: 'Register',
@@ -42,10 +43,15 @@ export const StepsNavbar = () => {
    }, [hasConfig, configOf, setSteps])
 
    const location = useLocation()
-   const [currentStep] = React.useState(() => {
-      if (!has(routes, location.pathname)) return
-      return routes[location.pathname].level
-   })
+
+   React.useEffect(() => {
+      if (location.pathname === '/subscription/get-started/select-delivery/') {
+         navigate('/subscription/get-started/select-delivery')
+      } else {
+         if (!has(routes, location.pathname)) return
+         setCurrentStep(routes[location.pathname].level)
+      }
+   }, [location.pathname])
 
    const brand = configOf('theme-brand', 'brand')
    const theme = configOf('theme-color', 'Visual')
