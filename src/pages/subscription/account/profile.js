@@ -193,7 +193,19 @@ const CurrentPlan = () => {
       if (startDate && endDate) {
          const start = new Date(startDate)
          const end = new Date(endDate)
-         if (start >= Date.now() && end > Date.now() && end > start) {
+         const now = Date.now()
+         if (start < now) {
+            return addToast('Start date is not valid!', { appearance: 'error' })
+         }
+         if (end <= now) {
+            return addToast('End date is not valid!', { appearance: 'error' })
+         }
+         if (end <= start) {
+            return addToast('End date should be greater than start date!', {
+               appearance: 'error',
+            })
+         }
+         if (start >= now && end > now && end > start) {
             updateBrandCustomer({
                variables: {
                   where: {
@@ -239,6 +251,8 @@ const CurrentPlan = () => {
       )
    return (
       <CurrentPlanWrapper>
+         <Divider />
+         <div tw="h-8" />
          <CurrentPlanHeading theme={theme}>
             Your current plan {isPlanPaused && `(PAUSED)`}
          </CurrentPlanHeading>
@@ -263,6 +277,8 @@ const CurrentPlan = () => {
          >
             Change Plan
          </Button>
+         <div tw="h-8" />
+         <Divider />
          <div tw="h-8" />
          {isPauseFormVisible ? (
             <PauseForm onSubmit={handlePausePlan}>
@@ -289,17 +305,17 @@ const CurrentPlan = () => {
                      />
                   </Form.Field>
                </Flex>
-               <Button size="sm" type="submit">
+               <PauseConfirmButton size="sm" type="submit">
                   Yes! Pause my plan.
-               </Button>
+               </PauseConfirmButton>
                <span tw="w-2 inline-block" />
-               <Button
+               <DullButton
                   size="sm"
                   type="reset"
                   onClick={() => setIsPauseFormVisible(false)}
                >
                   No! I changed my mind.
-               </Button>
+               </DullButton>
             </PauseForm>
          ) : (
             <>
@@ -325,13 +341,13 @@ const CurrentPlan = () => {
                      </Button>
                   </div>
                ) : (
-                  <Button
+                  <PausePlanButton
                      size="sm"
                      theme={theme}
                      onClick={() => setIsPauseFormVisible(true)}
                   >
                      Pause Plan
-                  </Button>
+                  </PausePlanButton>
                )}
             </>
          )}
@@ -348,26 +364,26 @@ const CurrentPlan = () => {
                      value={reason}
                   />
                </Form.Field>
-               <Button size="sm" type="submit">
+               <CancelConfirmButton size="sm" type="submit">
                   Yes! Cancel my subscription.
-               </Button>
+               </CancelConfirmButton>
                <span tw="w-2 inline-block" />
-               <Button
+               <DullButton
                   size="sm"
                   type="reset"
                   onClick={() => setIsCancelFormVisible(false)}
                >
                   No! I changed my mind.
-               </Button>
+               </DullButton>
             </CancellationForm>
          ) : (
-            <Button
+            <CancelButton
                size="sm"
                theme={theme}
                onClick={() => setIsCancelFormVisible(true)}
             >
                Cancel Subscription
-            </Button>
+            </CancelButton>
          )}
       </CurrentPlanWrapper>
    )
@@ -375,6 +391,10 @@ const CurrentPlan = () => {
 
 const CurrentPlanWrapper = styled.div`
    padding: 1.5rem;
+`
+
+const Divider = styled.hr`
+   max-width: 420px;
 `
 
 const CurrentPlanHeading = styled.div(
@@ -410,6 +430,46 @@ const CancellationForm = styled.form`
    padding: 1rem;
    border-radius: 4px;
    max-width: 680px;
+`
+
+const PauseConfirmButton = styled(Button)`
+   ${tw`bg-yellow-500 text-white border-yellow-500`}
+
+   &:hover {
+      ${tw`bg-yellow-500 text-white border-yellow-500`}
+   }
+`
+
+const PausePlanButton = styled(Button)`
+   ${tw`bg-yellow-200 text-yellow-500 border-yellow-200`}
+
+   &:hover {
+      ${tw`bg-yellow-500 text-white border-yellow-500`}
+   }
+`
+
+const CancelConfirmButton = styled(Button)`
+   ${tw`bg-red-500 text-white border-red-500`}
+
+   &:hover {
+      ${tw`bg-red-500 text-white border-red-500`}
+   }
+`
+
+const CancelButton = styled(Button)`
+   ${tw`bg-red-200 text-red-500 border-red-200`}
+
+   &:hover {
+      ${tw`bg-red-500 text-white`}
+   }
+`
+
+const DullButton = styled(Button)`
+   ${tw`bg-gray-200 text-gray-500 border-gray-200`}
+
+   &:hover {
+      ${tw`bg-gray-500 text-white`}
+   }
 `
 
 const PauseForm = styled.form`
