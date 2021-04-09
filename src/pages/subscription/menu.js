@@ -70,12 +70,13 @@ const MenuContent = () => {
                      </h3>
                   )}
                </Header>
-               {state.occurenceCustomer?.betweenPause && (
-                  <MessageBar>
-                     You've paused the plan for this week. Please resume the
-                     plan if you want to add items.
-                  </MessageBar>
-               )}
+               {!user.isSubscriptionCancelled &&
+                  state.occurenceCustomer?.betweenPause && (
+                     <MessageBar>
+                        You've paused the plan for this week. Please resume the
+                        plan if you want to add items.
+                     </MessageBar>
+                  )}
                {user.isSubscriptionCancelled && (
                   <MessageBar large>
                      Oh! Looks like you cancelled your subscription. Changed
