@@ -39,6 +39,17 @@ const Checkout = () => {
    )
 }
 
+const messages = {
+   PENDING: 'We are processing your payment.',
+   SUCCEEDED: 'Payment for your order has succeeded, you will redirected soon.',
+   REQUIRES_PAYMENT_METHOD: '',
+   REQUIRES_ACTION:
+      'A window will open in short while for further payment authorization required by your bank!',
+   PAYMENT_FAILED: 'Your payment has failed, please try again.',
+   REQUIRES_ACTION_WITH_URL:
+      'A window will open in short while for further payment authorization required by your bank. In case the new window has not opened own yet, please click the button below.',
+}
+
 const PaymentContent = () => {
    const { user } = useUser()
    const { state } = usePayment()

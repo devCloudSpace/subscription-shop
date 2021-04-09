@@ -86,7 +86,7 @@ const ChangePlan = () => {
          <Title theme={theme}>Change Plan</Title>
          <Plans handlePlanClick={handlePlanClick} />
          {!!selectedPlanId && (
-            <div tw="w-8/12 m-auto">
+            <div tw="lg:w-8/12 w-11/12 m-auto">
                <AddressSection />
                <SectionTitle theme={theme}>Delivery Day</SectionTitle>
                <DeliverySection planId={selectedPlanId} />
