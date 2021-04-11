@@ -2,9 +2,9 @@ import tw from 'twin.macro'
 import { useQuery } from '@apollo/react-hooks'
 import { webRenderer } from '@dailykit/web-renderer'
 
-import { isClient } from '../../utils'
-import { GET_FILEID } from '../../graphql'
-import { SEO, Layout, PageLoader } from '../../components'
+import { isClient } from '../utils'
+import { GET_FILEID } from '../graphql'
+import { SEO, Layout, PageLoader } from '../components'
 
 const HowItWorks = () => {
    const { loading } = useQuery(GET_FILEID, {

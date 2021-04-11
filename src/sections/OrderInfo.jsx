@@ -98,7 +98,7 @@ const OrderInfo = ({ cart, showViewOrderButton = false }) => {
                      tw="h-10 w-full rounded text-white text-center bg-green-500"
                      onClick={() =>
                         navigate(
-                           `/subscription/account/orders?id=${cart?.subscriptionOccurenceId}`
+                           `/account/orders?id=${cart?.subscriptionOccurenceId}`
                         )
                      }
                   >
@@ -106,9 +106,7 @@ const OrderInfo = ({ cart, showViewOrderButton = false }) => {
                   </button>
                ) : (
                   <SaveGhostButton
-                     onClick={() =>
-                        navigate(`/subscription/checkout/?id=${cart?.id}`)
-                     }
+                     onClick={() => navigate(`/checkout/?id=${cart?.id}`)}
                   >
                      EARLY PAY
                   </SaveGhostButton>

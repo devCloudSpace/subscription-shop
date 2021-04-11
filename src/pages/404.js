@@ -2,7 +2,7 @@ import React from 'react'
 import { Link } from 'gatsby'
 import tw, { styled } from 'twin.macro'
 
-import { SEO, Layout } from '../../components'
+import { SEO, Layout } from '../components'
 
 const Wrapper = styled.div`
    ${tw`flex items-center flex-col pt-24`}
@@ -22,10 +22,7 @@ export default () => (
       <Wrapper>
          <Heading>Oops!</Heading>
          <Text>We can't find the page that you are looking for..</Text>
-         <Link
-            to="/subscription"
-            tw="mt-4 text-blue-500 border-b border-blue-500"
-         >
+         <Link to="/" tw="mt-4 text-blue-500 border-b border-blue-500">
             Go to Home
          </Link>
       </Wrapper>

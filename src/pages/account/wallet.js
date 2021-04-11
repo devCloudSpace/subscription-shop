@@ -1,10 +1,10 @@
 import React from 'react'
 import { navigate } from 'gatsby'
 import tw, { styled, css } from 'twin.macro'
-import { useConfig } from '../../../lib'
-import { useUser } from '../../../context'
-import { SEO, Layout, ProfileSidebar, Form } from '../../../components'
-import { formatCurrency } from '../../../utils'
+import { useConfig } from '../../lib'
+import { useUser } from '../../context'
+import { SEO, Layout, ProfileSidebar, Form } from '../../components'
+import { formatCurrency } from '../../utils'
 import * as moment from 'moment'
 
 const Wallet = () => {
@@ -12,7 +12,7 @@ const Wallet = () => {
 
    React.useEffect(() => {
       if (!isAuthenticated) {
-         navigate('/subscription')
+         navigate('/')
       }
    }, [isAuthenticated])
 

@@ -4,31 +4,25 @@ import { navigate } from 'gatsby'
 import tw, { styled } from 'twin.macro'
 import { useQuery } from '@apollo/react-hooks'
 import { webRenderer } from '@dailykit/web-renderer'
-import { GET_FILEID } from '../../../graphql'
+import { GET_FILEID } from '../../graphql'
 import {
    Menu,
    CartPanel,
    WeekPicker,
    MenuProvider,
    useMenu,
-} from '../../../sections/select-menu'
-import { useConfig } from '../../../lib'
-import { useUser } from '../../../context'
-import {
-   SEO,
-   Layout,
-   StepsNavbar,
-   HelperBar,
-   Loader,
-} from '../../../components'
-import { isClient } from '../../../utils'
+} from '../../sections/select-menu'
+import { useConfig } from '../../lib'
+import { useUser } from '../../context'
+import { SEO, Layout, StepsNavbar, HelperBar, Loader } from '../../components'
+import { isClient } from '../../utils'
 
 const SelectMenu = () => {
    const { isAuthenticated } = useUser()
    React.useEffect(() => {
       if (!isAuthenticated) {
          console.log('navigate called')
-         navigate('/subscription/get-started/select-plan')
+         navigate('/get-started/select-plan')
       }
    }, [isAuthenticated])
 

@@ -4,27 +4,27 @@ import tw, { styled, css } from 'twin.macro'
 import { useToasts } from 'react-toast-notifications'
 import { useMutation, useSubscription } from '@apollo/react-hooks'
 
-import { useConfig } from '../../../lib'
-import * as QUERIES from '../../../graphql'
-import * as Icon from '../../../assets/icons'
-import OrderInfo from '../../../sections/OrderInfo'
-import { isClient, formatCurrency } from '../../../utils'
-import { SEO, Loader, Layout, StepsNavbar } from '../../../components'
+import { useConfig } from '../../lib'
+import * as QUERIES from '../../graphql'
+import * as Icon from '../../assets/icons'
+import OrderInfo from '../../sections/OrderInfo'
+import { isClient, formatCurrency } from '../../utils'
+import { SEO, Loader, Layout, StepsNavbar } from '../../components'
 import {
    usePayment,
    ProfileSection,
    PaymentProvider,
    PaymentSection,
-} from '../../../sections/checkout'
-import { useUser } from '../../../context'
-import { UPDATE_BRAND_CUSTOMER } from '../../../graphql'
+} from '../../sections/checkout'
+import { useUser } from '../../context'
+import { UPDATE_BRAND_CUSTOMER } from '../../graphql'
 
 const Checkout = () => {
    const { isAuthenticated } = useUser()
 
    React.useEffect(() => {
       if (!isAuthenticated) {
-         navigate('/subscription/get-started/select-plan')
+         navigate('/get-started/select-plan')
       }
    }, [isAuthenticated])
 
@@ -120,14 +120,14 @@ const PaymentContent = () => {
                   authTabRef.current.close()
                   if (!authTabRef.current.closed) {
                      window.open(
-                        `/subscription/get-started/checkout?id=${cart.id}`,
+                        `/get-started/checkout?id=${cart.id}`,
                         'payment_auth_page'
                      )
                   }
                }
                setOverlayMessage(messages['SUCCEEDED'])
                addToast(messages['SUCCEEDED'], { appearance: 'success' })
-               navigate(`/subscription/get-started/placing-order?id=${cart.id}`)
+               navigate(`/get-started/placing-order?id=${cart.id}`)
             } else if (status === 'PAYMENT_FAILED') {
                toggleOverlay(false)
                addToast(messages['PAYMENT_FAILED'], {

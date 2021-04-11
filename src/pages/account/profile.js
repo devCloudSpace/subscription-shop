@@ -10,11 +10,11 @@ import {
    Loader,
    ProfileSidebar,
    SEO,
-} from '../../../components'
-import { useUser } from '../../../context'
-import { BRAND, SUBSCRIPTION_PLAN } from '../../../graphql'
-import { useConfig } from '../../../lib'
-import { isClient } from '../../../utils'
+} from '../../components'
+import { useUser } from '../../context'
+import { BRAND, SUBSCRIPTION_PLAN } from '../../graphql'
+import { useConfig } from '../../lib'
+import { isClient } from '../../utils'
 import * as moment from 'moment'
 
 const Profile = () => {
@@ -22,7 +22,7 @@ const Profile = () => {
 
    React.useEffect(() => {
       if (!isAuthenticated) {
-         navigate('/subscription')
+         navigate('/')
       }
    }, [isAuthenticated])
 
@@ -271,7 +271,7 @@ const CurrentPlan = () => {
          <Button
             size="sm"
             theme={theme}
-            onClick={() => navigate(`/subscription/change-plan`)}
+            onClick={() => navigate(`/change-plan`)}
          >
             Change Plan
          </Button>

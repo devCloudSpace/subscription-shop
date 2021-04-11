@@ -21,19 +21,19 @@ import {
    Loader,
    HelperBar,
    ProfileSidebar,
-} from '../../../components'
-import { useConfig } from '../../../lib'
-import { useUser } from '../../../context'
-import { CloseIcon } from '../../../assets/icons'
-import { BRAND, CREATE_STRIPE_PAYMENT_METHOD } from '../../../graphql'
-import { isClient } from '../../../utils'
+} from '../../components'
+import { useConfig } from '../../lib'
+import { useUser } from '../../context'
+import { CloseIcon } from '../../assets/icons'
+import { BRAND, CREATE_STRIPE_PAYMENT_METHOD } from '../../graphql'
+import { isClient } from '../../utils'
 
 const ManageCards = () => {
    const { isAuthenticated } = useUser()
 
    React.useEffect(() => {
       if (!isAuthenticated) {
-         navigate('/subscription')
+         navigate('/')
       }
    }, [isAuthenticated])
 

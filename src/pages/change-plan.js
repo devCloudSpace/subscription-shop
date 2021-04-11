@@ -1,10 +1,10 @@
 import React from 'react'
 import tw, { css, styled } from 'twin.macro'
-import { Layout, SEO } from '../../components'
-import { useUser } from '../../context'
+import { Layout, SEO } from '../components'
+import { useUser } from '../context'
 import { useToasts } from 'react-toast-notifications'
-import { useConfig } from '../../lib'
-import { Plans } from '../../sections/select-plan'
+import { useConfig } from '../lib'
+import { Plans } from '../sections/select-plan'
 import { navigate } from 'gatsby'
 import {
    AddressSection,
@@ -12,8 +12,8 @@ import {
    DeliveryProvider,
    DeliverySection,
    useDelivery,
-} from '../../sections/select-delivery'
-import { BRAND } from '../../graphql'
+} from '../sections/select-delivery'
+import { BRAND } from '../graphql'
 import { useMutation } from '@apollo/react-hooks'
 
 const ChangePlan = () => {
@@ -28,7 +28,7 @@ const ChangePlan = () => {
 
    React.useEffect(() => {
       if (!isAuthenticated) {
-         navigate('/subscription')
+         navigate('/')
       }
    }, [isAuthenticated])
 
@@ -42,7 +42,7 @@ const ChangePlan = () => {
          addToast('Successfully changed plan.', {
             appearance: 'success',
          })
-         navigate(`/subscription/account/profile`)
+         navigate(`/account/profile`)
       },
       onError: error => {
          addToast(error.message, {

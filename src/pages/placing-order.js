@@ -2,12 +2,12 @@ import React from 'react'
 import tw, { styled, css } from 'twin.macro'
 import { useSubscription } from '@apollo/react-hooks'
 
-import { useConfig } from '../../lib'
-import { isClient } from '../../utils'
-import { CART_STATUS } from '../../graphql'
-import OrderInfo from '../../sections/OrderInfo'
-import { Layout, SEO, Loader, HelperBar } from '../../components'
-import { PlacedOrderIllo, CartIllo, PaymentIllo } from '../../assets/icons'
+import { useConfig } from '../lib'
+import { isClient } from '../utils'
+import { CART_STATUS } from '../graphql'
+import OrderInfo from '../sections/OrderInfo'
+import { Layout, SEO, Loader, HelperBar } from '../components'
+import { PlacedOrderIllo, CartIllo, PaymentIllo } from '../assets/icons'
 
 const PlacingOrder = () => {
    const { configOf } = useConfig()
@@ -21,7 +21,7 @@ const PlacingOrder = () => {
    const gotoMenu = () => {
       isClient && window.localStorage.removeItem('plan')
       if (isClient) {
-         window.location.href = window.location.origin + '/subscription/menu'
+         window.location.href = window.location.origin + '/menu'
       }
    }
    const theme = configOf('theme-color', 'Visual')

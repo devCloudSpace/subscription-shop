@@ -6,17 +6,17 @@ import tw, { styled } from 'twin.macro'
 import { useToasts } from 'react-toast-notifications'
 import { useLazyQuery, useMutation } from '@apollo/react-hooks'
 
-import { useUser } from '../../../context'
-import { useConfig, auth } from '../../../lib'
-import { isClient, processUser } from '../../../utils'
-import { SEO, Layout, StepsNavbar } from '../../../components'
-import { BRAND, CUSTOMER, MUTATIONS } from '../../../graphql'
+import { useUser } from '../../context'
+import { useConfig, auth } from '../../lib'
+import { isClient, processUser } from '../../utils'
+import { SEO, Layout, StepsNavbar } from '../../components'
+import { BRAND, CUSTOMER, MUTATIONS } from '../../graphql'
 import {
    deleteStoredReferralCode,
    getStoredReferralCode,
    isReferralCodeValid,
    setStoredReferralCode,
-} from '../../../utils/referrals'
+} from '../../utils/referrals'
 
 export default () => {
    const { addToast } = useToasts()
@@ -29,8 +29,7 @@ export default () => {
       onCompleted: () => {
          if (isClient) {
             window.location.href =
-               window.location.origin +
-               '/subscription/get-started/select-delivery'
+               window.location.origin + '/get-started/select-delivery'
          }
       },
       onError: error => {
@@ -74,8 +73,7 @@ export default () => {
             }
             if (isClient) {
                window.location.href =
-                  window.location.origin +
-                  '/subscription/get-started/select-delivery'
+                  window.location.origin + '/get-started/select-delivery'
             }
          },
          onError: () =>
@@ -137,14 +135,13 @@ export default () => {
                brandCustomers[0].isSubscriber
             ) {
                console.log('BRAND_CUSTOMER EXISTS & CUSTOMER IS SUBSCRIBED')
-               navigate('/subscription/menu')
+               navigate('/menu')
                isClient && localStorage.removeItem('plan')
             } else {
                console.log('CUSTOMER ISNT SUBSCRIBED')
                if (isClient) {
                   window.location.href =
-                     window.location.origin +
-                     '/subscription/get-started/select-delivery'
+                     window.location.origin + '/get-started/select-delivery'
                }
             }
          },
@@ -153,11 +150,10 @@ export default () => {
 
    React.useEffect(() => {
       if (user?.keycloakId) {
-         if (user?.isSubscriber) navigate('/subscription/menu')
+         if (user?.isSubscriber) navigate('/menu')
          else if (isClient) {
             window.location.href =
-               window.location.origin +
-               '/subscription/get-started/select-delivery'
+               window.location.origin + '/get-started/select-delivery'
          }
       }
    }, [user])

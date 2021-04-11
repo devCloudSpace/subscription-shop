@@ -1,8 +1,8 @@
 import React from 'react'
 import { navigate } from 'gatsby'
 import tw, { styled, css } from 'twin.macro'
-import { useConfig } from '../../../lib'
-import { useUser } from '../../../context'
+import { useConfig } from '../../lib'
+import { useUser } from '../../context'
 import {
    SEO,
    Layout,
@@ -10,18 +10,18 @@ import {
    Form,
    Button,
    Loader,
-} from '../../../components'
+} from '../../components'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { useToasts } from 'react-toast-notifications'
 import { useQuery } from '@apollo/react-hooks'
-import { CUSTOMERS_REFERRED } from '../../../graphql'
+import { CUSTOMERS_REFERRED } from '../../graphql'
 
 const Referrals = () => {
    const { isAuthenticated } = useUser()
 
    React.useEffect(() => {
       if (!isAuthenticated) {
-         navigate('/subscription')
+         navigate('/')
       }
    }, [isAuthenticated])
 
@@ -70,7 +70,7 @@ const Content = () => {
                <Flex>
                   {user.customerReferral.referralCode}
                   <CopyToClipboard
-                     text={`${window.location.origin}/subscription?invite-code=${user.customerReferral.referralCode}`}
+                     text={`${window.location.origin}/?invite-code=${user.customerReferral.referralCode}`}
                      onCopy={() =>
                         addToast('Invite like copied!', {
                            appearance: 'success',

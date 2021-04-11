@@ -4,9 +4,9 @@ import { useLocation } from '@reach/router'
 import { useLazyQuery } from '@apollo/react-hooks'
 import { useToasts } from 'react-toast-notifications'
 
-import { isClient } from '../../../utils'
-import { INVENTORY_DETAILS } from '../../../graphql'
-import { Loader, Layout, SEO } from '../../../components'
+import { isClient } from '../../utils'
+import { INVENTORY_DETAILS } from '../../graphql'
+import { Loader, Layout, SEO } from '../../components'
 
 const Inventory = () => {
    const location = useLocation()

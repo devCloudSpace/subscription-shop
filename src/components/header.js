@@ -14,7 +14,7 @@ export const Header = () => {
    const logout = () => {
       isClient && localStorage.removeItem('token')
       if (isClient) {
-         window.location.href = window.location.origin + '/subscription'
+         window.location.href = window.location.origin + ''
       }
    }
 
@@ -26,10 +26,7 @@ export const Header = () => {
    return (
       <>
          <Wrapper>
-            <Brand
-               to="/subscription"
-               title={brand?.name || 'Subscription Shop'}
-            >
+            <Brand to="/" title={brand?.name || 'Subscription Shop'}>
                {brand?.logo?.logoMark && (
                   <img
                      tw="h-12"
@@ -44,18 +41,16 @@ export const Header = () => {
                <ul tw="px-4 flex space-x-4">
                   {isAuthenticated && user?.isSubscriber ? (
                      <li tw="text-gray-800">
-                        <Link to="/subscription/menu">Select Menu</Link>
+                        <Link to="/menu">Select Menu</Link>
                      </li>
                   ) : (
                      <li tw="text-gray-800">
-                        <Link to="/subscription/our-menu">Our Menu</Link>
+                        <Link to="/our-menu">Our Menu</Link>
                      </li>
                   )}
                   {!isAuthenticated && (
                      <li tw="text-gray-800">
-                        <Link to="/subscription/get-started/select-plan">
-                           Our Plans
-                        </Link>
+                        <Link to="/get-started/select-plan">Our Plans</Link>
                      </li>
                   )}
                </ul>
@@ -66,7 +61,7 @@ export const Header = () => {
                      {user?.platform_customer?.firstName &&
                         (isClient && window.innerWidth > 786 ? (
                            <Link
-                              to="/subscription/account/profile/"
+                              to="/account/profile/"
                               tw="mr-3 inline-flex items-center justify-center rounded-full h-10 w-10 bg-gray-200"
                            >
                               {getInitials(
@@ -93,10 +88,7 @@ export const Header = () => {
                      </button>
                   </>
                ) : (
-                  <Login
-                     onClick={() => navigate('/subscription/login')}
-                     bg={theme?.accent}
-                  >
+                  <Login onClick={() => navigate('/login')} bg={theme?.accent}>
                      Log In
                   </Login>
                )}

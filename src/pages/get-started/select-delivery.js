@@ -6,15 +6,15 @@ import { useMutation, useQuery } from '@apollo/react-hooks'
 import { useToasts } from 'react-toast-notifications'
 import { webRenderer } from '@dailykit/web-renderer'
 
-import { useConfig } from '../../../lib'
+import { useConfig } from '../../lib'
 import {
    BRAND,
    DELETE_CART,
    DELETE_OCCURENCE_CUSTOMER,
    GET_FILEID,
-} from '../../../graphql'
-import { useUser } from '../../../context'
-import { SEO, Layout, StepsNavbar, Loader } from '../../../components'
+} from '../../graphql'
+import { useUser } from '../../context'
+import { SEO, Layout, StepsNavbar, Loader } from '../../components'
 
 import {
    useDelivery,
@@ -22,14 +22,14 @@ import {
    DeliverySection,
    DeliveryProvider,
    DeliveryDateSection,
-} from '../../../sections/select-delivery'
-import { isClient } from '../../../utils'
+} from '../../sections/select-delivery'
+import { isClient } from '../../utils'
 
 const SelectDelivery = () => {
    const { isAuthenticated } = useUser()
    React.useEffect(() => {
       if (!isAuthenticated) {
-         navigate('/subscription/get-started/select-plan')
+         navigate('/get-started/select-plan')
       }
    }, [isAuthenticated])
 
@@ -125,7 +125,7 @@ const DeliveryContent = () => {
             appearance: 'success',
          })
          navigate(
-            `/subscription/get-started/select-menu/?date=${
+            `/get-started/select-menu/?date=${
                state.delivery_date.selected.fulfillmentDate
             }${
                state.skip_list.length > 0 ? `&previous=${state.skip_list}` : ''

@@ -1,9 +1,9 @@
 import React from 'react'
 import { navigate } from 'gatsby'
 import tw, { styled, css } from 'twin.macro'
-import { useConfig } from '../../../lib'
-import { useUser } from '../../../context'
-import { SEO, Layout, ProfileSidebar, Form } from '../../../components'
+import { useConfig } from '../../lib'
+import { useUser } from '../../context'
+import { SEO, Layout, ProfileSidebar, Form } from '../../components'
 import * as moment from 'moment'
 
 const LoyaltyPoints = () => {
@@ -11,7 +11,7 @@ const LoyaltyPoints = () => {
 
    React.useEffect(() => {
       if (!isAuthenticated) {
-         navigate('/subscription')
+         navigate('/')
       }
    }, [isAuthenticated])
 

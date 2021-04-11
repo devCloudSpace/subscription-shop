@@ -4,26 +4,26 @@ import tw, { styled, css } from 'twin.macro'
 import { useToasts } from 'react-toast-notifications'
 import { useMutation, useSubscription } from '@apollo/react-hooks'
 
-import { useConfig } from '../../lib'
-import * as Icon from '../../assets/icons'
-import OrderInfo from '../../sections/OrderInfo'
-import { isClient, formatCurrency } from '../../utils'
-import { SEO, Loader, Layout } from '../../components'
+import { useConfig } from '../lib'
+import * as Icon from '../assets/icons'
+import OrderInfo from '../sections/OrderInfo'
+import { isClient, formatCurrency } from '../utils'
+import { SEO, Loader, Layout } from '../components'
 import {
    usePayment,
    ProfileSection,
    PaymentProvider,
    PaymentSection,
-} from '../../sections/checkout'
-import { useUser } from '../../context'
-import * as QUERIES from '../../graphql'
+} from '../sections/checkout'
+import { useUser } from '../context'
+import * as QUERIES from '../graphql'
 
 const Checkout = () => {
    const { isAuthenticated } = useUser()
 
    React.useEffect(() => {
       if (!isAuthenticated) {
-         navigate('/subscription/get-started/select-plan')
+         navigate('/get-started/select-plan')
       }
    }, [isAuthenticated])
 
@@ -105,15 +105,12 @@ const PaymentContent = () => {
                if (authTabRef.current) {
                   authTabRef.current.close()
                   if (!authTabRef.current.closed) {
-                     window.open(
-                        `/subscription/checkout?id=${cart.id}`,
-                        'payment_auth_page'
-                     )
+                     window.open(`/checkout?id=${cart.id}`, 'payment_auth_page')
                   }
                }
                setOverlayMessage(messages['SUCCEEDED'])
                addToast(messages['SUCCEEDED'], { appearance: 'success' })
-               navigate(`/subscription/placing-order?id=${cart.id}`)
+               navigate(`/placing-order?id=${cart.id}`)
             } else if (status === 'PAYMENT_FAILED') {
                toggleOverlay(false)
                addToast(messages['PAYMENT_FAILED'], {

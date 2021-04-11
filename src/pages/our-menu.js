@@ -9,15 +9,15 @@ import { isEmpty, uniqBy } from 'lodash'
 import { useLazyQuery, useQuery } from '@apollo/react-hooks'
 import { webRenderer } from '@dailykit/web-renderer'
 
-import { useConfig } from '../../lib'
-import { formatDate, isClient } from '../../utils'
-import { ArrowLeftIcon, ArrowRightIcon } from '../../assets/icons'
-import { Layout, SEO, Form, HelperBar, Loader, Spacer } from '../../components'
+import { useConfig } from '../lib'
+import { formatDate, isClient } from '../utils'
+import { ArrowLeftIcon, ArrowRightIcon } from '../assets/icons'
+import { Layout, SEO, Form, HelperBar, Loader, Spacer } from '../components'
 import {
    OUR_MENU,
    GET_FILEID,
    OCCURENCE_PRODUCTS_BY_CATEGORIES,
-} from '../../graphql'
+} from '../graphql'
 
 const OurMenu = () => {
    return (

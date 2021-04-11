@@ -3,23 +3,23 @@ import { isEmpty } from 'lodash'
 import { Link, navigate } from 'gatsby'
 import tw, { styled } from 'twin.macro'
 
-import { SEO, Layout, HelperBar, Loader } from '../../components'
+import { SEO, Layout, HelperBar, Loader } from '../components'
 import {
    Menu,
    CartPanel,
    WeekPicker,
    MenuProvider,
    useMenu,
-} from '../../sections/select-menu'
-import { useUser } from '../../context'
-import { useConfig } from '../../lib'
+} from '../sections/select-menu'
+import { useUser } from '../context'
+import { useConfig } from '../lib'
 
 const MenuPage = () => {
    const { isAuthenticated } = useUser()
 
    React.useEffect(() => {
       if (!isAuthenticated) {
-         navigate('/subscription/get-started/select-plan')
+         navigate('/get-started/select-plan')
       }
    }, [isAuthenticated])
 
@@ -74,17 +74,13 @@ const MenuContent = () => {
                   state.occurenceCustomer?.betweenPause && (
                      <MessageBar>
                         You've paused the plan for this week.&nbsp;
-                        <Link to="/subscription/account/profile">
-                           UNPAUSE SUBSCRIPTION
-                        </Link>
+                        <Link to="/account/profile">UNPAUSE SUBSCRIPTION</Link>
                      </MessageBar>
                   )}
                {user.isSubscriptionCancelled && (
                   <MessageBar large>
                      Oh! Looks like you cancelled your subscription.&nbsp;
-                     <Link to="/subscription/account/profile">
-                        REACTIVATE SUBSCRIPTION
-                     </Link>
+                     <Link to="/account/profile">REACTIVATE SUBSCRIPTION</Link>
                   </MessageBar>
                )}
             </div>
@@ -105,9 +101,7 @@ const MenuContent = () => {
                   Let's start with setting up a plan for you.
                </HelperBar.SubTitle>
                <HelperBar.Button
-                  onClick={() =>
-                     navigate('/subscription/get-started/select-plan')
-                  }
+                  onClick={() => navigate('/get-started/select-plan')}
                >
                   Select Plan
                </HelperBar.Button>

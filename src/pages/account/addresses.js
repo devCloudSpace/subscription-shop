@@ -5,12 +5,12 @@ import tw, { styled, css } from 'twin.macro'
 import { useToasts } from 'react-toast-notifications'
 import { useMutation, useLazyQuery } from '@apollo/react-hooks'
 
-import { useConfig } from '../../../lib'
-import { useUser } from '../../../context'
-import { CloseIcon } from '../../../assets/icons'
-import { useScript, isClient } from '../../../utils'
+import { useConfig } from '../../lib'
+import { useUser } from '../../context'
+import { CloseIcon } from '../../assets/icons'
+import { useScript, isClient } from '../../utils'
 import GooglePlacesAutocomplete from 'react-google-places-autocomplete'
-import { BRAND, MUTATIONS, ZIPCODE_AVAILABILITY } from '../../../graphql'
+import { BRAND, MUTATIONS, ZIPCODE_AVAILABILITY } from '../../graphql'
 import {
    SEO,
    Form,
@@ -21,14 +21,14 @@ import {
    HelperBar,
    ProfileSidebar,
    Loader,
-} from '../../../components'
+} from '../../components'
 
 const Addresses = () => {
    const { isAuthenticated } = useUser()
 
    React.useEffect(() => {
       if (!isAuthenticated) {
-         navigate('/subscription')
+         navigate('/')
       }
    }, [isAuthenticated])
 

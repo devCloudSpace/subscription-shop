@@ -4,25 +4,25 @@ import { useLocation } from '@reach/router'
 import tw, { styled, css } from 'twin.macro'
 import { useSubscription } from '@apollo/react-hooks'
 
-import { useConfig } from '../../../lib'
-import { useUser } from '../../../context'
-import { formatDate, isClient } from '../../../utils'
-import { ORDER_HISTORY, ORDER } from '../../../graphql'
+import { useConfig } from '../../lib'
+import { useUser } from '../../context'
+import { formatDate, isClient } from '../../utils'
+import { ORDER_HISTORY, ORDER } from '../../graphql'
 import {
    SEO,
    Layout,
    HelperBar,
    ProfileSidebar,
    ProductSkeleton,
-} from '../../../components'
-import OrderInfo from '../../../sections/OrderInfo'
+} from '../../components'
+import OrderInfo from '../../sections/OrderInfo'
 
 const Orders = () => {
    const { isAuthenticated } = useUser()
 
    React.useEffect(() => {
       if (!isAuthenticated) {
-         navigate('/subscription')
+         navigate('/')
       }
    }, [isAuthenticated])
 
@@ -64,7 +64,7 @@ const Listing = () => {
          }) => {
             if (orders.aggregate.count > 0) {
                const [node] = orders.nodes
-               navigate(`/subscription/account/orders?id=${node.occurenceId}`)
+               navigate(`/account/orders?id=${node.occurenceId}`)
             }
          },
       }
@@ -72,7 +72,7 @@ const Listing = () => {
    const theme = configOf('theme-color', 'Visual')
 
    const selectOrder = id => {
-      navigate(`/subscription/account/orders?id=${id}`)
+      navigate(`/account/orders?id=${id}`)
    }
 
    if (loading)
@@ -191,9 +191,7 @@ const Details = () => {
          <h4 tw="text-lg text-gray-700 my-4 pb-1 border-b">Payment</h4>
          {order?.cart?.paymentStatus !== 'SUCCEEDED' && (
             <button
-               onClick={() =>
-                  navigate(`/subscription/checkout?id=${order?.cart?.id}`)
-               }
+               onClick={() => navigate(`/checkout?id=${order?.cart?.id}`)}
                tw="rounded py-2 bg-red-500 text-white px-6 uppercase tracking-wider mb-3"
             >
                Complete Payment

@@ -3,12 +3,12 @@ import { isEmpty } from 'lodash'
 import tw, { styled } from 'twin.macro'
 import { webRenderer } from '@dailykit/web-renderer'
 import { useQuery } from '@apollo/react-hooks'
-import { GET_FILEID } from '../../../graphql'
-import { useConfig } from '../../../lib'
-import { InfoSection } from '../../../sections'
-import { Plans } from '../../../sections/select-plan'
-import { SEO, Layout, StepsNavbar, Loader } from '../../../components'
-import { isClient } from '../../../utils'
+import { GET_FILEID } from '../../graphql'
+import { useConfig } from '../../lib'
+import { InfoSection } from '../../sections'
+import { Plans } from '../../sections/select-plan'
+import { SEO, Layout, StepsNavbar, Loader } from '../../components'
+import { isClient } from '../../utils'
 
 const SelectPlan = () => {
    const { configOf } = useConfig('Select-Plan')

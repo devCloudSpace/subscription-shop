@@ -6,11 +6,11 @@ import tw, { styled } from 'twin.macro'
 import { useToasts } from 'react-toast-notifications'
 import { useLazyQuery, useMutation } from '@apollo/react-hooks'
 
-import { useUser } from '../../context'
-import { useConfig, auth } from '../../lib'
-import { SEO, Layout } from '../../components'
-import { isClient, processUser } from '../../utils'
-import { BRAND, CUSTOMER, MUTATIONS } from '../../graphql'
+import { useUser } from '../context'
+import { useConfig, auth } from '../lib'
+import { SEO, Layout } from '../components'
+import { isClient, processUser } from '../utils'
+import { BRAND, CUSTOMER, MUTATIONS } from '../graphql'
 
 const Login = () => {
    const { addToast } = useToasts()
@@ -23,8 +23,7 @@ const Login = () => {
       onCompleted: () => {
          if (isClient) {
             window.location.href =
-               window.location.origin +
-               '/subscription/get-started/select-delivery'
+               window.location.origin + '/get-started/select-delivery'
          }
       },
       onError: error => {
@@ -39,8 +38,7 @@ const Login = () => {
             dispatch({ type: 'SET_USER', payload: {} })
             if (isClient) {
                window.location.href =
-                  window.location.origin +
-                  '/subscription/get-started/select-delivery'
+                  window.location.origin + '/get-started/select-delivery'
             }
          },
          onError: () =>
@@ -93,14 +91,13 @@ const Login = () => {
                brandCustomers[0].isSubscriber
             ) {
                console.log('BRAND_CUSTOMER EXISTS & CUSTOMER IS SUBSCRIBED')
-               navigate('/subscription/menu')
+               navigate('/menu')
                isClient && localStorage.removeItem('plan')
             } else {
                console.log('CUSTOMER ISNT SUBSCRIBED')
                if (isClient) {
                   window.location.href =
-                     window.location.origin +
-                     '/subscription/get-started/select-delivery'
+                     window.location.origin + '/get-started/select-delivery'
                }
             }
          },
@@ -109,11 +106,10 @@ const Login = () => {
 
    React.useEffect(() => {
       if (user?.keycloakId) {
-         if (user?.isSubscriber) navigate('/subscription/menu')
+         if (user?.isSubscriber) navigate('/menu')
          else if (isClient) {
             window.location.href =
-               window.location.origin +
-               '/subscription/get-started/select-delivery'
+               window.location.origin + '/get-started/select-delivery'
          }
       }
    }, [user])
@@ -209,7 +205,7 @@ const LoginPanel = ({ loading, customer }) => {
          </FieldSet>
          <button
             tw="self-start mb-2 text-blue-500"
-            onClick={() => navigate('/subscription/get-started/select-plan')}
+            onClick={() => navigate('/get-started/select-plan')}
          >
             Register instead?
          </button>
