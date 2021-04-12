@@ -42,6 +42,9 @@ export const Header = () => {
             <section tw="flex items-center justify-between">
                <ul />
                <ul tw="px-4 flex space-x-4">
+                  <Link to="/subscription/how-it-works/" tw="text-gray-800">
+                     How It Works
+                  </Link>
                   {isAuthenticated && user?.isSubscriber ? (
                      <li tw="text-gray-800">
                         <Link to="/subscription/menu">Select Menu</Link>
