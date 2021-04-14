@@ -277,6 +277,9 @@ function validateEmail(email) {
 
 const RegisterPanel = ({ loading, customer, setCurrent }) => {
    const { brand } = useConfig()
+   const [isReferralFieldVisible, setIsReferralFieldVisible] = React.useState(
+      false
+   )
    const [error, setError] = React.useState('')
    const [emailError, setEmailError] = React.useState('')
    const [passwordError, setPasswordError] = React.useState('')
@@ -291,7 +294,10 @@ const RegisterPanel = ({ loading, customer, setCurrent }) => {
 
    React.useEffect(() => {
       const storedReferralCode = getStoredReferralCode('')
-      setForm({ ...form, code: storedReferralCode })
+      if (storedReferralCode) {
+         setForm({ ...form, code: storedReferralCode })
+         setIsReferralFieldVisible(true)
+      }
    }, [])
 
    const onChange = e => {
@@ -390,16 +396,25 @@ const RegisterPanel = ({ loading, customer, setCurrent }) => {
          {passwordError && (
             <span tw="self-start block text-red-500 mb-2">{passwordError}</span>
          )}
-         <FieldSet>
-            <Label htmlFor="code">Referral Code</Label>
-            <Input
-               name="code"
-               type="text"
-               onChange={onChange}
-               value={form.code}
-               placeholder="Enter referral code"
-            />
-         </FieldSet>
+         {isReferralFieldVisible ? (
+            <FieldSet>
+               <Label htmlFor="code">Referral Code</Label>
+               <Input
+                  name="code"
+                  type="text"
+                  onChange={onChange}
+                  value={form.code}
+                  placeholder="Enter referral code"
+               />
+            </FieldSet>
+         ) : (
+            <button
+               tw="self-start mb-1 text-blue-500"
+               onClick={() => setIsReferralFieldVisible(true)}
+            >
+               Got a referral code?
+            </button>
+         )}
          <Submit
             className={!isValid || loading ? 'disabled' : ''}
             onClick={() => isValid && submit()}
