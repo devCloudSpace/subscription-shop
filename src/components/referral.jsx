@@ -105,6 +105,9 @@ export const Referral = () => {
                {referrer && (
                   <Styles.HelpText>referred by: {referrer}</Styles.HelpText>
                )}
+               {!state.code.isValid && (
+                  <Styles.HelpText error>Invalid code!</Styles.HelpText>
+               )}
             </Styles.Form>
          )}
       </Styles.Wrapper>
@@ -117,5 +120,6 @@ const Styles = {
    Form: styled.form``,
    HelpText: styled.small`
       display: block;
+      color: ${props => (props.error ? '#FF5A52' : '#111')};
    `,
 }

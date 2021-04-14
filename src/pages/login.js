@@ -205,6 +205,12 @@ const LoginPanel = ({ loading, customer }) => {
          </FieldSet>
          <button
             tw="self-start mb-2 text-blue-500"
+            onClick={() => navigate('/forgot-password')}
+         >
+            Forgot password?
+         </button>
+         <button
+            tw="self-start mb-2 text-blue-500"
             onClick={() => navigate('/get-started/select-plan')}
          >
             Register instead?

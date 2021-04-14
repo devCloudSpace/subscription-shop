@@ -5,6 +5,7 @@ import tw, { styled, css } from 'twin.macro'
 import { useConfig } from '../lib'
 import { useUser } from '../context'
 import { isClient, getInitials } from '../utils'
+import MenuIcon from '../assets/icons/Menu'
 
 import { ProfileSidebar } from './profile_sidebar'
 
@@ -22,6 +23,7 @@ export const Header = () => {
    const theme = configOf('theme-color', 'Visual')
 
    const [toggle, setToggle] = React.useState(true)
+   const [isMobileNavVisible, setIsMobileNavVisible] = React.useState(false)
 
    return (
       <>
@@ -39,26 +41,29 @@ export const Header = () => {
             <section tw="flex items-center justify-between">
                <ul />
                <ul tw="px-4 flex space-x-4">
-                  <Link to="/how-it-works" tw="text-gray-800">
+                  <Link
+                     to="/how-it-works/"
+                     tw="text-gray-800 hidden md:inline-block"
+                  >
                      How It Works
                   </Link>
                   {isAuthenticated && user?.isSubscriber ? (
-                     <li tw="text-gray-800">
+                     <li tw="text-gray-800 hidden hidden md:inline-block">
                         <Link to="/menu">Select Menu</Link>
                      </li>
                   ) : (
-                     <li tw="text-gray-800">
+                     <li tw="text-gray-800 hidden md:inline-block">
                         <Link to="/our-menu">Our Menu</Link>
                      </li>
                   )}
                   {!isAuthenticated && (
-                     <li tw="text-gray-800">
+                     <li tw="text-gray-800 hidden md:inline-block">
                         <Link to="/get-started/select-plan">Our Plans</Link>
                      </li>
                   )}
                </ul>
             </section>
-            <section tw="px-4 ml-auto">
+            <section tw="px-4 ml-auto flex justify-center">
                {isAuthenticated ? (
                   <>
                      {user?.platform_customer?.firstName &&
@@ -95,7 +100,34 @@ export const Header = () => {
                      Log In
                   </Login>
                )}
+               <button
+                  css={tw`rounded px-2 py-1 inline-block md:hidden ml-2`}
+                  onClick={() => setIsMobileNavVisible(!isMobileNavVisible)}
+               >
+                  <MenuIcon />
+               </button>
             </section>
+            {isMobileNavVisible && (
+               <section tw="absolute block md:hidden bg-white px-4 w-full top-16 list-none transition-all duration-200 ease-in-out">
+                  <li tw="text-gray-800 py-4">
+                     <Link to="/how-it-works/">How It Works</Link>
+                  </li>
+                  {isAuthenticated && user?.isSubscriber ? (
+                     <li tw="text-gray-800 py-4">
+                        <Link to="/menu">Select Menu</Link>
+                     </li>
+                  ) : (
+                     <li tw="text-gray-800 py-4">
+                        <Link to="/our-menu">Our Menu</Link>
+                     </li>
+                  )}
+                  {!isAuthenticated && (
+                     <li tw="text-gray-800 py-4">
+                        <Link to="/get-started/select-plan">Our Plans</Link>
+                     </li>
+                  )}
+               </section>
+            )}
          </Wrapper>
          {isClient && window.innerWidth < 786 && (
             <ProfileSidebar toggle={toggle} logout={logout} />

@@ -6,6 +6,7 @@ export const ITEM_COUNT = gql`
          id
          valid: subscriptions(
             where: { availableZipcodes: { zipcode: { _eq: $zipcode } } }
+            order_by: { position: desc_nulls_last }
          ) {
             id
             rrule
@@ -20,6 +21,7 @@ export const ITEM_COUNT = gql`
             where: {
                _not: { availableZipcodes: { zipcode: { _eq: $zipcode } } }
             }
+            order_by: { position: desc_nulls_last }
          ) {
             id
             rrule
@@ -95,7 +97,10 @@ export const OCCURENCES_BY_SUBSCRIPTION = gql`
    ) {
       subscription: subscription_subscription_by_pk(id: $id) {
          id
-         occurences: subscriptionOccurences(where: $where) {
+         occurences: subscriptionOccurences(
+            where: $where
+            order_by: { fulfillmentDate: asc_nulls_last }
+         ) {
             id
             isValid
             isVisible
@@ -192,6 +197,11 @@ export const OCCURENCE_PRODUCTS_BY_CATEGORIES = gql`
                productOption {
                   id
                   label
+                  simpleRecipeYield {
+                     simpleRecipe {
+                        type
+                     }
+                  }
                   product {
                      name
                      assets
