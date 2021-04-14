@@ -192,6 +192,11 @@ export const OCCURENCE_PRODUCTS_BY_CATEGORIES = gql`
                productOption {
                   id
                   label
+                  simpleRecipeYield {
+                     simpleRecipe {
+                        type
+                     }
+                  }
                   product {
                      name
                      assets

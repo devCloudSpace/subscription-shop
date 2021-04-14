@@ -13,6 +13,8 @@ import { formatCurrency } from '../../utils'
 import { SkeletonProduct } from './skeletons'
 import { CheckIcon } from '../../assets/icons'
 import { OCCURENCE_PRODUCTS_BY_CATEGORIES } from '../../graphql'
+import VegIcon from '../../assets/imgs/veg.png'
+import NonVegIcon from '../../assets/imgs/non-veg.png'
 
 export const Menu = () => {
    const { user } = useUser()
@@ -125,6 +127,7 @@ const Product = ({ node, isAdded, theme }) => {
    const product = {
       name: node?.productOption?.product?.name || '',
       label: node?.productOption?.label || '',
+      type: node?.productOption?.simpleRecipeYield?.simpleRecipe?.type,
       image:
          node?.productOption?.product?.assets?.images?.length > 0
             ? node?.productOption?.product?.assets?.images[0]
@@ -134,6 +137,25 @@ const Product = ({ node, isAdded, theme }) => {
 
    return (
       <Styles.Product theme={theme} className={`${isActive ? 'active' : ''}`}>
+         {!!product.type && (
+            <Styles.Type>
+               {product.type === 'Non-vegetarian' ? (
+                  <img
+                     alt="Non-Veg Icon"
+                     src={NonVegIcon}
+                     title={product.type}
+                     tw="h-6 w-6"
+                  />
+               ) : (
+                  <img
+                     alt="Veg Icon"
+                     src={VegIcon}
+                     title={product.type}
+                     tw="h-6 w-6"
+                  />
+               )}
+            </Styles.Type>
+         )}
          <div
             css={tw`flex items-center justify-center h-48 bg-gray-200 mb-2 rounded overflow-hidden`}
          >
@@ -202,6 +224,11 @@ const Styles = {
          }
       `
    ),
+   Type: styled.span`
+      position: absolute;
+      top: 8px;
+      right: 8px;
+   `,
 }
 
 const Products = styled.ul`
