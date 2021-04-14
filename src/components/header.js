@@ -8,6 +8,7 @@ import { isClient, getInitials } from '../utils'
 import MenuIcon from '../assets/icons/Menu'
 
 import { ProfileSidebar } from './profile_sidebar'
+import { CrossIcon } from '../assets/icons'
 
 export const Header = () => {
    const { isAuthenticated, user } = useUser()
@@ -112,7 +113,11 @@ export const Header = () => {
                   css={tw`rounded px-2 py-1 inline-block md:hidden ml-2`}
                   onClick={() => setIsMobileNavVisible(!isMobileNavVisible)}
                >
-                  <MenuIcon />
+                  {isMobileNavVisible ? (
+                     <CrossIcon stroke="#111" size={24} />
+                  ) : (
+                     <MenuIcon />
+                  )}
                </button>
             </section>
             {isMobileNavVisible && (
