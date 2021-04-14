@@ -18,6 +18,8 @@ import {
    GET_FILEID,
    OCCURENCE_PRODUCTS_BY_CATEGORIES,
 } from '../../graphql'
+import VegIcon from '../../assets/imgs/veg.png'
+import NonVegIcon from '../../assets/imgs/non-veg.png'
 
 const OurMenu = () => {
    return (
@@ -410,6 +412,7 @@ const Product = ({ node }) => {
    const product = {
       name: node?.productOption?.product?.name || '',
       label: node?.productOption?.label || '',
+      type: node?.productOption?.simpleRecipeYield?.simpleRecipe?.type,
       image:
          node?.productOption?.product?.assets?.images?.length > 0
             ? node?.productOption?.product?.assets?.images[0]
@@ -418,6 +421,25 @@ const Product = ({ node }) => {
    }
    return (
       <Styles.Product>
+         {!!product.type && (
+            <Styles.Type>
+               {product.type === 'Non-vegetarian' ? (
+                  <img
+                     alt="Non-Veg Icon"
+                     src={NonVegIcon}
+                     title={product.type}
+                     tw="h-6 w-6"
+                  />
+               ) : (
+                  <img
+                     alt="Veg Icon"
+                     src={VegIcon}
+                     title={product.type}
+                     tw="h-6 w-6"
+                  />
+               )}
+            </Styles.Type>
+         )}
          <div tw="flex items-center justify-center h-48 bg-gray-200 mb-2 rounded overflow-hidden">
             {product.image ? (
                <img
@@ -449,6 +471,11 @@ const Styles = {
       &.active {
          ${tw`border border-2 border-red-400`}
       }
+   `,
+   Type: styled.span`
+      position: absolute;
+      top: 8px;
+      right: 8px;
    `,
 }
 
