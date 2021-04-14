@@ -67,19 +67,17 @@ const Content = () => {
          {referralsAllowed && !!user.customerReferral && (
             <>
                <Form.Label>Referral Code</Form.Label>
-               <Flex>
-                  {user.customerReferral.referralCode}
-                  <CopyToClipboard
-                     text={`${window.location.origin}/subscription?invite-code=${user.customerReferral.referralCode}`}
-                     onCopy={() =>
-                        addToast('Invite like copied!', {
-                           appearance: 'success',
-                        })
-                     }
-                  >
-                     <Button size="sm"> Copy invite link </Button>
-                  </CopyToClipboard>
-               </Flex>
+               <Flex>{user.customerReferral.referralCode}</Flex>
+               <CopyToClipboard
+                  text={`${window.location.origin}/subscription?invite-code=${user.customerReferral.referralCode}`}
+                  onCopy={() =>
+                     addToast('Invite like copied!', {
+                        appearance: 'success',
+                     })
+                  }
+               >
+                  <Button size="sm"> Copy invite link </Button>
+               </CopyToClipboard>
                <div tw="h-4" />
                <Form.Label>
                   Customers Referred ({customerReferrals.length}){' '}
@@ -132,6 +130,7 @@ const Flex = styled.div`
    display: flex;
    align-items: center;
    justify-content: space-between;
+   margin-bottom: 10px;
 `
 
 const Styles = {
