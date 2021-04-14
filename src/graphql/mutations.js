@@ -305,3 +305,29 @@ export const DELETE_OCCURENCE_CUSTOMER = gql`
       }
    }
 `
+
+export const FORGOT_PASSWORD = gql`
+   mutation ForgotPassword($email: String!, $origin: String!) {
+      forgotPassword(email: $email, origin: $origin) {
+         success
+      }
+   }
+`
+
+export const RESET_PASSWORD = gql`
+   mutation ResetPassword($token: String!, $password: String!) {
+      resetPassword(token: $token, password: $password) {
+         success
+         message
+      }
+   }
+`
+
+export const VERIFY_RESET_PASSWORD_TOKEN = gql`
+   mutation VerifyResetPasswordToken($token: String!) {
+      verifyResetPasswordToken(token: $token) {
+         success
+         message
+      }
+   }
+`
