@@ -96,13 +96,23 @@ export const DeliverySection = ({ planId }) => {
          )}
          <DeliveryDays>
             {itemCount?.valid?.map(day => (
-               <DeliveryDay key={day.id} onClick={() => daySelection(day)}>
-                  <DeliveryDayLeft
-                     className={`${
-                        state.delivery.selected?.id === day.id && 'active'
-                     }`}
-                  >
-                     <CheckIcon size={20} tw="stroke-current text-gray-400" />
+               <DeliveryDay
+                  key={day.id}
+                  onClick={() => daySelection(day)}
+                  className={`${
+                     state.delivery.selected?.id === day.id && 'active'
+                  }`}
+               >
+                  <DeliveryDayLeft>
+                     <CheckIcon
+                        size={18}
+                        css={[
+                           tw`stroke-current`,
+                           state.delivery.selected?.id === day.id
+                              ? tw`text-green-700`
+                              : tw`text-gray-400`,
+                        ]}
+                     />
                   </DeliveryDayLeft>
                   <section css={tw`py-2 flex flex-col space-y-2`}>
                      <label css={tw`w-full cursor-pointer`}>
@@ -159,12 +169,8 @@ export const DeliverySection = ({ planId }) => {
                   className="invalid"
                   title="Not available on this zipcode"
                >
-                  <DeliveryDayLeft
-                     className={`${
-                        day.id === state.delivery.selected?.id && 'active'
-                     }`}
-                  >
-                     <CheckIcon size={20} tw="stroke-current text-gray-400" />
+                  <DeliveryDayLeft>
+                     <CheckIcon size={18} tw="stroke-current text-gray-400" />
                   </DeliveryDayLeft>
                   <section css={tw`py-2 flex flex-col space-y-2`}>
                      <label css={tw`w-full cursor-pointer`}>
@@ -243,19 +249,14 @@ const DeliveryDayLeft = styled.aside(
    () => css`
       width: 48px;
       height: 48px;
-      ${tw`border-r border-gray-300 h-full mr-2 flex flex-shrink-0 items-center justify-center bg-gray-200`}
-      &.active {
-         svg {
-            ${tw`text-green-700`}
-         }
-      }
+      ${tw`h-full mr-2 flex flex-shrink-0 items-center justify-center`}
    `
 )
 
 const DeliveryDay = styled.li`
    height: auto;
    min-height: 48px;
-   ${tw`cursor-pointer flex items-center border capitalize text-gray-700`}
+   ${tw`cursor-pointer flex items-center border capitalize text-gray-700 rounded overflow-hidden border-gray-300 hover:(border-2 border-green-700)`}
    &.invalid {
       opacity: 0.6;
       cursor: not-allowed;
@@ -268,5 +269,11 @@ const DeliveryDay = styled.li`
          height: 100%;
          position: absolute;
       }
+   }
+   :hover svg {
+      ${tw`text-green-700`}
+   }
+   &.active {
+      ${tw`border-2 border-green-700`}
    }
 `
