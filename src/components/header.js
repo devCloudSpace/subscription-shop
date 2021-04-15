@@ -32,7 +32,7 @@ export const Header = () => {
             <Brand to="/" title={brand?.name || 'Subscription Shop'}>
                {brand?.logo?.logoMark && (
                   <img
-                     tw="h-auto md:h-12"
+                     tw="h-12"
                      src={brand?.logo?.logoMark}
                      alt={brand?.name || 'Subscription Shop'}
                   />
@@ -40,21 +40,14 @@ export const Header = () => {
                {brand?.name && <span tw="ml-2">{brand?.name}</span>}
             </Brand>
             <section tw="flex items-center justify-between">
-               <ul />
-               <ul tw="px-4 flex space-x-4">
-                  <Link
-                     to="/how-it-works/"
-                     tw="text-gray-800 hidden md:inline-block"
-                  >
-                     How It Works
-                  </Link>
-                  {!user.isSubscriber && (
-                     <SelectPlanLink to="/get-started/select-plan">
-                        Select Plan
-                     </SelectPlanLink>
-                  )}
+               <ul tw="ml-auto px-4 flex space-x-4">
+                  <li tw="hidden md:inline-block">
+                     <Link to="/how-it-works" tw="text-gray-800">
+                        How It Works
+                     </Link>
+                  </li>
                   {isAuthenticated && user?.isSubscriber ? (
-                     <li tw="text-gray-800 hidden hidden md:inline-block">
+                     <li tw="text-gray-800 hidden md:inline-block">
                         <Link to="/menu">Select Menu</Link>
                      </li>
                   ) : (
@@ -65,6 +58,11 @@ export const Header = () => {
                   {!isAuthenticated && (
                      <li tw="text-gray-800 hidden md:inline-block">
                         <Link to="/get-started/select-plan">Our Plans</Link>
+                     </li>
+                  )}
+                  {!user.isSubscriber && (
+                     <li tw="hidden md:inline-block">
+                        <Link to="/get-started/select-plan">Get Started</Link>
                      </li>
                   )}
                </ul>
@@ -95,8 +93,8 @@ export const Header = () => {
                         ))}
 
                      <button
-                        css={tw`text-red-600 rounded px-2 py-1 hidden md:inline-block `}
                         onClick={logout}
+                        css={tw`text-red-600 rounded px-2 py-1`}
                      >
                         Logout
                      </button>
@@ -119,21 +117,26 @@ export const Header = () => {
             </section>
             {isMobileNavVisible && (
                <section tw="absolute block md:hidden bg-white px-4 w-full top-16 list-none transition-all duration-200 ease-in-out">
-                  <li tw="text-gray-800 py-4">
+                  <li tw="text-gray-800 py-2">
                      <Link to="/how-it-works/">How It Works</Link>
                   </li>
                   {isAuthenticated && user?.isSubscriber ? (
-                     <li tw="text-gray-800 py-4">
+                     <li tw="text-gray-800 py-2">
                         <Link to="/menu">Select Menu</Link>
                      </li>
                   ) : (
-                     <li tw="text-gray-800 py-4">
+                     <li tw="text-gray-800 py-2">
                         <Link to="/our-menu">Our Menu</Link>
                      </li>
                   )}
                   {!isAuthenticated && (
-                     <li tw="text-gray-800 py-4">
+                     <li tw="text-gray-800 py-2">
                         <Link to="/get-started/select-plan">Our Plans</Link>
+                     </li>
+                  )}
+                  {!user.isSubscriber && (
+                     <li tw="text-gray-800 py-2">
+                        <Link to="/get-started/select-plan">Get Started</Link>
                      </li>
                   )}
                </section>
@@ -163,8 +166,3 @@ const Login = styled.button(
       ${bg && `background-color: ${bg};`}
    `
 )
-
-const SelectPlanLink = styled(Link)`
-   text-decoration: none;
-   ${tw`text-gray-800 hover:text-indigo-600 mr-3`}
-`
