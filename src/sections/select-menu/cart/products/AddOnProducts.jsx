@@ -72,6 +72,7 @@ const AddOnProducts = () => {
                size="md"
                isOpen={tunnel}
                toggleTunnel={() => toggleTunnel(false)}
+               style={{ zIndex: 1030 }}
             >
                <Tunnel.Header title="Add Ons">
                   <Button size="sm" onClick={() => toggleTunnel(false)}>
