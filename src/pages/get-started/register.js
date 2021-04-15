@@ -261,7 +261,7 @@ const LoginPanel = ({ loading, customer }) => {
          </FieldSet>
          <button
             tw="self-start mb-2 text-blue-500"
-            onClick={() => navigate('/subscription/forgot-password')}
+            onClick={() => navigate('/forgot-password')}
          >
             Forgot password?
          </button>

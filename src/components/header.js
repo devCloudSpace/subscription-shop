@@ -32,7 +32,7 @@ export const Header = () => {
             <Brand to="/" title={brand?.name || 'Subscription Shop'}>
                {brand?.logo?.logoMark && (
                   <img
-                     tw="h-12"
+                     tw="h-auto md:h-12"
                      src={brand?.logo?.logoMark}
                      alt={brand?.name || 'Subscription Shop'}
                   />
