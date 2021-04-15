@@ -71,6 +71,9 @@ const Wrapper = styled.div`
    margin-top: 64px;
    ${tw`fixed inset-0`}
    background: rgba(0,0,0,0.2);
+   @media screen and (max-width: 767px) {
+      margin-top: 0;
+   }
 `
 
 const Title = styled.h2(

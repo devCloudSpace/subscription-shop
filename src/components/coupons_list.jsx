@@ -6,6 +6,7 @@ import { useMenu } from '../sections/select-menu'
 import { useUser } from '../context'
 import { Loader } from './loader'
 import { useConfig } from '../lib'
+import { CloseIcon } from '../assets/icons'
 
 export const CouponsList = ({ closeTunnel }) => {
    const { state } = useMenu()
@@ -87,6 +88,13 @@ export const CouponsList = ({ closeTunnel }) => {
       <Styles.Wrapper>
          <Styles.ListHeader>
             <Styles.Heading>Available Coupons</Styles.Heading>
+            <button tw="rounded-full border-2 border-green-400 h-6 w-8 flex items-center justify-center">
+               <CloseIcon
+                  size={16}
+                  tw="stroke-current text-green-400"
+                  onClick={closeTunnel}
+               />
+            </button>
          </Styles.ListHeader>
          {!availableCoupons.length && (
             <Styles.Title>No coupons available!</Styles.Title>
@@ -120,6 +128,9 @@ const Styles = {
    `,
    ListHeader: styled.div`
       margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
    `,
    Heading: styled.h3`
       color: gray;
