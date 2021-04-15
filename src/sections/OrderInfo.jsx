@@ -6,7 +6,7 @@ import { useToasts } from 'react-toast-notifications'
 
 import { useUser } from '../context'
 import { normalizeAddress } from '../utils'
-import { Billing, CartProduct } from '../components'
+import { Billing, CartProduct, Button } from '../components'
 
 const OrderInfo = ({ cart, showViewOrderButton = false }) => {
    const { user } = useUser()
@@ -94,8 +94,9 @@ const OrderInfo = ({ cart, showViewOrderButton = false }) => {
          {showViewOrderButton && (
             <>
                {cart?.paymentStatus === 'SUCCEEDED' ? (
-                  <button
-                     tw="h-10 w-full rounded text-white text-center bg-green-500"
+                  <Button
+                     disabled={false}
+                     tw="w-full bg-green-500"
                      onClick={() =>
                         navigate(
                            `/account/orders?id=${cart?.subscriptionOccurenceId}`
@@ -103,7 +104,7 @@ const OrderInfo = ({ cart, showViewOrderButton = false }) => {
                      }
                   >
                      Go to Order
-                  </button>
+                  </Button>
                ) : (
                   <SaveGhostButton
                      onClick={() => navigate(`/checkout/?id=${cart?.id}`)}

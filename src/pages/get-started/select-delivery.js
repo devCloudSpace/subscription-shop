@@ -14,7 +14,7 @@ import {
    GET_FILEID,
 } from '../../graphql'
 import { useUser } from '../../context'
-import { SEO, Layout, StepsNavbar, Loader } from '../../components'
+import { SEO, Layout, StepsNavbar, Loader, Button } from '../../components'
 
 import {
    useDelivery,
@@ -206,13 +206,5 @@ const SectionTitle = styled.h3(
    ({ theme }) => css`
       ${tw`my-3 text-green-600 text-lg`}
       ${theme?.accent && `color: ${theme.accent}`}
-   `
-)
-
-const Button = styled.button(
-   ({ disabled, bg }) => css`
-      ${tw`h-10 rounded px-8 text-white bg-green-600`}
-      ${disabled && tw`cursor-not-allowed bg-green-300`}
-      ${bg && `background-color: ${bg};`}
    `
 )

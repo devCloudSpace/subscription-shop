@@ -112,7 +112,7 @@ const Content = () => {
          <header tw="mt-6 mb-3 flex items-center justify-between">
             <Title theme={theme}>Addresses</Title>
             {user?.platform_customer?.addresses.length > 0 && (
-               <Button size="sm" onClick={() => toggleTunnel(true)}>
+               <Button bg={theme?.accent} onClick={() => toggleTunnel(true)}>
                   Add Address
                </Button>
             )}
@@ -163,13 +163,17 @@ const Content = () => {
             </>
          )}
          {tunnel && (
-            <AddressTunnel tunnel={tunnel} toggleTunnel={toggleTunnel} />
+            <AddressTunnel
+               theme={theme}
+               tunnel={tunnel}
+               toggleTunnel={toggleTunnel}
+            />
          )}
       </div>
    )
 }
 
-export const AddressTunnel = ({ tunnel, toggleTunnel }) => {
+export const AddressTunnel = ({ theme, tunnel, toggleTunnel }) => {
    const { user } = useUser()
    const { addToast } = useToasts()
    const [formStatus, setFormStatus] = React.useState('PENDING')
@@ -327,7 +331,7 @@ export const AddressTunnel = ({ tunnel, toggleTunnel }) => {
                      />
                   </Form.Field>
                   <Button
-                     size="sm"
+                     bg={theme?.accent}
                      onClick={() => handleSubmit()}
                      disabled={formStatus === 'SAVING'}
                   >

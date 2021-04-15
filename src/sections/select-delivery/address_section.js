@@ -39,7 +39,7 @@ export const AddressSection = () => {
          <header css={tw`mt-6 mb-3 flex items-center justify-between`}>
             <SectionTitle theme={theme}>Select Address</SectionTitle>
             {user?.platform_customer?.addresses.length > 0 && (
-               <Button size="sm" onClick={() => toggleTunnel(true)}>
+               <Button bg={theme?.accent} onClick={() => toggleTunnel(true)}>
                   Add Address
                </Button>
             )}

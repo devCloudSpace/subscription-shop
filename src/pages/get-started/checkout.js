@@ -9,7 +9,7 @@ import * as QUERIES from '../../graphql'
 import * as Icon from '../../assets/icons'
 import OrderInfo from '../../sections/OrderInfo'
 import { isClient, formatCurrency } from '../../utils'
-import { SEO, Loader, Layout, StepsNavbar } from '../../components'
+import { SEO, Loader, Layout, StepsNavbar, Button } from '../../components'
 import {
    usePayment,
    ProfileSection,
@@ -252,6 +252,7 @@ const PaymentContent = () => {
                <OrderInfo cart={cart} />
                <section>
                   <Button
+                     tw="w-full"
                      bg={theme?.accent}
                      onClick={handleSubmit}
                      disabled={!Boolean(isValid())}
@@ -341,11 +342,3 @@ const CartDetails = styled.section`
       }
    }
 `
-
-const Button = styled.button(
-   ({ disabled, bg }) => css`
-      ${tw`w-full h-10 rounded px-3 text-white bg-green-600`}
-      ${bg && `background-color: ${bg};`}
-      ${disabled && tw`cursor-not-allowed bg-gray-400`}
-   `
-)

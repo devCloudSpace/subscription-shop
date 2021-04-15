@@ -23,10 +23,10 @@ import {
    ProfileSidebar,
 } from '../../components'
 import { useConfig } from '../../lib'
+import { isClient } from '../../utils'
 import { useUser } from '../../context'
 import { CloseIcon } from '../../assets/icons'
 import { BRAND, CREATE_STRIPE_PAYMENT_METHOD } from '../../graphql'
-import { isClient } from '../../utils'
 
 const ManageCards = () => {
    const { isAuthenticated } = useUser()
@@ -88,7 +88,7 @@ const Content = () => {
          <header tw="mt-6 mb-3 flex items-center justify-between">
             <Title theme={theme}>Cards</Title>
             {user?.platform_customer?.paymentMethods.length > 0 && (
-               <Button size="sm" onClick={() => toggleTunnel(true)}>
+               <Button bg={theme?.accent} onClick={() => toggleTunnel(true)}>
                   Add Card
                </Button>
             )}

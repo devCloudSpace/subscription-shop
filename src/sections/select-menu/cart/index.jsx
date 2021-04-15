@@ -6,11 +6,11 @@ import { useMutation } from '@apollo/react-hooks'
 import Billing from './billing'
 import Products from './products'
 import { useMenu } from '../state'
-import { SaveButton } from './styled'
 import OrderInfo from '../../OrderInfo'
 import Fulfillment from './fulfillment'
 import { useConfig } from '../../../lib'
 import { useUser } from '../../../context'
+import { Button } from '../../../components'
 import { CloseIcon } from '../../../assets/icons'
 import { MUTATIONS, UPDATE_BRAND_CUSTOMER } from '../../../graphql'
 
@@ -109,7 +109,8 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
             <Billing isCheckout={isCheckout} />
             {/* Checkout */}
             {isCheckout && (
-               <SaveButton
+               <Button
+                  tw="w-full"
                   bg={theme?.accent}
                   onClick={onSubmit}
                   disabled={
@@ -118,7 +119,7 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
                   }
                >
                   PROCEED TO CHECKOUT
-               </SaveButton>
+               </Button>
             )}
          </Styles.Wrapper>
       </>
