@@ -32,14 +32,14 @@ class Portal extends React.Component {
    }
 }
 
-export const Tunnel = ({ isOpen, toggleTunnel, size, children }) => {
+export const Tunnel = ({ isOpen, toggleTunnel, size, children, ...props }) => {
    const ref = React.useRef()
    useOnClickOutside(ref, () => toggleTunnel(false))
 
    if (isOpen)
       return (
          <Portal>
-            <Wrapper>
+            <Wrapper {...props}>
                <Content size={size} ref={ref}>
                   {children}
                </Content>

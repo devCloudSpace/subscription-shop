@@ -65,7 +65,11 @@ export const Coupon = () => {
                Apply Coupon
             </Styles.Button>
          )}
-         <Tunnel isOpen={isCouponListOpen} toggleTunnel={setIsCouponListOpen}>
+         <Tunnel
+            isOpen={isCouponListOpen}
+            toggleTunnel={setIsCouponListOpen}
+            style={{ zIndex: 1030 }}
+         >
             <CouponsList closeTunnel={() => setIsCouponListOpen(false)} />
          </Tunnel>
       </Styles.Wrapper>
