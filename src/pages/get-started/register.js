@@ -259,6 +259,12 @@ const LoginPanel = ({ loading, customer }) => {
                placeholder="Enter your password"
             />
          </FieldSet>
+         <button
+            tw="self-start mb-2 text-blue-500"
+            onClick={() => navigate('/subscription/forgot-password')}
+         >
+            Forgot password?
+         </button>
          <Submit
             className={!isValid || loading ? 'disabled' : ''}
             onClick={() => isValid && submit()}
