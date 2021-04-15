@@ -95,7 +95,11 @@ export const CartPanel = ({ noSkip, isCheckout }) => {
             <header tw="md:hidden flex items-center justify-between">
                <h1 tw="text-green-600 text-2xl tracking-wide">Cart Summary</h1>
                <button tw="rounded-full border-2 border-green-400 h-6 w-8 flex items-center justify-center">
-                  <CloseIcon size={16} tw="stroke-current text-green-400" />
+                  <CloseIcon
+                     size={16}
+                     tw="stroke-current text-green-400"
+                     onClick={() => setIsCartPanelOpen(false)}
+                  />
                </button>
             </header>
             {/* Products */}
