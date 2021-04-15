@@ -89,7 +89,7 @@ const Content = styled.div(
          ${size !== 'full' && tw`w-9/12`}
       }
       @media (max-width: 767px) {
-         ${tw`w-screen`}
+         ${tw`w-full`}
       }
    `
 )
@@ -115,7 +115,7 @@ const TunnelHeader = styled.header`
 `
 
 const TunnelBody = styled.main`
-   padding: 16px;
+   padding: 16px 16px 64px 16px;
    overflow-y: auto;
    height: calc(100vh - 128px);
 `

@@ -288,8 +288,8 @@ export const AddressTunnel = ({ theme, tunnel, toggleTunnel }) => {
                         }
                      />
                   </Form.Field>
-                  <div css={tw`flex`}>
-                     <Form.Field mr="16px">
+                  <div tw="flex flex-col md:flex-row gap-3">
+                     <Form.Field>
                         <Form.Label>City</Form.Label>
                         <FormPlaceholder>{address.city}</FormPlaceholder>
                      </Form.Field>
@@ -298,8 +298,8 @@ export const AddressTunnel = ({ theme, tunnel, toggleTunnel }) => {
                         <FormPlaceholder>{address.state}</FormPlaceholder>
                      </Form.Field>
                   </div>
-                  <div css={tw`flex`}>
-                     <Form.Field mr="16px">
+                  <div tw="flex flex-col md:flex-row gap-3">
+                     <Form.Field>
                         <Form.Label>Country</Form.Label>
                         <FormPlaceholder>{address.country}</FormPlaceholder>
                      </Form.Field>
