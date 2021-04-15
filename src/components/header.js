@@ -48,6 +48,11 @@ export const Header = () => {
                   >
                      How It Works
                   </Link>
+                  {!user.isSubscriber && (
+                     <SelectPlanLink to="/get-started/select-plan">
+                        Select Plan
+                     </SelectPlanLink>
+                  )}
                   {isAuthenticated && user?.isSubscriber ? (
                      <li tw="text-gray-800 hidden hidden md:inline-block">
                         <Link to="/menu">Select Menu</Link>
@@ -158,3 +163,8 @@ const Login = styled.button(
       ${bg && `background-color: ${bg};`}
    `
 )
+
+const SelectPlanLink = styled(Link)`
+   text-decoration: none;
+   ${tw`text-gray-800 hover:text-indigo-600 mr-3`}
+`
