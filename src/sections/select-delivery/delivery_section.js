@@ -142,22 +142,17 @@ export const DeliverySection = ({ planId }) => {
                                       )}`}
                               </p>
                            </Fulfillment>
-                           <Fulfillment>
-                              <span>
-                                 {day.zipcodes[0].isPickupActive ? (
+                           {day.zipcodes[0].isPickupActive && (
+                              <Fulfillment>
+                                 <span>
                                     <TickIcon
                                        size={16}
                                        tw="stroke-current text-green-600"
                                     />
-                                 ) : (
-                                    <CrossIcon
-                                       size={16}
-                                       tw="stroke-current text-red-600"
-                                    />
-                                 )}
-                              </span>
-                              <p>Pickup</p>
-                           </Fulfillment>
+                                 </span>
+                                 <p>Pickup</p>
+                              </Fulfillment>
+                           )}
                         </section>
                      )}
                   </section>
