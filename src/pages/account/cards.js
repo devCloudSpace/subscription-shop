@@ -161,18 +161,21 @@ const Content = () => {
 
 export const PaymentTunnel = ({ tunnel, toggleTunnel }) => {
    const { user } = useUser()
+   const { organization } = useConfig()
    const [intent, setIntent] = React.useState(null)
 
    React.useEffect(() => {
-      if (user?.platform_customer?.stripeCustomerId) {
+      if (user?.platform_customer?.stripeCustomerId && isClient) {
          ;(async () => {
             const intent = await createSetupIntent(
-               user?.platform_customer?.stripeCustomerId
+               user?.platform_customer?.stripeCustomerId,
+               organization
             )
+
             setIntent(intent)
          })()
       }
-   }, [user])
+   }, [user, organization])
 
    return (
       <Tunnel size="sm" isOpen={tunnel} toggleTunnel={toggleTunnel}>
@@ -191,11 +194,9 @@ export const PaymentTunnel = ({ tunnel, toggleTunnel }) => {
    )
 }
 
-const stripePromise = loadStripe(isClient ? window._env_.GATSBY_STRIPE_KEY : '')
-
 export const PaymentForm = ({ intent, toggleTunnel }) => {
    const { user } = useUser()
-   const { brand } = useConfig()
+   const { brand, organization } = useConfig()
    const [updateBrandCustomer] = useMutation(BRAND.CUSTOMER.UPDATE, {
       refetchQueries: ['customer'],
    })
@@ -206,11 +207,13 @@ export const PaymentForm = ({ intent, toggleTunnel }) => {
    const handleResult = async ({ setupIntent }) => {
       try {
          if (setupIntent.status === 'succeeded') {
-            const { data: { success, data = {} } = {} } = await axios.get(
-               isClient
-                  ? `${window._env_.GATSBY_DAILYKEY_URL}/api/payment-method/${setupIntent.payment_method}`
-                  : ''
-            )
+            const ORIGIN = isClient ? window._env_.GATSBY_DAILYKEY_URL : ''
+            let URL = `${ORIGIN}/api/payment-method/${setupIntent.payment_method}`
+            if (organization.stripeAccountType === 'standard') {
+               URL += `?accountId=${organization.stripeAccountId}`
+            }
+            const { data: { success, data = {} } = {} } = await axios.get(URL)
+
             if (success) {
                await createPaymentMethod({
                   variables: {
@@ -225,6 +228,8 @@ export const PaymentForm = ({ intent, toggleTunnel }) => {
                         expMonth: data.card.exp_month,
                         stripePaymentMethodId: data.id,
                         cardHolderName: data.billing_details.name,
+                        organizationStripeCustomerId:
+                           user.platform_customer?.stripeCustomerId,
                      },
                   },
                })
@@ -256,6 +261,15 @@ export const PaymentForm = ({ intent, toggleTunnel }) => {
       } catch (error) {}
    }
 
+   const stripePromise = loadStripe(
+      isClient ? window._env_.GATSBY_STRIPE_KEY : '',
+      {
+         ...(organization.stripeAccountType === 'standard' && {
+            stripeAccount: organization.stripeAccountId,
+         }),
+      }
+   )
+
    if (!intent) return <Loader inline />
    return (
       <div>
@@ -271,6 +285,7 @@ const CardSetupForm = ({ intent, handleResult }) => {
    const elements = useElements()
    const inputRef = React.useRef(null)
    const [name, setName] = React.useState('')
+   const [error, setError] = React.useState('')
    const [submitting, setSubmitting] = React.useState(false)
 
    React.useEffect(() => {
@@ -295,7 +310,8 @@ const CardSetupForm = ({ intent, handleResult }) => {
       })
 
       if (result.error) {
-         // Display result.error.message in your UI.
+         setSubmitting(false)
+         setError(result.error.message)
       } else {
          handleResult(result)
       }
@@ -321,11 +337,12 @@ const CardSetupForm = ({ intent, handleResult }) => {
             <CardSection />
          </div>
          <button
-            disabled={!stripe}
+            disabled={!stripe || submitting}
             tw="mt-3 w-full h-10 bg-blue-600 text-sm py-1 text-white uppercase font-medium tracking-wider rounded"
          >
             {submitting ? 'Saving...' : 'Save'}
          </button>
+         {error && <span tw="block text-red-500 mt-2">{error}</span>}
       </form>
    )
 }
@@ -347,7 +364,6 @@ const CARD_ELEMENT_OPTIONS = {
 }
 
 const CardSection = () => {
-   const [error, setError] = React.useState('')
    return (
       <CardSectionWrapper>
          <span tw="block text-sm text-gray-500">Card Details</span>
@@ -355,19 +371,18 @@ const CardSection = () => {
             options={CARD_ELEMENT_OPTIONS}
             onChange={({ error }) => setError(error?.message || '')}
          />
-         {error && <span tw="block mt-1 text-red-400">{error}</span>}
       </CardSectionWrapper>
    )
 }
 
-const createSetupIntent = async customer => {
+const createSetupIntent = async (customer, organization = {}) => {
    try {
-      const {
-         data,
-      } = await axios.post(
-         `${window._env_.GATSBY_DAILYKEY_URL}/api/setup-intent`,
-         { customer, confirm: true }
-      )
+      let stripeAccountId = null
+      if (organization?.stripeAccountType === 'standard') {
+         stripeAccountId = organization?.stripeAccountId
+      }
+      const URL = `${window._env_.GATSBY_DAILYKEY_URL}/api/setup-intent`
+      const { data } = await axios.post(URL, { customer, stripeAccountId })
       return data.data
    } catch (error) {
       return error
