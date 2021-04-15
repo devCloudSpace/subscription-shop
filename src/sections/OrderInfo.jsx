@@ -41,24 +41,25 @@ const OrderInfo = ({ cart, showViewOrderButton = false }) => {
                ))}
             </ProductCards>
          </section>
-         <section>
-            <header tw="mt-3 mb-2 pb-1 border-b flex items-center justify-between">
-               <h4 tw="text-lg text-gray-700">Your Add Ons</h4>
-            </header>
-            {addOnProducts.length > 0 ? (
-               <ProductCards>
-                  {addOnProducts.map(product => (
-                     <CartProduct
-                        product={product}
-                        isRemovable={false}
-                        key={`product-${product.id}`}
-                     />
-                  ))}
-               </ProductCards>
-            ) : (
-               <span>No Add Ons</span>
-            )}
-         </section>
+         {addOnProducts.length > 0 && (
+            <>
+               <section>
+                  <header tw="mt-3 mb-2 pb-1 border-b flex items-center justify-between">
+                     <h4 tw="text-lg text-gray-700">Your Add Ons</h4>
+                  </header>
+
+                  <ProductCards>
+                     {addOnProducts.map(product => (
+                        <CartProduct
+                           product={product}
+                           isRemovable={false}
+                           key={`product-${product.id}`}
+                        />
+                     ))}
+                  </ProductCards>
+               </section>
+            </>
+         )}
          <section>
             <h4 tw="text-lg text-gray-700 my-3 pb-1 border-b">Charges</h4>
             <Billing billing={cart?.billingDetails} />
@@ -124,6 +125,9 @@ const ProductCards = styled.ul`
    display: grid;
    grid-gap: 16px;
    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+   @media screen and (max-width: 567px) {
+      grid-template-columns: 1fr;
+   }
 `
 
 export const SaveGhostButton = styled.button(
