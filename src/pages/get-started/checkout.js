@@ -332,12 +332,14 @@ const CartDetails = styled.section`
    @media (max-width: 768px) {
       width: 100%;
       > section {
-         padding: 16px 16px 0 16px;
+         padding: 16px;
          position: fixed;
-         bottom: 16px;
+         bottom: 0;
          left: 0;
          right: 0;
+         background-color: #fff;
          > button {
+            ${tw`shadow-lg`}
          }
       }
    }
