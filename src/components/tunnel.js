@@ -115,7 +115,7 @@ const TunnelHeader = styled.header`
 `
 
 const TunnelBody = styled.main`
-   padding: 16px 16px 64px 16px;
+   padding: 16px 16px 80px 16px;
    overflow-y: auto;
    height: calc(100vh - 128px);
 `
