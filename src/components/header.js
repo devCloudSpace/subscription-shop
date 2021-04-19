@@ -55,12 +55,7 @@ export const Header = () => {
                         <Link to="/our-menu">Our Menu</Link>
                      </li>
                   )}
-                  {!isAuthenticated && (
-                     <li tw="text-gray-800 hidden md:inline-block">
-                        <Link to="/get-started/select-plan">Our Plans</Link>
-                     </li>
-                  )}
-                  {!user.isSubscriber && (
+                  {!user?.isSubscriber && (
                      <li tw="hidden md:inline-block">
                         <Link to="/get-started/select-plan">Get Started</Link>
                      </li>
@@ -129,12 +124,7 @@ export const Header = () => {
                         <Link to="/our-menu">Our Menu</Link>
                      </li>
                   )}
-                  {!isAuthenticated && (
-                     <li tw="text-gray-800 py-2">
-                        <Link to="/get-started/select-plan">Our Plans</Link>
-                     </li>
-                  )}
-                  {!user.isSubscriber && (
+                  {!user?.isSubscriber && (
                      <li tw="text-gray-800 py-2">
                         <Link to="/get-started/select-plan">Get Started</Link>
                      </li>
