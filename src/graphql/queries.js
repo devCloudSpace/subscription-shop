@@ -766,6 +766,29 @@ export const COUPONS = gql`
    }
 `
 
+export const SEARCH_COUPONS = gql`
+   query SearchCoupons($typedCode: String!, $params: jsonb, $brandId: Int!) {
+      coupons(
+         where: {
+            code: { _eq: $typedCode }
+            isActive: { _eq: true }
+            isArchived: { _eq: false }
+            brands: { brandId: { _eq: $brandId }, isActive: { _eq: true } }
+         }
+      ) {
+         id
+         isRewardMulti
+         metaDetails
+         rewards(order_by: { position: desc_nulls_last }) {
+            id
+            condition {
+               isValid(args: { params: $params })
+            }
+         }
+      }
+   }
+`
+
 export const CART_REWARDS = gql`
    subscription CartRewards($cartId: Int!, $params: jsonb) {
       cartRewards(where: { cartId: { _eq: $cartId } }) {
