@@ -407,7 +407,14 @@ export const MenuProvider = ({ children }) => {
       }
    }
 
-   if (state.isOccurencesLoading && state.week.id) return <Loader inline />
+   if (
+      state.isOccurencesLoading ||
+      loadingZipcode ||
+      isCustomerLoading ||
+      occurenceCustomerLoading ||
+      !state.week.id
+   )
+      return <Loader inline />
    return (
       <MenuContext.Provider
          value={{
