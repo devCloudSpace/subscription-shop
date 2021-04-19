@@ -223,7 +223,8 @@ const Fulfillment = () => {
                               at{' '}
                               <span>
                                  {normalizeAddress(
-                                    state?.occurenceCustomer?.cart?.address
+                                    state?.occurenceCustomer?.cart?.address ||
+                                       user?.defaultAddress
                                  )}
                               </span>
                            </p>
