@@ -82,10 +82,7 @@ const OrderInfo = ({ cart, showViewOrderButton = false }) => {
             ) : (
                <p tw="text-gray-500">
                   Pickup your box in between{' '}
-                  {moment(cart?.billingDetails?.deliveryPrice?.value).format(
-                     'MMM D'
-                  )}
-                  ,{' '}
+                  {moment(cart?.fulfillmentInfo?.slot?.from).format('MMM D')},{' '}
                   {moment(cart?.fulfillmentInfo?.slot?.from).format('hh:mm A')}{' '}
                   - {moment(cart?.fulfillmentInfo?.slot?.to).format('hh:mm A')}{' '}
                   from {normalizeAddress(cart?.fulfillmentInfo?.address)}
