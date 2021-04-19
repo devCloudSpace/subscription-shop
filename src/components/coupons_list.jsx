@@ -1,14 +1,14 @@
-import { useMutation, useSubscription } from '@apollo/react-hooks'
 import React from 'react'
-import tw, { styled } from 'twin.macro'
-import { COUPONS, MUTATIONS } from '../graphql'
-import { useMenu } from '../sections/select-menu'
+import { useSubscription } from '@apollo/react-hooks'
+import { styled } from 'twin.macro'
 import { useUser } from '../context'
-import { Loader } from './loader'
+import { COUPONS } from '../graphql'
 import { useConfig } from '../lib'
+import { useMenu } from '../sections/select-menu'
+import { Loader } from './loader'
 import { CloseIcon } from '../assets/icons'
 
-export const CouponsList = ({ closeTunnel }) => {
+export const CouponsList = ({ createOrderCartRewards }) => {
    const { state } = useMenu()
    const { brand } = useConfig()
    const { user } = useUser()
@@ -34,17 +34,6 @@ export const CouponsList = ({ closeTunnel }) => {
       },
    })
    console.log('🚀 ~ CouponsList ~ error', error)
-
-   // Mutation
-   const [createOrderCartRewards] = useMutation(MUTATIONS.CART_REWARDS.CREATE, {
-      onCompleted: () => {
-         console.log('Applied coupon!')
-         closeTunnel()
-      },
-      onError: error => {
-         console.log(error)
-      },
-   })
 
    const handleApplyCoupon = coupon => {
       try {
