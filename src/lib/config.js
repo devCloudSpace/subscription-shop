@@ -80,7 +80,9 @@ export const ConfigProvider = ({ children }) => {
             state,
             dispatch,
             buildImageUrl: (size, url) =>
-               `http://${
+               `${
+                  new URL(window._env_.GATSBY_DATA_HUB_HTTPS).origin
+               }/server/images/http://${
                   window._env_.GATSBY_S3_BUCKET
                }.s3-website.us-east-2.amazonaws.com\\${size}\\${url.slice(
                   url.lastIndexOf('/') + 1

@@ -17,6 +17,7 @@ export const CartProduct = ({ product, isRemovable, onDelete }) => {
                   fallbackImage={product.image}
                   initialImage={imagePlaceholder}
                   alt={product.name}
+                  className="image__thumbnail"
                />
             ) : (
                <img src={noProductImage} alt={product.name} />

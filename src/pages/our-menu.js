@@ -460,6 +460,7 @@ const Product = ({ node, noProductImage, buildImageUrl, imagePlaceholder }) => {
                   fallbackImage={product.image}
                   initialImage={imagePlaceholder}
                   alt={product.name}
+                  className="image__thumbnail"
                />
             ) : (
                <img src={noProductImage} alt={product.name} />
