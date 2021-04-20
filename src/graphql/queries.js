@@ -417,10 +417,7 @@ export const ORDER_HISTORY = gql`
       orders: subscription_subscriptionOccurence_customer_aggregate(
          where: {
             keycloakId: $keycloakId
-            cart: {
-               paymentStatus: { _eq: "SUCCEEDED" }
-               status: { _nin: ["CART_PENDING"] }
-            }
+            cart: { status: { _nin: ["CART_PENDING"] } }
          }
          order_by: { subscriptionOccurence: { fulfillmentDate: desc } }
       ) {

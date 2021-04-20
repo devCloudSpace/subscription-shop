@@ -86,14 +86,20 @@ export const DeliveryDateSection = () => {
             <DeliveryDate
                key={occurence.id}
                onClick={() => occurenceSelection(occurence)}
+               className={`${
+                  occurence.id === state.delivery_date.selected?.id && 'active'
+               }`}
             >
-               <DeliveryDateLeft
-                  className={`${
-                     occurence.id === state.delivery_date.selected?.id &&
-                     'active'
-                  }`}
-               >
-                  <CheckIcon size={20} tw="stroke-current text-gray-400" />
+               <DeliveryDateLeft>
+                  <CheckIcon
+                     size={18}
+                     css={[
+                        tw`stroke-current`,
+                        occurence.id === state.delivery_date.selected?.id
+                           ? tw`text-green-700`
+                           : tw`text-gray-400`,
+                     ]}
+                  />
                </DeliveryDateLeft>
                <label css={tw`w-full cursor-pointer`}>
                   {formatDate(occurence.fulfillmentDate, {
@@ -132,7 +138,7 @@ const DeliveryDateLeft = styled.aside(
 
 const DeliveryDate = styled.li`
    height: 48px;
-   ${tw`cursor-pointer flex items-center border capitalize text-gray-700`}
+   ${tw`cursor-pointer flex items-center border capitalize text-gray-700 rounded overflow-hidden border-gray-300 hover:(border-2 border-green-700)`}
    &.invalid {
       opacity: 0.6;
       position: relative;
@@ -144,5 +150,11 @@ const DeliveryDate = styled.li`
          height: 100%;
          position: absolute;
       }
+   }
+   :hover svg {
+      ${tw`text-green-700`}
+   }
+   &.active {
+      ${tw`border-2 border-green-700`}
    }
 `

@@ -147,11 +147,6 @@ export const StepsNavbar = () => {
             </Steps>
          </Progress>
          <section tw="px-4 ml-auto">
-            {!user.isSubscriber && (
-               <SelectPlanLink to="/subscription/get-started/select-plan">
-                  Select Plan
-               </SelectPlanLink>
-            )}
             {isAuthenticated ? (
                <button
                   onClick={logout}
@@ -191,11 +186,6 @@ const Navbar = styled.div`
    @media (max-width: 767px) {
       display: flex;
    }
-`
-
-const SelectPlanLink = styled(Link)`
-   text-decoration: none;
-   ${tw`text-gray-800 hover:text-indigo-600 mr-3`}
 `
 
 const Brand = styled(Link)`

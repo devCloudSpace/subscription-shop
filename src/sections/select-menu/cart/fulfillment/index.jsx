@@ -183,7 +183,21 @@ const Fulfillment = () => {
                         <aside>
                            <CheckIcon
                               size={18}
-                              tw="stroke-2 stroke-current text-gray-400"
+                              css={[
+                                 tw`stroke-current`,
+                                 (
+                                    state.occurenceCustomer?.validStatus
+                                       ?.hasCart
+                                       ? state.occurenceCustomer?.cart?.fulfillmentInfo?.type.includes(
+                                            'DELIVERY'
+                                         )
+                                       : state?.fulfillment?.type?.includes(
+                                            'DELIVERY'
+                                         )
+                                 )
+                                    ? tw`text-green-700`
+                                    : tw`text-gray-400`,
+                              ]}
                            />
                         </aside>
                         <main>
@@ -208,7 +222,8 @@ const Fulfillment = () => {
                               at{' '}
                               <span>
                                  {normalizeAddress(
-                                    state?.occurenceCustomer?.cart?.address
+                                    state?.occurenceCustomer?.cart?.address ||
+                                       user?.defaultAddress
                                  )}
                               </span>
                            </p>
@@ -229,7 +244,21 @@ const Fulfillment = () => {
                         <aside>
                            <CheckIcon
                               size={18}
-                              tw="stroke-2 stroke-current text-gray-400"
+                              css={[
+                                 tw`stroke-current`,
+                                 (
+                                    state.occurenceCustomer?.validStatus
+                                       ?.hasCart
+                                       ? state.occurenceCustomer?.cart?.fulfillmentInfo?.type.includes(
+                                            'PICKUP'
+                                         )
+                                       : state?.fulfillment?.type?.includes(
+                                            'PICKUP'
+                                         )
+                                 )
+                                    ? tw`text-green-700`
+                                    : tw`text-gray-400`,
+                              ]}
                            />
                         </aside>
                         <main>
@@ -266,6 +295,12 @@ const Option = styled.section`
                ${tw`text-green-700`}
             }
          `}
+   }
+   :hover {
+      ${tw`border-2 border-green-600`};
+      svg {
+         ${tw`text-green-700`}
+      }
    }
    ${({ isActive }) =>
       isActive &&

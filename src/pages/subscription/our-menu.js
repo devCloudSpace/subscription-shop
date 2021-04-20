@@ -5,6 +5,7 @@ import moment from 'moment'
 import { Link } from 'gatsby'
 import { rrulestr } from 'rrule'
 import tw, { styled } from 'twin.macro'
+import ReactImageFallback from 'react-image-fallback'
 import { isEmpty, uniqBy } from 'lodash'
 import { useLazyQuery, useQuery } from '@apollo/react-hooks'
 import { webRenderer } from '@dailykit/web-renderer'
@@ -34,9 +35,15 @@ export default OurMenu
 
 const Content = () => {
    const [current, setCurrent] = React.useState(0)
-   const { configOf, brand } = useConfig('conventions')
    const [occurences, setOccurences] = React.useState([])
    const [categories, setCategories] = React.useState([])
+   const {
+      brand,
+      configOf,
+      buildImageUrl,
+      noProductImage,
+      imagePlaceholder,
+   } = useConfig('conventions')
 
    const [fetchProducts, { loading: loadingProducts }] = useLazyQuery(
       OCCURENCE_PRODUCTS_BY_CATEGORIES,
@@ -383,7 +390,13 @@ const Content = () => {
                                  v?.cartItem?.option?.productOptionId,
                               ].join()
                            ).map((node, index) => (
-                              <Product node={node} key={node.id} />
+                              <Product
+                                 node={node}
+                                 key={node.id}
+                                 buildImageUrl={buildImageUrl}
+                                 noProductImage={noProductImage}
+                                 imagePlaceholder={imagePlaceholder}
+                              />
                            ))}
                         </Products>
                      </section>
@@ -408,7 +421,7 @@ const Content = () => {
    )
 }
 
-const Product = ({ node }) => {
+const Product = ({ node, noProductImage, buildImageUrl, imagePlaceholder }) => {
    const product = {
       name: node?.productOption?.product?.name || '',
       label: node?.productOption?.label || '',
@@ -440,16 +453,17 @@ const Product = ({ node }) => {
                )}
             </Styles.Type>
          )}
-         <div tw="flex items-center justify-center h-48 bg-gray-200 mb-2 rounded overflow-hidden">
+         <div tw="flex items-center justify-center aspect-w-4 aspect-h-3 bg-gray-200 mb-2 rounded overflow-hidden">
             {product.image ? (
-               <img
+               <ReactImageFallback
+                  src={buildImageUrl('400x300', product.image)}
+                  fallbackImage={product.image}
+                  initialImage={imagePlaceholder}
                   alt={product.name}
-                  src={product.image}
-                  title={product?.name}
-                  css={tw`h-full w-full object-cover select-none`}
+                  className="image__thumbnail"
                />
             ) : (
-               <span>No Photos</span>
+               <img src={noProductImage} alt={product.name} />
             )}
          </div>
          {node?.addOnLabel && <Label>{node?.addOnLabel}</Label>}

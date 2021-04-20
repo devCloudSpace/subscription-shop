@@ -37,7 +37,7 @@ const PlacingOrder = () => {
                   <Content>
                      {cart && (
                         <>
-                           <header tw="my-3 pb-1 border-b flex items-center justify-between">
+                           <header tw="w-full my-3 pb-1 border-b flex items-center justify-between">
                               <SectionTitle theme={theme}>
                                  Order Summary
                               </SectionTitle>
@@ -125,7 +125,7 @@ const Pulse = () => (
 )
 
 const Wrapper = styled.div`
-   ${tw`bg-gray-100`}
+   ${tw`md:bg-gray-100`}
 `
 
 const SectionTitle = styled.h3(
@@ -140,7 +140,6 @@ const Main = styled.main`
    max-width: 980px;
    background: #fff;
    padding-bottom: 24px;
-   width: calc(100vw - 40px);
    min-height: calc(100vh - 128px);
 `
 
