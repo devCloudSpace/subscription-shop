@@ -169,7 +169,10 @@ export const Coupon = () => {
                toggleTunnel={setIsCouponListOpen}
                style={{ zIndex: 1030 }}
             >
-               <CouponsList createOrderCartRewards={createOrderCartRewards} />
+               <CouponsList
+                  createOrderCartRewards={createOrderCartRewards}
+                  closeTunnel={() => setIsCouponListOpen(false)}
+               />
             </Tunnel>
          </>
       )
@@ -236,7 +239,7 @@ const Styles = {
       padding: 8px;
       border-radius: 2px;
       display: flex;
-      align-items: end;
+      align-items: flex-end;
       position: relative;
    `,
    InputWrapper: styled.div``,
