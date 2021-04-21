@@ -8,7 +8,7 @@ import { useMenu } from '../sections/select-menu'
 import { Loader } from './loader'
 import { CloseIcon } from '../assets/icons'
 
-export const CouponsList = ({ createOrderCartRewards }) => {
+export const CouponsList = ({ createOrderCartRewards, closeTunnel }) => {
    const { state } = useMenu()
    const { brand } = useConfig()
    const { user } = useUser()
