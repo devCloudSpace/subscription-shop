@@ -84,7 +84,16 @@ export default () => {
    React.useEffect(() => {
       if (params) {
          const code = params['invite-code']
-         localStorage.setItem('code', code)
+         if (code) {
+            localStorage.setItem('code', code)
+         }
+         const token = params['imp-token']
+         if (token && isClient) {
+            localStorage.setItem('token', token)
+            localStorage.setItem('impersonating', true)
+            window.location.href =
+               window.location.origin + window.location.pathname
+         }
       }
    }, [params])
 
