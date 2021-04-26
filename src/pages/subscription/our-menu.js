@@ -37,23 +37,26 @@ const Content = () => {
    const [current, setCurrent] = React.useState(0)
    const [occurences, setOccurences] = React.useState([])
    const [categories, setCategories] = React.useState([])
+   const [isCategoriesLoading, setIsCategoriesLoading] = React.useState(true)
+   const [isOccurencesLoading, setIsOccurencesLoading] = React.useState(true)
    const { brand, configOf, buildImageUrl, noProductImage } = useConfig(
       'conventions'
    )
 
-   const [fetchProducts, { loading: loadingProducts }] = useLazyQuery(
-      OCCURENCE_PRODUCTS_BY_CATEGORIES,
-      {
-         onCompleted: ({ categories = [] }) => {
-            setCategories(categories)
-            return
-         },
-      }
-   )
+   const [fetchProducts] = useLazyQuery(OCCURENCE_PRODUCTS_BY_CATEGORIES, {
+      onCompleted: ({ categories = [] }) => {
+         setCategories(categories)
+         setIsCategoriesLoading(false)
+         return
+      },
+      onError: () => {
+         setIsCategoriesLoading(false)
+      },
+   })
 
    const [
       fetchSubscription,
-      { loading: loadingSubscription, data: { subscription = {} } = {} },
+      { data: { subscription = {} } = {} },
    ] = useLazyQuery(OUR_MENU.SUBSCRIPTION, {
       onCompleted: ({ subscription = {} }) => {
          if (subscription.occurences.length > 0) {
@@ -62,6 +65,7 @@ const Content = () => {
             )
             if (validOccurences?.length) {
                setOccurences(validOccurences)
+               setIsCategoriesLoading(true)
                fetchProducts({
                   variables: {
                      occurenceId: { _eq: validOccurences[0].id },
@@ -70,6 +74,10 @@ const Content = () => {
                })
             }
          }
+         setIsOccurencesLoading(false)
+      },
+      onError: () => {
+         setIsOccurencesLoading(false)
       },
    })
 
@@ -80,6 +88,7 @@ const Content = () => {
       onCompleted: ({ itemCount = {} }) => {
          if (itemCount.subscriptions.length > 0) {
             const [subscription] = itemCount.subscriptions
+            setIsOccurencesLoading(true)
             fetchSubscription({ variables: { id: subscription.id } })
          }
       },
@@ -333,83 +342,93 @@ const Content = () => {
                   )}
             </div>
          </Header>
-         {!loadingSubscription && occurences.length > 0 && (
-            <Occurence>
-               <SliderButton onClick={previous}>
-                  <ArrowLeftIcon tw="stroke-current text-green-800" />
-               </SliderButton>
-               {current in occurences && (
-                  <span tw="flex items-center justify-center text-base text-center md:text-lg text-indigo-800">
-                     Showing menu of:&nbsp;
-                     {formatDate(
-                        moment(occurences[current]?.fulfillmentDate)
-                           .subtract(7, 'days')
-                           .format('YYYY-MM-DD'),
-                        {
-                           month: 'short',
-                           day: 'numeric',
-                           year: 'numeric',
-                        }
+         {isOccurencesLoading || isCategoriesLoading ? (
+            <Loader inline />
+         ) : (
+            <>
+               {occurences.length === 0 ? (
+                  <HelperBar type="info">
+                     <HelperBar.SubTitle>
+                        No weeks are available.
+                     </HelperBar.SubTitle>
+                  </HelperBar>
+               ) : (
+                  <Occurence>
+                     <SliderButton onClick={previous}>
+                        <ArrowLeftIcon tw="stroke-current text-green-800" />
+                     </SliderButton>
+                     {current in occurences && (
+                        <span tw="flex items-center justify-center text-base text-center md:text-lg text-indigo-800">
+                           Showing menu of:&nbsp;
+                           {formatDate(
+                              moment(occurences[current]?.fulfillmentDate)
+                                 .subtract(7, 'days')
+                                 .format('YYYY-MM-DD'),
+                              {
+                                 month: 'short',
+                                 day: 'numeric',
+                                 year: 'numeric',
+                              }
+                           )}
+                           &nbsp;-&nbsp;
+                           {formatDate(occurences[current]?.fulfillmentDate, {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric',
+                           })}
+                        </span>
                      )}
-                     &nbsp;-&nbsp;
-                     {formatDate(occurences[current]?.fulfillmentDate, {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric',
-                     })}
-                  </span>
-               )}
 
-               <SliderButton onClick={next}>
-                  <ArrowRightIcon tw="stroke-current text-green-800" />
-               </SliderButton>
-            </Occurence>
-         )}
-         {!loadingProducts ? (
-            <main tw="mt-3">
-               {categories.length > 0 ? (
-                  categories.map(category => (
-                     <section key={category.name} css={tw`mb-8`}>
-                        <h4 css={tw`text-lg text-gray-700 my-3 pb-1 border-b`}>
-                           {category.name} (
-                           {
-                              uniqBy(category.productsAggregate.nodes, v =>
+                     <SliderButton onClick={next}>
+                        <ArrowRightIcon tw="stroke-current text-green-800" />
+                     </SliderButton>
+                  </Occurence>
+               )}
+               <main tw="mt-3">
+                  {categories.length > 0 ? (
+                     categories.map(category => (
+                        <section key={category.name} css={tw`mb-8`}>
+                           <h4
+                              css={tw`text-lg text-gray-700 my-3 pb-1 border-b`}
+                           >
+                              {category.name} (
+                              {
+                                 uniqBy(category.productsAggregate.nodes, v =>
+                                    [
+                                       v?.cartItem?.productId,
+                                       v?.cartItem?.option?.productOptionId,
+                                    ].join()
+                                 ).length
+                              }
+                              )
+                           </h4>
+                           <Products>
+                              {uniqBy(category.productsAggregate.nodes, v =>
                                  [
                                     v?.cartItem?.productId,
                                     v?.cartItem?.option?.productOptionId,
                                  ].join()
-                              ).length
-                           }
-                           )
-                        </h4>
-                        <Products>
-                           {uniqBy(category.productsAggregate.nodes, v =>
-                              [
-                                 v?.cartItem?.productId,
-                                 v?.cartItem?.option?.productOptionId,
-                              ].join()
-                           ).map((node, index) => (
-                              <Product
-                                 node={node}
-                                 theme={theme}
-                                 key={node.id}
-                                 buildImageUrl={buildImageUrl}
-                                 noProductImage={noProductImage}
-                              />
-                           ))}
-                        </Products>
-                     </section>
-                  ))
-               ) : (
-                  <HelperBar type="info">
-                     <HelperBar.SubTitle>
-                        No products available this week!
-                     </HelperBar.SubTitle>
-                  </HelperBar>
-               )}
-            </main>
-         ) : (
-            <Loader inline />
+                              ).map((node, index) => (
+                                 <Product
+                                    node={node}
+                                    theme={theme}
+                                    key={node.id}
+                                    buildImageUrl={buildImageUrl}
+                                    noProductImage={noProductImage}
+                                 />
+                              ))}
+                           </Products>
+                        </section>
+                     ))
+                  ) : (
+                     <HelperBar type="info">
+                        <HelperBar.SubTitle>
+                           No products available this week!
+                        </HelperBar.SubTitle>
+                     </HelperBar>
+                  )}
+               </main>
+            </>
          )}
          {contentLoading ? (
             <Loader inline />
