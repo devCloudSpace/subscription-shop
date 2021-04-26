@@ -159,6 +159,26 @@ export const OCCURENCE_ADDON_PRODUCTS_BY_CATEGORIES = gql`
    }
 `
 
+export const OCCURENCE_ADDON_PRODUCTS_AGGREGATE = gql`
+   subscription productsAggregate(
+      $subscriptionId: Int_comparison_exp
+      $occurenceId: Int_comparison_exp
+   ) {
+      productsAggregate: subscription_subscriptionOccurence_addOn_aggregate(
+         where: {
+            _or: [
+               { subscriptionId: $subscriptionId }
+               { subscriptionOccurenceId: $occurenceId }
+            ]
+         }
+      ) {
+         aggregate {
+            count
+         }
+      }
+   }
+`
+
 export const OCCURENCE_PRODUCTS_BY_CATEGORIES = gql`
    query categories(
       $subscriptionId: Int_comparison_exp

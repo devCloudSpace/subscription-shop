@@ -2,27 +2,45 @@ import React from 'react'
 import { Link } from 'gatsby'
 import { uniqBy } from 'lodash'
 import tw, { css, styled } from 'twin.macro'
-import { useQuery } from '@apollo/react-hooks'
+import { useQuery, useSubscription } from '@apollo/react-hooks'
 import { useToasts } from 'react-toast-notifications'
 
 import { useMenu } from '../../state'
 import { CartProducts } from '../styled'
 import { useConfig } from '../../../../lib'
 import { useUser } from '../../../../context'
+import { formatCurrency } from '../../../../utils'
 import { PlusIcon, CloseIcon, CheckIcon } from '../../../../assets/icons'
 import { Tunnel, Loader, Button, CartProduct } from '../../../../components'
-import { OCCURENCE_ADDON_PRODUCTS_BY_CATEGORIES } from '../../../../graphql'
-import { formatCurrency } from '../../../../utils'
+import {
+   OCCURENCE_ADDON_PRODUCTS_BY_CATEGORIES,
+   OCCURENCE_ADDON_PRODUCTS_AGGREGATE,
+} from '../../../../graphql'
 
 const AddOnProducts = () => {
+   const { user } = useUser()
    const { state, methods } = useMenu()
    const [tunnel, toggleTunnel] = React.useState(false)
 
+   const {
+      loading: productsAggregateLoading,
+      data: { productsAggregate = {} } = {},
+   } = useSubscription(OCCURENCE_ADDON_PRODUCTS_AGGREGATE, {
+      variables: {
+         occurenceId: { _eq: state?.week?.id },
+         subscriptionId: { _eq: user?.subscriptionId },
+      },
+   })
+
    React.useEffect(() => {
-      if (state.isCartFull) {
+      if (
+         !productsAggregateLoading &&
+         state.isCartFull &&
+         productsAggregate?.aggregate?.count > 0
+      ) {
          toggleTunnel(state.isCartFull)
       }
-   }, [state.isCartFull])
+   }, [state.isCartFull, productsAggregateLoading])
 
    const isRemovable =
       ['CART_PENDING', undefined].includes(
