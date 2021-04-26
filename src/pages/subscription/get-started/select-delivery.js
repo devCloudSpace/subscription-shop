@@ -1,5 +1,4 @@
 import React from 'react'
-import { isEmpty } from 'lodash'
 import { navigate } from 'gatsby'
 import tw, { styled, css } from 'twin.macro'
 import { useMutation, useQuery } from '@apollo/react-hooks'
@@ -7,12 +6,7 @@ import { useToasts } from 'react-toast-notifications'
 import { webRenderer } from '@dailykit/web-renderer'
 
 import { useConfig } from '../../../lib'
-import {
-   BRAND,
-   DELETE_CART,
-   DELETE_OCCURENCE_CUSTOMER,
-   GET_FILEID,
-} from '../../../graphql'
+import { BRAND, DELETE_OCCURENCE_CUSTOMER, GET_FILEID } from '../../../graphql'
 import { useUser } from '../../../context'
 import { SEO, Layout, StepsNavbar, Loader, Button } from '../../../components'
 
@@ -52,20 +46,6 @@ const DeliveryContent = () => {
    const { addToast } = useToasts()
    const { brand, configOf } = useConfig()
    const [deleteOccurenceCustomer] = useMutation(DELETE_OCCURENCE_CUSTOMER, {
-      onError: error => console.log('DELETE CART -> ERROR -> ', error),
-   })
-   const [deleteCart] = useMutation(DELETE_CART, {
-      onCompleted: async ({ deleteCart = {} }) => {
-         if (isEmpty(deleteCart)) return
-         const { id, customerKeycloakId, subscriptionOccurenceId } = deleteCart
-         await deleteOccurenceCustomer({
-            variables: {
-               brand_customerId: brand?.id,
-               subscriptionOccurenceId,
-               keycloakId: customerKeycloakId,
-            },
-         })
-      },
       onError: error => console.log('DELETE CART -> ERROR -> ', error),
    })
    const { loading } = useQuery(GET_FILEID, {
@@ -116,11 +96,6 @@ const DeliveryContent = () => {
    const [updateBrandCustomer] = useMutation(BRAND.CUSTOMER.UPDATE, {
       refetchQueries: ['customer'],
       onCompleted: () => {
-         // if (!isEmpty(user?.carts)) {
-         //    user.carts.forEach(cart => {
-         //       deleteCart({ variables: { id: cart?.id } })
-         //    })
-         // }
          addToast('Successfully saved delivery preferences.', {
             appearance: 'success',
          })
@@ -162,9 +137,7 @@ const DeliveryContent = () => {
       return true
    }
    const theme = configOf('theme-color', 'Visual')
-   if (loading) {
-      return <Loader />
-   }
+   if (loading) return <Loader inline />
    return (
       <Main>
          <header css={tw`flex items-center justify-between border-b`}>

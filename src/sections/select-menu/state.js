@@ -7,7 +7,7 @@ import { useMutation, useQuery, useSubscription } from '@apollo/react-hooks'
 
 import { useConfig } from '../../lib'
 import { useUser } from '../../context'
-import { Loader } from '../../components'
+import { PageLoader } from '../../components'
 import {
    ZIPCODE,
    MUTATIONS,
@@ -413,7 +413,7 @@ export const MenuProvider = ({ children }) => {
       occurenceCustomerLoading ||
       !state.week.id
    )
-      return <Loader inline />
+      return <PageLoader />
    return (
       <MenuContext.Provider
          value={{
