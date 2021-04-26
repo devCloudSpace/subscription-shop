@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link } from 'gatsby'
+import { Link, navigate } from 'gatsby'
 import { isEmpty, uniqBy } from 'lodash'
 import tw, { styled, css } from 'twin.macro'
 import { useQuery } from '@apollo/react-hooks'
@@ -114,6 +114,9 @@ const Product = ({
    const { addToast } = useToasts()
    const { state, methods } = useMenu()
 
+   const openRecipe = () =>
+      navigate(`/subscription/recipes/?id=${node?.productOption?.id}`)
+
    const add = item => {
       if (state.occurenceCustomer?.betweenPause) {
          return addToast('You have paused your plan!', {
@@ -165,7 +168,7 @@ const Product = ({
          )}
          <div
             tw="flex items-center justify-center aspect-w-4 aspect-h-3 bg-gray-200 mb-2 rounded overflow-hidden cursor-pointer"
-            onClick={() => console.log('Navigate')}
+            onClick={openRecipe}
          >
             {product.image ? (
                <ReactImageFallback
@@ -186,10 +189,7 @@ const Product = ({
                tw="flex-shrink-0"
                className={`${isActive ? 'active' : ''}`}
             />
-            <Styles.GhostLink
-               theme={theme}
-               onClick={() => console.log('Navigate')}
-            >
+            <Styles.GhostLink theme={theme} onClick={openRecipe}>
                {product.name} - {product.label}
             </Styles.GhostLink>
          </section>
