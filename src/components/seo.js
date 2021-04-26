@@ -31,23 +31,22 @@ export const SEO = ({
    const { favicon } = useConfig().configOf('theme-brand', 'brand')
    const seo = useConfig().configOf('seo', 'App')
 
+   const path = location.pathname.replace('/subscription', '')
+
    console.log({ seo })
 
    const metaTitle =
-      title ||
-      seo[location.pathname]?.title ||
-      seo['/']?.title ||
-      'Meal Kit Store'
+      title || seo[path]?.title || seo['/']?.title || 'Meal Kit Store'
 
    const metaDescription =
       description ||
-      seo[location.pathname]?.description ||
+      seo[path]?.description ||
       seo['/']?.description ||
       'A subscription based meal kit store'
 
    const metaImage =
       image ||
-      seo[location.pathname]?.image ||
+      seo[path]?.image ||
       seo['/'].image ||
       'https://dailykit-133-test.s3.amazonaws.com/images/1596121558382.png'
 
