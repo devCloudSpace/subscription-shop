@@ -3,8 +3,18 @@ import PropTypes from 'prop-types'
 import { Helmet } from 'react-helmet'
 import { useConfig } from '../lib'
 import { useStaticQuery, graphql } from 'gatsby'
+import { useLocation } from '@reach/router'
 
-export const SEO = ({ description, title, lang = 'en', meta, richresult }) => {
+export const SEO = ({
+   description,
+   title,
+   image,
+   lang = 'en',
+   meta,
+   richresult,
+}) => {
+   const location = useLocation()
+
    const { site } = useStaticQuery(
       graphql`
          query {
@@ -19,9 +29,26 @@ export const SEO = ({ description, title, lang = 'en', meta, richresult }) => {
    )
 
    const { favicon } = useConfig().configOf('theme-brand', 'brand')
+   const seo = useConfig().configOf('seo', 'App')
 
-   const metaTitle = title || site.siteMetadata.title
-   const metaDescription = description || site.siteMetadata.description
+   const path = location.pathname.replace('/subscription', '')
+
+   console.log({ seo })
+
+   const metaTitle =
+      title || seo[path]?.title || seo['/']?.title || 'Meal Kit Store'
+
+   const metaDescription =
+      description ||
+      seo[path]?.description ||
+      seo['/']?.description ||
+      'A subscription based meal kit store'
+
+   const metaImage =
+      image ||
+      seo[path]?.image ||
+      seo['/'].image ||
+      'https://dailykit-133-test.s3.amazonaws.com/images/1596121558382.png'
 
    return (
       <Helmet
@@ -32,10 +59,12 @@ export const SEO = ({ description, title, lang = 'en', meta, richresult }) => {
             { name: `description`, content: metaDescription },
             { property: `og:title`, content: metaTitle },
             { property: `og:description`, content: metaDescription },
+            { property: `og:image`, content: metaImage },
             { property: `og:type`, content: `website` },
             { name: `twitter:card`, content: `summary` },
             { name: `twitter:title`, content: metaTitle },
             { name: `twitter:description`, content: metaDescription },
+            { property: `twitter:image:src`, content: metaImage },
          ].concat(meta)}
          link={[{ rel: 'icon', type: 'image/png', href: favicon }]}
          script={[
