@@ -1,22 +1,17 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { Link } from 'gatsby'
-import tw, { styled, css } from 'twin.macro'
 import 'regenerator-runtime'
+import tw, { styled, css } from 'twin.macro'
 import { useQuery } from '@apollo/react-hooks'
-import { useConfig } from '../../lib'
-import { GET_FILEID } from '../../graphql'
-import { useUser } from '../../context'
-import { SEO, Layout, Loader } from '../../components'
-import { FaqSection, InfoSection } from '../../sections'
 import { webRenderer } from '@dailykit/web-renderer'
+
 import { isClient } from '../../utils'
+import { GET_FILEID } from '../../graphql'
+import { SEO, Layout, PageLoader } from '../../components'
 import { useQueryParams } from '../../utils/useQueryParams'
 
 export default () => {
-   const { configOf } = useConfig()
-   const { user, isAuthenticated } = useUser()
    const params = useQueryParams()
-   const theme = configOf('theme-color', 'Visual')
 
    const { loading } = useQuery(GET_FILEID, {
       variables: {
@@ -64,23 +59,6 @@ export default () => {
       },
    })
 
-   // useEffect(() => {
-   //    webRenderer({
-   //       type: 'file',
-   //       config: {
-   //          uri: window._env_.GATSBY_DATA_HUB_HTTPS,
-   //          adminSecret: window._env_.GATSBY_ADMIN_SECRET,
-   //       },
-   //       fileDetails:[
-   //          {
-   //             elementId: 'home-bottom-01',
-   //             fileId: file,
-   //          }
-   //       ]
-
-   //    })
-   // }, [file])
-
    React.useEffect(() => {
       if (params) {
          const code = params['invite-code']
@@ -97,7 +75,7 @@ export default () => {
       }
    }, [params])
 
-   if (loading) return <Loader />
+   if (loading) return <PageLoader />
 
    return (
       <Layout>

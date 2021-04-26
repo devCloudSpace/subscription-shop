@@ -58,7 +58,7 @@ const Content = () => {
       }
    )
 
-   if (loading) return <Loader />
+   if (loading) return <Loader inline />
    return (
       <section tw="px-6 w-full md:w-5/12">
          <header tw="mt-6 mb-3 flex items-center justify-between">

@@ -1,20 +1,15 @@
-import React, { useState, useEffect } from 'react'
-import { isEmpty } from 'lodash'
+import React from 'react'
 import tw, { styled } from 'twin.macro'
-import { webRenderer } from '@dailykit/web-renderer'
 import { useQuery } from '@apollo/react-hooks'
-import { GET_FILEID } from '../../../graphql'
-import { useConfig } from '../../../lib'
-import { InfoSection } from '../../../sections'
-import { Plans } from '../../../sections/select-plan'
-import { SEO, Layout, StepsNavbar, Loader } from '../../../components'
+import { webRenderer } from '@dailykit/web-renderer'
+
 import { isClient } from '../../../utils'
+import { GET_FILEID } from '../../../graphql'
+import { Plans } from '../../../sections/select-plan'
+import { SEO, Layout, StepsNavbar } from '../../../components'
 
 const SelectPlan = () => {
-   const { configOf } = useConfig('Select-Plan')
-   const config = configOf('select-plan-header')
-   // const [file, setFile] = useState([])
-   const { loading } = useQuery(GET_FILEID, {
+   useQuery(GET_FILEID, {
       variables: {
          divId: ['select-plan-top-01', 'select-plan-bottom-01'],
       },
@@ -87,38 +82,6 @@ const SelectPlan = () => {
       },
    })
 
-   // useEffect(() => {
-   //    webRenderer({
-   //       type: 'file',
-   //       config: {
-   //          uri: window._env_.GATSBY_DATA_HUB_HTTPS,
-   //          adminSecret: window._env_.GATSBY_ADMIN_SECRET,
-   //       },
-   //       fileDetails:[
-   //          {
-   //             elementId:'select-plan-top-01',
-   //             fileId: file.filter(f=>f.id==='select-plan-top-01'),
-   //             cssId: file.filter(f=>f.)
-
-   //          }
-   //       ]
-   //       elementId: 'select-plan-top-01',
-   //       fileId: fileId[0],
-   //    })
-   // }, [fileId])
-   // useEffect(() => {
-   //    webRenderer({
-   //       type: 'file',
-   //       config: {
-   //          uri: window._env_.GATSBY_DATA_HUB_HTTPS,
-   //          adminSecret: window._env_.GATSBY_ADMIN_SECRET,
-   //       },
-   //       elementId: 'select-plan-bottom-01',
-   //       fileId: fileId[1],
-   //    })
-   // }, [fileId])
-
-   if (loading) return <Loader />
    return (
       <Layout noHeader>
          <SEO title="Plans" />
