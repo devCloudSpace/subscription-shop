@@ -5,9 +5,10 @@ import ReactImageFallback from 'react-image-fallback'
 import { formatCurrency } from '../utils'
 import { CloseIcon } from '../assets/icons'
 import { useConfig } from '../lib'
+import { Loader } from './loader'
 
 export const CartProduct = ({ product, isRemovable, onDelete }) => {
-   const { buildImageUrl, noProductImage, imagePlaceholder } = useConfig()
+   const { buildImageUrl, noProductImage } = useConfig()
    return (
       <Wrapper>
          <aside tw="flex-shrink-0 relative aspect-w-4 aspect-h-3">
@@ -15,7 +16,7 @@ export const CartProduct = ({ product, isRemovable, onDelete }) => {
                <ReactImageFallback
                   src={buildImageUrl('100x75', product.image)}
                   fallbackImage={product.image}
-                  initialImage={imagePlaceholder}
+                  initialImage={<Loader />}
                   alt={product.name}
                   className="image__thumbnail"
                />

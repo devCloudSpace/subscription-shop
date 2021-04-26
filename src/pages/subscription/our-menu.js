@@ -37,13 +37,9 @@ const Content = () => {
    const [current, setCurrent] = React.useState(0)
    const [occurences, setOccurences] = React.useState([])
    const [categories, setCategories] = React.useState([])
-   const {
-      brand,
-      configOf,
-      buildImageUrl,
-      noProductImage,
-      imagePlaceholder,
-   } = useConfig('conventions')
+   const { brand, configOf, buildImageUrl, noProductImage } = useConfig(
+      'conventions'
+   )
 
    const [fetchProducts, { loading: loadingProducts }] = useLazyQuery(
       OCCURENCE_PRODUCTS_BY_CATEGORIES,
@@ -398,7 +394,6 @@ const Content = () => {
                                  key={node.id}
                                  buildImageUrl={buildImageUrl}
                                  noProductImage={noProductImage}
-                                 imagePlaceholder={imagePlaceholder}
                               />
                            ))}
                         </Products>
@@ -424,13 +419,7 @@ const Content = () => {
    )
 }
 
-const Product = ({
-   node,
-   theme,
-   noProductImage,
-   buildImageUrl,
-   imagePlaceholder,
-}) => {
+const Product = ({ node, theme, noProductImage, buildImageUrl }) => {
    const product = {
       name: node?.productOption?.product?.name || '',
       label: node?.productOption?.label || '',
@@ -461,7 +450,7 @@ const Product = ({
                <ReactImageFallback
                   src={buildImageUrl('400x300', product.image)}
                   fallbackImage={product.image}
-                  initialImage={imagePlaceholder}
+                  initialImage={<Loader />}
                   alt={product.name}
                   className="image__thumbnail"
                />

@@ -9,7 +9,7 @@ import { useToasts } from 'react-toast-notifications'
 import { useMenu } from './state'
 import { useConfig } from '../../lib'
 import { useUser } from '../../context'
-import { HelperBar } from '../../components'
+import { HelperBar, Loader } from '../../components'
 import { formatCurrency } from '../../utils'
 import { SkeletonProduct } from './skeletons'
 import { CheckIcon } from '../../assets/icons'
@@ -21,12 +21,7 @@ export const Menu = () => {
    const { user } = useUser()
    const { addToast } = useToasts()
    const { state } = useMenu()
-   const {
-      configOf,
-      buildImageUrl,
-      noProductImage,
-      imagePlaceholder,
-   } = useConfig()
+   const { configOf, buildImageUrl, noProductImage } = useConfig()
    const { loading, data: { categories = [] } = {} } = useQuery(
       OCCURENCE_PRODUCTS_BY_CATEGORIES,
       {
@@ -93,7 +88,6 @@ export const Menu = () => {
                         isAdded={isAdded}
                         buildImageUrl={buildImageUrl}
                         noProductImage={noProductImage}
-                        imagePlaceholder={imagePlaceholder}
                      />
                   ))}
                </Products>
@@ -103,14 +97,7 @@ export const Menu = () => {
    )
 }
 
-const Product = ({
-   node,
-   theme,
-   isAdded,
-   noProductImage,
-   buildImageUrl,
-   imagePlaceholder,
-}) => {
+const Product = ({ node, theme, isAdded, noProductImage, buildImageUrl }) => {
    const { addToast } = useToasts()
    const { state, methods } = useMenu()
 
@@ -171,7 +158,7 @@ const Product = ({
                <ReactImageFallback
                   src={buildImageUrl('400x300', product.image)}
                   fallbackImage={product.image}
-                  initialImage={imagePlaceholder}
+                  initialImage={<Loader />}
                   alt={product.name}
                   className="image__thumbnail"
                />
