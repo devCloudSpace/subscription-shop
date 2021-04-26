@@ -15,6 +15,19 @@ export const onRenderBody = ({ setPostBodyComponents }) => {
    ])
 }
 
+export const onPreRenderHTML = ({
+   replaceHeadComponents,
+   getHeadComponents,
+}) => {
+   const headComponents = getHeadComponents()
+   headComponents.forEach(head => {
+      if (head.props && head.props['data-react-helmet']) {
+         delete head.props['data-react-helmet']
+      }
+   })
+   replaceHeadComponents(headComponents)
+}
+
 export const wrapRootElement = ({ element }) => {
    return <App element={element} />
 }
