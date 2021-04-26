@@ -4,7 +4,7 @@ import React from 'react'
 import moment from 'moment'
 import { Link } from 'gatsby'
 import { rrulestr } from 'rrule'
-import tw, { styled } from 'twin.macro'
+import tw, { styled, css } from 'twin.macro'
 import ReactImageFallback from 'react-image-fallback'
 import { isEmpty, uniqBy } from 'lodash'
 import { useLazyQuery, useQuery } from '@apollo/react-hooks'
@@ -207,6 +207,8 @@ const Content = () => {
    })
 
    const config = configOf('primary-labels')
+   const theme = configOf('theme-color', 'Visual')
+
    const yieldLabel = {
       singular: config?.yieldLabel?.singular || 'serving',
       plural: config?.yieldLabel?.singular || 'servings',
@@ -392,6 +394,7 @@ const Content = () => {
                            ).map((node, index) => (
                               <Product
                                  node={node}
+                                 theme={theme}
                                  key={node.id}
                                  buildImageUrl={buildImageUrl}
                                  noProductImage={noProductImage}
@@ -421,7 +424,13 @@ const Content = () => {
    )
 }
 
-const Product = ({ node, noProductImage, buildImageUrl, imagePlaceholder }) => {
+const Product = ({
+   node,
+   theme,
+   noProductImage,
+   buildImageUrl,
+   imagePlaceholder,
+}) => {
    const product = {
       name: node?.productOption?.product?.name || '',
       label: node?.productOption?.label || '',
@@ -436,24 +445,18 @@ const Product = ({ node, noProductImage, buildImageUrl, imagePlaceholder }) => {
       <Styles.Product>
          {!!product.type && (
             <Styles.Type>
-               {product.type === 'Non-vegetarian' ? (
-                  <img
-                     alt="Non-Veg Icon"
-                     src={NonVegIcon}
-                     title={product.type}
-                     tw="h-6 w-6"
-                  />
-               ) : (
-                  <img
-                     alt="Veg Icon"
-                     src={VegIcon}
-                     title={product.type}
-                     tw="h-6 w-6"
-                  />
-               )}
+               <img
+                  alt="Non-Veg Icon"
+                  src={product.type === 'Non-vegetarian' ? NonVegIcon : VegIcon}
+                  title={product.type}
+                  tw="h-6 w-6"
+               />
             </Styles.Type>
          )}
-         <div tw="flex items-center justify-center aspect-w-4 aspect-h-3 bg-gray-200 mb-2 rounded overflow-hidden">
+         <div
+            tw="flex items-center justify-center aspect-w-4 aspect-h-3 bg-gray-200 mb-2 rounded overflow-hidden cursor-pointer"
+            onClick={() => console.log('Navigate')}
+         >
             {product.image ? (
                <ReactImageFallback
                   src={buildImageUrl('400x300', product.image)}
@@ -467,14 +470,15 @@ const Product = ({ node, noProductImage, buildImageUrl, imagePlaceholder }) => {
             )}
          </div>
          {node?.addOnLabel && <Label>{node?.addOnLabel}</Label>}
-         <div tw="flex items-center justify-between">
-            <section>
-               <Link tw="text-gray-700" to={'#'}>
-                  {product.name} - {product.label}
-               </Link>
-               <p>{product?.additionalText}</p>
-            </section>
-         </div>
+         <section>
+            <Styles.GhostLink
+               theme={theme}
+               onClick={() => console.log('Navigate')}
+            >
+               {product.name} - {product.label}
+            </Styles.GhostLink>
+         </section>
+         <p>{product?.additionalText}</p>
       </Styles.Product>
    )
 }
@@ -490,7 +494,16 @@ const Styles = {
       position: absolute;
       top: 8px;
       right: 8px;
+      z-index: 1;
    `,
+   GhostLink: styled.a(
+      ({ theme }) => css`
+         ${tw`text-gray-700 cursor-pointer`}
+         &:hover {
+            color: ${theme?.accent || 'teal'};
+         }
+      `
+   ),
 }
 
 const Main = styled.main`

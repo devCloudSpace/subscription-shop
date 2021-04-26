@@ -155,24 +155,18 @@ const Product = ({
       <Styles.Product theme={theme} className={`${isActive ? 'active' : ''}`}>
          {!!product.type && (
             <Styles.Type>
-               {product.type === 'Non-vegetarian' ? (
-                  <img
-                     alt="Non-Veg Icon"
-                     src={NonVegIcon}
-                     title={product.type}
-                     tw="h-6 w-6"
-                  />
-               ) : (
-                  <img
-                     alt="Veg Icon"
-                     src={VegIcon}
-                     title={product.type}
-                     tw="h-6 w-6"
-                  />
-               )}
+               <img
+                  alt="Non-Veg Icon"
+                  src={product.type === 'Non-vegetarian' ? NonVegIcon : VegIcon}
+                  title={product.type}
+                  tw="h-6 w-6"
+               />
             </Styles.Type>
          )}
-         <div tw="flex items-center justify-center aspect-w-4 aspect-h-3 bg-gray-200 mb-2 rounded overflow-hidden">
+         <div
+            tw="flex items-center justify-center aspect-w-4 aspect-h-3 bg-gray-200 mb-2 rounded overflow-hidden cursor-pointer"
+            onClick={() => console.log('Navigate')}
+         >
             {product.image ? (
                <ReactImageFallback
                   src={buildImageUrl('400x300', product.image)}
@@ -186,45 +180,43 @@ const Product = ({
             )}
          </div>
          {node.addOnLabel && <Label>{node.addOnLabel}</Label>}
-         <div css={tw`flex items-center justify-between`}>
-            <section tw="flex items-center">
-               <Check
-                  size={16}
-                  tw="flex-shrink-0"
-                  className={`${isActive ? 'active' : ''}`}
-               />
-               <Link tw="text-gray-700" to={'#'}>
-                  {product.name} - {product.label}
-               </Link>
-            </section>
-            {canAdd() && (
-               <button
-                  disabled={!node.isAvailable}
-                  onClick={() => add(node.cartItem)}
-                  title={
-                     node.isAvailable
-                        ? 'Add product'
-                        : 'This product is out of stock.'
-                  }
-                  css={[
-                     tw`flex-shrink-0 text-sm uppercase font-bold tracking-wider border border-gray-300 rounded px-1 text-gray-500`,
-                     !node.isAvailable && tw`cursor-not-allowed text-gray-400`,
-                  ]}
-               >
-                  {node.isAvailable ? (
-                     <>
-                        {isActive ? 'REPEAT' : 'ADD'}
-                        {node.addOnPrice > 0 && ' + '}
-                        {node.addOnPrice > 0 &&
-                           formatCurrency(Number(node.addOnPrice) || 0)}
-                     </>
-                  ) : (
-                     'Out of Stock'
-                  )}
-               </button>
-            )}
-         </div>
-         <p>{product?.additionalText}</p>
+         <section tw="flex items-center mb-1">
+            <Check
+               size={16}
+               tw="flex-shrink-0"
+               className={`${isActive ? 'active' : ''}`}
+            />
+            <Styles.GhostLink
+               theme={theme}
+               onClick={() => console.log('Navigate')}
+            >
+               {product.name} - {product.label}
+            </Styles.GhostLink>
+         </section>
+         <p tw="mb-1">{product?.additionalText}</p>
+         {canAdd() && (
+            <Styles.Button
+               theme={theme}
+               disabled={!node.isAvailable}
+               onClick={() => add(node.cartItem)}
+               title={
+                  node.isAvailable
+                     ? 'Add product'
+                     : 'This product is out of stock.'
+               }
+            >
+               {node.isAvailable ? (
+                  <>
+                     {isActive ? 'REPEAT' : 'ADD'}
+                     {node.addOnPrice > 0 && ' + '}
+                     {node.addOnPrice > 0 &&
+                        formatCurrency(Number(node.addOnPrice) || 0)}
+                  </>
+               ) : (
+                  'Out of Stock'
+               )}
+            </Styles.Button>
+         )}
       </Styles.Product>
    )
 }
@@ -243,7 +235,28 @@ const Styles = {
       position: absolute;
       top: 8px;
       right: 8px;
+      z-index: 1;
    `,
+   GhostLink: styled.a(
+      ({ theme }) => css`
+         ${tw`text-gray-700 cursor-pointer`}
+         &:hover {
+            color: ${theme?.accent || 'teal'};
+         }
+      `
+   ),
+   Button: styled.button(
+      ({ theme, disabled }) => css`
+         ${tw`text-sm uppercase font-bold tracking-wider border border-2 border-gray-300 rounded p-2 text-gray-500 w-full`}
+         ${disabled && tw`cursor-not-allowed text-gray-400`}
+         transition: all 0.2s ease-in-out;
+         &:hover {
+            background: ${theme?.accent || 'teal'};
+            color: white;
+            border-color: ${theme?.accent || 'teal'};
+         }
+      `
+   ),
 }
 
 const Products = styled.ul`
