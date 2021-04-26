@@ -108,7 +108,7 @@ const Product = ({ node, theme, isAdded, noProductImage, buildImageUrl }) => {
          })
       }
       if (state.occurenceCustomer?.validStatus?.itemCountValid) {
-         addToast("Your're cart is already full!", {
+         addToast("You're cart is already full!", {
             appearance: 'warning',
          })
          return
