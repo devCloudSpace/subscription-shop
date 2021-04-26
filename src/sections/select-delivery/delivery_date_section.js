@@ -127,7 +127,7 @@ const DeliveryDateLeft = styled.aside(
    () => css`
       width: 48px;
       height: 48px;
-      ${tw`border-r border-gray-300 h-full mr-2 flex flex-shrink-0 items-center justify-center bg-gray-200`}
+      ${tw`h-full mr-2 flex flex-shrink-0 items-center justify-center`}
       &.active {
          svg {
             ${tw`text-green-700`}
