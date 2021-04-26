@@ -45,9 +45,8 @@ const Content = () => {
       OCCURENCE_PRODUCTS_BY_CATEGORIES,
       {
          onCompleted: ({ categories = [] }) => {
-            if (categories.length > 0) {
-               setCategories(categories)
-            }
+            setCategories(categories)
+            return
          },
       }
    )
@@ -339,25 +338,27 @@ const Content = () => {
                <SliderButton onClick={previous}>
                   <ArrowLeftIcon tw="stroke-current text-green-800" />
                </SliderButton>
-               <span tw="flex items-center justify-center text-base text-center md:text-lg text-indigo-800">
-                  Showing menu of:&nbsp;
-                  {formatDate(
-                     moment(occurences[current].fulfillmentDate)
-                        .subtract(7, 'days')
-                        .format('YYYY-MM-DD'),
-                     {
+               {current in occurences && (
+                  <span tw="flex items-center justify-center text-base text-center md:text-lg text-indigo-800">
+                     Showing menu of:&nbsp;
+                     {formatDate(
+                        moment(occurences[current]?.fulfillmentDate)
+                           .subtract(7, 'days')
+                           .format('YYYY-MM-DD'),
+                        {
+                           month: 'short',
+                           day: 'numeric',
+                           year: 'numeric',
+                        }
+                     )}
+                     &nbsp;-&nbsp;
+                     {formatDate(occurences[current]?.fulfillmentDate, {
                         month: 'short',
                         day: 'numeric',
                         year: 'numeric',
-                     }
-                  )}
-                  &nbsp;-&nbsp;
-                  {formatDate(occurences[current].fulfillmentDate, {
-                     month: 'short',
-                     day: 'numeric',
-                     year: 'numeric',
-                  })}
-               </span>
+                     })}
+                  </span>
+               )}
 
                <SliderButton onClick={next}>
                   <ArrowRightIcon tw="stroke-current text-green-800" />
