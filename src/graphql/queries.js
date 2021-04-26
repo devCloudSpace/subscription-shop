@@ -218,7 +218,9 @@ export const OCCURENCE_PRODUCTS_BY_CATEGORIES = gql`
                   id
                   label
                   simpleRecipeYield {
+                     yield
                      simpleRecipe {
+                        id
                         type
                      }
                   }
@@ -235,27 +237,53 @@ export const OCCURENCE_PRODUCTS_BY_CATEGORIES = gql`
 `
 
 export const RECIPE_DETAILS = gql`
-   query product($id: Int!, $yieldId: Int!) {
-      product: simpleRecipeProduct(id: $id) {
+   query productOption($optionId: Int!) {
+      productOption(id: $optionId) {
          id
-         recipe: simpleRecipe {
+         label
+         product {
             id
             name
-            author
-            cookingTime
-            cuisine
-            description
-            image
-            assets
-            richResult
-            yields: simpleRecipeYields(where: { id: { _eq: $yieldId } }) {
-               id
-               yield
-               sachets: ingredientSachets {
-                  isVisible
-                  slipName
-                  ingredient: ingredientSachet {
+         }
+         simpleRecipeYield {
+            id
+            yield
+            sachets: ingredientSachets {
+               isVisible
+               slipName
+               sachet: ingredientSachet {
+                  id
+                  quantity
+                  unit
+                  ingredient {
                      id
+                     assets
+                  }
+               }
+            }
+            simpleRecipe {
+               id
+               name
+               type
+               author
+               cookingTime
+               cuisine
+               description
+               assets
+               utensils
+               notIncluded
+               showIngredients
+               showIngredientsQuantity
+               showProcedures
+               instructionSets(order_by: { position: desc_nulls_last }) {
+                  id
+                  title
+                  instructionSteps(order_by: { position: desc_nulls_last }) {
+                     id
+                     assets
+                     description
+                     isVisible
+                     title
                   }
                }
             }

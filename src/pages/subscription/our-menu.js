@@ -2,7 +2,7 @@
 
 import React from 'react'
 import moment from 'moment'
-import { Link } from 'gatsby'
+import { Link, navigate } from 'gatsby'
 import { rrulestr } from 'rrule'
 import tw, { styled, css } from 'twin.macro'
 import ReactImageFallback from 'react-image-fallback'
@@ -450,6 +450,10 @@ const Product = ({ node, theme, noProductImage, buildImageUrl }) => {
             : null,
       additionalText: node?.productOption?.product?.additionalText || '',
    }
+
+   const openRecipe = () =>
+      navigate(`/subscription/recipes/?id=${node?.productOption?.id}`)
+
    return (
       <Styles.Product>
          {!!product.type && (
@@ -464,7 +468,7 @@ const Product = ({ node, theme, noProductImage, buildImageUrl }) => {
          )}
          <div
             tw="flex items-center justify-center aspect-w-4 aspect-h-3 bg-gray-200 mb-2 rounded overflow-hidden cursor-pointer"
-            onClick={() => console.log('Navigate')}
+            onClick={openRecipe}
          >
             {product.image ? (
                <ReactImageFallback
@@ -480,10 +484,7 @@ const Product = ({ node, theme, noProductImage, buildImageUrl }) => {
          </div>
          {node?.addOnLabel && <Label>{node?.addOnLabel}</Label>}
          <section>
-            <Styles.GhostLink
-               theme={theme}
-               onClick={() => console.log('Navigate')}
-            >
+            <Styles.GhostLink theme={theme} onClick={openRecipe}>
                {product.name} - {product.label}
             </Styles.GhostLink>
          </section>
